@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Homepage Testimonials — Admin{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('Homepage Testimonials', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Homepage Testimonials</h1>
+<p class="muted">Manage the testimonials carousel shown on the homepage.</p>
+
+<div class="actions-inline" style="margin-top:1.25rem;">
+  <form method="get" action="{{ url_for('admin.home_testimonials') }}" style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:flex-end;">
+    <div>
+      <label class="muted" style="font-weight:600;font-size:0.85rem;">Search</label>
+      <input type="text" name="q" value="{{ q }}" placeholder="Name..." style="min-width:240px;">
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm">Search</button>
+  </form>
+  <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.home_testimonials') }}">Reset</a>
+</div>
+
+<div class="card-premium reveal" style="padding:0;margin-top:1rem;overflow-x:auto;">
+  <table class="table-modern">
+    <thead>
+      <tr>
+        <th>Order</th>
+        <th>Name</th>
+        <th>City</th>
+        <th>Rating</th>
+        <th>Active</th>
+        <th style="width:220px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in items %}
+      <tr>
+        <td style="font-weight:600;">{{ it.display_order }}</td>
+        <td><strong>{{ it.name }}</strong><br><span class="muted" style="font-size:0.85rem;">{{ it.quote[:90] }}{% if it.quote|length > 90 %}…{% endif %}</span></td>
+        <td>{{ it.city }}</td>
+        <td>{{ it.rating }}/5</td>
+        <td><span class="level-pill" style="font-size:0.65rem;">{{ 'Yes' if it.is_active else 'No' }}</span></td>
+        <td>
+          <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.home_testimonials', q=q, page=page, edit=it.id) }}">Edit</a>
+          <form method="post" action="{{ url_for('admin.home_testimonials_delete', item_id=it.id) }}" style="display:inline;margin-left:0.5rem;" onsubmit="return confirm('Delete this testimonial?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn-sm" style="color:#dc3545;">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      {% if not items %}
+      <tr><td colspan="6" class="muted">No testimonials yet.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+<div class="card-premium surface-card-lg reveal" style="margin-top:1.5rem;">
+  <h2 class="page-title" style="font-size:1.2rem;margin-bottom:0.25rem;">{% if edit_item %}Edit{% else %}Create{% endif %} Testimonial</h2>
+
+  <form method="post" action="{{ url_for('admin.home_testimonials', q=q, page=1) }}" class="form-modern" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="item_id" value="{{ edit_item.id if edit_item else '' }}">
+
+    <div class="form-grid-2">
+      <div>
+        <label>Name *</label>
+        <input type="text" name="name" required value="{{ edit_item.name if edit_item else '' }}">
+      </div>
+      <div>
+        <label>City</label>
+        <input type="text" name="city" value="{{ edit_item.city if edit_item else '' }}">
+      </div>
+    </div>
+
+    <div class="form-grid-2">
+      <div>
+        <label>Course completed</label>
+        <input type="text" name="course_completed" value="{{ edit_item.course_completed if edit_item else '' }}">
+      </div>
+      <div>
+        <label>Rating (1-5)</label>
+        <input type="number" min="1" max="5" name="rating" value="{{ edit_item.rating if edit_item else 5 }}">
+      </div>
+    </div>
+
+    <label style="margin-top:1rem;">Quote *</label>
+    <textarea name="quote" rows="4" required>{{ edit_item.quote if edit_item else '' }}</textarea>
+
+    <div class="form-grid-2">
+      <div>
+        <label style="margin-top:1rem;">Display order</label>
+        <input type="number" name="display_order" min="0" value="{{ edit_item.display_order if edit_item else 0 }}">
+      </div>
+      <div>
+        <label style="margin-top:1rem;">Active</label>
+        <select name="is_active">
+          <option value="1" {% if edit_item is none or edit_item.is_active %}selected{% endif %}>Yes</option>
+          <option value="0" {% if edit_item and not edit_item.is_active %}selected{% endif %}>No</option>
+        </select>
+      </div>
+    </div>
+
+    <label style="margin-top:1rem;">Profile image (optional)</label>
+    <input type="file" name="image" accept="image/*">
+
+    <div class="form-actions-row">
+      <button type="submit" class="btn btn-primary">Save testimonial</button>
+      {% if edit_item %}
+      <a class="btn btn-ghost" href="{{ url_for('admin.home_testimonials') }}">Cancel</a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}
+

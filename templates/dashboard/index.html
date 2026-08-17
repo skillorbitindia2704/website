@@ -1,0 +1,72 @@
+{% extends "dashboard/layout.html" %}
+{% block title %}Dashboard — Skill Orbit India{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Dashboard', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block dash_content %}
+<h1 class="page-title">Welcome back, {{ (current_user.full_name or 'Learner').split()[0] }}</h1>
+<p class="muted">Track orders, courses, certificates, and climb the leaderboard.</p>
+
+<div class="stat-grid reveal">
+  <div class="stat-card">
+    <p class="num"><i class="ri-shopping-bag-line" aria-hidden="true"></i> {{ order_count }}</p>
+    <p class="lbl">Orders</p>
+  </div>
+  <div class="stat-card">
+    <p class="num"><i class="ri-book-open-line" aria-hidden="true"></i> {{ course_count }}</p>
+    <p class="lbl">Enrolled courses</p>
+  </div>
+  <div class="stat-card">
+    <p class="num"><i class="ri-certificate-line" aria-hidden="true"></i> {{ cert_count }}</p>
+    <p class="lbl">Certificates</p>
+  </div>
+  <div class="stat-card">
+    <p class="num"><i class="ri-notification-line" aria-hidden="true"></i> {{ unread_notifications }}</p>
+    <p class="lbl">Unread alerts</p>
+  </div>
+</div>
+
+<div class="grid-cards">
+  <div class="card-premium reveal surface-card">
+    <h3>Profile</h3>
+    <p class="muted">{{ current_user.email }}</p>
+    <p><span class="badge-pill">{{ current_user.badge }}</span></p>
+    <p class="muted">Bio: {{ current_user.bio or 'Add a short bio from your profile page.' }}</p>
+    <a href="{{ url_for('auth.profile') }}" class="btn btn-ghost btn-sm">Edit profile</a>
+  </div>
+  <div class="card-premium reveal surface-card">
+    <h3>Recent notifications</h3>
+    {% if recent_notes %}
+    <ul class="list-clean">
+      {% for n in recent_notes %}
+      <li>{{ n.message }}</li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">No notifications yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<h2>Leaderboard</h2>
+<div class="card-premium reveal" style="padding:0;">
+  <table class="table-modern">
+    <thead>
+      <tr><th>Rank</th><th>Learner</th><th>Points</th><th>Badge</th></tr>
+    </thead>
+    <tbody>
+      {% for u in top_users %}
+      <tr class="{% if u.id == current_user.id %}row-highlight{% endif %}">
+        <td>#{{ loop.index }}</td>
+        <td>{{ u.full_name }}{% if u.id == current_user.id %} (you){% endif %}</td>
+        <td>{{ u.points }}</td>
+        <td><span class="badge-pill">{{ u.badge }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

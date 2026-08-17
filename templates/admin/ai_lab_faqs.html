@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}AI Lab FAQs — Admin{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('AI Lab FAQs', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">AI Lab FAQs Manager</h1>
+<p class="muted">Manage the animated FAQ accordion content.</p>
+
+<div class="actions-inline" style="margin-top:1.25rem;">
+  <form method="get" action="{{ url_for('admin.ai_lab_faqs') }}" style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:flex-end;">
+    <div>
+      <label class="muted" style="font-weight:600;font-size:0.85rem;">Search</label>
+      <input type="text" name="q" value="{{ q }}" placeholder="Internet required, warranty..." style="min-width:240px;">
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm">Search</button>
+  </form>
+  <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.ai_lab_faqs') }}">Reset</a>
+</div>
+
+<div class="card-premium reveal" style="padding:0;margin-top:1rem;overflow-x:auto;">
+  <table class="table-modern">
+    <thead>
+      <tr>
+        <th>Order</th>
+        <th>Question</th>
+        <th>Category</th>
+        <th>Active</th>
+        <th style="width:220px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in items %}
+      <tr>
+        <td style="font-weight:600;">{{ it.display_order }}</td>
+        <td>
+          <strong>{{ it.question }}</strong>
+          <br><span class="muted" style="font-size:0.85rem;">{{ it.answer[:80] }}{% if it.answer|length > 80 %}…{% endif %}</span>
+        </td>
+        <td>{{ it.category or '' }}</td>
+        <td>
+          <span class="level-pill" style="font-size:0.65rem;background:{{ '#22c55e26' if it.is_active else '#6c757d26' }};color:{{ '#047857' if it.is_active else '#4b5563' }};border-color:transparent;">
+            {{ 'Yes' if it.is_active else 'No' }}
+          </span>
+        </td>
+        <td>
+          <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.ai_lab_faqs', q=q, page=page, edit=it.id) }}">Edit</a>
+          <form method="post" action="{{ url_for('admin.ai_lab_faqs_delete', item_id=it.id) }}" style="display:inline;margin-left:0.5rem;" onsubmit="return confirm('Delete this FAQ?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn-sm" style="color:#dc3545;">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      {% if not items %}
+      <tr><td colspan="5" class="muted">No FAQs yet.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+{% set total_pages = (total + per_page - 1) // per_page %}
+{% if total_pages > 1 %}
+<div style="margin-top:1rem;display:flex;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
+  <a class="btn btn-ghost btn-sm" {% if page <= 1 %}aria-disabled="true" style="opacity:0.5;pointer-events:none;"{% else %}href="{{ url_for('admin.ai_lab_faqs', q=q, page=page-1) }}"{% endif %}>Prev</a>
+  <div class="muted" style="align-self:center;">Page {{ page }} of {{ total_pages }}</div>
+  <a class="btn btn-ghost btn-sm" {% if page >= total_pages %}aria-disabled="true" style="opacity:0.5;pointer-events:none;"{% else %}href="{{ url_for('admin.ai_lab_faqs', q=q, page=page+1) }}"{% endif %}>Next</a>
+</div>
+{% endif %}
+
+<div class="card-premium surface-card-lg reveal" style="margin-top:1.5rem;">
+  <h2 class="page-title" style="font-size:1.2rem;margin-bottom:0.25rem;">{% if edit_item %}Edit{% else %}Create{% endif %} FAQ</h2>
+
+  <form method="post" action="{{ url_for('admin.ai_lab_faqs', q=q, page=1) }}" class="form-modern">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="item_id" value="{{ edit_item.id if edit_item else '' }}">
+
+    <label>Question *</label>
+    <input type="text" name="question" required value="{{ edit_item.question if edit_item else '' }}" />
+
+    <div class="form-grid-2">
+      <div>
+        <label style="margin-top:1rem;">Category</label>
+        <input type="text" name="category" value="{{ edit_item.category if edit_item else '' }}" />
+      </div>
+      <div>
+        <label style="margin-top:1rem;">Display order</label>
+        <input type="number" name="display_order" min="0" value="{{ edit_item.display_order if edit_item else 0 }}" />
+      </div>
+    </div>
+
+    <label style="margin-top:1rem;">Answer *</label>
+    <textarea name="answer" rows="5" required>{{ edit_item.answer if edit_item else '' }}</textarea>
+
+    <div class="form-grid-2">
+      <div>
+        <label style="margin-top:1rem;">Active</label>
+        <select name="is_active">
+          <option value="1" {% if edit_item is none or edit_item.is_active %}selected{% endif %}>Yes</option>
+          <option value="0" {% if edit_item and not edit_item.is_active %}selected{% endif %}>No</option>
+        </select>
+      </div>
+      <div></div>
+    </div>
+
+    <div class="form-actions-row">
+      <button type="submit" class="btn btn-primary">Save FAQ</button>
+      {% if edit_item %}
+      <a class="btn btn-ghost" href="{{ url_for('admin.ai_lab_faqs', q=q, page=1) }}">Cancel</a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}
+

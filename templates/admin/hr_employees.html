@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}HR Employees — Admin{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('HR & Payroll', url_for('admin.hr_management')), ('Employees', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1>HR Employee Directory</h1>
+<div class="form-actions" style="margin-bottom:1rem;">
+  <a href="{{ url_for('admin.hr_management') }}" class="btn btn-secondary btn-sm">Back to HR dashboard</a>
+</div>
+<p class="muted">Create and manage employee profiles for attendance, leave, and payroll operations.</p>
+<div class="card-premium form-modern reveal" style="padding:1.25rem;margin:1.25rem 0;">
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="grid-2 gap-4">
+      <label class="form-field">
+        <span>Linked user account (optional)</span>
+        <select name="user_id">
+          <option value="">-- Select user --</option>
+          {% for u in users %}
+          <option value="{{ u.id }}">{{ u.full_name }} — {{ u.email }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="form-field">
+        <span>Name</span>
+        <input type="text" name="name" required placeholder="Employee name">
+      </label>
+      <label class="form-field">
+        <span>Email</span>
+        <input type="email" name="email" required placeholder="name@example.com">
+      </label>
+      <label class="form-field">
+        <span>Designation</span>
+        <input type="text" name="designation" placeholder="Designation">
+      </label>
+      <label class="form-field">
+        <span>Department</span>
+        <input type="text" name="department" placeholder="Department">
+      </label>
+      <label class="form-field">
+        <span>Base salary</span>
+        <input type="number" step="0.01" name="base_salary" value="0.00" min="0">
+      </label>
+      <label class="form-field">
+        <span>Joining date</span>
+        <input type="date" name="joining_date" value="{{ today }}">
+      </label>
+    </div>
+    <div class="form-actions" style="margin-top:1rem;">
+      <button type="submit" class="btn btn-primary">Add employee</button>
+    </div>
+  </form>
+</div>
+
+<div class="card-premium reveal" style="overflow-x:auto; padding:1rem;">
+  <table class="table-modern" style="min-width:900px;">
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Designation</th>
+        <th>Department</th>
+        <th>Salary</th>
+        <th>Status</th>
+        <th>Joined</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for employee in employees %}
+      <tr>
+        <td>{{ employee.employee_code }}</td>
+        <td>{{ employee.display_name }}</td>
+        <td>{{ employee.email }}</td>
+        <td>{{ employee.designation }}</td>
+        <td>{{ employee.department }}</td>
+        <td>₹{{ employee.base_salary }}</td>
+        <td><span class="badge-pill">{{ 'Active' if employee.is_active else 'Inactive' }}</span></td>
+        <td>{{ employee.joining_date.strftime('%Y-%m-%d') if employee.joining_date else '—' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="8" class="muted">No employees defined yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

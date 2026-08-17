@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Electronics Store — Skill Orbit India{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Store', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 class="reveal page-title">Electronics & maker kits</h1>
+<p class="muted reveal">Arduino, sensors, and components — curated for learners and builders.</p>
+
+<div class="store-layout section-gap">
+  <aside class="filters-panel reveal">
+    <h3>Filters</h3>
+    <form method="get" class="form-modern" id="product-filter-form">
+      <div class="filter-group">
+        <label for="category">Category</label>
+        <select name="category" id="category">
+          <option value="">All categories</option>
+          {% for c in categories %}
+          <option value="{{ c }}" {% if filter_category == c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="min_price">Min price (₹)</label>
+        <input type="number" name="min_price" id="min_price" min="0" value="{{ filter_min if filter_min is not none else '' }}" placeholder="0">
+      </div>
+      <div class="filter-group">
+        <label for="max_price">Max price (₹)</label>
+        <input type="number" name="max_price" id="max_price" min="0" value="{{ filter_max if filter_max is not none else '' }}" placeholder="Any">
+      </div>
+      <p id="price-range-hint" class="muted" style="margin:0 0 0.75rem;font-size:0.85rem;display:none;" role="status" aria-live="polite"></p>
+      <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+      <a href="{{ url_for('store.listing') }}" class="btn btn-ghost btn-sm">Reset</a>
+    </form>
+    {% if filter_category or filter_min is not none or filter_max is not none %}
+    <p class="muted" style="margin-top:0.75rem;">
+      Active:
+      {% if filter_category %}<span class="level-pill">{{ filter_category }}</span>{% endif %}
+      {% if filter_min is not none %}<span class="level-pill">Min ₹{{ filter_min }}</span>{% endif %}
+      {% if filter_max is not none %}<span class="level-pill">Max ₹{{ filter_max }}</span>{% endif %}
+    </p>
+    {% endif %}
+  </aside>
+  <div>
+    <p class="muted" id="filter-loading" hidden>Loading products…</p>
+    <div class="grid-cards" id="products-grid">
+      {% for p in products %}
+      <article class="card-premium reveal">
+        <div class="card-img-wrap">
+          <button type="button"
+            class="wishlist-btn {% if current_user.is_authenticated and p.id in wishlist_ids %}active{% endif %}"
+            data-product-id="{{ p.id }}"
+            aria-label="Wishlist"
+            aria-pressed="{% if current_user.is_authenticated and p.id in wishlist_ids %}true{% else %}false{% endif %}"><i class="ri-heart-line" aria-hidden="true"></i></button>
+          <img src="{{ p.image_url if (p.image_url and p.image_url.startswith('/static/')) else url_for('static', filename=(p.image_url or 'images/default_product.svg')) }}" alt="{{ p.name }}" loading="lazy" width="400" height="300">
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span>{{ p.category }}</span>
+            <span>{{ '%.1f'|format((p.rating|default(4.5))|float) }} / 5</span>
+          </div>
+          <div class="stars-bar" style="--p: {{ (((p.rating|default(4.5))|float / 5) * 100)|int }}%; margin-bottom:0.5rem;"></div>
+          <h3>{{ p.name }}</h3>
+          <p class="muted">{{ p.description[:90] }}{% if p.description|length > 90 %}…{% endif %}</p>
+          <div class="actions-inline">
+            <span class="price-tag">₹{{ p.price_inr }}</span>
+            <form method="post" action="{{ url_for('store.add_to_cart', product_id=p.id) }}" class="actions-inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="number" name="quantity" value="1" min="1" class="qty-input">
+              <button type="submit" class="btn btn-primary btn-sm add-cart-btn">Add to cart</button>
+            </form>
+          </div>
+        </div>
+      </article>
+      {% else %}
+      <p class="muted">No products match your filters.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function () {
+  var minEl = document.getElementById("min_price");
+  var maxEl = document.getElementById("max_price");
+  var hint = document.getElementById("price-range-hint");
+  if (!minEl || !maxEl || !hint) return;
+
+  function parseNum(el) {
+    var v = (el.value || "").trim();
+    if (v === "") return null;
+    var n = parseInt(v, 10);
+    return isNaN(n) ? null : n;
+  }
+
+  function updateHint() {
+    var lo = parseNum(minEl);
+    var hi = parseNum(maxEl);
+    if (lo !== null && hi !== null && lo > hi) {
+      hint.textContent = "Minimum is higher than maximum. Values will be swapped when you apply.";
+      hint.style.display = "block";
+    } else {
+      hint.textContent = "";
+      hint.style.display = "none";
+    }
+  }
+
+  minEl.addEventListener("input", updateHint);
+  maxEl.addEventListener("input", updateHint);
+  minEl.addEventListener("change", updateHint);
+  maxEl.addEventListener("change", updateHint);
+  updateHint();
+})();
+</script>
+{% endblock %}

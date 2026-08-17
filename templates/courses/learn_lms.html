@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+{% block title %}{{ course.title }} — Classroom{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Courses', url_for('courses.list_courses')), (course.title[:24] ~ '…' if course.title|length > 24 else course.title, None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="lms-shell reveal">
+  <aside class="lms-sidebar">
+    <div class="lms-sidebar-head">
+      <p class="lms-course-label">Course</p>
+      <h1 class="lms-course-title">{{ course.title }}</h1>
+      <p class="lms-instructor muted">{{ course.instructor_name }} · {{ course.level }} · {{ course.duration }}</p>
+      <div class="lms-progress-track progress-track" style="max-width:100%;margin-top:0.5rem;">
+        <div class="progress-fill" style="width: {{ enrollment.progress_pct }}%;"></div>
+      </div>
+      <p class="muted" style="font-size:0.8rem;margin:0.35rem 0 0;">Progress {{ enrollment.progress_pct }}%</p>
+    </div>
+    <nav class="lms-nav" id="lms-nav">
+      {% if current_user.is_authenticated and current_user.role == 'student' %}
+      <a href="{{ url_for('student.student_course_hub', course_id=course.id) }}" class="lms-nav-link">Learning hub</a>
+      {% endif %}
+      <a href="#overview" class="lms-nav-link is-active" data-panel="overview">Overview</a>
+      <a href="#live" class="lms-nav-link" data-panel="live">Live sessions</a>
+      <a href="#recorded" class="lms-nav-link" data-panel="recorded">Recorded lectures</a>
+      <a href="#materials" class="lms-nav-link" data-panel="materials">Notes & resources</a>
+      <a href="#quiz" class="lms-nav-link" data-panel="quiz">Quizzes</a>
+    </nav>
+  </aside>
+  <div class="lms-main">
+    <section id="panel-overview" class="lms-panel">
+      <h2 class="lms-panel-title">Overview</h2>
+      {% if course.thumbnail_path %}
+      <p><img src="{{ course.thumbnail_path }}" alt="" style="max-width:100%;border-radius:var(--radius-md);max-height:220px;object-fit:cover;"></p>
+      {% endif %}
+      <p class="muted">{{ course.description }}</p>
+      {% if course.prerequisites %}<p><strong>Prerequisites</strong></p><div class="prewrap-content">{{ course.prerequisites }}</div>{% endif %}
+      {% if course.learning_outcomes %}<p><strong>Learning outcomes</strong></p><div class="prewrap-content">{{ course.learning_outcomes }}</div>{% endif %}
+      <div class="lms-hero-video card-premium lms-content-card">
+        {% if course.video_url and course.video_url.startswith('/') %}
+        <video class="lms-video" controls playsinline>
+          <source src="{{ course.video_url }}" type="video/mp4">
+        </video>
+        {% else %}
+        <iframe class="lms-video" src="{{ course.video_url }}" title="Intro" allowfullscreen loading="lazy"></iframe>
+        {% endif %}
+      </div>
+      <div class="card-premium lms-content-card">
+        <h3>Lesson content</h3>
+        <div class="prewrap-content">{{ course.content }}</div>
+        <form method="post" class="form-modern" style="margin-top:1rem;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="action" value="progress">
+          <button type="submit" class="btn btn-primary btn-sm">Mark progress (+20%)</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="panel-live" class="lms-panel" hidden>
+      <h2 class="lms-panel-title">Live sessions</h2>
+      {% if lms.live_sessions %}
+      <div class="lms-lesson-list">
+        {% for s in lms.live_sessions %}
+        <article class="card-premium lms-lesson-card">
+          <div class="lms-lesson-index">{% if s.status == 'live' %}●{% else %}{{ loop.index }}{% endif %}</div>
+          <div>
+            <div class="lms-session-head">
+              <div>
+                <h3 style="margin:0;font-size:1rem;">{{ s.title }}</h3>
+                <p class="muted" style="font-size:0.88rem;margin:0.35rem 0 0;">{{ s.description }}</p>
+                {% if s.scheduled_at %}<p class="muted" style="font-size:0.85rem;">{{ s.scheduled_at.strftime('%d %b %Y, %H:%M') }} UTC</p>{% endif %}
+                {% if s.session_update %}<p class="muted" style="font-size:0.85rem;">{{ s.session_update }}</p>{% endif %}
+              </div>
+              <div>
+                {% if s.meet_url %}
+                <a href="{{ s.meet_url }}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Join live</a>
+                {% endif %}
+                {% if s.id and not s.legacy %}
+                <form method="post" style="margin-top:0.5rem;">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="action" value="join_live">
+                  <input type="hidden" name="live_session_id" value="{{ s.id }}">
+                  <button type="submit" class="btn btn-ghost btn-sm">Mark attended</button>
+                </form>
+                {% endif %}
+              </div>
+            </div>
+            {% if s.id and not s.legacy and s.scheduled_at %}
+            <p class="muted" style="font-size:0.8rem;" data-countdown="{{ s.scheduled_at.isoformat() }}Z"></p>
+            {% endif %}
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="muted">No live sessions scheduled yet.</p>
+      {% endif %}
+    </section>
+
+    <section id="panel-recorded" class="lms-panel" hidden>
+      <h2 class="lms-panel-title">Recorded lectures</h2>
+      {% if lms.recorded_lessons %}
+      <div class="lms-lesson-list">
+        {% for lec in lms.recorded_lessons %}
+        {% if lec.visible %}
+        <article class="card-premium lms-lesson-card">
+          <div class="lms-lesson-index">{{ loop.index }}</div>
+          <div>
+            <h3 style="margin:0;font-size:1rem;">{{ lec.title }}</h3>
+            {% if lec.description %}<p class="muted" style="font-size:0.88rem;">{{ lec.description }}</p>{% endif %}
+            <div class="video-shell lms-hero-video" style="margin-top:0.75rem;">
+              {% if lec.url.startswith('/') %}
+              <video class="lms-video" controls playsinline>
+                <source src="{{ lec.url }}" type="video/mp4">
+              </video>
+              {% else %}
+              <iframe class="lms-video" src="{{ lec.url }}" title="{{ lec.title }}" allowfullscreen loading="lazy"></iframe>
+              {% endif %}
+            </div>
+            {% if not lec.legacy %}
+            <form method="post" style="margin-top:0.5rem;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="mark_lecture">
+              <input type="hidden" name="recorded_session_id" value="{{ lec.id }}">
+              <button type="submit" class="btn btn-ghost btn-sm">Mark watched</button>
+            </form>
+            {% endif %}
+          </div>
+        </article>
+        {% endif %}
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="muted">No recorded lectures yet.</p>
+      {% endif %}
+    </section>
+
+    <section id="panel-materials" class="lms-panel" hidden>
+      <h2 class="lms-panel-title">Notes & resources</h2>
+      {% if lms.materials %}
+      <div class="lms-lesson-list">
+        {% for m in lms.materials %}
+        <article class="card-premium lms-content-card">
+          <div class="lms-resource-head">
+            <h3 style="margin:0;font-size:1rem;">{{ m.title }}</h3>
+            {% if m.file_path %}
+            <a href="{{ m.file_path }}" class="btn btn-primary btn-sm" download target="_blank" rel="noopener">Download</a>
+            {% endif %}
+          </div>
+          {% if m.description %}<p class="muted">{{ m.description }}</p>{% endif %}
+          {% if m.body %}<div class="prewrap-content">{{ m.body }}</div>{% endif %}
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="muted">No materials uploaded yet.</p>
+      {% endif %}
+    </section>
+
+    <section id="panel-quiz" class="lms-panel" hidden>
+      <h2 class="lms-panel-title">Quizzes</h2>
+      {% if lms.quizzes %}
+      {% for q in lms.quizzes %}
+      <div class="card-premium lms-content-card">
+        <h3 style="margin-top:0;">{{ q.title }}</h3>
+        {% set att = lms.quiz_attempt_by_id[q.id] if q.id in lms.quiz_attempt_by_id else none %}
+        {% if att %}
+        <p class="muted">Last score: {{ att.score }}% {% if att.passed %}(passed){% endif %}</p>
+        {% endif %}
+        {% if q.time_limit_seconds %}<p class="muted" style="font-size:0.85rem;">Time limit: {{ q.time_limit_seconds }}s</p>{% endif %}
+        <form method="post" class="form-modern">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="action" value="quiz_lms">
+          <input type="hidden" name="quiz_id" value="{{ q.id }}">
+            {% for question in q.questions %}
+            {% set question_index = loop.index0 %}
+          <div class="lms-mcq-block chip-soft" style="padding:0.75rem;margin-bottom:0.75rem;">
+            <p><strong>Q{{ loop.index }}.</strong> {{ question.question }}</p>
+            {% for opt in question.options %}
+            <label class="lms-radio-row">
+              <input type="radio" name="lq_{{ q.id }}_{{ question_index }}" value="{{ opt|e }}" required>
+              <span>{{ opt }}</span>
+            </label>
+            {% endfor %}
+          </div>
+          {% endfor %}
+          <button type="submit" class="btn btn-accent btn-sm">Submit quiz</button>
+        </form>
+      </div>
+      {% endfor %}
+      {% elif course.quiz and course.quiz|length > 0 %}
+      {% for q in course.quiz %}
+      <div class="chip-soft lms-mcq-block">
+        <p><strong>Question {{ loop.index }}:</strong> {{ q.question }}</p>
+        <form method="post" class="form-modern">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="action" value="quiz_new">
+          <input type="hidden" name="quiz_index" value="{{ loop.index0 }}">
+          <input type="hidden" name="correct_answer" value="{{ q.correctAnswer }}">
+          {% for option in q.options %}
+          <label class="lms-radio-row"><input type="radio" name="answer" value="{{ option }}" required><span>{{ option }}</span></label>
+          {% endfor %}
+          <button type="submit" class="btn btn-accent btn-sm">Check answer</button>
+        </form>
+      </div>
+      {% endfor %}
+      {% elif course.quiz_question %}
+      <p>{{ course.quiz_question }}</p>
+      <form method="post" class="form-modern">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="quiz">
+        <input type="text" name="quiz_answer" required placeholder="Your answer" style="max-width:320px;">
+        <button type="submit" class="btn btn-accent btn-sm">Submit</button>
+      </form>
+      {% else %}
+      <p class="muted">No quizzes for this course yet.</p>
+      {% endif %}
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  var nav = document.querySelectorAll("#lms-nav .lms-nav-link");
+  var panels = {
+    overview: document.getElementById("panel-overview"),
+    live: document.getElementById("panel-live"),
+    recorded: document.getElementById("panel-recorded"),
+    materials: document.getElementById("panel-materials"),
+    quiz: document.getElementById("panel-quiz")
+  };
+  function show(panel) {
+    Object.keys(panels).forEach(function (k) {
+      if (!panels[k]) return;
+      panels[k].hidden = k !== panel;
+    });
+    nav.forEach(function (a) {
+      a.classList.toggle("is-active", a.getAttribute("data-panel") === panel);
+    });
+    if (history.replaceState) history.replaceState(null, "", "#" + panel);
+  }
+  nav.forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      show(a.getAttribute("data-panel"));
+    });
+  });
+  var hash = (location.hash || "#overview").slice(1);
+  if (panels[hash]) show(hash); else show("overview");
+})();
+</script>
+{% endblock %}

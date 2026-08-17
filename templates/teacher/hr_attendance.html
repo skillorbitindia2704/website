@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Attendance — Teacher{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('My HR', url_for('teacher.teacher_hr_dashboard')), ('Attendance', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1>My Attendance</h1>
+<div class="form-actions" style="margin-bottom:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+  <a href="{{ url_for('teacher.teacher_hr_dashboard') }}" class="btn btn-secondary btn-sm">Back to HR dashboard</a>
+  <a href="{{ url_for('teacher.teacher_leave_requests') }}" class="btn btn-primary btn-sm">My Leave Requests</a>
+  <a href="{{ url_for('teacher.teacher_attendance_correction') }}" class="btn btn-primary btn-sm">Request Attendance Correction</a>
+</div>
+<div class="card-premium reveal" style="padding:1rem; margin-bottom:1rem;">
+  <div class="grid-3 gap-4">
+    <div>
+      <strong>Today</strong>
+      <p class="muted">{{ today.strftime('%Y-%m-%d') }}</p>
+    </div>
+    <div>
+      <strong>Today's record</strong>
+      <p class="muted">{{ today_record.status if today_record else 'No record yet' }}</p>
+    </div>
+    <div>
+      <strong>Action</strong>
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.5rem;">
+        {% if not today_record or not today_record.check_in %}
+        <form method="post" action="{{ url_for('teacher.teacher_attendance_check_in') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-success btn-sm">Check in</button>
+        </form>
+        {% endif %}
+        {% if today_record and today_record.check_in and not today_record.check_out %}
+        <form method="post" action="{{ url_for('teacher.teacher_attendance_check_out') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-primary btn-sm">Check out</button>
+        </form>
+        {% endif %}
+        {% if today_record and today_record.check_in and today_record.check_out %}
+        <span class="muted">Checked out for today</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+<div class="card-premium reveal" style="padding:1rem; overflow-x:auto;">
+  <table class="table-modern" style="min-width:1000px;">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Check in</th>
+        <th>Check out</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for record in attendance %}
+      <tr>
+        <td>{{ record.attendance_date.strftime('%Y-%m-%d') }}</td>
+        <td>{{ record.status }}</td>
+        <td>{{ record.check_in.strftime('%Y-%m-%d %H:%M') if record.check_in else '—' }}</td>
+        <td>{{ record.check_out.strftime('%Y-%m-%d %H:%M') if record.check_out else '—' }}</td>
+        <td>{{ record.notes or '—' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="muted">No attendance records found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

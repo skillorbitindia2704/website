@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}About Counters — Admin{% endblock %}
+{% block content %}
+<h1>About — Achievement Counters</h1>
+
+<form method="get" style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;margin:1rem 0;">
+  <input type="text" name="q" placeholder="Search label..." value="{{ q }}" />
+  <button type="submit" class="btn btn-ghost">Search</button>
+  <a class="btn btn-ghost" href="{{ url_for('admin.about_counters') }}">Reset</a>
+</form>
+
+<table class="table-modern">
+  <thead>
+    <tr>
+      <th>Order</th>
+      <th>Icon</th>
+      <th>Label</th>
+      <th>Value</th>
+      <th>Suffix</th>
+      <th>Active</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in items %}
+    <tr>
+      <td>{{ row.display_order }}</td>
+      <td>{{ row.icon }}</td>
+      <td>{{ row.label }}</td>
+      <td>{{ row.value }}</td>
+      <td>{{ row.suffix }}</td>
+      <td>{{ 'Yes' if row.is_active else 'No' }}</td>
+      <td style="white-space:nowrap;">
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.about_counters', edit=row.id) }}">Edit</a>
+        <form method="post" action="{{ url_for('admin.about_counters_delete', item_id=row.id) }}" style="display:inline;" onsubmit="return confirm('Delete this counter?');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-ghost btn-sm">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="card-premium" style="margin-top:1.25rem;">
+  <h2 style="margin-top:0;">{% if edit_item %}Edit{% else %}Add{% endif %} counter</h2>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="item_id" value="{{ edit_item.id if edit_item else '' }}" />
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;">
+      <div class="form-field">
+        <label><strong>Label</strong></label>
+        <input name="label" value="{{ edit_item.label if edit_item else '' }}" required />
+      </div>
+      <div class="form-field">
+        <label><strong>Value</strong></label>
+        <input name="value" type="number" min="0" value="{{ edit_item.value if edit_item else 0 }}" required />
+      </div>
+      <div class="form-field">
+        <label><strong>Suffix</strong></label>
+        <input name="suffix" value="{{ edit_item.suffix if edit_item else '+' }}" />
+      </div>
+      <div class="form-field">
+        <label><strong>Icon</strong></label>
+        <input name="icon" value="{{ edit_item.icon if edit_item else '✨' }}" />
+      </div>
+      <div class="form-field">
+        <label><strong>Display order</strong></label>
+        <input name="display_order" type="number" value="{{ edit_item.display_order if edit_item else 0 }}" />
+      </div>
+      <div class="form-field">
+        <label><strong>Active</strong></label>
+        <select name="is_active">
+          <option value="1" {% if edit_item and edit_item.is_active %}selected{% endif %}>Yes</option>
+          <option value="0" {% if edit_item and not edit_item.is_active %}selected{% endif %}>No</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:1rem;">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a class="btn btn-ghost" href="{{ url_for('admin.about_counters') }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+

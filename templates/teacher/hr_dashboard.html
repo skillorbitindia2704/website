@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}My HR — Teacher{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('My HR', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1>My HR Dashboard</h1>
+<div class="form-actions" style="margin-bottom:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+  <a href="{{ url_for('teacher.dashboard') }}" class="btn btn-secondary btn-sm">Back to Teacher dashboard</a>
+  <a href="{{ url_for('teacher.teacher_hr_attendance') }}" class="btn btn-primary btn-sm">My Attendance</a>
+  <a href="{{ url_for('teacher.teacher_leave_requests') }}" class="btn btn-primary btn-sm">Apply Leave</a>
+  <a href="{{ url_for('teacher.teacher_attendance_correction') }}" class="btn btn-primary btn-sm">Attendance Correction</a>
+  <a href="{{ url_for('teacher.teacher_hr_payroll') }}" class="btn btn-secondary btn-sm">My Payslip</a>
+</div>
+<div class="grid-cards section-gap">
+  <div class="card-premium surface-card reveal">
+    <h3 class="card-title-sm">Employee</h3>
+    <p class="muted">{{ employee.display_name }} — {{ employee.employee_code }}</p>
+    <p>{{ employee.designation }} in {{ employee.department }}</p>
+  </div>
+  <div class="card-premium surface-card reveal">
+    <h3 class="card-title-sm">Attendance</h3>
+    <p class="muted">{{ attendance_count }} records</p>
+  </div>
+  <div class="card-premium surface-card reveal">
+    <h3 class="card-title-sm">Payroll</h3>
+    <p class="muted">{{ payroll_count }} runs</p>
+  </div>
+  <div class="card-premium surface-card reveal">
+    <h3 class="card-title-sm">Leave</h3>
+    <p class="muted">{{ leave_count }} requests</p>
+  </div>
+</div>
+
+<section class="card-premium reveal" style="padding:1rem; margin:1rem 0;">
+  <h2>Today's Attendance</h2>
+  <div class="grid-3 gap-4">
+    <div>
+      <strong>Date</strong>
+      <p class="muted">{{ today.strftime('%A, %d %B %Y') }}</p>
+    </div>
+    <div>
+      <strong>Status</strong>
+      <p class="muted">{{ today_record.status if today_record else 'NOT CHECKED IN' }}</p>
+    </div>
+    <div>
+      <strong>Current Time</strong>
+      <p class="muted"><span id="teacher-current-time">--:--:--</span></p>
+    </div>
+    <div>
+      <strong>Check-In</strong>
+      <p class="muted">{{ today_record.check_in.strftime('%Y-%m-%d %H:%M') if today_record and today_record.check_in else '—' }}</p>
+    </div>
+    <div>
+      <strong>Check-Out</strong>
+      <p class="muted">{{ today_record.check_out.strftime('%Y-%m-%d %H:%M') if today_record and today_record.check_out else '—' }}</p>
+    </div>
+    <div>
+      <strong>Working Hours</strong>
+      <p class="muted">{{ today_working_hours }}</p>
+    </div>
+  </div>
+  <div class="form-actions" style="margin-top:1rem;">
+    {% if not today_record or not today_record.check_in %}
+    <form method="post" action="{{ url_for('teacher.teacher_attendance_check_in') }}" style="display:inline;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-success btn-sm">CHECK IN</button>
+    </form>
+    {% endif %}
+    {% if today_record and today_record.check_in and not today_record.check_out %}
+    <form method="post" action="{{ url_for('teacher.teacher_attendance_check_out') }}" style="display:inline;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-primary btn-sm">CHECK OUT</button>
+    </form>
+    {% endif %}
+    {% if today_record and today_record.check_in and today_record.check_out %}
+    <span class="muted">Attendance completed for today.</span>
+    {% endif %}
+  </div>
+</section>
+
+<h2>Recent attendance</h2>
+<div class="card-premium reveal" style="padding:1rem; overflow-x:auto;">
+  <table class="table-modern" style="min-width:800px;">
+    <thead><tr><th>Date</th><th>Status</th><th>Check in</th><th>Check out</th><th>Notes</th></tr></thead>
+    <tbody>
+      {% for record in recent_attendance %}
+      <tr>
+        <td>{{ record.attendance_date.strftime('%Y-%m-%d') }}</td>
+        <td>{{ record.status }}</td>
+        <td>{{ record.check_in.strftime('%Y-%m-%d %H:%M') if record.check_in else '—' }}</td>
+        <td>{{ record.check_out.strftime('%Y-%m-%d %H:%M') if record.check_out else '—' }}</td>
+        <td>{{ record.notes or '—' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="muted">No attendance records yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<h2>Recent payroll runs</h2>
+<div class="card-premium reveal" style="padding:1rem; overflow-x:auto;">
+  <table class="table-modern" style="min-width:800px;">
+    <thead><tr><th>Period</th><th>Gross</th><th>Allowances</th><th>Deductions</th><th>Net pay</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for run in recent_payroll %}
+      <tr>
+        <td>{{ run.period_start.strftime('%Y-%m-%d') }} <i class="ri-arrow-right-line" aria-hidden="true" style="font-size:0.85em;"></i> {{ run.period_end.strftime('%Y-%m-%d') }}</td>
+        <td>₹{{ run.gross_pay }}</td>
+        <td>₹{{ run.allowances }}</td>
+        <td>₹{{ run.deductions }}</td>
+        <td>₹{{ run.net_pay }}</td>
+        <td>{{ run.status }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="muted">No payroll runs yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function () {
+  const clockNode = document.getElementById('teacher-current-time');
+  if (!clockNode) {
+    return;
+  }
+  function updateClock() {
+    const now = new Date();
+    clockNode.textContent = now.toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    });
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+})();
+</script>
+{% endblock %}

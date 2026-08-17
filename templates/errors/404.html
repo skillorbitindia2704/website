@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found - Skill Orbit India{% endblock %}
+{% block content %}
+<div class="error-container py-5 my-5 text-center">
+  <div class="error-code display-1 text-primary fw-bold mb-3" style="font-size: 6rem; background: linear-gradient(135deg, #2563eb, #1d4ed8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">404</div>
+  <h1 class="error-title h2 mb-3 fw-bold">Page Not Found</h1>
+  <p class="error-message text-muted mb-4 max-w-md mx-auto" style="max-width: 480px;">The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
+  <a href="{{ url_for('main.home') }}" class="btn btn-primary px-4 py-2" style="border-radius: 8px;">Go to Homepage</a>
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}About Gallery — Admin{% endblock %}
+{% block content %}
+<h1>About — Gallery</h1>
+
+<form method="get" style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;margin:1rem 0;">
+  <input type="text" name="q" placeholder="Search title..." value="{{ q }}" />
+  <button type="submit" class="btn btn-ghost">Search</button>
+  <a class="btn btn-ghost" href="{{ url_for('admin.about_gallery') }}">Reset</a>
+</form>
+
+<table class="table-modern">
+  <thead>
+    <tr>
+      <th>Order</th>
+      <th>Title</th>
+      <th>Category</th>
+      <th>Active</th>
+      <th>Preview</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in items %}
+    <tr>
+      <td>{{ row.display_order }}</td>
+      <td>{{ row.title }}</td>
+      <td>{{ row.category }}</td>
+      <td>{{ 'Yes' if row.is_active else 'No' }}</td>
+      <td>
+        {% if row.image_path %}
+          <img src="{{ url_for('static', filename=row.image_path) }}" alt="" style="width:56px;height:40px;object-fit:cover;border-radius:8px;border:1px solid var(--border);" loading="lazy" />
+        {% endif %}
+      </td>
+      <td style="white-space:nowrap;">
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.about_gallery', edit=row.id) }}">Edit</a>
+        <form method="post" action="{{ url_for('admin.about_gallery_delete', item_id=row.id) }}" style="display:inline;" onsubmit="return confirm('Delete this image?');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-ghost btn-sm">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="card-premium" style="margin-top:1.25rem;">
+  <h2 style="margin-top:0;">{% if edit_item %}Edit{% else %}Add{% endif %} gallery image</h2>
+  <form method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="item_id" value="{{ edit_item.id if edit_item else '' }}" />
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;">
+      <div class="form-field">
+        <label><strong>Title</strong></label>
+        <input name="title" value="{{ edit_item.title if edit_item else '' }}" />
+      </div>
+      <div class="form-field">
+        <label><strong>Category</strong></label>
+        <input name="category" value="{{ edit_item.category if edit_item else '' }}" />
+      </div>
+      <div class="form-field">
+        <label><strong>Display order</strong></label>
+        <input name="display_order" type="number" value="{{ edit_item.display_order if edit_item else 0 }}" />
+      </div>
+      <div class="form-field">
+        <label><strong>Active</strong></label>
+        <select name="is_active">
+          <option value="1" {% if edit_item and edit_item.is_active %}selected{% endif %}>Yes</option>
+          <option value="0" {% if edit_item and not edit_item.is_active %}selected{% endif %}>No</option>
+        </select>
+      </div>
+      <div class="form-field" style="grid-column:1/-1;">
+        <label><strong>Image</strong></label>
+        <input type="file" name="image" accept="image/*" />
+        {% if edit_item and edit_item.image_path %}
+          <p class="muted" style="margin:0.5rem 0 0;">Current: <code>{{ edit_item.image_path }}</code></p>
+        {% endif %}
+      </div>
+    </div>
+    <div style="margin-top:1rem;">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a class="btn btn-ghost" href="{{ url_for('admin.about_gallery') }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+

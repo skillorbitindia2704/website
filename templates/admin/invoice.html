@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tax Invoice - Order #{{ order.id }}</title>
+  <style>
+    :root {
+      --primary: #db2777;
+      --primary-dark: #be185d;
+      --text-main: #1f2937;
+      --text-muted: #4b5563;
+      --border: #e5e7eb;
+      --bg-light: #f9fafb;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text-main);
+      background-color: #f3f4f6;
+      line-height: 1.5;
+      padding: 2rem 1rem;
+    }
+
+    .no-print-bar {
+      max-width: 800px;
+      margin: 0 auto 1.5rem auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary {
+      background-color: white;
+      border-color: #d1d5db;
+      color: #374151;
+    }
+
+    .btn-secondary:hover {
+      background-color: #f9fafb;
+      border-color: #9ca3af;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+
+    /* Invoice Container */
+    .invoice-card {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 3rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      position: relative;
+      border-top: 6px solid var(--primary);
+    }
+
+    /* Header styling */
+    .invoice-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3rem;
+    }
+
+    .brand-section h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #111827;
+      letter-spacing: -0.025em;
+    }
+
+    .brand-section h1 span {
+      color: var(--primary);
+    }
+
+    .brand-section p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .invoice-title {
+      text-align: right;
+    }
+
+    .invoice-title h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #111827;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .invoice-title p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* Metadata details */
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .details-block h3 {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+    }
+
+    .details-block p {
+      font-size: 0.875rem;
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    .details-block .strong {
+      font-weight: 600;
+      color: #111827;
+    }
+
+    /* Table styling */
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+
+    .items-table th {
+      background-color: var(--bg-light);
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      border-bottom: 2px solid var(--border);
+      text-align: left;
+    }
+
+    .items-table td {
+      padding: 1rem;
+      font-size: 0.875rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-main);
+    }
+
+    .items-table th.num-col,
+    .items-table td.num-col {
+      text-align: right;
+    }
+
+    .item-name {
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .item-subtext {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* Summary block */
+    .summary-section {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 2rem;
+    }
+
+    .summary-table {
+      width: 320px;
+      border-collapse: collapse;
+    }
+
+    .summary-table td {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .summary-table td.num-col {
+      text-align: right;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .summary-table tr.total-row td {
+      padding-top: 1rem;
+      border-top: 2px solid var(--border);
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .summary-table tr.total-row td.num-col {
+      color: var(--primary);
+      font-weight: 800;
+    }
+
+    /* Footer particulars */
+    .invoice-footer {
+      margin-top: 5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .invoice-footer p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .invoice-footer .terms {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-success {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+
+    .badge-pending {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+
+    /* Print styles */
+    @media print {
+      body {
+        background-color: white;
+        padding: 0;
+      }
+
+      .no-print-bar {
+        display: none !important;
+      }
+
+      .invoice-card {
+        box-shadow: none;
+        padding: 0;
+        border-top: none;
+        border-radius: 0;
+      }
+
+      .invoice-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background-color: var(--primary);
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Administration Action Bar -->
+  <div class="no-print-bar">
+    <a href="{{ url_for('admin.store_manager') }}" class="btn btn-secondary">
+      &larr; Back to Store CMS
+    </a>
+    <button onclick="window.print()" class="btn btn-primary">
+      🖨️ Print Invoice (A4)
+    </button>
+  </div>
+
+  <!-- A4 Invoice Layout -->
+  <div class="invoice-card">
+    
+    <!-- Invoice Header -->
+    <div class="invoice-header">
+      <div class="brand-section">
+        <h1>Skill Orbit <span>India</span></h1>
+        <p>Advanced Robotics & AI Education Kits Provider</p>
+        <p style="margin-top: 0.5rem;">GSTIN: 27AAOCS9271K1Z3</p>
+        <p>Email: contact@skillorbitindia.in | Web: www.skillorbitindia.in</p>
+      </div>
+      <div class="invoice-title">
+        <h2>Tax Invoice</h2>
+        <p style="margin-top: 0.5rem;">Invoice No: <strong>SOI-2026-{{ order.id }}</strong></p>
+        <p>Date: {{ order.created_at.strftime('%d %b, %Y') }}</p>
+        <p style="margin-top: 0.5rem;">
+          Payment Status: 
+          {% if order.payment_status == 'paid' %}
+            <span class="badge badge-success">PAID</span>
+          {% else %}
+            <span class="badge badge-pending">{{ order.payment_status|upper }}</span>
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <!-- Billing & Shipping Details -->
+    <div class="details-grid">
+      <div class="details-block">
+        <h3>Billed To (Customer Details)</h3>
+        <p class="strong">{{ order.user.username }}</p>
+        <p>Email: {{ order.shipping_email or order.user.email }}</p>
+        <p>Phone: {{ order.shipping_phone or 'N/A' }}</p>
+      </div>
+      <div class="details-block">
+        <h3>Shipping Destination</h3>
+        <p style="white-space: pre-line;">{{ order.shipping_address or 'No shipping address provided.' }}</p>
+        {% if order.tracking_number %}
+          <p style="margin-top: 0.5rem;">Tracking Number: <strong>{{ order.tracking_number }}</strong></p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Items Listing Table -->
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th class="num-col" style="width: 80px;">Qty</th>
+          <th class="num-col" style="width: 120px;">Unit Price</th>
+          <th class="num-col" style="width: 120px;">Taxable Amt</th>
+          <th class="num-col" style="width: 100px;">GST %</th>
+          <th class="num-col" style="width: 120px;">Total (INR)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for info in items %}
+        <tr>
+          <td>
+            <div class="item-name">{{ info.item.product.name }}</div>
+            <div class="item-subtext">Category: {{ info.item.product.category }} {% if info.item.product.sku %}| SKU: {{ info.item.product.sku }}{% endif %}</div>
+          </td>
+          <td class="num-col">{{ info.item.quantity }}</td>
+          <td class="num-col">₹{{ info.item.price_inr }}</td>
+          <td class="num-col">₹{{ '%.2f'|format(info.taxable_value) }}</td>
+          <td class="num-col">{{ info.gst_pct }}%</td>
+          <td class="num-col">₹{{ info.item.price_inr * info.item.quantity }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Invoice Breakdowns & Totals -->
+    <div class="summary-section">
+      <table class="summary-table">
+        <tr>
+          <td>Subtotal (Gross Amount)</td>
+          <td class="num-col">₹{{ order.total_inr + order.discount_amount }}</td>
+        </tr>
+        
+        {% if order.discount_amount > 0 %}
+        <tr>
+          <td>Discount Coupon ({{ order.coupon_code }})</td>
+          <td class="num-col" style="color: #059669;">- ₹{{ order.discount_amount }}</td>
+        </tr>
+        {% endif %}
+        
+        <tr>
+          <td>Taxable Value (Base)</td>
+          <td class="num-col">₹{{ '%.2f'|format(total_taxable) }}</td>
+        </tr>
+        <tr>
+          <td>Integrated GST (IGST)</td>
+          <td class="num-col">₹{{ '%.2f'|format(total_gst) }}</td>
+        </tr>
+        
+        <tr class="total-row">
+          <td>Grand Total</td>
+          <td class="num-col">₹{{ order.total_inr }}</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Particulars / Disclaimers / Signatures -->
+    <div class="invoice-footer">
+      <p class="terms">Terms & Conditions / Declarations</p>
+      <p>1. This is a computer-generated tax invoice and requires no physical signature under the Indian CGST Act, 2017.</p>
+      <p>2. Goods once sold are subject to standard Skill Orbit educational replacement warranties only.</p>
+      <p style="margin-top: 1rem; font-weight: 700; color: #111827;">Thank you for investing in the future of education with Skill Orbit India!</p>
+    </div>
+
+  </div>
+
+</body>
+</html>

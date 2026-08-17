@@ -1,0 +1,1475 @@
+{% extends "base.html" %}
+{% block title %}Homepage Manager — Admin Dashboard{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('Homepage Manager', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<!-- Tailwind CSS for modern layout inside admin -->
+<script>
+  tailwind = {
+    config: {
+      corePlugins: { preflight: false },
+      darkMode: ['selector', '[data-theme="dark"]'],
+      theme: {
+        extend: {
+          colors: {
+            brand: { 500: "#4F46E5", 600: "#4338CA", 700: "#3730A3" },
+            dark: { 800: "#1E293B", 900: "#0F172A" }
+          }
+        }
+      }
+    }
+  };
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+  .manager-container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .card-premium {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    font-weight: 500;
+    color: #4a5568;
+    border-radius: 8px;
+    transition: all 0.2s;
+    text-align: left;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  .tab-btn:hover {
+    background: #f1f5f9;
+    color: #1a202c;
+  }
+  .tab-btn.active {
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+    color: #ffffff;
+  }
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #2d3748;
+    font-size: 0.9rem;
+  }
+  .form-control, .form-textarea, .form-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background-color: #fff;
+    color: #2d3748;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-control:focus, .form-textarea:focus, .form-select:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  }
+  .upload-zone {
+    border: 2px dashed #cbd5e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    background: #f8fafc;
+    transition: all 0.2s;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: #4f46e5;
+    background: #eef2ff;
+  }
+  .btn-action {
+    padding: 0.6rem 1.2rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="manager-container py-6 px-4">
+  <!-- Top Banner -->
+  <div class="card-premium p-6 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4" style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); color: #fff; border: none;">
+    <div>
+      <h1 class="text-2xl font-bold text-white mb-1">Homepage Manager CMS</h1>
+      <p class="text-indigo-200 text-sm">Unified console managing all 20 tabs of visuals, partners, SEO, theme customizations, animations and sections.</p>
+    </div>
+    <div class="flex items-center gap-3">
+      {% if last_updated %}
+      <span class="text-xs text-indigo-300 bg-indigo-950/50 px-3 py-1.5 rounded-full border border-indigo-900">
+        <i class="ri-time-line"></i> Last updated: {{ last_updated.strftime('%Y-%m-%d %H:%M:%S UTC') }}
+      </span>
+      {% endif %}
+      {% if content.is_published == '1' %}
+      <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-semibold px-2.5 py-1 rounded-full">
+        ● Live on Website
+      </span>
+      {% else %}
+      <span class="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-semibold px-2.5 py-1 rounded-full">
+        ● Draft mode
+      </span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Local Storage Draft Banner -->
+  <div id="draft-banner" class="hidden bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg mb-6 flex justify-between items-center">
+    <div class="flex items-center gap-2">
+      <span><i class="ri-edit-2-line"></i></span>
+      <span class="text-sm font-medium">Restored autosaved changes from your local draft session.</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="clearDraft()" class="text-xs text-amber-700 underline font-semibold hover:text-amber-900 bg-transparent border-none cursor-pointer">Discard Draft</button>
+      <button onclick="dismissDraftBanner()" class="text-sm font-bold text-amber-800 bg-transparent border-none cursor-pointer">&times;</button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <!-- Left Sidebar: Tabs -->
+    <div class="lg:col-span-1 flex flex-col gap-2">
+      <div class="card-premium p-4 flex flex-col gap-1.5 bg-slate-50">
+        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">Landing Block</div>
+        <button onclick="switchTab('hero')" id="tab-btn-hero" class="tab-btn active"><i class="ri-focus-3-line"></i> Hero Content</button>
+        <button onclick="switchTab('visuals')" id="tab-btn-visuals" class="tab-btn"><i class="ri-image-line"></i> Hero Visuals</button>
+        <button onclick="switchTab('stats')" id="tab-btn-stats" class="tab-btn"><i class="ri-bar-chart-box-line"></i> Stats & KPI</button>
+        <button onclick="switchTab('partners')" id="tab-btn-partners" class="tab-btn"><i class="ri-team-line"></i> Partners Carousel</button>
+        
+        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mt-4 mb-2">Core Offerings</div>
+        <button onclick="switchTab('courses')" id="tab-btn-courses" class="tab-btn"><i class="ri-book-open-line"></i> Featured Courses</button>
+        <button onclick="switchTab('ai-lab')" id="tab-btn-ai-lab" class="tab-btn"><i class="ri-building-2-line"></i> AI Lab Showcase</button>
+        <button onclick="switchTab('internships')" id="tab-btn-internships" class="tab-btn"><i class="ri-briefcase-4-line"></i> Internship Openings</button>
+        <button onclick="switchTab('services')" id="tab-btn-services" class="tab-btn"><i class="ri-tools-line"></i> Services Section</button>
+        <button onclick="switchTab('learning-paths')" id="tab-btn-learning-paths" class="tab-btn"><i class="ri-route-line"></i> Learning Paths</button>
+        
+        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mt-4 mb-2">Student & Trust</div>
+        <button onclick="switchTab('testimonials')" id="tab-btn-testimonials" class="tab-btn"><i class="ri-star-line"></i> Testimonials</button>
+        <button onclick="switchTab('projects')" id="tab-btn-projects" class="tab-btn"><i class="ri-sparkling-line"></i> Student Projects</button>
+        <button onclick="switchTab('events')" id="tab-btn-events" class="tab-btn"><i class="ri-calendar-event-line"></i> Events & Workshops</button>
+        <button onclick="switchTab('achievements')" id="tab-btn-achievements" class="tab-btn"><i class="ri-award-line"></i> Badging & Certs</button>
+        <button onclick="switchTab('faculty')" id="tab-btn-faculty" class="tab-btn"><i class="ri-user-star-line"></i> Faculty & Mentors</button>
+        
+        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mt-4 mb-2">Promos & FAQ</div>
+        <button onclick="switchTab('cta-banners')" id="tab-btn-cta-banners" class="tab-btn"><i class="ri-flashlight-line"></i> Promo Banners</button>
+        <button onclick="switchTab('faq')" id="tab-btn-faq" class="tab-btn"><i class="ri-question-answer-line"></i> FAQ Accordion</button>
+        <button onclick="switchTab('footer-promo')" id="tab-btn-footer-promo" class="tab-btn"><i class="ri-megaphone-line"></i> Footer Promo</button>
+
+        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mt-4 mb-2">Global Settings</div>
+        <button onclick="switchTab('layout')" id="tab-btn-layout" class="tab-btn"><i class="ri-eye-line"></i> Page Sections Layout</button>
+        <button onclick="switchTab('seo')" id="tab-btn-seo" class="tab-btn"><i class="ri-search-line"></i> SEO & Socials</button>
+        <button onclick="switchTab('theme')" id="tab-btn-theme" class="tab-btn"><i class="ri-palette-line"></i> Theme Presets</button>
+        <button onclick="switchTab('animations')" id="tab-btn-animations" class="tab-btn"><i class="ri-magic-line"></i> Motion & Effects</button>
+        <button onclick="switchTab('history')" id="tab-btn-history" class="tab-btn"><i class="ri-history-line"></i> Snapshots & Logs</button>
+      </div>
+    </div>
+
+    <!-- Right Form Pane -->
+    <div class="lg:col-span-3">
+      <form id="homepage-cms-form" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" id="section_visibilities" name="section_visibilities" value="{{ content.section_visibilities }}">
+        <input type="hidden" id="stats_kpis" name="stats_kpis" value="{{ content.stats_kpis }}">
+        <input type="hidden" id="trusted_partners" name="trusted_partners" value="{{ content.trusted_partners }}">
+        <input type="hidden" id="featured_courses" name="featured_courses" value="{{ content.featured_courses }}">
+        <input type="hidden" id="ai_lab_equipment" name="ai_lab_equipment" value="{{ content.ai_lab_equipment }}">
+        <input type="hidden" id="internships_list" name="internships_list" value="{{ content.internships_list }}">
+        <input type="hidden" id="services_list" name="services_list" value="{{ content.services_list }}">
+        <input type="hidden" id="learning_paths" name="learning_paths" value="{{ content.learning_paths }}">
+        <input type="hidden" id="testimonials_list" name="testimonials_list" value="{{ content.testimonials_list }}">
+        <input type="hidden" id="projects_list" name="projects_list" value="{{ content.projects_list }}">
+        <input type="hidden" id="events_list" name="events_list" value="{{ content.events_list }}">
+        <input type="hidden" id="achievements_list" name="achievements_list" value="{{ content.achievements_list }}">
+        <input type="hidden" id="faculty_list" name="faculty_list" value="{{ content.faculty_list }}">
+        <input type="hidden" id="cta_banners" name="cta_banners" value="{{ content.cta_banners }}">
+        <input type="hidden" id="faqs_list" name="faqs_list" value="{{ content.faqs_list }}">
+
+        <!-- 1. HERO CONTENT -->
+        <div id="tab-content-hero" class="tab-pane card-premium p-6">
+          <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="ri-target-line" aria-hidden="true"></i> Hero Section Content</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="form-group">
+              <label for="hero_badge_text">Badge Primary Text</label>
+              <input type="text" id="hero_badge_text" name="hero_badge_text" class="form-control" value="{{ content.hero_badge_text }}">
+            </div>
+            <div class="form-group">
+              <label for="hero_badge_subtext">Badge Secondary Text</label>
+              <input type="text" id="hero_badge_subtext" name="hero_badge_subtext" class="form-control" value="{{ content.hero_badge_subtext }}">
+            </div>
+          </div>
+          <div class="form-group mb-4">
+            <label for="hero_heading">Hero Main Title Heading <span class="text-red-500">*</span></label>
+            <input type="text" id="hero_heading" name="hero_heading" class="form-control" value="{{ content.hero_heading }}">
+          </div>
+          <div class="form-group mb-4">
+            <label for="hero_description">Hero Description Text</label>
+            <textarea id="hero_description" name="hero_description" class="form-control h-24">{{ content.hero_description }}</textarea>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 border-t pt-4">
+            <div class="form-group">
+              <label for="hero_primary_btn_text">Primary Button Text</label>
+              <input type="text" id="hero_primary_btn_text" name="hero_primary_btn_text" class="form-control" value="{{ content.hero_primary_btn_text }}">
+            </div>
+            <div class="form-group">
+              <label for="hero_primary_btn_link">Primary Button Link</label>
+              <input type="text" id="hero_primary_btn_link" name="hero_primary_btn_link" class="form-control" value="{{ content.hero_primary_btn_link }}">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="form-group">
+              <label for="hero_secondary_btn_text">Secondary Button Text</label>
+              <input type="text" id="hero_secondary_btn_text" name="hero_secondary_btn_text" class="form-control" value="{{ content.hero_secondary_btn_text }}">
+            </div>
+            <div class="form-group">
+              <label for="hero_secondary_btn_link">Secondary Button Link</label>
+              <input type="text" id="hero_secondary_btn_link" name="hero_secondary_btn_link" class="form-control" value="{{ content.hero_secondary_btn_link }}">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 border-t pt-4">
+            <div class="form-group">
+              <label for="hero_tertiary_btn_text">Video/Tertiary Link Text</label>
+              <input type="text" id="hero_tertiary_btn_text" name="hero_tertiary_btn_text" class="form-control" value="{{ content.hero_tertiary_btn_text }}">
+            </div>
+            <div class="form-group">
+              <label for="hero_tertiary_btn_link">Video/Tertiary Link URL</label>
+              <input type="text" id="hero_tertiary_btn_link" name="hero_tertiary_btn_link" class="form-control" value="{{ content.hero_tertiary_btn_link }}">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4">
+            <div class="form-group col-span-1">
+              <label for="hero_layout">Hero Section Presentation Layout</label>
+              <select id="hero_layout" name="hero_layout" class="form-select">
+                <option value="default" {% if content.hero_layout == 'default' %}selected{% endif %}>Standard Side-by-Side (Default)</option>
+                <option value="minimal" {% if content.hero_layout == 'minimal' %}selected{% endif %}>Centered Compact Layout</option>
+                <option value="visual-heavy" {% if content.hero_layout == 'visual-heavy' %}selected{% endif %}>Visual Banner Focus</option>
+              </select>
+            </div>
+            <div class="form-group col-span-1">
+              <label for="hero_ai_lab_title">Right Visual Title Card</label>
+              <input type="text" id="hero_ai_lab_title" name="hero_ai_lab_title" class="form-control" value="{{ content.hero_ai_lab_title }}">
+            </div>
+            <div class="form-group col-span-1">
+              <label for="hero_ai_lab_description">Right Visual Label Detail</label>
+              <input type="text" id="hero_ai_lab_description" name="hero_ai_lab_description" class="form-control" value="{{ content.hero_ai_lab_description }}">
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. HERO VISUALS -->
+        <div id="tab-content-visuals" class="tab-pane hidden card-premium p-6">
+          <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="ri-camera-line" aria-hidden="true"></i> Hero Visual Layout Media</h2>
+          <p class="text-xs text-slate-400 mb-4">Upload premium images that will rotate or render based on theme options.</p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 1. Main Hero Visual -->
+            <div class="p-4 border rounded-lg bg-slate-50">
+              <label class="block font-bold text-slate-700 mb-2">Main Hero Card Image</label>
+              <input type="file" name="hero_image" class="form-control mb-2">
+              {% if content.hero_image %}
+              <div class="flex items-center gap-3 mt-2 bg-white p-2 border rounded">
+                <img src="{{ url_for('static', filename=content.hero_image) }}" class="w-16 h-12 object-cover border rounded">
+                <span class="text-xs truncate flex-1">{{ content.hero_image }}</span>
+                <button type="submit" form="homepage-delete-image-form" onclick="setActionField('hero_image')" class="text-xs text-red-600 font-semibold cursor-pointer">Remove</button>
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- 2. AI Lab visual variant -->
+            <div class="p-4 border rounded-lg bg-slate-50">
+              <label class="block font-bold text-slate-700 mb-2">AI Lab Card Image</label>
+              <input type="file" name="hero_ai_lab_image" class="form-control mb-2">
+              {% if content.hero_ai_lab_image %}
+              <div class="flex items-center gap-3 mt-2 bg-white p-2 border rounded">
+                <img src="{{ url_for('static', filename=content.hero_ai_lab_image) }}" class="w-16 h-12 object-cover border rounded">
+                <span class="text-xs truncate flex-1">{{ content.hero_ai_lab_image }}</span>
+                <button type="submit" form="homepage-delete-image-form" onclick="setActionField('hero_ai_lab_image')" class="text-xs text-red-600 font-semibold cursor-pointer">Remove</button>
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- 3. Robotics Variant -->
+            <div class="p-4 border rounded-lg bg-slate-50">
+              <label class="block font-bold text-slate-700 mb-2">Robotics Card Image</label>
+              <input type="file" name="hero_robotics_image" class="form-control mb-2">
+              {% if content.hero_robotics_image %}
+              <div class="flex items-center gap-3 mt-2 bg-white p-2 border rounded">
+                <img src="{{ url_for('static', filename=content.hero_robotics_image) }}" class="w-16 h-12 object-cover border rounded">
+                <span class="text-xs truncate flex-1">{{ content.hero_robotics_image }}</span>
+                <button type="submit" form="homepage-delete-image-form" onclick="setActionField('hero_robotics_image')" class="text-xs text-red-600 font-semibold cursor-pointer">Remove</button>
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- 4. Workshop Variant -->
+            <div class="p-4 border rounded-lg bg-slate-50">
+              <label class="block font-bold text-slate-700 mb-2">Workshop Card Image</label>
+              <input type="file" name="hero_workshop_image" class="form-control mb-2">
+              {% if content.hero_workshop_image %}
+              <div class="flex items-center gap-3 mt-2 bg-white p-2 border rounded">
+                <img src="{{ url_for('static', filename=content.hero_workshop_image) }}" class="w-16 h-12 object-cover border rounded">
+                <span class="text-xs truncate flex-1">{{ content.hero_workshop_image }}</span>
+                <button type="submit" form="homepage-delete-image-form" onclick="setActionField('hero_workshop_image')" class="text-xs text-red-600 font-semibold cursor-pointer">Remove</button>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. STATS & COCOUNTERS -->
+        <div id="tab-content-stats" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800"> <i class="ri-bar-chart-line" aria-hidden="true"></i> Stats & KPI Counters</h2>
+            <button type="button" onclick="addStatRow()" class="bg-indigo-600 text-white text-xs px-2.5 py-1.5 font-bold rounded cursor-pointer border-none">+ Add Stat</button>
+          </div>
+          <div id="stats-wrapper" class="flex flex-col gap-3">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- 4. PARTNERS CAROUSEL -->
+        <div id="tab-content-partners" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800"> <i class="ri-hand-heart-line" aria-hidden="true"></i> Partners Logos</h2>
+            <button type="button" onclick="addPartnerRow()" class="bg-indigo-600 text-white text-xs px-2.5 py-1.5 font-bold rounded cursor-pointer border-none">+ Add Partner</button>
+          </div>
+          <div id="partners-wrapper" class="flex flex-col gap-3">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- 5. FEATURED COURSES -->
+        <div id="tab-content-courses" class="tab-pane hidden card-premium p-6">
+          <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="ri-graduation-cap-line" aria-hidden="true"></i> Featured Courses Selection</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for c in courses %}
+            <div class="p-3 border rounded-lg bg-slate-50 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-sm block">{{ c.title }}</span>
+                <span class="text-xs text-indigo-600 font-semibold">{{ c.level }} · {{ c.duration }}</span>
+              </div>
+              <input type="checkbox" data-course="{{ c.id }}" class="w-5 h-5 cursor-pointer accent-indigo-600" onchange="syncCourses()">
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- 6. AI LAB SHOWCASE -->
+        <div id="tab-content-ai-lab" class="tab-pane hidden card-premium p-6">
+          <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="ri-building-2-line" aria-hidden="true"></i> AI Lab Showcase Settings</h2>
+          <div class="form-group mb-4">
+            <label for="ai_lab_heading">Lab Heading Title</label>
+            <input type="text" id="ai_lab_heading" name="ai_lab_heading" class="form-control" value="{{ content.ai_lab_heading }}">
+          </div>
+          <div class="form-group mb-4">
+            <label for="ai_lab_description">Lab Description Summary</label>
+            <textarea id="ai_lab_description" name="ai_lab_description" class="form-control h-20">{{ content.ai_lab_description }}</textarea>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="form-group">
+              <label for="ai_lab_cta_text">Lab CTA Button Text</label>
+              <input type="text" id="ai_lab_cta_text" name="ai_lab_cta_text" class="form-control" value="{{ content.ai_lab_cta_text }}">
+            </div>
+            <div class="form-group">
+              <label for="ai_lab_cta_link">Lab CTA Button Link</label>
+              <input type="text" id="ai_lab_cta_link" name="ai_lab_cta_link" class="form-control" value="{{ content.ai_lab_cta_link }}">
+            </div>
+          </div>
+          <div class="form-group mb-4">
+            <label>AI Lab Main Image</label>
+            <input type="file" name="ai_lab_image" class="form-control mb-2">
+            {% if content.ai_lab_image %}
+            <div class="flex items-center gap-3 bg-slate-50 p-2 border rounded">
+              <img src="{{ url_for('static', filename=content.ai_lab_image) }}" class="w-16 h-12 object-cover border rounded">
+              <span class="text-xs truncate flex-1">{{ content.ai_lab_image }}</span>
+              <button type="submit" form="homepage-delete-image-form" onclick="setActionField('ai_lab_image')" class="text-xs text-red-600 font-semibold cursor-pointer">Remove</button>
+            </div>
+            {% endif %}
+          </div>
+          <div class="border-t pt-4">
+            <div class="flex justify-between items-center mb-3">
+              <label class="block font-bold text-slate-700"><i class="ri-file-list-3-line" aria-hidden="true"></i> Included Features / Equipments Checklist</label>
+              <button type="button" onclick="addEquipmentRow()" class="bg-indigo-600 text-white text-xs px-2 py-1 rounded cursor-pointer border-none">+ Add Item</button>
+            </div>
+            <div id="equipment-wrapper" class="flex flex-col gap-2">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 7. INTERNSHIPS -->
+        <div id="tab-content-internships" class="tab-pane hidden card-premium p-6">
+          <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="ri-briefcase-line" aria-hidden="true"></i> Highlight Internship Listings</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for i in internships %}
+            <div class="p-3 border rounded-lg bg-slate-50 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-sm block">{{ i.title }}</span>
+                <span class="text-xs text-indigo-600 font-semibold">{{ i.location }} · {{ i.stipend }}</span>
+              </div>
+              <input type="checkbox" data-internship="{{ i.id }}" class="w-5 h-5 cursor-pointer accent-indigo-600" onchange="syncInternships()">
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- 8. SERVICES SECTION -->
+        <div id="tab-content-services" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800"><i class="ri-tools-line" aria-hidden="true"></i> CMS Services Cards</h2>
+            <button type="button" onclick="addServiceRow()" class="bg-indigo-600 text-white text-xs px-2.5 py-1.5 font-bold rounded cursor-pointer border-none">+ Add Card</button>
+          </div>
+          <div id="services-wrapper" class="flex flex-col gap-3">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- 9. LEARNING PATHS -->
+        <div id="tab-content-learning-paths" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800"><i class="ri-map-pin-line" aria-hidden="true"></i> Custom Learning Pathways</h2>
+            <button type="button" onclick="addPathRow()" class="bg-indigo-600 text-white text-xs px-2.5 py-1.5 font-bold rounded cursor-pointer border-none">+ Add Path</button>
+          </div>
+          <div id="paths-wrapper" class="flex flex-col gap-3">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- 10. TESTIMONIALS -->
+        <div id="tab-content-testimonials" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800"><i class="ri-star-s-fill" aria-hidden="true"></i> Select Testimonial Carousels</h2>
+              <a href="{{ url_for('admin.home_testimonials') }}" target="_blank" class="bg-indigo-600 hover:bg-indigo-750 text-white text-xs px-3 py-1.5 font-bold rounded text-center no-underline cursor-pointer">
+              <i class="ri-add-line" aria-hidden="true"></i> Manage Testimonials Database
+            </a>
+          </div>
+          <p class="text-xs text-slate-400 mb-3">Choose testimonials saved in database to render inside carousel.</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for t in testimonials %}
+            <div class="p-3 border rounded-lg bg-slate-50 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-sm block">{{ t.name }} <span class="text-amber-500"><i class="ri-star-s-fill" aria-hidden="true"></i>{{ t.rating }}</span></span>
+                <span class="text-xs text-indigo-600 font-semibold">{{ t.city }} · {{ t.course_completed }}</span>
+              </div>
+              <input type="checkbox" data-testimonial="{{ t.id }}" class="w-5 h-5 cursor-pointer accent-indigo-600" onchange="syncTestimonials()">
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- 11. STUDENT PROJECTS -->
+        <div id="tab-content-projects" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800"><i class="ri-star-line" aria-hidden="true"></i> Student Projects Showcase</h2>
+            <button type="button" onclick="addProjectRow()" class="bg-indigo-600 text-white text-xs px-2.5 py-1.5 font-bold rounded cursor-pointer border-none">+ Add Project</button>
+          </div>
+          <div id="projects-wrapper" class="flex flex-col gap-3">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- 12. EVENTS -->
+        <div id="tab-content-events" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800"><i class="ri-calendar-line" aria-hidden="true"></i> Upcoming Events Selector</h2>
+            <a href="{{ url_for('admin.homepage_events') }}" target="_blank" class="bg-indigo-600 hover:bg-indigo-750 text-white text-xs px-3 py-1.5 font-bold rounded text-center no-underline cursor-pointer">
+              ➕ Manage Events Database
+            </a>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for e in events %}
+            <div class="p-3 border rounded-lg bg-slate-50 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-sm block">{{ e.name }}</span>
+                <span class="text-xs text-indigo-600 font-semibold">{{ e.date_text }} · {{ e.location }}</span>
+              </div>
+              <input type="checkbox" data-event="{{ e.id }}" class="w-5 h-5 cursor-pointer accent-indigo-600" onchange="syncEvents()">
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- 13. ACHIEVEMENTS -->
+        <div id="tab-content-achievements" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800"><i class="ri-award-line" aria-hidden="true"></i> Verified Badges & Achievements</h2>
+            <button type="button" onclick="addBadgeRow()" class="bg-indigo-600 text-white text-xs px-2.5 py-1.5 font-bold rounded cursor-pointer border-none">+ Add Badge</button>
+          </div>
+          <div id="achievements-wrapper" class="flex flex-col gap-3">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- 14. FACULTY -->
+        <div id="tab-content-faculty" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800"><i class="ri-user-3-line" aria-hidden="true"></i> Faculty & Expert Mentors</h2>
+            <button type="button" onclick="addFacultyRow()" class="bg-indigo-600 text-white text-xs px-2.5 py-1.5 font-bold rounded cursor-pointer border-none">+ Add Mentor</button>
+          </div>
+          <div id="faculty-wrapper" class="flex flex-col gap-3">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- 15. CTA BANNERS -->
+        <div id="tab-content-cta-banners" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800"><i class="ri-flashlight-line" aria-hidden="true"></i> Custom Promotional Banners</h2>
+            <button type="button" onclick="addBannerRow()" class="bg-indigo-600 text-white text-xs px-2.5 py-1.5 font-bold rounded cursor-pointer border-none">+ Add Banner</button>
+          </div>
+          <div id="banners-wrapper" class="flex flex-col gap-3">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- 16. FAQ ACCORDIONS -->
+        <div id="tab-content-faq" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800">❓ FAQ Accordion List</h2>
+            <button type="button" onclick="addFaqRow()" class="bg-indigo-600 text-white text-xs px-2.5 py-1.5 font-bold rounded cursor-pointer border-none">+ Add FAQ</button>
+          </div>
+          <div id="faq-wrapper" class="flex flex-col gap-3">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- 17. FOOTER PROMO -->
+        <div id="tab-content-footer-promo" class="tab-pane hidden card-premium p-6">
+          <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="ri-megaphone-line" aria-hidden="true"></i> Footer Promo Action Section</h2>
+          <div class="form-group mb-4">
+            <label for="footer_promo_text">Footer CTA Heading</label>
+            <input type="text" id="footer_promo_text" name="footer_promo_text" class="form-control" value="{{ content.footer_promo_text }}">
+          </div>
+          <div class="form-group mb-4">
+            <label for="footer_promo_badge">Footer Promo Description Paragraph</label>
+            <textarea id="footer_promo_badge" name="footer_promo_badge" class="form-control h-20">{{ content.footer_promo_badge }}</textarea>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="form-group">
+              <label for="footer_promo_btn_text">Promo Button Text</label>
+              <input type="text" id="footer_promo_btn_text" name="footer_promo_btn_text" class="form-control" value="{{ content.footer_promo_btn_text }}">
+            </div>
+            <div class="form-group">
+              <label for="footer_promo_btn_link">Promo Button Link</label>
+              <input type="text" id="footer_promo_btn_link" name="footer_promo_btn_link" class="form-control" value="{{ content.footer_promo_btn_link }}">
+            </div>
+          </div>
+          <div class="form-group border-t pt-4">
+            <label>Promo Background Overlay Image</label>
+            <input type="file" name="footer_promo_image" class="form-control mb-2">
+            {% if content.footer_promo_image %}
+            <div class="flex items-center gap-3 bg-slate-50 p-2 border rounded">
+              <img src="{{ url_for('static', filename=content.footer_promo_image) }}" class="w-16 h-12 object-cover border rounded">
+              <span class="text-xs truncate flex-1">{{ content.footer_promo_image }}</span>
+              <button type="submit" form="homepage-delete-image-form" onclick="setActionField('footer_promo_image')" class="text-xs text-red-600 font-semibold cursor-pointer">Remove</button>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- 18. PAGE LAYOUT SECTION VISIBILITIES -->
+        <div id="tab-content-layout" class="tab-pane hidden card-premium p-6">
+          <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="ri-eye-line" aria-hidden="true"></i> Page Layout Controls</h2>
+          <p class="text-xs text-slate-400 mb-4">Toggle check boxes to hide or show components on the front end homepage dynamically.</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% set s_list = [
+              ('hero', 'Hero Banner', 'Heading, CTAs & visuals'),
+              ('why_choose_us', 'Why Choose Us', 'Core value proposition cards'),
+              ('products', 'Featured Products', 'Curated kits product slider'),
+              ('courses', 'Popular Courses', 'Dynamic course card selector list'),
+              ('internships', 'Internship highlights', 'Placement & careers opening blocks'),
+              ('ai_lab', 'AI Lab setup proposal', 'School & College NEP-aligned package'),
+              ('projects', 'Projects Showcase', 'Verified student projects cards'),
+              ('testimonials', 'Student Testimonials', 'Testimonial carousels quote slider'),
+              ('events', 'Upcoming Workshops & events', 'Dynamic scheduling event widgets'),
+              ('certification', 'Verified badging lookup', 'Certificate check zones widget'),
+              ('cta_banner', 'CTA Promos', 'Mid-page or bottom full-width CTA banners'),
+              ('faq', 'Frequently Asked Questions', 'FAQ accordions list')
+            ] %}
+            {% for key, label, desc in s_list %}
+            <div class="p-3.5 border rounded-lg bg-slate-50 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-sm block">{{ label }}</span>
+                <span class="text-xs text-slate-400">{{ desc }}</span>
+              </div>
+              <input type="checkbox" data-vis="{{ key }}" class="w-5 h-5 cursor-pointer accent-indigo-600" onchange="syncVisibilities()">
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- 19. SEO & METADATA -->
+        <div id="tab-content-seo" class="tab-pane hidden card-premium p-6">
+          <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="ri-search-line" aria-hidden="true"></i> Search Engine Optimization & Schema Meta</h2>
+          <div class="form-group mb-4">
+            <label for="seo_meta_title">HTML Header Title Tag</label>
+            <input type="text" id="seo_meta_title" name="seo_meta_title" class="form-control" value="{{ content.seo_meta_title }}">
+          </div>
+          <div class="form-group mb-4">
+            <label for="seo_meta_description">HTML Header Meta Description</label>
+            <textarea id="seo_meta_description" name="seo_meta_description" class="form-control h-20">{{ content.seo_meta_description }}</textarea>
+          </div>
+          <div class="form-group mb-4">
+            <label for="seo_keywords">Meta Keywords Tag (Comma separated)</label>
+            <input type="text" id="seo_keywords" name="seo_keywords" class="form-control" value="{{ content.seo_keywords }}">
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="form-group">
+              <label for="seo_canonical_url">Canonical URL Tag</label>
+              <input type="url" id="seo_canonical_url" name="seo_canonical_url" class="form-control" value="{{ content.seo_canonical_url }}">
+            </div>
+            <div class="form-group">
+              <label>SEO OG Image Sharing Social</label>
+              <input type="file" name="seo_og_image" class="form-control">
+              {% if content.seo_og_image %}
+              <span class="text-xs text-indigo-600 block mt-1">Uploaded: {{ content.seo_og_image }}</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="form-group border-t pt-4">
+            <label for="seo_schema_markup">Custom Structured Data JSON-LD Schema markup</label>
+            <textarea id="seo_schema_markup" name="seo_schema_markup" class="form-control h-32" placeholder='<script type="application/ld+json">...</script>'>{{ content.seo_schema_markup }}</textarea>
+          </div>
+        </div>
+
+        <!-- 20. THEME SETTINGS -->
+        <div id="tab-content-theme" class="tab-pane hidden card-premium p-6">
+          <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="ri-palette-line" aria-hidden="true"></i> Theme Presets & Styles</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="form-group">
+              <label for="theme_primary_color">Primary Brand Accent Color</label>
+              <div class="flex gap-2 items-center">
+                <input type="color" id="theme_primary_color" name="theme_primary_color" class="h-10 w-16 border rounded cursor-pointer" value="{{ content.theme_primary_color }}">
+                <input type="text" class="form-control flex-1 py-1" value="{{ content.theme_primary_color }}" oninput="document.getElementById('theme_primary_color').value=this.value">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="theme_secondary_color">Secondary Brand Accent Color</label>
+              <div class="flex gap-2 items-center">
+                <input type="color" id="theme_secondary_color" name="theme_secondary_color" class="h-10 w-16 border rounded cursor-pointer" value="{{ content.theme_secondary_color }}">
+                <input type="text" class="form-control flex-1 py-1" value="{{ content.theme_secondary_color }}" oninput="document.getElementById('theme_secondary_color').value=this.value">
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 border-t pt-4">
+            <div class="form-group">
+              <label for="theme_gradient_theme">Landing Preset Gradient Choices</label>
+              <select id="theme_gradient_theme" name="theme_gradient_theme" class="form-select">
+                <option value="blue-purple" {% if content.theme_gradient_theme == 'blue-purple' %}selected{% endif %}>Blue / Violet / Sunset (Skill Orbit India standard)</option>
+                <option value="indigo-cyan" {% if content.theme_gradient_theme == 'indigo-cyan' %}selected{% endif %}>Indigo to Emerald Mint</option>
+                <option value="violet-orange" {% if content.theme_gradient_theme == 'violet-orange' %}selected{% endif %}>Deep Purple to Neon Orange</option>
+                <option value="emerald-teal" {% if content.theme_gradient_theme == 'emerald-teal' %}selected{% endif %}>Mint Green / Deep Teal Accent</option>
+                <option value="cyber-neon" {% if content.theme_gradient_theme == 'cyber-neon' %}selected{% endif %}>Cyberpunk Neon Purple to Pink Glow</option>
+                <option value="dark-fusion" {% if content.theme_gradient_theme == 'dark-fusion' %}selected{% endif %}>Flat Charcoal Premium Slate Accent</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="theme_card_radius">Card Border Radii</label>
+              <input type="text" id="theme_card_radius" name="theme_card_radius" class="form-control" value="{{ content.theme_card_radius }}" placeholder="e.g. 22px">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4">
+            <div class="form-group">
+              <label for="theme_typography">Global UI Typography</label>
+              <select id="theme_typography" name="theme_typography" class="form-select">
+                <option value="Outfit" {% if content.theme_typography == 'Outfit' %}selected{% endif %}>Outfit (Modern Geometric)</option>
+                <option value="Inter" {% if content.theme_typography == 'Inter' %}selected{% endif %}>Inter (Professional Neo-Grotesque)</option>
+                <option value="Sora" {% if content.theme_typography == 'Sora' %}selected{% endif %}>Sora (Display Rounded Tech)</option>
+                <option value="Plus Jakarta Sans" {% if content.theme_typography == 'Plus Jakarta Sans' %}selected{% endif %}>Plus Jakarta Sans (Sleek Clean Sans)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="theme_shadows">Shadow Profiles</label>
+              <select id="theme_shadows" name="theme_shadows" class="form-select">
+                <option value="glow" {% if content.theme_shadows == 'glow' %}selected{% endif %}>Premium Glow Shadow Accent</option>
+                <option value="soft" {% if content.theme_shadows == 'soft' %}selected{% endif %}>Ambient Soft Depth Shadow</option>
+                <option value="flat" {% if content.theme_shadows == 'flat' %}selected{% endif %}>Flat 2D minimalist borders</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="theme_dark_mode">Force Dark Mode Base</label>
+              <select id="theme_dark_mode" name="theme_dark_mode" class="form-select">
+                <option value="1" {% if content.theme_dark_mode == '1' %}selected{% endif %}>Yes (Premium dark mode atmosphere)</option>
+                <option value="0" {% if content.theme_dark_mode == '0' %}selected{% endif %}>No (Light / ambient color themes)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 21. ANIMATIONS & EFFECTS -->
+        <div id="tab-content-animations" class="tab-pane hidden card-premium p-6">
+          <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="ri-magic-line" aria-hidden="true"></i> Motion, Transitions & Scroll Effects</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="form-group">
+              <label for="anim_scroll">Scroll Reveals Transition</label>
+              <select id="anim_scroll" name="anim_scroll" class="form-select">
+                <option value="1" {% if content.anim_scroll == '1' %}selected{% endif %}>Enabled (Subtle scroll zoom-in)</option>
+                <option value="0" {% if content.anim_scroll == '0' %}selected{% endif %}>Disabled (Flat rendering)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="anim_hover">Interactive Hover States</label>
+              <select id="anim_hover" name="anim_hover" class="form-select">
+                <option value="1" {% if content.anim_hover == '1' %}selected{% endif %}>Enabled (Scale and card elevation)</option>
+                <option value="0" {% if content.anim_hover == '0' %}selected{% endif %}>Disabled</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="anim_floating_effects">Visual Floating micro-animations</label>
+              <select id="anim_floating_effects" name="anim_floating_effects" class="form-select">
+                <option value="1" {% if content.anim_floating_effects == '1' %}selected{% endif %}>Enabled (Orbital float effects)</option>
+                <option value="0" {% if content.anim_floating_effects == '0' %}selected{% endif %}>Disabled</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
+            <div class="form-group">
+              <label for="anim_counter_speed">Stat Countup Duration (ms)</label>
+              <input type="number" id="anim_counter_speed" name="anim_counter_speed" class="form-control" value="{{ content.anim_counter_speed }}">
+            </div>
+            <div class="form-group">
+              <label for="anim_transition_speed">Scroll Fade-in Speed (ms)</label>
+              <input type="number" id="anim_transition_speed" name="anim_transition_speed" class="form-control" value="{{ content.anim_transition_speed }}">
+            </div>
+          </div>
+        </div>
+
+        <!-- 22. HISTORY SNAPSHOTS -->
+        <div id="tab-content-history" class="tab-pane hidden card-premium p-6">
+          <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="ri-file-paper-line" aria-hidden="true"></i> Snapshot Rollbacks & Logs</h2>
+          <p class="text-xs text-slate-400 mb-4">Restore or rollback published copy configurations. New snapshots are generated every time changes are published Live.</p>
+          
+          <div class="mb-6">
+            <h3 class="font-bold text-sm text-slate-700 mb-2"><i class="ri-file-paper-line" aria-hidden="true"></i> Version Rollback Table</h3>
+            <div class="border rounded-lg divide-y bg-white max-h-60 overflow-y-auto">
+              {% for v in versions %}
+              <div class="p-3 flex items-center justify-between text-xs bg-slate-50/10">
+                <div>
+                  <span class="font-bold text-indigo-600 mr-2">Version #{{ v.id }}</span>
+                  <span class="text-slate-500 mr-2">Published: {{ v.created_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}</span>
+                  <span class="text-slate-400">By: {{ v.published_by }}</span>
+                </div>
+                <button type="submit" form="homepage-restore-form" onclick="setRestoreId({{ v.id }})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold px-2.5 py-1 rounded border border-indigo-200 cursor-pointer">Restore Snapshot</button>
+              </div>
+              {% else %}
+              <div class="p-6 text-center text-slate-400">No published version history snapshots recorded.</div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div>
+            <h3 class="font-bold text-sm text-slate-700 mb-2">🕒 Administrative Activity Audits</h3>
+            <div class="border rounded-lg divide-y bg-white max-h-64 overflow-y-auto">
+              {% for log in logs %}
+              <div class="p-3 text-xs bg-slate-50/10">
+                <div class="flex justify-between items-center text-slate-400 mb-1">
+                  <span>👤 {{ log.admin_email }} (IP: {{ log.ip_address }})</span>
+                  <span>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S UTC') }}</span>
+                </div>
+                <div class="font-semibold text-slate-700">{{ log.action }}</div>
+              </div>
+              {% else %}
+              <div class="p-6 text-center text-slate-400">No activity log trail found.</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTTOM CONTROLS ACTIONS BAR -->
+        <div class="card-premium p-4 mt-6 flex justify-between items-center bg-slate-50">
+          <div>
+            <span id="save-status" class="text-xs text-slate-400 font-medium">Changes not saved.</span>
+          </div>
+          <div class="flex gap-3">
+            <button type="submit" name="action" value="save" onclick="clearAutosave()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-sm px-4 py-2 border border-slate-300 rounded cursor-pointer">Save Draft</button>
+            <button type="submit" name="action" value="publish" onclick="clearAutosave()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-4 py-2 rounded border-none cursor-pointer">Publish Live</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Forms for RESTORE and DELETE-IMAGE -->
+<form id="homepage-restore-form" method="POST" action="" class="hidden">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+</form>
+
+<form id="homepage-delete-image-form" method="POST" action="" class="hidden">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+</form>
+
+<script>
+  let activeTab = 'hero';
+  
+  // Set delete target field
+  function setActionField(field) {
+    const form = document.getElementById('homepage-delete-image-form');
+    form.action = `/admin/homepage/delete-image/${field}`;
+  }
+
+  // Set restore snapshot ID
+  function setRestoreId(versionId) {
+    const form = document.getElementById('homepage-restore-form');
+    form.action = `/admin/homepage/restore/${versionId}`;
+  }
+
+  // Tab switching
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    
+    document.getElementById(`tab-content-${tabId}`).classList.remove('hidden');
+    document.getElementById(`tab-btn-${tabId}`).classList.add('active');
+    activeTab = tabId;
+  }
+
+  // 1. STATS REPEATER SCRIPT
+  let statsData = [];
+  try {
+    statsData = JSON.parse(document.getElementById('stats_kpis').value || '[]');
+  } catch (e) {
+    statsData = [];
+  }
+
+  function addStatRow(num = "", lbl = "", icon = "ri-star-s-fill", speed = "1500") {
+    const container = document.getElementById('stats-wrapper');
+    const idx = container.children.length;
+    
+    const row = document.createElement('div');
+    row.className = "flex gap-2 items-center bg-slate-50 p-3 border rounded-lg";
+    row.id = `stat-row-${idx}`;
+    row.innerHTML = `
+      <input type="text" class="form-control py-1 font-bold text-center w-16" value="${icon}" placeholder="Icon" oninput="updateStats()">
+      <input type="text" class="form-control py-1 font-bold text-indigo-600 flex-1" value="${num}" placeholder="Number (e.g. 5000+)" oninput="updateStats()">
+      <input type="text" class="form-control py-1 flex-1" value="${lbl}" placeholder="Label text (e.g. Students)" oninput="updateStats()">
+      <input type="text" class="form-control py-1 w-20 text-center" value="${speed}" placeholder="Speed ms" oninput="updateStats()">
+      <button type="button" onclick="removeStatRow(${idx})" class="bg-red-50 text-red-600 border border-red-200 rounded px-2.5 py-1 text-xs font-semibold cursor-pointer">Remove</button>
+    `;
+    container.appendChild(row);
+    updateStats();
+  }
+
+  function removeStatRow(idx) {
+    document.getElementById(`stat-row-${idx}`).remove();
+    updateStats();
+  }
+
+  function updateStats() {
+    const container = document.getElementById('stats-wrapper');
+    const items = [];
+    container.querySelectorAll('.flex').forEach(row => {
+      const inputs = row.querySelectorAll('input');
+      if (inputs.length >= 4) {
+        items.push({
+          icon: inputs[0].value.trim(),
+          number: inputs[1].value.trim(),
+          label: inputs[2].value.trim(),
+          speed: inputs[3].value.trim()
+        });
+      }
+    });
+    document.getElementById('stats_kpis').value = JSON.stringify(items);
+  }
+
+  // Load existing stats
+  if (statsData.length === 0) {
+    addStatRow("5000+", "Students", "ri-graduation-cap-line", "1500");
+    addStatRow("120+", "Workshops", "ri-flashlight-line", "1500");
+    addStatRow("50+", "Schools", "ri-building-2-line", "1500");
+    addStatRow("24×7", "Support", "ri-phone-line", "1500");
+  } else {
+    statsData.forEach(item => addStatRow(item.number, item.label, item.icon, item.speed));
+  }
+
+  // 2. PARTNERS REPEATER SCRIPT
+  let partnersData = [];
+  try {
+    partnersData = JSON.parse(document.getElementById('trusted_partners').value || '[]');
+  } catch (e) {
+    partnersData = [];
+  }
+
+  function addPartnerRow(name = "", logo = "", link = "") {
+    const container = document.getElementById('partners-wrapper');
+    const idx = container.children.length;
+    
+    const row = document.createElement('div');
+    row.className = "flex gap-2 items-center bg-slate-50 p-3 border rounded-lg";
+    row.id = `partner-row-${idx}`;
+    row.innerHTML = `
+      <input type="text" class="form-control py-1 font-bold flex-1" value="${name}" placeholder="Partner Name" oninput="updatePartners()">
+      <input type="text" class="form-control py-1 flex-1" value="${link}" placeholder="URL Redirect link" oninput="updatePartners()">
+      <button type="button" onclick="removePartnerRow(${idx})" class="bg-red-50 text-red-600 border border-red-200 rounded px-2.5 py-1 text-xs font-semibold cursor-pointer">Remove</button>
+    `;
+    container.appendChild(row);
+    updatePartners();
+  }
+
+  function removePartnerRow(idx) {
+    document.getElementById(`partner-row-${idx}`).remove();
+    updatePartners();
+  }
+
+  function updatePartners() {
+    const container = document.getElementById('partners-wrapper');
+    const items = [];
+    container.querySelectorAll('.flex').forEach(row => {
+      const inputs = row.querySelectorAll('input');
+      if (inputs.length >= 2) {
+        items.push({
+          name: inputs[0].value.trim(),
+          logo: "",
+          link: inputs[1].value.trim()
+        });
+      }
+    });
+    document.getElementById('trusted_partners').value = JSON.stringify(items);
+  }
+
+  if (partnersData.length === 0) {
+    addPartnerRow("Arduino", "", "");
+    addPartnerRow("NVIDIA", "", "");
+    addPartnerRow("Raspberry Pi", "", "");
+    addPartnerRow("Microsoft", "", "");
+  } else {
+    partnersData.forEach(p => addPartnerRow(p.name, p.logo, p.link));
+  }
+
+  // 3. FEATURED COURSES DYNAMIC CHECKBOX SYNC
+  let coursesData = [];
+  try {
+    coursesData = JSON.parse(document.getElementById('featured_courses').value || '[]');
+  } catch (e) {
+    coursesData = [];
+  }
+
+  function syncCourses() {
+    const selected = [];
+    document.querySelectorAll('[data-course]').forEach(chk => {
+      if (chk.checked) {
+        selected.push(chk.getAttribute('data-course'));
+      }
+    });
+    document.getElementById('featured_courses').value = JSON.stringify(selected);
+  }
+
+  // Initialize checks
+  document.querySelectorAll('[data-course]').forEach(chk => {
+    if (coursesData.includes(chk.getAttribute('data-course'))) {
+      chk.checked = true;
+    }
+  });
+
+  // 4. INTERNSHIPS SYNC
+  let internshipsData = [];
+  try {
+    internshipsData = JSON.parse(document.getElementById('internships_list').value || '[]');
+  } catch (e) {
+    internshipsData = [];
+  }
+
+  function syncInternships() {
+    const selected = [];
+    document.querySelectorAll('[data-internship]').forEach(chk => {
+      if (chk.checked) {
+        selected.push(chk.getAttribute('data-internship'));
+      }
+    });
+    document.getElementById('internships_list').value = JSON.stringify(selected);
+  }
+
+  document.querySelectorAll('[data-internship]').forEach(chk => {
+    if (internshipsData.includes(chk.getAttribute('data-internship'))) {
+      chk.checked = true;
+    }
+  });
+
+  // 5. TESTIMONIALS SYNC
+  let testimonialsData = [];
+  try {
+    testimonialsData = JSON.parse(document.getElementById('testimonials_list').value || '[]');
+  } catch (e) {
+    testimonialsData = [];
+  }
+
+  function syncTestimonials() {
+    const selected = [];
+    document.querySelectorAll('[data-testimonial]').forEach(chk => {
+      if (chk.checked) {
+        selected.push(chk.getAttribute('data-testimonial'));
+      }
+    });
+    document.getElementById('testimonials_list').value = JSON.stringify(selected);
+  }
+
+  document.querySelectorAll('[data-testimonial]').forEach(chk => {
+    if (testimonialsData.includes(chk.getAttribute('data-testimonial'))) {
+      chk.checked = true;
+    }
+  });
+
+  // 6. EVENTS SYNC
+  let eventsData = [];
+  try {
+    eventsData = JSON.parse(document.getElementById('events_list').value || '[]');
+  } catch (e) {
+    eventsData = [];
+  }
+
+  function syncEvents() {
+    const selected = [];
+    document.querySelectorAll('[data-event]').forEach(chk => {
+      if (chk.checked) {
+        selected.push(chk.getAttribute('data-event'));
+      }
+    });
+    document.getElementById('events_list').value = JSON.stringify(selected);
+  }
+
+  document.querySelectorAll('[data-event]').forEach(chk => {
+    if (eventsData.includes(chk.getAttribute('data-event'))) {
+      chk.checked = true;
+    }
+  });
+
+  // 7. AI LAB EQUIPMENT LIST
+  let equipmentData = [];
+  try {
+    equipmentData = JSON.parse(document.getElementById('ai_lab_equipment').value || '[]');
+  } catch (e) {
+    equipmentData = [];
+  }
+
+  function addEquipmentRow(text = "") {
+    const container = document.getElementById('equipment-wrapper');
+    const idx = container.children.length;
+    
+    const row = document.createElement('div');
+    row.className = "flex gap-2 items-center bg-slate-50 p-2 border rounded";
+    row.id = `eq-row-${idx}`;
+    row.innerHTML = `
+      <input type="text" class="form-control py-1 flex-1 text-sm" value="${text}" placeholder="NEP equipment name" oninput="updateEquipment()">
+      <button type="button" onclick="removeEquipmentRow(${idx})" class="bg-red-50 text-red-600 rounded px-2.5 py-1 text-xs font-semibold cursor-pointer border-none">&times;</button>
+    `;
+    container.appendChild(row);
+    updateEquipment();
+  }
+
+  function removeEquipmentRow(idx) {
+    document.getElementById(`eq-row-${idx}`).remove();
+    updateEquipment();
+  }
+
+  function updateEquipment() {
+    const container = document.getElementById('equipment-wrapper');
+    const items = [];
+    container.querySelectorAll('.flex').forEach(row => {
+      const input = row.querySelector('input');
+      if (input && input.value.trim() !== "") {
+        items.push(input.value.trim());
+      }
+    });
+    document.getElementById('ai_lab_equipment').value = JSON.stringify(items);
+  }
+
+  if (equipmentData.length === 0) {
+    addEquipmentRow("Complete AI Lab Setup");
+    addEquipmentRow("Robotics Kits");
+    addEquipmentRow("IoT Modules");
+    addEquipmentRow("Teacher Training");
+  } else {
+    equipmentData.forEach(text => addEquipmentRow(text));
+  }
+
+  // 8. SERVICES REPEATER
+  let servicesData = [];
+  try {
+    servicesData = JSON.parse(document.getElementById('services_list').value || '[]');
+  } catch (e) {
+    servicesData = [];
+  }
+
+  function addServiceRow(title = "", desc = "", link = "", icon = "ri-settings-2-line") {
+    const container = document.getElementById('services-wrapper');
+    const idx = container.children.length;
+    
+    const row = document.createElement('div');
+    row.className = "bg-slate-50 p-3.5 border rounded-lg flex flex-col gap-2";
+    row.id = `service-row-${idx}`;
+    row.innerHTML = `
+      <div class="flex gap-2">
+        <input type="text" class="form-control py-1 font-bold text-center w-12" value="${icon}" placeholder="Icon" oninput="updateServices()">
+        <input type="text" class="form-control py-1 font-bold flex-1" value="${title}" placeholder="Service Title" oninput="updateServices()">
+        <button type="button" onclick="removeServiceRow(${idx})" class="bg-red-50 text-red-600 rounded px-2.5 py-1 text-xs font-semibold cursor-pointer border border-red-200">Remove</button>
+      </div>
+      <input type="text" class="form-control py-1 text-xs" value="${link}" placeholder="Service link redirection URL" oninput="updateServices()">
+      <textarea class="form-control py-1 text-xs h-12" placeholder="Brief service highlight description..." oninput="updateServices()">${desc}</textarea>
+    `;
+    container.appendChild(row);
+    updateServices();
+  }
+
+  function removeServiceRow(idx) {
+    document.getElementById(`service-row-${idx}`).remove();
+    updateServices();
+  }
+
+  function updateServices() {
+    const container = document.getElementById('services-wrapper');
+    const items = [];
+    container.querySelectorAll('.bg-slate-50').forEach(row => {
+      const inputs = row.querySelectorAll('input');
+      const text = row.querySelector('textarea');
+      if (inputs.length >= 3 && text) {
+        items.push({
+          icon: inputs[0].value.trim(),
+          title: inputs[1].value.trim(),
+          link: inputs[2].value.trim(),
+          description: text.value.trim()
+        });
+      }
+    });
+    document.getElementById('services_list').value = JSON.stringify(items);
+  }
+
+  servicesData.forEach(s => addServiceRow(s.title, s.description, s.link, s.icon));
+
+  // 9. STUDENT PROJECTS REPEATER
+  let projectsData = [];
+  try {
+    projectsData = JSON.parse(document.getElementById('projects_list').value || '[]');
+  } catch (e) {
+    projectsData = [];
+  }
+
+  function addProjectRow(title = "", desc = "", tech = "", demo = "", git = "") {
+    const container = document.getElementById('projects-wrapper');
+    const idx = container.children.length;
+    
+    const row = document.createElement('div');
+    row.className = "bg-slate-50 p-3.5 border rounded-lg flex flex-col gap-2";
+    row.id = `project-row-${idx}`;
+    row.innerHTML = `
+      <div class="flex gap-2">
+        <input type="text" class="form-control py-1 font-bold flex-1" value="${title}" placeholder="Project Title" oninput="updateProjects()">
+        <button type="button" onclick="removeProjectRow(${idx})" class="bg-red-50 text-red-600 rounded px-2.5 py-1 text-xs font-semibold cursor-pointer border border-red-200">Remove</button>
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <input type="text" class="form-control py-1 text-xs col-span-1" value="${tech}" placeholder="Tech stack (e.g. OpenCV)" oninput="updateProjects()">
+        <input type="text" class="form-control py-1 text-xs col-span-1" value="${demo}" placeholder="Demo Link" oninput="updateProjects()">
+        <input type="text" class="form-control py-1 text-xs col-span-1" value="${git}" placeholder="GitHub Link" oninput="updateProjects()">
+      </div>
+      <textarea class="form-control py-1 text-xs h-12" placeholder="Brief project details..." oninput="updateProjects()">${desc}</textarea>
+    `;
+    container.appendChild(row);
+    updateProjects();
+  }
+
+  function removeProjectRow(idx) {
+    document.getElementById(`project-row-${idx}`).remove();
+    updateProjects();
+  }
+
+  function updateProjects() {
+    const container = document.getElementById('projects-wrapper');
+    const items = [];
+    container.querySelectorAll('.bg-slate-50').forEach(row => {
+      const inputs = row.querySelectorAll('input');
+      const text = row.querySelector('textarea');
+      if (inputs.length >= 4 && text) {
+        items.push({
+          title: inputs[0].value.trim(),
+          tech_stack: inputs[1].value.trim(),
+          demo_link: inputs[2].value.trim(),
+          github_link: inputs[3].value.trim(),
+          description: text.value.trim()
+        });
+      }
+    });
+    document.getElementById('projects_list').value = JSON.stringify(items);
+  }
+
+  if (projectsData.length === 0) {
+    addProjectRow("Line Follower Robot", "Robotics foundations with sensors.", "Arduino, IR Sensors", "", "");
+    addProjectRow("AI Face Detection", "Computer vision demo pipeline.", "Python, OpenCV", "", "");
+  } else {
+    projectsData.forEach(p => addProjectRow(p.title, p.description, p.tech_stack, p.demo_link, p.github_link));
+  }
+
+  // 10. FAQ ACCORDION REPEATER
+  let faqsData = [];
+  try {
+    faqsData = JSON.parse(document.getElementById('faqs_list').value || '[]');
+  } catch (e) {
+    faqsData = [];
+  }
+
+  function addFaqRow(q = "", a = "") {
+    const container = document.getElementById('faq-wrapper');
+    const idx = container.children.length;
+    
+    const row = document.createElement('div');
+    row.className = "bg-slate-50 p-3.5 border rounded-lg flex flex-col gap-2";
+    row.id = `faq-row-${idx}`;
+    row.innerHTML = `
+      <div class="flex gap-2">
+        <input type="text" class="form-control py-1 font-bold flex-1 text-sm" value="${q}" placeholder="Question" oninput="updateFaqs()">
+        <button type="button" onclick="removeFaqRow(${idx})" class="bg-red-50 text-red-600 rounded px-2 py-1 text-xs font-semibold cursor-pointer border border-red-200">Remove</button>
+      </div>
+      <textarea class="form-control py-1 text-xs h-16" placeholder="Answer content text..." oninput="updateFaqs()">${a}</textarea>
+    `;
+    container.appendChild(row);
+    updateFaqs();
+  }
+
+  function removeFaqRow(idx) {
+    document.getElementById(`faq-row-${idx}`).remove();
+    updateFaqs();
+  }
+
+  function updateFaqs() {
+    const container = document.getElementById('faq-wrapper');
+    const items = [];
+    container.querySelectorAll('.bg-slate-50').forEach(row => {
+      const input = row.querySelector('input');
+      const text = row.querySelector('textarea');
+      if (input && text) {
+        items.push({
+          question: input.value.trim(),
+          answer: text.value.trim()
+        });
+      }
+    });
+    document.getElementById('faqs_list').value = JSON.stringify(items);
+  }
+
+  faqsData.forEach(faq => addFaqRow(faq.question, faq.answer));
+
+  // 11. PAGE VISIBILITY SYNC
+  let visData = {};
+  try {
+    visData = JSON.parse(document.getElementById('section_visibilities').value || '{}');
+  } catch (e) {
+    visData = {};
+  }
+
+  function syncVisibilities() {
+    const state = {};
+    document.querySelectorAll('[data-vis]').forEach(chk => {
+      state[chk.getAttribute('data-vis')] = chk.checked ? "1" : "0";
+    });
+    document.getElementById('section_visibilities').value = JSON.stringify(state);
+  }
+
+  document.querySelectorAll('[data-vis]').forEach(chk => {
+    const key = chk.getAttribute('data-vis');
+    if (visData[key] === "0" || visData[key] === false) {
+      chk.checked = false;
+    } else {
+      chk.checked = true;
+    }
+  });
+  syncVisibilities();
+
+  // 12. LEARNING PATHS, ACHIEVEMENTS, FACULTY, CTA BANNERS PLACEHOLDER BLANK ROWS
+  // (We store empty lists or default mock structures if none exist to prevent errors)
+  let pathsData = []; try { pathsData = JSON.parse(document.getElementById('learning_paths').value || '[]'); } catch(e) {}
+  function addPathRow(title = "", steps = "") {
+    const container = document.getElementById('paths-wrapper');
+    const idx = container.children.length;
+    const row = document.createElement('div');
+    row.className = "bg-slate-50 p-3 border rounded flex gap-2 items-center";
+    row.id = `path-row-${idx}`;
+    row.innerHTML = `
+      <input type="text" class="form-control py-1 font-bold text-sm w-1/3" value="${title}" placeholder="Path Title (e.g. AI Specialist)" oninput="updatePaths()">
+      <input type="text" class="form-control py-1 text-xs flex-1" value="${steps}" placeholder="Steps (comma separated e.g. Basics, Projects, Certification)" oninput="updatePaths()">
+      <button type="button" onclick="document.getElementById('path-row-${idx}').remove(); updatePaths();" class="text-red-600 font-bold border-none bg-transparent cursor-pointer">&times;</button>
+    `;
+    container.appendChild(row);
+    updatePaths();
+  }
+  function updatePaths() {
+    const container = document.getElementById('paths-wrapper');
+    const items = [];
+    container.querySelectorAll('.bg-slate-50').forEach(row => {
+      const inputs = row.querySelectorAll('input');
+      if (inputs.length >= 2) {
+        items.push({ title: inputs[0].value.trim(), steps: inputs[1].value.trim() });
+      }
+    });
+    document.getElementById('learning_paths').value = JSON.stringify(items);
+  }
+  pathsData.forEach(p => addPathRow(p.title, p.steps));
+
+  let badgesData = []; try { badgesData = JSON.parse(document.getElementById('achievements_list').value || '[]'); } catch(e) {}
+  function addBadgeRow(title = "", issuer = "") {
+    const container = document.getElementById('achievements-wrapper');
+    const idx = container.children.length;
+    const row = document.createElement('div');
+    row.className = "bg-slate-50 p-3 border rounded flex gap-2 items-center";
+    row.id = `badge-row-${idx}`;
+    row.innerHTML = `
+      <input type="text" class="form-control py-1 font-bold text-sm w-1/2" value="${title}" placeholder="Badge Title" oninput="updateBadges()">
+      <input type="text" class="form-control py-1 text-xs flex-1" value="${issuer}" placeholder="Issuer (e.g. MSME / ISO)" oninput="updateBadges()">
+      <button type="button" onclick="document.getElementById('badge-row-${idx}').remove(); updateBadges();" class="text-red-600 font-bold border-none bg-transparent cursor-pointer">&times;</button>
+    `;
+    container.appendChild(row);
+    updateBadges();
+  }
+  function updateBadges() {
+    const container = document.getElementById('achievements-wrapper');
+    const items = [];
+    container.querySelectorAll('.bg-slate-50').forEach(row => {
+      const inputs = row.querySelectorAll('input');
+      if (inputs.length >= 2) {
+        items.push({ title: inputs[0].value.trim(), issuer: inputs[1].value.trim() });
+      }
+    });
+    document.getElementById('achievements_list').value = JSON.stringify(items);
+  }
+  badgesData.forEach(b => addBadgeRow(b.title, b.issuer));
+
+  let facultyData = []; try { facultyData = JSON.parse(document.getElementById('faculty_list').value || '[]'); } catch(e) {}
+  function addFacultyRow(name = "", role = "") {
+    const container = document.getElementById('faculty-wrapper');
+    const idx = container.children.length;
+    const row = document.createElement('div');
+    row.className = "bg-slate-50 p-3 border rounded flex gap-2 items-center";
+    row.id = `faculty-row-${idx}`;
+    row.innerHTML = `
+      <input type="text" class="form-control py-1 font-bold text-sm w-1/2" value="${name}" placeholder="Mentor Name" oninput="updateFaculty()">
+      <input type="text" class="form-control py-1 text-xs flex-1" value="${role}" placeholder="Role (e.g. Senior Researcher)" oninput="updateFaculty()">
+      <button type="button" onclick="document.getElementById('faculty-row-${idx}').remove(); updateFaculty();" class="text-red-600 font-bold border-none bg-transparent cursor-pointer">&times;</button>
+    `;
+    container.appendChild(row);
+    updateFaculty();
+  }
+  function updateFaculty() {
+    const container = document.getElementById('faculty-wrapper');
+    const items = [];
+    container.querySelectorAll('.bg-slate-50').forEach(row => {
+      const inputs = row.querySelectorAll('input');
+      if (inputs.length >= 2) {
+        items.push({ name: inputs[0].value.trim(), role: inputs[1].value.trim() });
+      }
+    });
+    document.getElementById('faculty_list').value = JSON.stringify(items);
+  }
+  facultyData.forEach(f => addFacultyRow(f.name, f.role));
+
+  let bannersData = []; try { bannersData = JSON.parse(document.getElementById('cta_banners').value || '[]'); } catch(e) {}
+  function addBannerRow(title = "", link = "") {
+    const container = document.getElementById('banners-wrapper');
+    const idx = container.children.length;
+    const row = document.createElement('div');
+    row.className = "bg-slate-50 p-3 border rounded flex gap-2 items-center";
+    row.id = `banner-row-${idx}`;
+    row.innerHTML = `
+      <input type="text" class="form-control py-1 font-bold text-sm w-1/2" value="${title}" placeholder="Banner Promo Text" oninput="updateBanners()">
+      <input type="text" class="form-control py-1 text-xs flex-1" value="${link}" placeholder="CTA Redirect URL link" oninput="updateBanners()">
+      <button type="button" onclick="document.getElementById('banner-row-${idx}').remove(); updateBanners();" class="text-red-600 font-bold border-none bg-transparent cursor-pointer">&times;</button>
+    `;
+    container.appendChild(row);
+    updateBanners();
+  }
+  function updateBanners() {
+    const container = document.getElementById('banners-wrapper');
+    const items = [];
+    container.querySelectorAll('.bg-slate-50').forEach(row => {
+      const inputs = row.querySelectorAll('input');
+      if (inputs.length >= 2) {
+        items.push({ title: inputs[0].value.trim(), link: inputs[1].value.trim() });
+      }
+    });
+    document.getElementById('cta_banners').value = JSON.stringify(items);
+  }
+  bannersData.forEach(b => addBannerRow(b.title, b.link));
+
+  // ==========================================
+  // LOCAL STORAGE AUTOSAVE DRAFT IMPLEMENTATION
+  // ==========================================
+  const AUTOSAVE_KEY = 'soi_homepage_draft';
+
+  function initAutosave() {
+    const form = document.getElementById('homepage-cms-form');
+    
+    // Periodically save draft to local storage
+    setInterval(() => {
+      saveDraftToLocalStorage();
+    }, 4000);
+
+    // Check if draft exists on load
+    const saved = localStorage.getItem(AUTOSAVE_KEY);
+    if (saved) {
+      document.getElementById('draft-banner').classList.remove('hidden');
+    }
+  }
+
+  function saveDraftToLocalStorage() {
+    const form = document.getElementById('homepage-cms-form');
+    const formData = {};
+    
+    // Select normal fields
+    form.querySelectorAll('input[type="text"], input[type="hidden"], select, textarea').forEach(el => {
+      if (el.name && el.name !== 'csrf_token' && el.name !== 'action') {
+        formData[el.name] = el.value;
+      }
+    });
+
+    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(formData));
+    document.getElementById('save-status').innerText = "Autosaved draft to browser memory.";
+  }
+
+  function clearAutosave() {
+    localStorage.removeItem(AUTOSAVE_KEY);
+  }
+
+  function clearDraft() {
+    localStorage.removeItem(AUTOSAVE_KEY);
+    document.getElementById('draft-banner').classList.add('hidden');
+    window.location.reload();
+  }
+
+  function dismissDraftBanner() {
+    document.getElementById('draft-banner').classList.add('hidden');
+  }
+
+  // Restore draft from localStorage
+  window.addEventListener('DOMContentLoaded', () => {
+    initAutosave();
+    const saved = localStorage.getItem(AUTOSAVE_KEY);
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        Object.keys(data).forEach(key => {
+          const el = document.getElementById(key) || document.getElementsByName(key)[0];
+          if (el) {
+            el.value = data[key];
+          }
+        });
+      } catch (e) {
+        console.error('Failed to load local storage draft:', e);
+      }
+    }
+  });
+</script>
+{% endblock %}

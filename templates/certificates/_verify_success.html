@@ -1,0 +1,84 @@
+{# expects: cert, vm (from build_certificate_verify_view) #}
+<section class="reveal cert-success-panel" aria-labelledby="verify-result-title">
+  <div class="cert-success-grid">
+    <div class="cert-success-main">
+      <div class="cert-success-badge" id="verify-result-title">
+        <span class="cert-success-dot" aria-hidden="true"></span>
+        <span>Verified authentic</span>
+      </div>
+      <div class="cert-success-profile">
+        <div class="cert-avatar-wrap">
+          <img
+            src="https://ui-avatars.com/api/?name={{ (cert.user.full_name or 'Student')|urlencode }}&background=4f46e5&color=fff&size=128&rounded=true"
+            alt=""
+            width="96"
+            height="96"
+            loading="lazy"
+            decoding="async"
+            class="cert-avatar-img"
+          />
+        </div>
+        <div>
+          <h2 class="cert-success-name">{{ cert.user.full_name }}</h2>
+          <p class="cert-success-course">{{ cert.course.title }}</p>
+          <p class="cert-success-meta">
+            <span class="cert-pill cert-pill--cyan">{{ vm.category }}</span>
+            <span class="cert-pill cert-pill--green">{{ vm.grade }}</span>
+          </p>
+        </div>
+      </div>
+      <dl class="cert-dl">
+        <div><dt>Certificate ID</dt><dd><code class="cert-code">{{ cert.certificate_uid }}</code></dd></div>
+        <div><dt>Verification status</dt><dd>Active · database match</dd></div>
+        <div><dt>Issued on</dt><dd>{{ cert.issued_at.strftime('%d %b %Y') }}</dd></div>
+        {% if vm.enrollment %}
+        <div><dt>Recorded progress</dt><dd>{{ vm.enrollment.progress_pct }}% at verification</dd></div>
+        {% endif %}
+        <div><dt>Instructor</dt><dd>{{ vm.instructor }}</dd></div>
+        {% if vm.verification_hash %}
+        <div><dt>Security signature</dt><dd><code class="cert-code" style="word-break: break-all; font-size:0.75rem; font-family:monospace;">{{ vm.verification_hash }}</code></dd></div>
+        {% endif %}
+      </dl>
+      {% if vm.skills %}
+      <div class="cert-skills-block">
+        <h3 class="cert-skills-title">Skills &amp; outcomes</h3>
+        <ul class="cert-skills-list">
+          {% for s in vm.skills %}
+          <li>{{ s }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      <div class="cert-actions-row">
+        {% if vm.can_download %}
+        <a class="btn btn-primary" href="{{ url_for('certificates.download', uid=cert.certificate_uid) }}">Download PDF</a>
+        {% else %}
+        <span class="cert-hint muted">Log in as the certificate holder to download the official PDF.</span>
+        {% endif %}
+        <a class="btn btn-ghost" target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/sharing/share-offsite/?url={{ vm.verify_url|urlencode }}">Share on LinkedIn</a>
+        <button type="button" class="btn btn-ghost" id="cert-copy-link" data-url="{{ vm.verify_url }}">Copy verify link</button>
+        {% if current_user.is_authenticated and current_user.id == cert.user_id %}
+        <a class="btn btn-ghost" href="{{ url_for('dashboard.certificates') }}">Your achievements</a>
+        {% elif not current_user.is_authenticated %}
+        <a class="btn btn-ghost" href="{{ url_for('auth.login', next=request.path) }}">Login</a>
+        {% endif %}
+      </div>
+    </div>
+    <aside class="cert-success-side" aria-label="QR verification">
+      <div class="cert-qr-card">
+        <p class="cert-qr-label">Scan to open this verification</p>
+        <div class="cert-qr-frame cert-qr-pulse">
+          <img
+            src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&amp;data={{ vm.verify_url|urlencode }}"
+            width="180"
+            height="180"
+            alt="QR code linking to verification page"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <p class="muted cert-qr-foot">Tamper-evident record · Skill Orbit India</p>
+      </div>
+    </aside>
+  </div>
+</section>

@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block title %}Create Course — Teacher{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('Create course', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 style="font-size:1.5rem;">Create a complete course</h1>
+<div class="card-premium form-modern reveal" style="padding:1.25rem;max-width:680px;">
+  <form method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    
+    <!-- BASIC COURSE INFO -->
+    <hr style="border:0;border-top:1px solid var(--border);margin:1.5rem 0;">
+    <h3 style="font-size:0.95rem;margin-bottom:0.75rem;">Basic Information</h3>
+    <label>Title <input name="title" required minlength="3"></label>
+    <label>Description <textarea name="description" rows="3"></textarea></label>
+    <label>Instructor <input name="instructor_name" placeholder="Your name"></label>
+    <label>Duration <input name="duration" placeholder="4 weeks"></label>
+    <label>Level <input name="level" placeholder="Beginner"></label>
+    <label>Price (₹) <input name="price_inr" type="number" min="0" value="499"></label>
+    <label class="int-check" style="display:flex;align-items:center;gap:0.5rem;">
+      <input type="checkbox" name="is_published" checked> Publish in catalog (students only see published courses)
+    </label>
+    <label>Category <input name="category" placeholder="e.g. Web Development"></label>
+    <label>Prerequisites <textarea name="prerequisites" rows="2" placeholder="Optional"></textarea></label>
+    <label>Learning outcomes <textarea name="learning_outcomes" rows="2" placeholder="What learners will achieve"></textarea></label>
+    <label>Course thumbnail <input type="file" name="thumbnail" accept=".jpg,.jpeg,.png,.webp,.gif"></label>
+    
+    <!-- PRIMARY VIDEO -->
+    <hr style="border:0;border-top:1px solid var(--border);margin:1.5rem 0;">
+    <h3 style="font-size:0.95rem;margin-bottom:0.75rem;">Main Content</h3>
+    <label>Upload Primary Video <input type="file" name="primary_video" accept="video/*" required></label>
+    <p style="font-size:0.8rem;color:var(--muted);margin:-0.5rem 0 0.75rem;">Supported: MP4, WebM, MOV, AVI, MKV (Max 100MB)</p>
+    <div id="primary-video-preview" style="margin-bottom:1rem;"></div>
+    <label>Content / Lesson Notes <textarea name="content" rows="5"></textarea></label>
+    
+    <!-- LIVE CLASS -->
+    <hr style="border:0;border-top:1px solid var(--border);margin:1.5rem 0;">
+    <h3 style="font-size:0.95rem;margin-bottom:0.75rem;">✨ Live Class (Optional)</h3>
+    <label>Live Class URL <input name="live_class_url" type="url" placeholder="https://zoom.us/j/... or Google Meet link"></label>
+    <label>Schedule Date & Time <input name="live_class_datetime" type="datetime-local"></label>
+    
+    <!-- RECORDED VIDEOS -->
+    <hr style="border:0;border-top:1px solid var(--border);margin:1.5rem 0;">
+    <h3 style="font-size:0.95rem;margin-bottom:0.75rem;"><i class="ri-play-circle-line" aria-hidden="true"></i> Recorded Sessions (Optional)</h3>
+    <label>Upload Video Sessions <input type="file" name="recorded_videos" accept="video/*" multiple></label>
+    <p style="font-size:0.8rem;color:var(--muted);margin:-0.5rem 0 0.75rem;">Upload one or multiple videos. Max 100MB each.</p>
+    <div id="recorded-videos-preview" style="margin-bottom:1rem;"></div>
+    
+    <!-- NOTES -->
+    <hr style="border:0;border-top:1px solid var(--border);margin:1.5rem 0;">
+    <h3 style="font-size:0.95rem;margin-bottom:0.75rem;"><i class="ri-file-text-line" aria-hidden="true"></i> Study Notes (Optional)</h3>
+    <div id="notes-container"></div>
+    <button type="button" class="btn btn-ghost btn-sm" id="add-note-btn" style="margin-top:0.75rem;">+ Add note</button>
+    
+    <!-- QUIZZES -->
+    <hr style="border:0;border-top:1px solid var(--border);margin:1.5rem 0;">
+    <h3 style="font-size:0.95rem;margin-bottom:0.75rem;">❓ Quiz Questions (Optional)</h3>
+    <div id="quiz-container"></div>
+    <button type="button" class="btn btn-ghost btn-sm" id="add-quiz-btn" style="margin-top:0.75rem;">+ Add quiz question</button>
+    
+    <!-- SUBMIT -->
+    <hr style="border:0;border-top:1px solid var(--border);margin:1.5rem 0;">
+    <button type="submit" class="btn btn-primary">Create complete course</button>
+  </form>
+</div>
+
+<script>
+(function() {
+  // Store form data state for notes and quiz (videos now come from file input)
+  let notesData = [];
+  let quizData = [];
+
+  // PRIMARY VIDEO PREVIEW
+  document.querySelector('input[name="primary_video"]').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    const preview = document.getElementById('primary-video-preview');
+    if (file) {
+      const videoUrl = URL.createObjectURL(file);
+      preview.innerHTML = `
+        <div style="background:var(--bg-secondary);padding:0.75rem;border-radius:4px;">
+          <p style="margin:0 0 0.5rem;font-size:0.9rem;">Preview: ${file.name}</p>
+          <video src="${videoUrl}" controls width="100%" style="max-height:200px;border-radius:4px;"></video>
+        </div>
+      `;
+    } else {
+      preview.innerHTML = '';
+    }
+  });
+
+  // RECORDED VIDEOS PREVIEW
+  document.querySelector('input[name="recorded_videos"]').addEventListener('change', (e) => {
+    const files = Array.from(e.target.files);
+    const preview = document.getElementById('recorded-videos-preview');
+    if (files.length === 0) {
+      preview.innerHTML = '';
+      return;
+    }
+    preview.innerHTML = files.map((file, idx) => {
+      const videoUrl = URL.createObjectURL(file);
+      return `
+        <div style="background:var(--bg-secondary);padding:0.75rem;border-radius:4px;margin-bottom:0.5rem;">
+          <p style="margin:0 0 0.5rem;font-size:0.9rem;font-weight:500;">Session ${idx + 1}: ${file.name}</p>
+          <video src="${videoUrl}" controls width="100%" style="max-height:150px;border-radius:4px;"></video>
+        </div>
+      `;
+    }).join('');
+  });
+
+  // Notes management
+  function renderNotes() {
+    const container = document.getElementById('notes-container');
+    container.innerHTML = notesData.map((note, idx) => `
+      <div style="background:var(--bg-secondary);padding:0.75rem;border-radius:4px;margin-bottom:0.5rem;">
+        <input type="hidden" name="notes" value='${JSON.stringify(note)}'>
+        <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;">
+          <input type="text" placeholder="Note title" value="${note.title}" 
+            onchange="notesData[${idx}].title = this.value" style="flex:1;">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="notesData.splice(${idx}, 1); renderNotes();">Remove</button>
+        </div>
+        <textarea placeholder="Note content" rows="3" onchange="notesData[${idx}].content = this.value" style="width:100%;">${note.content}</textarea>
+      </div>
+    `).join('');
+  }
+
+  // Quiz management
+  function renderQuiz() {
+    const container = document.getElementById('quiz-container');
+    container.innerHTML = quizData.map((q, idx) => `
+      <div style="background:var(--bg-secondary);padding:0.75rem;border-radius:4px;margin-bottom:0.5rem;">
+        <input type="hidden" name="quiz" value='${JSON.stringify(q)}'>
+        <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;">
+          <input type="text" placeholder="Question" value="${q.question}" 
+            onchange="quizData[${idx}].question = this.value" style="flex:1;">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="quizData.splice(${idx}, 1); renderQuiz();">Remove</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.5rem;">
+          ${(q.options || []).map((opt, oIdx) => `
+            <input type="text" placeholder="Option ${oIdx + 1}" value="${opt}" 
+              onchange="quizData[${idx}].options[${oIdx}] = this.value">
+          `).join('')}
+        </div>
+        <input type="text" placeholder="Correct answer" value="${q.correctAnswer}" 
+          onchange="quizData[${idx}].correctAnswer = this.value" style="width:100%;">
+      </div>
+    `).join('');
+  }
+
+  // Add note
+  document.getElementById('add-note-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    notesData.push({ title: '', content: '' });
+    renderNotes();
+  });
+
+  // Add quiz
+  document.getElementById('add-quiz-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    quizData.push({ question: '', options: ['', '', '', ''], correctAnswer: '' });
+    renderQuiz();
+  });
+
+  // Form submission - serialize data
+  document.querySelector('form').addEventListener('submit', (e) => {
+    const form = e.target;
+    
+    if (notesData.length > 0) {
+      const notesField = document.createElement('input');
+      notesField.type = 'hidden';
+      notesField.name = 'notes_json';
+      notesField.value = JSON.stringify(notesData);
+      form.appendChild(notesField);
+    }
+    
+    if (quizData.length > 0) {
+      const quizField = document.createElement('input');
+      quizField.type = 'hidden';
+      quizField.name = 'quiz_json';
+      quizField.value = JSON.stringify(quizData);
+      form.appendChild(quizField);
+    }
+  });
+
+  // Initial render
+  renderNotes();
+  renderQuiz();
+})();
+</script>
+{% endblock %}
+

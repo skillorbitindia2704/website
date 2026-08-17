@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Access Denied - Skill Orbit India{% endblock %}
+{% block content %}
+<div class="error-container py-5 my-5 text-center">
+  <div class="error-code display-1 text-danger fw-bold mb-3" style="font-size: 6rem; background: linear-gradient(135deg, #ef4444, #dc2626); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">403</div>
+  <h1 class="error-title h2 mb-3 fw-bold">Access Denied</h1>
+  <p class="error-message text-muted mb-4 max-w-md mx-auto" style="max-width: 480px;">You do not have permission to view this resource. Please make sure you are logged in with the correct credentials or contact administration.</p>
+  <a href="{{ url_for('main.home') }}" class="btn btn-primary px-4 py-2" style="border-radius: 8px;">Go to Homepage</a>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Notes — Student{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Student', url_for('student.dashboard')), ('Notes', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 class="page-title">Notes &amp; files</h1>
+<div class="lms-lesson-list section-gap">
+  {% for n in rows %}
+  <article class="card-premium lms-content-card">
+    <div class="lms-resource-head">
+      <h3 style="margin:0;font-size:1rem;">{{ n.title }}</h3>
+      {% if n.file_path %}<a href="{{ n.file_path }}" class="btn btn-primary btn-sm" download target="_blank" rel="noopener">Download</a>{% endif %}
+    </div>
+    <p class="muted" style="font-size:0.85rem;">{{ n.course.title if n.course else '' }}</p>
+    {% if n.description %}<p class="muted">{{ n.description }}</p>{% endif %}
+  </article>
+  {% else %}
+  <p class="muted">No notes uploaded for your courses.</p>
+  {% endfor %}
+</div>
+{% endblock %}

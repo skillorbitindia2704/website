@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Users — Admin{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('Users', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 style="font-size:1.5rem;">Users & roles</h1>
+<p class="muted">Role <code>admin</code> unlocks the admin dashboard. Same login page for all accounts.</p>
+<div class="card-premium reveal" style="padding:0;margin-top:1rem;overflow-x:auto;">
+  <table class="table-modern">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Points</th>
+        <th>Badge</th>
+        <th>Change role</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.full_name }}{% if u.id == current_user.id %} <span class="muted">(you)</span>{% endif %}</td>
+        <td>{{ u.email }}</td>
+        <td><span class="badge-pill" style="font-size:0.7rem;">{{ u.role or 'student' }}</span></td>
+        <td>
+          <span class="badge-pill" style="font-size:0.7rem;">{{ 'Active' if u.is_active else 'Disabled' }}</span>
+        </td>
+        <td>{{ u.points }}</td>
+        <td>{{ u.badge }}</td>
+        <td>
+          <form method="post" action="{{ url_for('admin.set_user_role', user_id=u.id) }}" style="display:flex;gap:0.35rem;align-items:center;margin:0;flex-wrap:wrap;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <select name="role" style="width:auto;margin:0;padding:0.35rem;" {% if session.get('user_id') and u.id == session.get('user_id')|int %}disabled title="Use another admin to change your role"{% endif %}>
+              <option value="student" {% if (u.role or 'student') == 'student' %}selected{% endif %}>student</option>
+              <option value="teacher" {% if (u.role or 'student') == 'teacher' %}selected{% endif %}>teacher</option>
+              <option value="admin" {% if (u.role or 'student') == 'admin' %}selected{% endif %}>admin</option>
+            </select>
+            <button type="submit" class="btn btn-ghost btn-sm" {% if session.get('user_id') and u.id == session.get('user_id')|int %}disabled{% endif %}>Save</button>
+          </form>
+        </td>
+        <td>
+          <form method="post" action="{{ url_for('admin.toggle_user_active', user_id=u.id) }}" style="display:inline;margin-right:0.5rem;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-sm btn-ghost" {% if session.get('user_id') and u.id == session.get('user_id')|int %}disabled{% endif %}>
+              {{ 'Disable' if u.is_active else 'Enable' }}
+            </button>
+          </form>
+          <form method="post" action="{{ url_for('admin.delete_user', user_id=u.id) }}" style="display:inline;" onsubmit="return confirm('Delete this user? This cannot be undone.');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-sm btn-danger" {% if session.get('user_id') and u.id == session.get('user_id')|int %}disabled{% endif %}>
+              Delete
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

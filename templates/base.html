@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="format-detection" content="telephone=no">
+  <title>{% block title %}Skill Orbit India{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}{{ seo_default_description }}{% endblock %}">
+  <meta name="keywords" content="{% block meta_keywords %}{{ seo_default_keywords }}{% endblock %}">
+  <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}">
+  <meta name="author" content="{{ seo_site_name }}">
+  {% if seo_site_url %}
+  <link rel="canonical" href="{% block canonical_href %}{{ seo_site_url }}{{ request.path }}{% endblock %}">
+  {% endif %}
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:site_name" content="{{ seo_site_name }}">
+  <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
+  <meta property="og:url" content="{% block og_url %}{% if seo_site_url %}{{ seo_site_url }}{{ request.path }}{% endif %}{% endblock %}">
+  <meta property="og:locale" content="en_IN">
+  {% set ss = site_settings or {} %}
+  {% set favicon_url = ss.get('favicon_url','') %}
+  {% set logo_url = ss.get('logo_url','') %}
+
+  <link rel="icon" type="image/png" href="{% if favicon_url %}{{ url_for('static', filename=favicon_url, _external=False) }}{% else %}{{ url_for('static', filename='images/skill-orbit-logo.png', _external=False) }}{% endif %}">
+
+  <meta property="og:image" content="{% block og_image %}{{ url_for('static', filename=(logo_url if logo_url else 'images/skill-orbit-logo.png'), _external=True) }}{% endblock %}">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% block twitter_title %}{{ self.title() }}{% endblock %}">
+  <meta name="twitter:description" content="{% block twitter_description %}{{ self.meta_description() }}{% endblock %}">
+  <meta name="twitter:image" content="{% block twitter_image %}{{ self.og_image() }}{% endblock %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+  {% block structured_data %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}" data-auth="{{ '1' if current_user.is_authenticated else '0' }}">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <div class="page-loader" id="page-loader" aria-hidden="true">
+    <div class="loader-spinner"></div>
+  </div>
+  <div id="toast-root" class="toast-root" aria-live="polite" aria-relevant="additions"></div>
+  {% include "partials/navbar.html" %}
+  <main id="main-content" class="main-content" tabindex="-1">
+    {% block breadcrumbs %}{% endblock %}
+    <div class="container">
+      <script id="flash-data" type="application/json">{{ get_flashed_messages(with_categories=true) | tojson }}</script>
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+  {% include "partials/footer.html" %}
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

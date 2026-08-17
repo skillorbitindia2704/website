@@ -1,0 +1,422 @@
+{% extends "base.html" %}
+{% block title %}Courses — AI, Robotics & IoT | Skill Orbit India{% endblock %}
+{% block meta_description %}{{ page_copy.meta_description }}{% endblock %}
+{% block meta_keywords %}{{ page_copy.meta_keywords }}{% endblock %}
+{% block body_class %}page-courses{% endblock %}
+{% block extra_head %}
+<script>
+  tailwind = {
+    config: {
+      corePlugins: { preflight: false },
+      darkMode: ['selector', '[data-theme="dark"]'],
+      theme: {
+        extend: {
+          colors: {
+            brand: { 500: "#4F46E5", 600: "#4338CA" },
+            violet: { 600: "#7C3AED" },
+            accent: { 500: "#F97316" },
+            cyan: { 500: "#06B6D4" },
+          },
+        },
+      },
+    },
+  };
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+{% endblock %}
+{% block structured_data %}
+{% if courses %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Skill Orbit India Courses",
+  "itemListElement": [
+    {% for c in courses %}
+    {
+      "@type": "ListItem",
+      "position": {{ loop.index }},
+      "url": "{{ url_for('courses.list_courses', _external=True) }}#course-catalog",
+      "name": {{ c.title|tojson }}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endif %}
+{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Courses', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+
+<!-- HERO -->
+<section class="reveal" aria-labelledby="courses-hero-title">
+  <div class="card-premium" style="padding:0;overflow:hidden;border-radius:var(--radius-lg);">
+    <div class="relative" style="background:linear-gradient(135deg,#0B1225 0%,#111827 35%,#1D4ED8 65%,#7C3AED 100%);">
+      <div class="courses-particles" aria-hidden="true"></div>
+      <div class="absolute inset-0" style="background:
+        radial-gradient(55% 55% at 15% 20%, rgba(79,70,229,.4), transparent 55%),
+        radial-gradient(45% 45% at 85% 30%, rgba(6,182,212,.28), transparent 55%),
+        radial-gradient(50% 50% at 50% 90%, rgba(249,115,22,.18), transparent 55%);
+        pointer-events:none;"></div>
+      <div class="relative px-6 py-10 md:px-10 md:py-14 lg:px-12 lg:py-16">
+        <div class="grid gap-10 lg:grid-cols-12 items-center">
+          <div class="lg:col-span-7">
+            <span class="level-pill" style="background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);">Course catalog</span>
+            <h1 id="courses-hero-title" class="mt-4 text-white font-extrabold leading-tight" style="font-family:var(--font-display);font-size:clamp(1.85rem,3.6vw,2.85rem);letter-spacing:-0.02em;">
+              {{ page_copy.hero_heading }}
+            </h1>
+            <p class="mt-4 text-white/85 max-w-2xl" style="font-size:1.05rem;line-height:1.75;">
+              {{ page_copy.hero_subtitle }}
+            </p>
+            <div class="mt-6 flex flex-wrap gap-3">
+              <a href="#course-catalog" class="btn btn-primary">Explore Free Courses</a>
+              <a href="{{ url_for('ai_lab.index') }}" class="btn btn-accent">Visit AI Lab</a>
+            </div>
+            <div class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {% for n,l in [('5000+','Students Trained'),('120+','Expert Mentors'),('250+','Hands-on Projects'),('24×7','Support')] %}
+              <div class="glass-panel" style="padding:0.85rem;border-radius:14px;">
+                <p class="text-white font-extrabold" style="margin:0;font-family:var(--font-display);font-size:1.15rem;">{{ n }}</p>
+                <p class="text-white/70" style="margin:0;font-size:0.8rem;">{{ l }}</p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="lg:col-span-5">
+            <div class="card-premium glass-panel courses-hero-float" style="padding:1rem;border-radius:22px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);">
+              <div class="relative" style="aspect-ratio:4/3;border-radius:18px;overflow:hidden;background:linear-gradient(145deg,rgba(79,70,229,.25),rgba(6,182,212,.2),rgba(249,115,22,.15));display:flex;align-items:center;justify-content:center;">
+                <div style="text-align:center;padding:1rem;">
+                  <div style="font-size:2.5rem;" aria-hidden="true"><i class="ri-robot-2-line"></i></div>
+                  <p class="text-white font-bold" style="margin:0.5rem 0 0;">Labs · Projects · Mentors</p>
+                  <p class="text-white/75" style="margin:0.25rem 0 0;font-size:0.9rem;">Build robots, train models, ship IoT.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FILTERS -->
+<section class="reveal section-gap-lg" id="course-filters" aria-label="Course search and filters">
+  <div class="card-premium" style="padding:1.25rem;">
+    <form id="course-filter-form" method="get" action="{{ url_for('courses.list_courses') }}" class="grid gap-3 md:grid-cols-12 md:items-end" style="align-items:flex-end;">
+      <div class="md:col-span-3">
+        <label class="muted" style="font-size:0.8rem;font-weight:700;">Search</label>
+        <input type="search" name="q" value="{{ filter_q }}" placeholder="Python, AI, Arduino…" class="w-full" style="margin-top:0.35rem;padding:0.65rem 0.75rem;border-radius:12px;border:1px solid var(--border);background:var(--bg-elevated);">
+      </div>
+      <div class="md:col-span-2">
+        <label class="muted" style="font-size:0.8rem;font-weight:700;">Category</label>
+        <select name="category" class="w-full" style="margin-top:0.35rem;padding:0.65rem;border-radius:12px;border:1px solid var(--border);">
+          <option value="">All</option>
+          {% for cat in category_list %}
+          <option value="{{ cat }}" {% if filter_category == cat %}selected{% endif %}>{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="md:col-span-2">
+        <label class="muted" style="font-size:0.8rem;font-weight:700;">Difficulty</label>
+        <select name="level" class="w-full" style="margin-top:0.35rem;padding:0.65rem;border-radius:12px;border:1px solid var(--border);">
+          <option value="">Any</option>
+          {% for lv in ['Beginner','Intermediate','Advanced'] %}
+          <option value="{{ lv }}" {% if filter_level == lv %}selected{% endif %}>{{ lv }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="md:col-span-2">
+        <label class="muted" style="font-size:0.8rem;font-weight:700;">Duration</label>
+        <input type="text" name="duration" value="{{ filter_duration }}" placeholder="e.g. 4 weeks" class="w-full" style="margin-top:0.35rem;padding:0.65rem;border-radius:12px;border:1px solid var(--border);">
+      </div>
+      <div class="md:col-span-2">
+        <label class="muted" style="font-size:0.8rem;font-weight:700;">Pricing</label>
+        <select name="price" class="w-full" style="margin-top:0.35rem;padding:0.65rem;border-radius:12px;border:1px solid var(--border);">
+          <option value="">Any</option>
+          <option value="free" {% if filter_price == 'free' %}selected{% endif %}>Free</option>
+          <option value="under1k" {% if filter_price == 'under1k' %}selected{% endif %}>Under ₹1,000</option>
+          <option value="1k5k" {% if filter_price == '1k5k' %}selected{% endif %}>₹1k – ₹5k</option>
+          <option value="5kplus" {% if filter_price == '5kplus' %}selected{% endif %}>₹5k+</option>
+        </select>
+      </div>
+      <div class="md:col-span-1 flex gap-2">
+        <button type="submit" class="btn btn-primary" style="width:100%;">Go</button>
+      </div>
+    </form>
+    <div class="form-actions-row" style="margin-top:1rem;flex-wrap:wrap;">
+      <span class="muted" style="font-size:0.85rem;font-weight:700;margin-right:0.5rem;">Popular:</span>
+      {% for tag in ['Python','AI','Robotics','IoT','Arduino','ESP32','Machine Learning','Computer Vision','Embedded Systems'] %}
+      <button type="button" class="btn btn-ghost btn-sm course-tag-btn" data-tag="{{ tag }}">{{ tag }}</button>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- COURSE GRID -->
+<div class="section-head reveal"><h2 id="course-catalog-heading">All courses</h2>
+  <p class="muted">{{ courses|length }} course{% if courses|length != 1 %}s{% endif %} match your filters. Save favourites on this device.</p>
+</div>
+<section class="grid-cards reveal" id="course-catalog" aria-labelledby="course-catalog-heading" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr));">
+  {% for c in courses %}
+  {% set en = enrollment_by_course.get(c.id) %}
+  {% set paid_n = paid_enrollment_by_course.get(c.id, 0) %}
+  {% set show_students = c.enrolled_count_display if c.enrolled_count_display else paid_n %}
+  {% set list_p = c.list_price_inr if c.list_price_inr and c.list_price_inr > c.price_inr else 0 %}
+  <article
+    class="card-premium course-catalog-card surface-card-lg"
+    style="padding:0;overflow:hidden;display:flex;flex-direction:column;"
+    data-title="{{ (c.title ~ ' ' ~ (c.category or '') ~ ' ' ~ (c.description or ''))|lower|e }}"
+    data-category="{{ (c.category or '')|lower }}"
+    data-level="{{ (c.level or '')|lower }}"
+    data-duration="{{ (c.duration or '')|lower }}"
+    data-price="{{ c.price_inr }}">
+    <div class="course-card-media" style="position:relative;aspect-ratio:16/10;overflow:hidden;background:linear-gradient(135deg,rgba(79,70,229,.2),rgba(6,182,212,.15));">
+      {% if c.thumbnail_path %}
+      <img src="{{ url_for('static', filename=c.thumbnail_path) }}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;">
+      {% else %}
+      <div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:2.5rem;" aria-hidden="true"><i class="ri-book-open-line"></i></div>
+      {% endif %}
+      {% if c.is_featured %}<span class="level-pill" style="position:absolute;top:0.65rem;left:0.65rem;background:rgba(249,115,22,.95);color:#fff;border:0;">Featured</span>{% endif %}
+      <button type="button" class="icon-btn course-save-btn" data-course-id="{{ c.id }}" aria-label="Save course" aria-pressed="false" title="Save on this device"
+              style="position:absolute;top:0.5rem;right:0.5rem;width:40px;height:40px;border-radius:12px;background:rgba(15,23,42,.55);border:1px solid rgba(255,255,255,.25);color:#fff;"><i class="ri-heart-line" aria-hidden="true"></i></button>
+    </div>
+    <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;flex-wrap:wrap;">
+        {% if c.category %}<span class="level-pill">{{ c.category }}</span>{% endif %}
+        <span class="muted" style="font-size:0.8rem;">{{ c.level }}</span>
+      </div>
+      <h3 class="card-title-sm" style="margin-top:0.5rem;">{{ c.title }}</h3>
+      <p class="muted" style="font-size:0.88rem;margin:0;flex:1;line-height:1.55;">{{ c.description[:120] }}{% if c.description|length > 120 %}…{% endif %}</p>
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.75rem;flex-wrap:wrap;font-size:0.85rem;">
+        <span class="muted"><i class="ri-timer-line" aria-hidden="true"></i> {{ c.duration }}</span>
+        <span class="muted"><i class="ri-user-3-line" aria-hidden="true"></i> {{ show_students }} learners</span>
+        <span class="muted"><i class="ri-star-s-fill" aria-hidden="true"></i> {{ '%.1f'|format(c.rating_avg or 4.8) }} <span style="opacity:.7;">({{ c.rating_count or 0 }})</span></span>
+      </div>
+      <div style="margin-top:1rem;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
+        <div>
+          {% if list_p %}
+          <span class="muted" style="text-decoration:line-through;margin-right:0.35rem;">₹{{ list_p }}</span>
+          {% endif %}
+          <strong style="font-size:1.15rem;color:var(--primary-from);">₹{{ c.price_inr }}</strong>
+        </div>
+        {% if current_user.is_authenticated %}
+          {% if en and en.is_paid %}
+          <a href="{{ url_for('courses.learn', course_id=c.id) }}" class="btn btn-primary btn-sm">Continue</a>
+          {% else %}
+          <a href="{{ url_for('courses.buy_course', course_id=c.id) }}" class="btn btn-primary btn-sm">Enroll</a>
+          {% endif %}
+        {% else %}
+          <a href="{{ url_for('auth.login', next=request.path + '#course-catalog') }}" class="btn btn-primary btn-sm">Login to enroll</a>
+        {% endif %}
+      </div>
+    </div>
+  </article>
+  {% else %}
+  <p class="muted">No courses match these filters. <a href="{{ url_for('courses.list_courses') }}">Reset</a>.</p>
+  {% endfor %}
+</section>
+
+<!-- LEARNING PATHS -->
+{% if learning_paths %}
+<div class="section-head reveal section-gap-lg"><h2>Learning paths</h2><p class="muted">Roadmaps from foundations to advanced builds.</p></div>
+<section class="grid-cards reveal" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));">
+  {% for p in learning_paths %}
+  <article class="card-premium surface-card-lg">
+    <h3 class="card-title-sm">{{ p.title }}</h3>
+    {% if p.description %}<p class="muted">{{ p.description }}</p>{% endif %}
+    <div class="course-path-flow" style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.35rem;align-items:center;">
+      {% for step in p.step_list() %}
+      <span class="chip-soft" style="font-size:0.8rem;">{{ step }}</span>
+      {% if not loop.last %}<i class="ri-arrow-right-s-line muted" aria-hidden="true"></i>{% endif %}
+      {% endfor %}
+    </div>
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
+
+<!-- CATEGORIES -->
+<div class="section-head reveal section-gap-lg"><h2>Browse by category</h2></div>
+<section class="grid-cards reveal" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr));">
+  {% set cats = [
+    ('Artificial Intelligence','ri-brain-line','AI'),
+    ('Robotics','ri-robot-2-line','Robotics'),
+    ('IoT','ri-global-line','IoT'),
+    ('Embedded Systems','ri-hard-drive-line','Embedded'),
+    ('Electronics','ri-flashlight-line','Electronics'),
+    ('Python Programming','ri-code-line','Python'),
+    ('Automation','ri-settings-2-line','Automation'),
+    ('STEM Learning','ri-telescope-line','STEM')
+  ] %}
+  {% for label, ic, q in cats %}
+  <a href="{{ url_for('courses.list_courses', category=q) }}" class="card-premium surface-card course-cat-tile" style="text-align:center;padding:1.1rem 0.75rem;">
+    <div style="font-size:1.75rem;" aria-hidden="true">{{ ic|remix_icon }}</div>
+    <p style="margin:0.5rem 0 0;font-weight:800;font-size:0.9rem;">{{ label }}</p>
+  </a>
+  {% endfor %}
+</section>
+
+<!-- WHY US -->
+<div class="section-head reveal section-gap-lg"><h2>Why learn with us</h2></div>
+<section class="grid-cards reveal" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));align-items:stretch;">
+  <article class="card-premium surface-card-lg">
+    <h3 class="card-title-sm">Industry-aligned curriculum</h3>
+    <p class="muted">Practical modules mapped to real skills employers value.</p>
+  </article>
+  <article class="card-premium surface-card-lg">
+    <h3 class="card-title-sm">Hands-on & projects</h3>
+    <p class="muted">Labs, kits, and build-first assignments—not slides only.</p>
+  </article>
+  <article class="card-premium surface-card-lg">
+    <h3 class="card-title-sm">Mentors & internships</h3>
+    <p class="muted">Guidance from practitioners plus internship pathways.</p>
+  </article>
+  <article class="card-premium surface-card-lg">
+    <h3 class="card-title-sm">Verified certificates</h3>
+    <p class="muted">Public verification workflow for credentials you can share.</p>
+  </article>
+</section>
+<div class="grid-cards reveal section-gap" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));">
+  {% for v,l,suf in [(95,'Satisfaction','%'),(100,'Projects','+'),(20,'Mentors','+')] %}
+  <article class="card-premium surface-card" style="text-align:center;">
+    <p class="num js-countup" data-count="{{ v }}" style="margin:0;font-family:var(--font-display);font-weight:900;font-size:1.75rem;color:var(--primary-from);">{{ v }}{{ suf }}</p>
+    <p class="muted" style="margin:0.35rem 0 0;font-size:0.88rem;">{{ l }}</p>
+  </article>
+  {% endfor %}
+  <article class="card-premium surface-card" style="text-align:center;">
+    <p style="margin:0;font-family:var(--font-display);font-weight:900;font-size:1.75rem;color:var(--primary-from);">24×7</p>
+    <p class="muted" style="margin:0.35rem 0 0;font-size:0.88rem;">Support</p>
+  </article>
+</div>
+
+<!-- PROJECTS -->
+{% if showcase_projects %}
+<div class="section-head reveal section-gap-lg"><h2>Student project showcase</h2></div>
+<section class="grid-cards reveal">
+  {% for p in showcase_projects %}
+  <article class="card-premium" style="padding:0;overflow:hidden;">
+    <div style="aspect-ratio:16/10;position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(79,70,229,.2),rgba(6,182,212,.15));">
+      {% if p.image_path %}
+      <img src="{{ url_for('static', filename=p.image_path) }}" alt="{{ p.title }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+      {% else %}
+      <div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:2rem;" aria-hidden="true"><i class="ri-tools-line"></i></div>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      <h3 class="card-title-sm">{{ p.title }}</h3>
+      <p class="muted" style="font-size:0.9rem;">{{ p.description[:140] }}{% if p.description|length > 140 %}…{% endif %}</p>
+      <p class="muted" style="font-size:0.8rem;margin:0;">{{ p.technologies }}</p>
+    </div>
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
+
+<!-- EVENTS -->
+{% if events %}
+<div class="section-head reveal section-gap-lg"><h2>Workshops & events</h2></div>
+<section class="grid-cards reveal">
+  {% for ev in events %}
+  <article class="card-premium surface-card-lg" style="padding:0;overflow:hidden;">
+    <div style="aspect-ratio:16/9;background:linear-gradient(135deg,rgba(37,99,235,.25),rgba(124,58,237,.2));position:relative;">
+      {% if ev.image_path %}
+      <img src="{{ url_for('static', filename=ev.image_path) }}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+      {% else %}
+      <div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:2rem;"><i class="ri-calendar-line"></i></div>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      <h3 class="card-title-sm">{{ ev.name }}</h3>
+      <p class="muted" style="margin:0.25rem 0 0;font-size:0.9rem;">{{ ev.date_text }} · {{ ev.location }}{% if ev.mode %} · {{ ev.mode }}{% endif %}</p>
+      <div class="form-actions-row" style="margin-top:0.75rem;">
+        {% if ev.register_url %}
+        <a href="{{ ev.register_url }}" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Register</a>
+        {% else %}
+        <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-sm">Sign up</a>
+        {% endif %}
+      </div>
+    </div>
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
+
+<!-- CERTS -->
+<div class="section-head reveal section-gap-lg"><h2>Certifications & trust</h2></div>
+<section class="grid-cards reveal">
+  {% if cert_highlights %}
+    {% for h in cert_highlights %}
+    <article class="card-premium surface-card" style="text-align:center;">
+      <div style="font-size:2rem;">{{ h.icon }}</div>
+      <h3 class="card-title-sm">{{ h.title }}</h3>
+      <p class="muted" style="margin:0;">{{ h.subtitle }}</p>
+    </article>
+    {% endfor %}
+  {% else %}
+    {% for t,s,ic in [('AI Certification','Industry-ready AI skills','ri-graduation-cap-line'),('Robotics Certification','Build & program bots','ri-robot-2-line'),('IoT Certification','Connected systems','ri-global-line'),('Python Certification','Core to AI stack','ri-code-line')] %}
+    <article class="card-premium surface-card" style="text-align:center;">
+      <div style="font-size:2rem;">{{ ic|remix_icon }}</div>
+      <h3 class="card-title-sm">{{ t }}</h3>
+      <p class="muted" style="margin:0;">{{ s }}</p>
+    </article>
+    {% endfor %}
+  {% endif %}
+</section>
+<div class="card-premium reveal chip-soft" style="padding:1rem;text-align:center;margin-top:1rem;">
+  <p class="muted" style="margin:0;">QR verification · <a href="{{ url_for('certificates.verify_lookup') }}">Verify a certificate</a> · ISO / Startup India / MSME / Google Reviews</p>
+</div>
+
+<!-- CTA -->
+<section class="cta-banner reveal section-gap-lg" style="background:linear-gradient(135deg, rgba(249,115,22,0.96), rgba(234,88,12,0.93));">
+  <h3>Ready to Start Your Learning Journey?</h3>
+  <p>Join learners shipping real AI, robotics, and IoT projects.</p>
+  <div class="hero-cta" style="justify-content:center;">
+    <a href="{{ url_for('auth.signup') }}" class="btn btn-primary">Sign Up Now</a>
+    <a href="#course-catalog" class="btn btn-ghost">Browse Courses</a>
+  </div>
+</section>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+(function () {
+  var form = document.getElementById("course-filter-form");
+  var qInput = form && form.querySelector("input[name='q']");
+  document.querySelectorAll(".course-tag-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      if (!form || !qInput) return;
+      qInput.value = btn.getAttribute("data-tag") || "";
+      form.submit();
+    });
+  });
+  var countEls = document.querySelectorAll(".page-courses .js-countup[data-count]");
+  if (countEls.length && "IntersectionObserver" in window) {
+    var started = new Set();
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var el = e.target;
+        if (started.has(el)) return;
+        started.add(el);
+        var target = Number(el.getAttribute("data-count") || "0") || 0;
+        var suffix = (el.textContent || "").replace(/[0-9]/g, "");
+        var t0 = null;
+        function tick(ts) {
+          if (!t0) t0 = ts;
+          var p = Math.min(1, (ts - t0) / 900);
+          el.textContent = String(Math.round(target * p)) + suffix;
+          if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+        io.unobserve(el);
+      });
+    }, { threshold: 0.2 });
+    countEls.forEach(function (el) { io.observe(el); });
+  }
+})();
+</script>
+{% endblock %}

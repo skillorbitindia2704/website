@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Courses Page Content — Admin{% endblock %}
+{% block content %}
+<h1>Courses page — copy &amp; SEO</h1>
+<p class="muted">Hero text and meta fields used on the public <code>/courses</code> page.</p>
+
+<div class="card-premium">
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% for key, label in keys %}
+      <div class="form-field" style="margin-bottom:1rem;">
+        <label for="{{ key }}"><strong>{{ label }}</strong></label>
+        {% if key in ('hero_subtitle', 'meta_description', 'meta_keywords') %}
+          <textarea id="{{ key }}" name="{{ key }}" rows="4" style="width:100%;">{{ values.get(key, '') }}</textarea>
+        {% else %}
+          <input id="{{ key }}" name="{{ key }}" type="text" value="{{ values.get(key, '') }}" style="width:100%;" />
+        {% endif %}
+      </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Save</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,599 @@
+{% extends "base.html" %}
+{% block title %}Homepage Hero Manager — Admin Dashboard{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('Homepage Hero Manager', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block extra_head %}
+<style>
+  .hero-admin {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .hero-section {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .section-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #1a202c;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0.75rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #2d3748;
+  }
+  
+  .form-group input[type="text"],
+  .form-group input[type="url"],
+  .form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  
+  .form-group input[type="text"]:focus,
+  .form-group input[type="url"]:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  }
+  
+  .form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .upload-zone {
+    border: 2px dashed #cbd5e0;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f7fafc;
+  }
+  
+  .upload-zone:hover {
+    border-color: #4f46e5;
+    background: #eef2ff;
+  }
+  
+  .upload-zone.dragover {
+    border-color: #4f46e5;
+    background: #eef2ff;
+  }
+  
+  .upload-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .upload-text {
+    color: #4a5568;
+    margin-bottom: 0.25rem;
+  }
+  
+  .upload-hint {
+    font-size: 0.85rem;
+    color: #718096;
+  }
+  
+  .upload-input {
+    display: none;
+  }
+  
+  .image-preview {
+    margin-top: 1rem;
+    position: relative;
+  }
+  
+  .image-preview img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  
+  .delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #e53e3e;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+  
+  .delete-btn:hover {
+    background: #c53030;
+  }
+  
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  
+  @media (max-width: 768px) {
+    .image-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .image-card {
+    background: #f7fafc;
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+  
+  .preview-section {
+    background: #f7fafc;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-top: 2rem;
+  }
+  
+  .preview-hero {
+    background: linear-gradient(135deg, #0B1225 0%, #111827 30%, #1D4ED8 60%, #7C3AED 100%);
+    border-radius: 8px;
+    padding: 2rem;
+    color: white;
+    margin-bottom: 2rem;
+  }
+  
+  .preview-heading {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  
+  .preview-text {
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-primary {
+    background: #4f46e5;
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: #4338ca;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+  }
+  
+  .btn-secondary {
+    background: #e2e8f0;
+    color: #2d3748;
+  }
+  
+  .btn-secondary:hover {
+    background: #cbd5e0;
+  }
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-item {
+    background: #f7fafc;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 3px solid #4f46e5;
+  }
+  
+  .stat-label {
+    font-size: 0.85rem;
+    color: #718096;
+    margin-bottom: 0.5rem;
+  }
+  
+  .stat-value {
+    font-weight: 600;
+    color: #2d3748;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-admin">
+  <div class="hero-section">
+    <h1 style="font-size: 2rem; margin-bottom: 0.5rem; color: #1a202c;">Homepage Hero Manager</h1>
+    <p style="color: #718096; margin-bottom: 0;">Control all homepage visuals and content from here.</p>
+  </div>
+
+  <form method="POST" enctype="multipart/form-data">
+    <!-- BADGE & HERO TEXT SECTION -->
+    <div class="hero-section">
+      <div class="section-title"><i class="ri-target-line" aria-hidden="true"></i> Hero Section Content</div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="badge_text">Badge Text</label>
+          <input type="text" id="badge_text" name="badge_text" value="{{ hero.badge_text or 'AI • Robotics • Electronics' }}" placeholder="e.g., AI • Robotics • Electronics">
+        </div>
+        <div class="form-group">
+          <label for="badge_subtext">Badge Subtext</label>
+          <input type="text" id="badge_subtext" name="badge_subtext" value="{{ hero.badge_subtext or 'India learning orbit' }}" placeholder="e.g., India's learning orbit">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="heading">Main Heading</label>
+        <input type="text" id="heading" name="heading" value="{{ hero.heading }}" placeholder="e.g., Premium AI + Robotics Learning Platform">
+      </div>
+
+      <div class="form-group">
+        <label for="description">Hero Description</label>
+        <textarea id="description" name="description" placeholder="Enter hero section description...">{{ hero.description }}</textarea>
+      </div>
+    </div>
+
+    <!-- CTA BUTTONS SECTION -->
+    <div class="hero-section">
+      <div class="section-title"><i class="ri-checkbox-blank-circle-line" aria-hidden="true"></i> Call-to-Action Buttons</div>
+      
+      <div style="margin-bottom: 2rem;">
+        <h3 style="font-size: 1rem; color: #2d3748; margin-bottom: 1rem;">Primary Button</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="primary_button_text">Button Text</label>
+            <input type="text" id="primary_button_text" name="primary_button_text" value="{{ hero.primary_button_text }}" placeholder="e.g., Explore Courses">
+          </div>
+          <div class="form-group">
+            <label for="primary_button_link">Button Link</label>
+            <input type="url" id="primary_button_link" name="primary_button_link" value="{{ hero.primary_button_link }}" placeholder="e.g., /courses">
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 2rem;">
+        <h3 style="font-size: 1rem; color: #2d3748; margin-bottom: 1rem;">Secondary Button</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="secondary_button_text">Button Text</label>
+            <input type="text" id="secondary_button_text" name="secondary_button_text" value="{{ hero.secondary_button_text }}" placeholder="e.g., Book Free Demo">
+          </div>
+          <div class="form-group">
+            <label for="secondary_button_link">Button Link</label>
+            <input type="url" id="secondary_button_link" name="secondary_button_link" value="{{ hero.secondary_button_link }}" placeholder="e.g., /ai-lab#enquiry">
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 style="font-size: 1rem; color: #2d3748; margin-bottom: 1rem;">Tertiary Button</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="tertiary_button_text">Button Text</label>
+            <input type="text" id="tertiary_button_text" name="tertiary_button_text" value="{{ hero.tertiary_button_text }}" placeholder="e.g., Watch Video">
+          </div>
+          <div class="form-group">
+            <label for="tertiary_button_link">Button Link</label>
+            <input type="url" id="tertiary_button_link" name="tertiary_button_link" value="{{ hero.tertiary_button_link }}" placeholder="e.g., /courses">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HERO IMAGE UPLOAD -->
+    <div class="hero-section">
+      <div class="section-title"><i class="ri-camera-line" aria-hidden="true"></i> Main Hero Image</div>
+      
+      <div class="form-group">
+        <label>Upload Hero Image (Drag & Drop or Click)</label>
+          <div class="upload-zone" id="hero_image_zone" onclick="document.getElementById('hero_image_input').click();">
+          <div class="upload-icon"><i class="ri-upload-cloud-line" aria-hidden="true"></i></div>
+          <div class="upload-text">Drag and drop your image here, or click to select</div>
+          <div class="upload-hint">Recommended: 1200×600px | PNG, JPG, WebP</div>
+          <input type="file" id="hero_image_input" name="hero_image" class="upload-input" accept="image/*">
+        </div>
+        {% if hero.hero_image %}
+        <div class="image-preview">
+          <img src="{{ url_for('static', filename=hero.hero_image) }}" alt="Hero image preview">
+          <form method="POST" action="{{ url_for('admin.homepage_hero_delete_image', image_field='hero_image') }}" style="display: inline;">
+            <button type="submit" class="delete-btn" onclick="return confirm('Delete this image?');">Delete</button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- RIGHT SIDE CARD SECTION -->
+    <div class="hero-section">
+      <div class="section-title"><i class="ri-robot-2-line" aria-hidden="true"></i> AI Lab Card Content</div>
+      
+      <div class="form-group">
+        <label for="ai_lab_card_title">Card Title</label>
+        <input type="text" id="ai_lab_card_title" name="ai_lab_card_title" value="{{ hero.ai_lab_card_title }}" placeholder="e.g., AI & Robotics Lab Atmosphere">
+      </div>
+
+      <div class="form-group">
+        <label for="ai_lab_card_description">Card Description</label>
+        <textarea id="ai_lab_card_description" name="ai_lab_card_description" placeholder="Enter card description...">{{ hero.ai_lab_card_description }}</textarea>
+      </div>
+
+      <!-- Card Features -->
+      <div style="margin-top: 2rem;">
+        <h3 style="font-size: 1rem; color: #2d3748; margin-bottom: 1rem;">Feature 1</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="card_feature_1_title">Title</label>
+            <input type="text" id="card_feature_1_title" name="card_feature_1_title" value="{{ hero.card_feature_1_title }}" placeholder="e.g., Live Projects">
+          </div>
+          <div class="form-group">
+            <label for="card_feature_1_desc">Description</label>
+            <input type="text" id="card_feature_1_desc" name="card_feature_1_desc" value="{{ hero.card_feature_1_desc }}" placeholder="e.g., Portfolio-ready builds">
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 2rem;">
+        <h3 style="font-size: 1rem; color: #2d3748; margin-bottom: 1rem;">Feature 2</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="card_feature_2_title">Title</label>
+            <input type="text" id="card_feature_2_title" name="card_feature_2_title" value="{{ hero.card_feature_2_title }}" placeholder="e.g., Verified Certs">
+          </div>
+          <div class="form-group">
+            <label for="card_feature_2_desc">Description</label>
+            <input type="text" id="card_feature_2_desc" name="card_feature_2_desc" value="{{ hero.card_feature_2_desc }}" placeholder="e.g., QR verification">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT CARD VISUALS -->
+    <div class="hero-section">
+      <div class="section-title"><i class="ri-palette-line" aria-hidden="true"></i> Right Card Visuals</div>
+      
+      <div class="image-grid">
+        <div class="image-card">
+          <label style="display: block; margin-bottom: 1rem; font-weight: 500;">AI Lab Image</label>
+            <div class="upload-zone" onclick="document.getElementById('ai_lab_image_input').click();">
+            <div class="upload-icon"><i class="ri-robot-2-line" aria-hidden="true"></i></div>
+            <div class="upload-text">Click to upload</div>
+            <input type="file" id="ai_lab_image_input" name="ai_lab_image" class="upload-input" accept="image/*">
+          </div>
+          {% if hero.ai_lab_image %}
+          <div class="image-preview">
+            <img src="{{ url_for('static', filename=hero.ai_lab_image) }}" alt="AI Lab preview">
+            <form method="POST" action="{{ url_for('admin.homepage_hero_delete_image', image_field='ai_lab_image') }}" style="display: inline;">
+              <button type="submit" class="delete-btn" onclick="return confirm('Delete this image?');">Delete</button>
+            </form>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="image-card">
+          <label style="display: block; margin-bottom: 1rem; font-weight: 500;">Robotics Image</label>
+          <div class="upload-zone" onclick="document.getElementById('robotics_image_input').click();">
+            <div class="upload-icon"><i class="ri-robot-2-line" aria-hidden="true"></i></div>
+            <div class="upload-text">Click to upload</div>
+            <input type="file" id="robotics_image_input" name="robotics_image" class="upload-input" accept="image/*">
+          </div>
+          {% if hero.robotics_image %}
+          <div class="image-preview">
+            <img src="{{ url_for('static', filename=hero.robotics_image) }}" alt="Robotics preview">
+            <form method="POST" action="{{ url_for('admin.homepage_hero_delete_image', image_field='robotics_image') }}" style="display: inline;">
+              <button type="submit" class="delete-btn" onclick="return confirm('Delete this image?');">Delete</button>
+            </form>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="image-card">
+          <label style="display: block; margin-bottom: 1rem; font-weight: 500;">Workshop Image</label>
+          <div class="upload-zone" onclick="document.getElementById('workshop_image_input').click();">
+            <div class="upload-icon"><i class="ri-tools-line" aria-hidden="true"></i></div>
+            <div class="upload-text">Click to upload</div>
+            <input type="file" id="workshop_image_input" name="workshop_image" class="upload-input" accept="image/*">
+          </div>
+          {% if hero.workshop_image %}
+          <div class="image-preview">
+            <img src="{{ url_for('static', filename=hero.workshop_image) }}" alt="Workshop preview">
+            <form method="POST" action="{{ url_for('admin.homepage_hero_delete_image', image_field='workshop_image') }}" style="display: inline;">
+              <button type="submit" class="delete-btn" onclick="return confirm('Delete this image?');">Delete</button>
+            </form>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="image-card">
+          <label style="display: block; margin-bottom: 1rem; font-weight: 500;">Student Activity Image</label>
+          <div class="upload-zone" onclick="document.getElementById('student_activity_image_input').click();">
+            <div class="upload-icon"><i class="ri-user-3-line" aria-hidden="true"></i></div>
+            <div class="upload-text">Click to upload</div>
+            <input type="file" id="student_activity_image_input" name="student_activity_image" class="upload-input" accept="image/*">
+          </div>
+          {% if hero.student_activity_image %}
+          <div class="image-preview">
+            <img src="{{ url_for('static', filename=hero.student_activity_image) }}" alt="Student activity preview">
+            <form method="POST" action="{{ url_for('admin.homepage_hero_delete_image', image_field='student_activity_image') }}" style="display: inline;">
+              <button type="submit" class="delete-btn" onclick="return confirm('Delete this image?');">Delete</button>
+            </form>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI SECTION -->
+    <div class="hero-section">
+      <div class="section-title"><i class="ri-bar-chart-line" aria-hidden="true"></i> Key Performance Indicators (KPIs)</div>
+      
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-label">KPI 1 Number</div>
+          <div class="form-group" style="margin: 0;">
+            <input type="text" name="kpi_1_label" value="{{ hero.kpi_1_label }}" placeholder="e.g., 5000+">
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">KPI 1 Label</div>
+          <div class="form-group" style="margin: 0;">
+            <input type="text" name="kpi_1_text" value="{{ hero.kpi_1_text }}" placeholder="e.g., Students">
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">KPI 2 Number</div>
+          <div class="form-group" style="margin: 0;">
+            <input type="text" name="kpi_2_label" value="{{ hero.kpi_2_label }}" placeholder="e.g., 120+">
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">KPI 2 Label</div>
+          <div class="form-group" style="margin: 0;">
+            <input type="text" name="kpi_2_text" value="{{ hero.kpi_2_text }}" placeholder="e.g., Workshops">
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">KPI 3 Number</div>
+          <div class="form-group" style="margin: 0;">
+            <input type="text" name="kpi_3_label" value="{{ hero.kpi_3_label }}" placeholder="e.g., 50+">
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">KPI 3 Label</div>
+          <div class="form-group" style="margin: 0;">
+            <input type="text" name="kpi_3_text" value="{{ hero.kpi_3_text }}" placeholder="e.g., Schools">
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">KPI 4 Number</div>
+          <div class="form-group" style="margin: 0;">
+            <input type="text" name="kpi_4_label" value="{{ hero.kpi_4_label }}" placeholder="e.g., 24×7">
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">KPI 4 Label</div>
+          <div class="form-group" style="margin: 0;">
+            <input type="text" name="kpi_4_text" value="{{ hero.kpi_4_text }}" placeholder="e.g., Support">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="hero-section">
+      <div class="button-group">
+            <button type="submit" name="action" value="save" class="btn btn-secondary"><i class="ri-save-line" aria-hidden="true"></i> Save Draft</button>
+            <button type="submit" name="action" value="publish" class="btn btn-primary"><i class="ri-rocket-line" aria-hidden="true"></i> Publish Changes</button>
+      </div>
+      
+      {% if hero.is_published %}
+      <div style="padding: 1rem; background: #c6f6d5; border-left: 4px solid #38a169; border-radius: 4px; color: #22543d;">
+        ✅ <strong>Published</strong> — Changes are live on homepage
+        {% if hero.published_at %}
+        <br><small style="font-size: 0.85rem;">Last published: {{ hero.published_at.strftime('%Y-%m-%d %H:%M') }}</small>
+        {% endif %}
+      </div>
+      {% elif hero.is_draft %}
+      <div style="padding: 1rem; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px; color: #78350f;">
+        <i class="ri-file-edit-line" aria-hidden="true"></i> <strong>Draft</strong> — Not yet published. Click "Publish Changes" to go live.
+      </div>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<script>
+  // Drag and drop for all upload zones
+  document.querySelectorAll('.upload-zone').forEach(zone => {
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      zone.addEventListener(eventName, preventDefaults, false);
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      zone.addEventListener(eventName, () => zone.classList.add('dragover'), false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      zone.addEventListener(eventName, () => zone.classList.remove('dragover'), false);
+    });
+
+    zone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      const input = zone.querySelector('input[type="file"]');
+      if (input) {
+        input.files = files;
+      }
+    }, false);
+  });
+
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  // File input change handlers
+  document.querySelectorAll('input[type="file"]').forEach(input => {
+    input.addEventListener('change', function() {
+      const zone = this.closest('.upload-zone');
+      if (this.files.length > 0) {
+        const file = this.files[0];
+        zone.querySelector('.upload-text').textContent = `Selected: ${file.name}`;
+        zone.style.borderColor = '#4f46e5';
+      }
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Site Settings — Admin{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('Site Settings', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Site Settings</h1>
+<p class="muted">Manage footer contact details, social links, WhatsApp button, and Google Maps embed URL.</p>
+
+<div class="card-premium surface-card-lg reveal" style="margin-top:1.25rem;">
+  <form method="post" action="{{ url_for('admin.site_settings') }}" class="form-modern">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="form-grid-2">
+      <div>
+        <label>Contact email</label>
+        <input type="email" name="contact_email" value="{{ values.contact_email }}">
+      </div>
+      <div>
+        <label>Contact phone</label>
+        <input type="text" name="contact_phone" value="{{ values.contact_phone }}">
+      </div>
+    </div>
+
+    <div class="form-grid-2">
+      <div>
+        <label>WhatsApp number (country code + number)</label>
+        <input type="text" name="whatsapp_number" value="{{ values.whatsapp_number }}" placeholder="919999999999">
+      </div>
+      <div>
+        <label>Address text</label>
+        <input type="text" name="address_text" value="{{ values.address_text }}">
+      </div>
+    </div>
+
+    <label style="margin-top:1rem;">Google Maps embed URL</label>
+    <input type="url" name="map_embed_url" value="{{ values.map_embed_url }}" placeholder="https://www.google.com/maps?q=India&output=embed">
+
+    <div class="form-grid-2">
+      <div>
+        <label style="margin-top:1rem;">LinkedIn URL</label>
+        <input type="url" name="linkedin_url" value="{{ values.linkedin_url }}">
+      </div>
+      <div>
+        <label style="margin-top:1rem;">YouTube URL</label>
+        <input type="url" name="youtube_url" value="{{ values.youtube_url }}">
+      </div>
+    </div>
+
+    <label style="margin-top:1rem;">Instagram URL</label>
+    <input type="url" name="instagram_url" value="{{ values.instagram_url }}">
+
+    <div class="form-actions-row">
+      <button type="submit" class="btn btn-primary">Save settings</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+

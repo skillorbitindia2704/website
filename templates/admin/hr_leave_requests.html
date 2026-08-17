@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}HR Leave Requests — Admin{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('HR & Payroll', url_for('admin.hr_management')), ('Leave Requests', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1>Leave Requests</h1>
+<div class="form-actions" style="margin-bottom:1rem;">
+  <a href="{{ url_for('admin.hr_management') }}" class="btn btn-secondary btn-sm">Back to HR dashboard</a>
+</div>
+<p class="muted">Review employee leave requests, approve them quickly, and keep payroll aligned with absences.</p>
+<div class="card-premium form-modern reveal" style="padding:1.25rem;margin:1.25rem 0;">
+  <p class="muted">Employees submit leave requests through their own account. Admin/HR may only review, approve, or reject leave requests here.</p>
+</div>
+
+<div class="card-premium reveal" style="overflow-x:auto; padding:1rem;">
+  <table class="table-modern" style="min-width:1000px;">
+    <thead>
+      <tr>
+        <th>Employee</th>
+        <th>Period</th>
+        <th>Type</th>
+        <th>Status</th>
+        <th>Reason</th>
+        <th>Requested</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for request in leave_requests %}
+      <tr>
+        <td>{{ request.employee.display_name }}</td>
+        <td>{{ request.start_date.strftime('%Y-%m-%d') }} <i class="ri-arrow-right-line" aria-hidden="true" style="font-size:0.85em;"></i> {{ request.end_date.strftime('%Y-%m-%d') }}</td>
+        <td>{{ request.leave_type }}</td>
+        <td>{{ request.status }}</td>
+        <td>{{ request.reason or '—' }}</td>
+        <td>{{ request.created_at.strftime('%Y-%m-%d') }}</td>
+        <td>
+          <form method="post" action="{{ url_for('admin.hr_leave_request_action', leave_id=request.id) }}" style="display:flex;gap:0.35rem;flex-wrap:wrap;align-items:center;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button name="action" value="approve" class="btn btn-sm btn-primary">Approve</button>
+            <button name="action" value="reject" class="btn btn-sm btn-danger">Reject</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="muted">No leave requests at this time.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

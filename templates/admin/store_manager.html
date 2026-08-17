@@ -1,0 +1,1309 @@
+{% extends "base.html" %}
+{% block title %}Store Manager CMS — Admin Dashboard{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('Store CMS', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<!-- Tailwind CSS for high-impact dashboard structure inside admin panel -->
+<script>
+  tailwind = {
+    config: {
+      corePlugins: { preflight: false },
+      darkMode: ['selector', '[data-theme="dark"]'],
+      theme: {
+        extend: {
+          colors: {
+            rose: {
+              50: '#fff1f2',
+              100: '#ffe4e6',
+              200: '#fecdd3',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be185d'
+            }
+          }
+        }
+      }
+    }
+  };
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+  .manager-container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .card-premium {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    font-weight: 600;
+    color: #4b5563;
+    border-radius: 8px;
+    transition: all 0.2s;
+    text-align: left;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  .tab-btn:hover {
+    background: #f1f5f9;
+    color: #111827;
+  }
+  .tab-btn.active {
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+    color: #ffffff;
+  }
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+    color: #374151;
+    font-size: 0.875rem;
+  }
+  .form-control, .form-textarea, .form-select {
+    width: 100%;
+    padding: 0.625rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background-color: #fff;
+    color: #1f2937;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-control:focus, .form-textarea:focus, .form-select:focus {
+    outline: none;
+    border-color: #f43f5e;
+    box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.15);
+  }
+  .table-custom th {
+    background-color: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.875rem 1rem;
+    border-bottom: 2px solid #e2e8f0;
+  }
+  .table-custom td {
+    padding: 1rem;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="manager-container py-6 px-4">
+  <!-- Top Banner -->
+  <div class="card-premium p-6 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4" style="background: linear-gradient(135deg, #4c0519 0%, #1e000b 100%); color: #fff; border: none;">
+    <div>
+      <h1 class="text-2xl font-bold text-white mb-1"><i class="ri-store-2-line"></i> Store Manager CMS</h1>
+      <p class="text-rose-200 text-sm">Unified control center for products catalog, multi-image slider media, inventory history audit log, shipping timelines, coupon rules, and customer reviews.</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-3">
+      <span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-semibold px-3 py-1.5 rounded-full">
+        ● Production Operations
+      </span>
+      <a href="{{ url_for('admin.store_orders_export') }}" class="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-full border border-white/20 transition-all">
+        <i class="ri-download-cloud-line" aria-hidden="true"></i> Export Orders CSV
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats Ribbon -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="card-premium p-4 flex flex-col justify-between">
+      <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Sales (Paid)</span>
+      <span class="text-2xl font-black text-rose-600 mt-2">₹{{ total_revenue }}</span>
+    </div>
+    <div class="card-premium p-4 flex flex-col justify-between">
+      <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Orders</span>
+      <span class="text-2xl font-black text-slate-700 mt-2">{{ total_orders }}</span>
+    </div>
+    <div class="card-premium p-4 flex flex-col justify-between">
+      <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Published Products</span>
+      <span class="text-2xl font-black text-emerald-600 mt-2">{{ active_products }}</span>
+    </div>
+    <div class="card-premium p-4 flex flex-col justify-between">
+      <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Low Stock Banners</span>
+      <span class="text-2xl font-black {% if low_stock_count > 0 %}text-amber-600{% else %}text-slate-500{% endif %} mt-2">{{ low_stock_count }}</span>
+    </div>
+  </div>
+
+  <!-- Content Split Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <!-- Left Menu List -->
+    <div class="lg:col-span-1 flex flex-col gap-2">
+      <div class="card-premium p-4 flex flex-col gap-1.5 bg-slate-50">
+        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">Navigation Panel</div>
+        <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="tab-btn active"><i class="ri-bar-chart-box-line"></i> Metrics Overview</button>
+        <button onclick="switchTab('products')" id="tab-btn-products" class="tab-btn"><i class="ri-shopping-bag-line"></i> Products Catalog</button>
+        <button onclick="switchTab('categories')" id="tab-btn-categories" class="tab-btn"><i class="ri-stack-line"></i> Categories & Channels</button>
+        <button onclick="switchTab('orders')" id="tab-btn-orders" class="tab-btn"><i class="ri-truck-line"></i> Orders Fulfillment</button>
+        <button onclick="switchTab('coupons')" id="tab-btn-coupons" class="tab-btn"><i class="ri-coupon-3-line"></i> Coupon Campaigns</button>
+        <button onclick="switchTab('reviews')" id="tab-btn-reviews" class="tab-btn"><i class="ri-star-line" aria-hidden="true"></i> Moderator Grid</button>
+      </div>
+    </div>
+
+    <!-- Right Pane: Active Form tabs -->
+    <div class="lg:col-span-3">
+      <!-- 1. DASHBOARD OVERVIEW -->
+      <div id="tab-panel-dashboard" class="tab-panel block space-y-6">
+        <!-- Low Stock Banners -->
+        {% if low_stock_items %}
+        <div class="bg-amber-50 border border-amber-200 text-amber-900 rounded-lg p-5">
+          <h3 class="font-bold text-amber-800 text-sm uppercase tracking-wide flex items-center gap-2 mb-3">
+            <i class="ri-error-warning-line" aria-hidden="true"></i> Low Stock Threshold Warnings
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {% for item in low_stock_items %}
+            <div class="flex items-center justify-between bg-white border border-amber-200/60 p-3 rounded-lg shadow-sm">
+              <div>
+                <span class="font-bold text-slate-800 text-sm block">{{ item.name }}</span>
+                <span class="text-xs text-slate-400">SKU: <code>{{ item.sku or 'N/A' }}</code></span>
+              </div>
+              <span class="bg-amber-100 text-amber-800 font-extrabold px-3 py-1 rounded-full text-xs">
+                {{ item.stock }} left (Limit: {{ item.low_stock_threshold }})
+              </span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Quick Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Pending Reviews Moderator -->
+          <div class="card-premium p-6 flex flex-col justify-between bg-slate-50 border-dashed">
+            <div>
+              <h3 class="font-bold text-slate-700 text-base mb-2"><i class="ri-star-line" aria-hidden="true"></i> Reviews Moderation Queue</h3>
+              <p class="text-slate-500 text-sm mb-4">Submitters post star ratings. Approving them immediately updates the product average scoring.</p>
+            </div>
+            <div class="flex justify-between items-center mt-4">
+              <span class="text-sm text-slate-600 font-semibold">Pending reviews: <strong>{{ pending_reviews_count }}</strong></span>
+              <button onclick="switchTab('reviews')" class="bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs py-2 px-4 rounded-lg transition-all border-none cursor-pointer">
+                Moderate Queue &rarr;
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Actions Panel -->
+          <div class="card-premium p-6 flex flex-col justify-between bg-rose-50/20 border-rose-200/50">
+            <div>
+               <h3 class="font-bold text-rose-800 text-base mb-2"><i class="ri-rocket-line" aria-hidden="true"></i> Launch Coupon Promo</h3>
+              <p class="text-rose-900/60 text-sm mb-4">Deploy active coupon discount campaigns (percentage/fixed amount) linked to products.</p>
+            </div>
+            <div class="flex justify-end mt-4">
+              <button onclick="switchTab('coupons')" class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-2 px-4 rounded-lg transition-all border-none cursor-pointer">
+                Launch Coupon &rarr;
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. PRODUCTS CATALOG -->
+      <div id="tab-panel-products" class="tab-panel hidden space-y-6">
+        <div class="card-premium p-6">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <h2 class="text-lg font-bold text-slate-800">Inventory Catalog</h2>
+            <button onclick="openProductModal('create')" class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-2 px-4 rounded-lg transition-all border-none cursor-pointer">
+              ＋ Add New Product
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse table-custom">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>Pricing</th>
+                  <th>Stock Status</th>
+                  <th>Status</th>
+                  <th style="width: 160px;" class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for p in products %}
+                <tr>
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <img src="{{ p.image_url if p.image_url.startswith('/static/') else url_for('static', filename=p.image_url) }}" alt="{{ p.name }}" class="w-10 h-10 object-contain rounded bg-slate-50 border border-slate-200 p-0.5">
+                      <div>
+                        <span class="font-bold text-slate-800 block leading-tight">{{ p.name }}</span>
+                        <span class="text-xs text-slate-400">SKU: <code>{{ p.sku or 'N/A' }}</code></span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="px-2.5 py-1 text-xs font-semibold rounded bg-slate-100 text-slate-700">
+                      {{ p.category }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="leading-tight">
+                      <span class="font-bold text-slate-800 text-sm">₹{{ p.price_inr }}</span>
+                      {% if p.discount_price_inr > 0 %}
+                      <span class="text-xs text-emerald-600 block">Promo: ₹{{ p.discount_price_inr }}</span>
+                      {% endif %}
+                    </div>
+                  </td>
+                  <td>
+                    <div class="leading-tight">
+                      <span class="font-bold text-sm {% if p.stock <= p.low_stock_threshold %}text-amber-600{% else %}text-slate-700{% endif %}">
+                        {{ p.stock }} units
+                      </span>
+                      <span class="text-xs text-slate-400 block">Min limit: {{ p.low_stock_threshold }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="px-2.5 py-1 text-xs font-semibold rounded {% if p.status == 'published' %}bg-emerald-100 text-emerald-800{% else %}bg-slate-100 text-slate-500{% endif %}">
+                      {{ p.status|upper }}
+                    </span>
+                  </td>
+                  <td class="text-right space-x-1 whitespace-nowrap">
+                    <button onclick="openProductModal('edit', {{ product_jsons[p.id]|tojson|safe }}, {{ product_specs[p.id]|tojson|safe }}, {{ product_features[p.id]|tojson|safe }})" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-1.5 px-3 rounded transition-all border-none cursor-pointer">
+                      Edit
+                    </button>
+                    <form method="post" action="{{ url_for('admin.store_product_duplicate', product_id=p.id) }}" class="inline">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit" class="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs py-1.5 px-3 rounded transition-all border-none cursor-pointer">
+                        Clone
+                      </button>
+                    </form>
+                    <form method="post" action="{{ url_for('admin.delete_product', product_id=p.id) }}" class="inline" onsubmit="return confirm('Are you sure you want to soft-delete this product?');">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs py-1.5 px-3 rounded transition-all border-none cursor-pointer">
+                        Delete
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="6" class="text-center py-8 text-slate-400">No products registered in catalog yet.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. CATEGORIES & SUB-CHANNELS -->
+      <div id="tab-panel-categories" class="tab-panel hidden space-y-6">
+        <!-- Categories CMS Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Categories list -->
+          <div class="card-premium p-6">
+            <h2 class="text-lg font-bold text-slate-800 mb-4">Primary Categories</h2>
+            
+            <div class="space-y-3 mb-6 max-h-[300px] overflow-y-auto pr-1">
+              {% for c in categories %}
+              <div class="flex items-center justify-between border border-slate-200 p-3 rounded-lg bg-slate-50">
+                <div>
+                  <span class="font-bold text-slate-800 text-sm block">{{ c.name }}</span>
+                  <span class="text-xs text-slate-400">Slug: <code>{{ c.slug }}</code> | Order: {{ c.display_order }}</span>
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="editCategory({{ categories_json[c.id]|tojson|safe }})" class="text-slate-600 hover:text-slate-800 text-xs font-semibold bg-white border border-slate-200 px-2.5 py-1 rounded">Edit</button>
+                  <form method="post" action="{{ url_for('admin.store_category_delete', category_id=c.id) }}" class="inline" onsubmit="return confirm('Delete this category? This might fail if linked to subcategories.');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="text-red-600 hover:text-red-800 text-xs font-semibold bg-white border border-slate-200 px-2.5 py-1 rounded cursor-pointer">Delete</button>
+                  </form>
+                </div>
+              </div>
+              {% else %}
+              <p class="text-slate-400 text-sm text-center py-4">No categories registered.</p>
+              {% endfor %}
+            </div>
+
+            <!-- Create / Edit Category Form -->
+            <form id="category-form" method="post" action="{{ url_for('admin.store_category_create') }}" enctype="multipart/form-data" class="space-y-4 border-t border-slate-200 pt-4">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" id="category_id_field" name="category_id">
+              
+              <h3 id="category-form-title" class="text-sm font-bold text-slate-700 uppercase tracking-wide">Add New Category</h3>
+              
+              <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                  <label for="cat_name">Name *</label>
+                  <input type="text" id="cat_name" name="name" required class="form-control">
+                </div>
+                <div class="form-group">
+                  <label for="cat_slug">Slug (Optional)</label>
+                  <input type="text" id="cat_slug" name="slug" placeholder="auto-generated" class="form-control">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="cat_desc">Description</label>
+                <textarea id="cat_desc" name="description" rows="2" class="form-textarea"></textarea>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                  <label for="cat_banner">Banner Image</label>
+                  <input type="file" id="cat_banner" name="banner_image" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label for="cat_icon">Icon Image</label>
+                  <input type="file" id="cat_icon" name="icon_image" class="form-control">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-3 gap-4">
+                <div class="form-group col-span-1">
+                  <label for="cat_order">Display Order</label>
+                  <input type="number" id="cat_order" name="display_order" value="0" class="form-control">
+                </div>
+                <div class="form-group col-span-2">
+                  <label for="cat_seo_title">SEO Title</label>
+                  <input type="text" id="cat_seo_title" name="seo_title" class="form-control">
+                </div>
+              </div>
+
+              <div class="flex justify-end gap-2 pt-2">
+                <button type="button" id="btn-cancel-cat-edit" onclick="resetCategoryForm()" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2 px-4 rounded transition-all border-none cursor-pointer">Cancel</button>
+                <button type="submit" id="btn-submit-cat" class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-2 px-4 rounded transition-all border-none cursor-pointer">Save Category</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Subcategories block -->
+          <div class="card-premium p-6">
+            <h2 class="text-lg font-bold text-slate-800 mb-4">Subcategories</h2>
+            
+            <div class="space-y-3 mb-6 max-h-[300px] overflow-y-auto pr-1">
+              {% for s in subcategories %}
+              <div class="flex items-center justify-between border border-slate-200 p-3 rounded-lg bg-slate-50">
+                <div>
+                  <span class="font-bold text-slate-800 text-sm block">{{ s.name }}</span>
+                  <span class="text-xs text-slate-400">Parent: <strong>{{ s.category.name }}</strong> | Order: {{ s.display_order }}</span>
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="editSubcategory({{ subcategories_json[s.id]|tojson|safe }})" class="text-slate-600 hover:text-slate-800 text-xs font-semibold bg-white border border-slate-200 px-2.5 py-1 rounded">Edit</button>
+                  <form method="post" action="{{ url_for('admin.store_subcategory_delete', subcategory_id=s.id) }}" class="inline" onsubmit="return confirm('Delete this subcategory?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="text-red-600 hover:text-red-800 text-xs font-semibold bg-white border border-slate-200 px-2.5 py-1 rounded cursor-pointer">Delete</button>
+                  </form>
+                </div>
+              </div>
+              {% else %}
+              <p class="text-slate-400 text-sm text-center py-4">No subcategories registered.</p>
+              {% endfor %}
+            </div>
+
+            <!-- Create / Edit Subcategory Form -->
+            <form id="subcategory-form" method="post" action="{{ url_for('admin.store_subcategory_create') }}" enctype="multipart/form-data" class="space-y-4 border-t border-slate-200 pt-4">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" id="subcategory_id_field" name="subcategory_id">
+              
+              <h3 id="subcategory-form-title" class="text-sm font-bold text-slate-700 uppercase tracking-wide">Add New Subcategory</h3>
+              
+              <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                  <label for="sub_name">Name *</label>
+                  <input type="text" id="sub_name" name="name" required class="form-control">
+                </div>
+                <div class="form-group">
+                  <label for="sub_parent">Parent Category *</label>
+                  <select id="sub_parent" name="category_id" required class="form-select">
+                    <option value="">-- Choose Category --</option>
+                    {% for c in categories %}
+                    <option value="{{ c.id }}">{{ c.name }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                  <label for="sub_slug">Slug</label>
+                  <input type="text" id="sub_slug" name="slug" placeholder="auto-generated" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label for="sub_order">Display Order</label>
+                  <input type="number" id="sub_order" name="display_order" value="0" class="form-control">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="sub_desc">Description</label>
+                <textarea id="sub_desc" name="description" rows="2" class="form-textarea"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="sub_banner">Banner Image</label>
+                <input type="file" id="sub_banner" name="banner_image" class="form-control">
+              </div>
+
+              <div class="flex justify-end gap-2 pt-2">
+                <button type="button" id="btn-cancel-sub-edit" onclick="resetSubcategoryForm()" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2 px-4 rounded transition-all border-none cursor-pointer">Cancel</button>
+                <button type="submit" id="btn-submit-sub" class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-2 px-4 rounded transition-all border-none cursor-pointer">Save Subcategory</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. ORDERS & FULFILLMENT -->
+      <div id="tab-panel-orders" class="tab-panel hidden space-y-6">
+        <div class="card-premium p-6">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <h2 class="text-lg font-bold text-slate-800">Store Order Fulfillment Ledger</h2>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse table-custom">
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Customer</th>
+                  <th>Address & Phone</th>
+                  <th>Total Amount</th>
+                  <th>Statuses</th>
+                  <th style="width: 140px;" class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for o in orders %}
+                <tr>
+                  <td>
+                    <div class="leading-tight">
+                      <span class="font-extrabold text-slate-800 text-sm">#{{ o.id }}</span>
+                      <span class="text-xs text-slate-400 block mt-0.5">{{ o.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="leading-tight">
+                      <span class="font-bold text-slate-800 block text-sm">{{ o.user.username }}</span>
+                      <span class="text-xs text-slate-400 block mt-0.5">{{ o.user.email }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="leading-tight max-w-[200px]">
+                      <span class="text-xs text-slate-600 block truncate" title="{{ o.shipping_address }}">{{ o.shipping_address or 'N/A' }}</span>
+                      <span class="text-xs text-slate-400 block mt-0.5">Ph: {{ o.shipping_phone or 'N/A' }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="leading-tight">
+                      <span class="font-extrabold text-slate-800 text-sm">₹{{ o.total_inr }}</span>
+                      {% if o.discount_amount > 0 %}
+                      <span class="text-xs text-emerald-600 block mt-0.5">Saved: ₹{{ o.discount_amount }} via {{ o.coupon_code }}</span>
+                      {% endif %}
+                    </div>
+                  </td>
+                  <td>
+                    <div class="space-y-1">
+                      <span class="inline-block px-2 py-0.5 text-xs font-semibold rounded {% if o.payment_status == 'paid' %}bg-emerald-100 text-emerald-800{% else %}bg-amber-100 text-amber-800{% endif %}">
+                        Pay: {{ o.payment_status|upper }}
+                      </span>
+                      <span class="inline-block px-2 py-0.5 text-xs font-semibold rounded bg-slate-100 text-slate-700 block">
+                        Ship: {{ o.status|upper }}
+                      </span>
+                    </div>
+                  </td>
+                  <td class="text-right space-x-1 whitespace-nowrap">
+                    <button onclick="openTimelineModal({{ orders_json[o.id]|tojson|safe }})" class="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs py-1.5 px-3 rounded transition-all border-none cursor-pointer">
+                      Status Log
+                    </button>
+                    <a href="{{ url_for('admin.store_order_invoice', order_id=o.id) }}" target="_blank" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-1.5 px-3 rounded transition-all inline-block">
+                      Invoice
+                    </a>
+                  </td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="6" class="text-center py-8 text-slate-400">No orders placed on storefront.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. COUPON CAMPAIGNS -->
+      <div id="tab-panel-coupons" class="tab-panel hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Form to create -->
+          <div class="card-premium p-6 lg:col-span-1">
+            <h2 id="coupon-form-title" class="text-lg font-bold text-slate-800 mb-4">Launch Campaign</h2>
+            <form id="coupon-form" method="post" action="{{ url_for('admin.store_coupon_create') }}" class="space-y-4">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" id="coupon_id_field" name="coupon_id">
+              
+              <div class="form-group">
+                <label for="coup_code">Coupon Code *</label>
+                <input type="text" id="coup_code" name="code" required placeholder="e.g. ROBOTICS20" class="form-control font-mono uppercase">
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                  <label for="coup_type">Discount Type</label>
+                  <select id="coup_type" name="discount_type" class="form-select">
+                    <option value="percentage">Percentage (%)</option>
+                    <option value="fixed">Fixed Value (INR)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="coup_val">Value *</label>
+                  <input type="number" id="coup_val" name="discount_value" required min="1" class="form-control">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="coup_expiry">Expiry Date *</label>
+                <input type="date" id="coup_expiry" name="expiry_date" required class="form-control">
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                  <label for="coup_min">Min Purchase (INR)</label>
+                  <input type="number" id="coup_min" name="min_purchase_amount" value="0" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label for="coup_limit">Usage Limit (0=unlim)</label>
+                  <input type="number" id="coup_limit" name="usage_limit" value="0" class="form-control">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="coup_product">Restricted to Product ID</label>
+                <select id="coup_product" name="product_id" class="form-select">
+                  <option value="">-- Apply to Whole Cart --</option>
+                  {% for p in products %}
+                  <option value="{{ p.id }}">{{ p.name }} (₹{{ p.price_inr }})</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="form-group id-coupon-active-block hidden">
+                <label class="flex items-center gap-2">
+                  <input type="checkbox" id="coup_active" name="is_active" value="1" checked>
+                  <span class="text-sm font-semibold text-slate-700">Coupon Campaign Active</span>
+                </label>
+              </div>
+
+              <div class="flex justify-end gap-2 pt-2">
+                <button type="button" id="btn-cancel-coupon-edit" onclick="resetCouponForm()" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2 px-4 rounded transition-all border-none cursor-pointer">Cancel</button>
+                <button type="submit" id="btn-submit-coupon" class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-2 px-4 rounded transition-all border-none cursor-pointer">Save Coupon</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Coupon List -->
+          <div class="card-premium p-6 lg:col-span-2">
+            <h2 class="text-lg font-bold text-slate-800 mb-4">Promotional Campaigns</h2>
+            
+            <div class="overflow-x-auto">
+              <table class="w-full border-collapse table-custom">
+                <thead>
+                  <tr>
+                    <th>Campaign Code</th>
+                    <th>Discount</th>
+                    <th>Expirations</th>
+                    <th>Usage Metrics</th>
+                    <th>Status</th>
+                    <th style="width: 140px;" class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for c in coupons %}
+                  <tr>
+                    <td>
+                      <span class="font-mono font-bold text-slate-800 text-sm tracking-wide bg-rose-50 text-rose-700 px-2.5 py-1 rounded">
+                        {{ c.code }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="text-sm font-semibold">
+                        {% if c.discount_type == 'percentage' %}{{ c.discount_value }}%{% else %}₹{{ c.discount_value }} OFF{% endif %}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="text-xs text-slate-500">{{ c.expiry_date.strftime('%Y-%m-%d') }}</span>
+                    </td>
+                    <td>
+                      <div class="leading-tight">
+                        <span class="text-xs text-slate-700 font-semibold block">{{ c.usage_count }} / {% if c.usage_limit > 0 %}{{ c.usage_limit }}{% else %}∞{% endif %}</span>
+                        <span class="text-[10px] text-slate-400 block mt-0.5">Min spend: ₹{{ c.min_purchase_amount }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <form method="post" action="{{ url_for('admin.store_coupon_toggle', coupon_id=c.id) }}" class="inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="border-none bg-transparent cursor-pointer">
+                          <span class="px-2.5 py-1 text-[10px] font-bold rounded cursor-pointer {% if c.is_active %}bg-emerald-100 text-emerald-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ 'ACTIVE' if c.is_active else 'INACTIVE' }}
+                          </span>
+                        </button>
+                      </form>
+                    </td>
+                    <td class="text-right space-x-1 whitespace-nowrap">
+                      <button onclick="editCoupon({{ coupons_json[c.id]|tojson|safe }})" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-1.5 px-2.5 rounded transition-all border-none cursor-pointer">
+                        Edit
+                      </button>
+                      <form method="post" action="{{ url_for('admin.store_coupon_delete', coupon_id=c.id) }}" class="inline" onsubmit="return confirm('Remove this coupon campaign?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs py-1.5 px-2.5 rounded transition-all border-none cursor-pointer">
+                          Del
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                  {% else %}
+                  <tr>
+                    <td colspan="6" class="text-center py-8 text-slate-400">No promo campaigns established yet.</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. REVIEWS MODERATION -->
+      <div id="tab-panel-reviews" class="tab-panel hidden space-y-6">
+        <div class="card-premium p-6">
+          <h2 class="text-lg font-bold text-slate-800 mb-4">Reviews Moderation Panel</h2>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse table-custom">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Customer Rating</th>
+                  <th>Comments</th>
+                  <th>Status</th>
+                  <th style="width: 180px;" class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in reviews %}
+                <tr>
+                  <td>
+                    <span class="font-bold text-slate-800 text-sm block leading-tight">{{ r.product.name }}</span>
+                    <span class="text-xs text-slate-400">Product ID: #{{ r.product_id }}</span>
+                  </td>
+                  <td>
+                    <div class="leading-tight">
+                      <span class="font-bold text-slate-800 block text-sm">{{ r.user.username }}</span>
+                      <span class="text-amber-500 font-bold text-xs block">★ {{ r.rating }} / 5</span>
+                    </div>
+                  </td>
+                  <td>
+                    <p class="text-xs text-slate-600 max-w-[300px] truncate" title="{{ r.review_text }}">{{ r.review_text }}</p>
+                  </td>
+                  <td>
+                    <span class="px-2.5 py-0.5 text-xs font-semibold rounded {% if r.status == 'approved' %}bg-emerald-100 text-emerald-800{% elif r.status == 'rejected' %}bg-red-100 text-red-800{% else %}bg-amber-100 text-amber-800{% endif %}">
+                      {{ r.status|upper }}
+                    </span>
+                  </td>
+                  <td class="text-right space-x-1 whitespace-nowrap">
+                    <form method="post" action="{{ url_for('admin.store_review_status', review_id=r.id) }}" class="inline">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <input type="hidden" name="status" value="approved">
+                      <button type="submit" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 font-bold text-xs py-1.5 px-3 rounded transition-all border-none cursor-pointer">
+                        Approve
+                      </button>
+                    </form>
+                    <form method="post" action="{{ url_for('admin.store_review_status', review_id=r.id) }}" class="inline">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <input type="hidden" name="status" value="rejected">
+                      <button type="submit" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs py-1.5 px-3 rounded transition-all border-none cursor-pointer">
+                        Reject
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="5" class="text-center py-8 text-slate-400">No review ratings submitted yet.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+      MODALS: CREATE/EDIT PRODUCT
+     ========================================== -->
+<div id="product-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+  <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+    <!-- Header -->
+    <div class="p-6 border-bottom border-slate-200 flex justify-between items-center bg-slate-50 rounded-t-xl">
+      <h2 id="product-modal-title" class="text-lg font-bold text-slate-800">Add New Component</h2>
+      <button onclick="closeProductModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold bg-transparent border-none cursor-pointer">&times;</button>
+    </div>
+
+    <!-- Body Scrollable Content -->
+    <div class="p-6 overflow-y-auto flex-grow space-y-6">
+      <form id="product-form" method="post" action="{{ url_for('admin.store_product_create') }}" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" id="product_id_field" name="product_id">
+        
+        <!-- Tab inner controls inside Modal -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Column 1: Core details -->
+          <div class="space-y-4">
+            <div class="form-group">
+              <label for="prod_name">Product Name *</label>
+              <input type="text" id="prod_name" name="name" required class="form-control">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div class="form-group">
+                <label for="prod_slug">Slug / URL identifier</label>
+                <input type="text" id="prod_slug" name="slug" placeholder="auto-generated" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="prod_sku">SKU Code *</label>
+                <input type="text" id="prod_sku" name="sku" required class="form-control">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="form-group">
+                <label for="prod_cat">Category *</label>
+                <select id="prod_cat" name="category" required class="form-select">
+                  <option value="">-- Choose Category --</option>
+                  {% for c in categories %}
+                  <option value="{{ c.name }}">{{ c.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="prod_sub">Subcategory</label>
+                <input type="text" id="prod_sub" name="subcategory" class="form-control">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="form-group">
+                <label for="prod_brand">Brand</label>
+                <input type="text" id="prod_brand" name="brand" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="prod_tags">Tags (comma-separated)</label>
+                <input type="text" id="prod_tags" name="tags" placeholder="stem, kit, arduino" class="form-control">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3">
+              <div class="form-group">
+                <label for="prod_price">Price (INR) *</label>
+                <input type="number" id="prod_price" name="price_inr" required min="1" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="prod_disc">Promo Price</label>
+                <input type="number" id="prod_disc" name="discount_price_inr" value="0" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="prod_gst">GST (%) *</label>
+                <input type="number" id="prod_gst" name="gst_percent" step="0.1" value="18.0" class="form-control">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3">
+              <div class="form-group">
+                <label for="prod_stock">Stock *</label>
+                <input type="number" id="prod_stock" name="stock" required min="0" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="prod_low">Min stock limit</label>
+                <input type="number" id="prod_low" name="low_stock_threshold" value="5" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="prod_status">Status</label>
+                <select id="prod_status" name="status" class="form-select">
+                  <option value="published">Published</option>
+                  <option value="draft">Draft</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-4 pt-2">
+              <label class="flex items-center gap-2">
+                <input type="checkbox" id="prod_featured" name="is_featured" value="1">
+                <span class="text-sm font-semibold text-slate-700">Featured Showcase</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" id="prod_trending" name="is_trending" value="1">
+                <span class="text-sm font-semibold text-slate-700">Trending</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" id="prod_new" name="is_new_arrival" value="1">
+                <span class="text-sm font-semibold text-slate-700">New Arrival</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Column 2: Specs, Features & SEO -->
+          <div class="space-y-4">
+            <div class="form-group">
+              <label for="prod_desc">Short Pitch / Card Subtext</label>
+              <textarea id="prod_short_desc" name="short_description" rows="2" placeholder="Brief tagline summarizing the product kit" class="form-textarea"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="prod_desc">Detailed Rich Description</label>
+              <textarea id="prod_desc" name="description" rows="3" placeholder="Deep details on learning outcomes and items included" class="form-textarea"></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="form-group">
+                <label for="prod_warranty">Warranty Particulars</label>
+                <input type="text" id="prod_warranty" name="warranty" placeholder="e.g. 6-months replacement support" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="prod_video">YouTube Video Demo URL</label>
+                <input type="text" id="prod_video" name="video_url" placeholder="https://youtube.com/watch?..." class="form-control">
+              </div>
+            </div>
+
+            <!-- Upload Main Image & Slider Uploads -->
+            <div class="grid grid-cols-2 gap-4">
+              <div class="form-group">
+                <label for="prod_image">Main Cover Image</label>
+                <input type="file" id="prod_image" name="image" class="form-control">
+                <span class="text-[10px] text-slate-400 block mt-0.5">Primary grid display image.</span>
+              </div>
+              <div class="form-group">
+                <label for="prod_gallery">Gallery Slider Images</label>
+                <input type="file" id="prod_gallery" name="gallery_images[]" multiple class="form-control">
+                <span class="text-[10px] text-slate-400 block mt-0.5">Attach multiple detail images.</span>
+              </div>
+            </div>
+
+            <!-- Existing Gallery Thumbnails deletion -->
+            <div id="edit-gallery-thumbnails-block" class="hidden">
+              <label class="block font-semibold text-slate-700 text-xs uppercase tracking-wide mb-2">Current Gallery (Select to Delete)</label>
+              <div id="edit-gallery-thumbnails" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <!-- SEO metadata block -->
+            <div class="border-t border-slate-200 pt-4 space-y-3">
+              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">SEO Tags & Social Meta</h3>
+              <div class="form-group">
+                <label for="prod_seo_title">SEO Title Meta</label>
+                <input type="text" id="prod_seo_title" name="seo_title" class="form-control">
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                  <label for="prod_seo_desc">SEO Meta Description</label>
+                  <textarea id="prod_seo_desc" name="seo_description" rows="2" class="form-textarea"></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="prod_seo_keys">SEO Focus Keywords</label>
+                  <input type="text" id="prod_seo_keys" name="seo_keywords" placeholder="stem robotics india, ai lab kits" class="form-control">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Specifications & Features lists (JavaScript Array) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-200 pt-6 mt-6">
+          <!-- Specifications Dynamic List -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wide">Specifications Table</h3>
+              <button type="button" onclick="addSpecRow()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold py-1 px-2.5 rounded border-none cursor-pointer">
+                ＋ Add Spec Row
+              </button>
+            </div>
+            <div id="specifications-list-wrap" class="space-y-2"></div>
+          </div>
+
+          <!-- Features Bullet Highlights -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wide">Product Highlights</h3>
+              <button type="button" onclick="addFeatureRow()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold py-1 px-2.5 rounded border-none cursor-pointer">
+                ＋ Add Highlight
+              </button>
+            </div>
+            <div id="features-list-wrap" class="space-y-2"></div>
+          </div>
+        </div>
+
+        <!-- Submit actions -->
+        <div class="flex justify-end gap-3 pt-6 border-t border-slate-200 mt-6">
+          <button type="button" onclick="closeProductModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm py-2.5 px-6 rounded-lg transition-all border-none cursor-pointer">Cancel</button>
+          <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm py-2.5 px-6 rounded-lg transition-all border-none cursor-pointer">Save Component parameters</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+      MODALS: UPDATE ORDER SHIPMENT TIMELINE
+     ========================================== -->
+<div id="timeline-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+  <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
+    <div class="p-6 border-bottom border-slate-200 flex justify-between items-center bg-slate-50 rounded-t-xl">
+      <h2 class="text-base font-bold text-slate-800">Order #<span id="timeline-order-id"></span> shipment timeline updates</h2>
+      <button onclick="closeTimelineModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold bg-transparent border-none cursor-pointer">&times;</button>
+    </div>
+    <form id="timeline-form" method="post" action="" class="p-6 space-y-4">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      
+      <div class="form-group">
+        <label for="time_status">Fulfillment Status Transition</label>
+        <select id="time_status" name="status" required class="form-select">
+          <option value="Pending">Pending</option>
+          <option value="Accepted">Accepted</option>
+          <option value="Processing">Processing</option>
+          <option value="Shipped">Shipped</option>
+          <option value="Delivered">Delivered</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="time_tracking">Courier Tracking Number (Optional)</label>
+        <input type="text" id="time_tracking" name="tracking_number" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label for="time_notes">Fulfillment Dispatch Notes</label>
+        <textarea id="time_notes" name="notes" rows="3" placeholder="e.g. Package dispatched via Bluedart tracking." class="form-textarea"></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-4 border-t border-slate-100">
+        <button type="button" onclick="closeTimelineModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2 px-4 rounded border-none cursor-pointer">Cancel</button>
+        <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs py-2 px-4 rounded border-none cursor-pointer">Log timeline entry</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Simple Tab switching logic
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.add('hidden'));
+    document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('block'));
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+    const activePanel = document.getElementById('tab-panel-' + tabId);
+    if (activePanel) {
+      activePanel.classList.remove('hidden');
+      activePanel.classList.add('block');
+    }
+    
+    const activeBtn = document.getElementById('tab-btn-' + tabId);
+    if (activeBtn) {
+      activeBtn.classList.add('active');
+    }
+    
+    // Save tab selection state to localStorage
+    localStorage.setItem('storeCmsActiveTab', tabId);
+  }
+
+  // Restore tab selection
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedTab = localStorage.getItem('storeCmsActiveTab');
+    if (savedTab && document.getElementById('tab-panel-' + savedTab)) {
+      switchTab(savedTab);
+    }
+  });
+
+  // Category Editor helper
+  function editCategory(c) {
+    document.getElementById('category-form-title').innerText = "Edit Category: " + c.name;
+    document.getElementById('category-form').action = "/admin/store/category/" + c.id + "/edit";
+    document.getElementById('category_id_field').value = c.id;
+    document.getElementById('cat_name').value = c.name;
+    document.getElementById('cat_slug').value = c.slug;
+    document.getElementById('cat_desc').value = c.description;
+    document.getElementById('cat_order').value = c.display_order;
+    document.getElementById('cat_seo_title').value = c.seo_title || "";
+    document.getElementById('btn-cancel-cat-edit').classList.remove('hidden');
+  }
+
+  function resetCategoryForm() {
+    document.getElementById('category-form-title').innerText = "Add New Category";
+    document.getElementById('category-form').action = "{{ url_for('admin.store_category_create') }}";
+    document.getElementById('category_id_field').value = "";
+    document.getElementById('cat_name').value = "";
+    document.getElementById('cat_slug').value = "";
+    document.getElementById('cat_desc').value = "";
+    document.getElementById('cat_order').value = 0;
+    document.getElementById('cat_seo_title').value = "";
+    document.getElementById('btn-cancel-cat-edit').classList.add('hidden');
+  }
+
+  // Subcategory Editor helper
+  function editSubcategory(s) {
+    document.getElementById('subcategory-form-title').innerText = "Edit Subcategory: " + s.name;
+    document.getElementById('subcategory-form').action = "/admin/store/subcategory/" + s.id + "/edit";
+    document.getElementById('subcategory_id_field').value = s.id;
+    document.getElementById('sub_name').value = s.name;
+    document.getElementById('sub_slug').value = s.slug;
+    document.getElementById('sub_parent').value = s.category_id;
+    document.getElementById('sub_order').value = s.display_order;
+    document.getElementById('sub_desc').value = s.description;
+    document.getElementById('btn-cancel-sub-edit').classList.remove('hidden');
+  }
+
+  function resetSubcategoryForm() {
+    document.getElementById('subcategory-form-title').innerText = "Add New Subcategory";
+    document.getElementById('subcategory-form').action = "{{ url_for('admin.store_subcategory_create') }}";
+    document.getElementById('subcategory_id_field').value = "";
+    document.getElementById('sub_name').value = "";
+    document.getElementById('sub_slug').value = "";
+    document.getElementById('sub_parent').value = "";
+    document.getElementById('sub_order').value = 0;
+    document.getElementById('sub_desc').value = "";
+    document.getElementById('btn-cancel-sub-edit').classList.add('hidden');
+  }
+
+  // Coupon Editor helper
+  function editCoupon(c) {
+    document.getElementById('coupon-form-title').innerText = "Edit Coupon Code: " + c.code;
+    document.getElementById('coupon-form').action = "/admin/store/coupon/" + c.id + "/edit";
+    document.getElementById('coupon_id_field').value = c.id;
+    document.getElementById('coup_code').value = c.code;
+    document.getElementById('coup_type').value = c.discount_type;
+    document.getElementById('coup_val').value = c.discount_value;
+    
+    // Parse Date YYYY-MM-DD
+    if (c.expiry_date) {
+      const expDate = new Date(c.expiry_date);
+      const yyyy = expDate.getFullYear();
+      const mm = String(expDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(expDate.getDate()).padStart(2, '0');
+      document.getElementById('coup_expiry').value = `${yyyy}-${mm}-${dd}`;
+    }
+    
+    document.getElementById('coup_min').value = c.min_purchase_amount || 0;
+    document.getElementById('coup_limit').value = c.usage_limit || 0;
+    document.getElementById('coup_product').value = c.product_id || "";
+    document.getElementById('coup_active').checked = c.is_active;
+    
+    document.querySelector('.id-coupon-active-block').classList.remove('hidden');
+    document.getElementById('btn-cancel-coupon-edit').classList.remove('hidden');
+  }
+
+  function resetCouponForm() {
+    document.getElementById('coupon-form-title').innerText = "Launch Campaign";
+    document.getElementById('coupon-form').action = "{{ url_for('admin.store_coupon_create') }}";
+    document.getElementById('coupon_id_field').value = "";
+    document.getElementById('coup_code').value = "";
+    document.getElementById('coup_type').value = "percentage";
+    document.getElementById('coup_val').value = "";
+    document.getElementById('coup_expiry').value = "";
+    document.getElementById('coup_min').value = 0;
+    document.getElementById('coup_limit').value = 0;
+    document.getElementById('coup_product').value = "";
+    
+    document.querySelector('.id-coupon-active-block').classList.add('hidden');
+    document.getElementById('btn-cancel-coupon-edit').classList.add('hidden');
+  }
+
+  // Shipping updates
+  function openTimelineModal(order) {
+    document.getElementById('timeline-order-id').innerText = order.id;
+    document.getElementById('timeline-form').action = "/admin/store/order/" + order.id + "/timeline";
+    document.getElementById('time_status').value = order.status;
+    document.getElementById('time_tracking').value = order.tracking_number || "";
+    document.getElementById('time_notes').value = "";
+    
+    document.getElementById('timeline-modal').classList.remove('hidden');
+  }
+
+  function closeTimelineModal() {
+    document.getElementById('timeline-modal').classList.add('hidden');
+  }
+
+  // Specifications Dynamic List Row Generator
+  function addSpecRow(key = "", val = "") {
+    const wrap = document.getElementById('specifications-list-wrap');
+    const index = wrap.children.length;
+    const row = document.createElement('div');
+    row.className = "flex gap-2 items-center";
+    row.innerHTML = `
+      <input type="text" name="spec_key[]" value="${key}" placeholder="e.g. Battery Capacity" class="form-control text-xs flex-1">
+      <input type="text" name="spec_value[]" value="${val}" placeholder="e.g. 5000 mAh" class="form-control text-xs flex-1">
+      <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 font-bold border-none bg-transparent cursor-pointer">&times;</button>
+    `;
+    wrap.appendChild(row);
+  }
+
+  // Features Bullet Row Generator
+  function addFeatureRow(text = "") {
+    const wrap = document.getElementById('features-list-wrap');
+    const row = document.createElement('div');
+    row.className = "flex gap-2 items-center";
+    row.innerHTML = `
+      <input type="text" name="feature[]" value="${text}" placeholder="Product feature highlight" class="form-control text-xs flex-1">
+      <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 font-bold border-none bg-transparent cursor-pointer">&times;</button>
+    `;
+    wrap.appendChild(row);
+  }
+
+  // Product CRUD modal helper
+  function openProductModal(mode, p = {}, specs = [], features = []) {
+    const modal = document.getElementById('product-modal');
+    const form = document.getElementById('product-form');
+    
+    // Reset Dynamic Lists
+    document.getElementById('specifications-list-wrap').innerHTML = "";
+    document.getElementById('features-list-wrap').innerHTML = "";
+    document.getElementById('edit-gallery-thumbnails').innerHTML = "";
+    document.getElementById('edit-gallery-thumbnails-block').classList.add('hidden');
+    
+    if (mode === 'create') {
+      document.getElementById('product-modal-title').innerText = "Add New Component Kit";
+      form.action = "{{ url_for('admin.store_product_create') }}";
+      document.getElementById('product_id_field').value = "";
+      
+      document.getElementById('prod_name').value = "";
+      document.getElementById('prod_slug').value = "";
+      document.getElementById('prod_sku').value = "";
+      document.getElementById('prod_cat').value = "";
+      document.getElementById('prod_sub').value = "";
+      document.getElementById('prod_brand').value = "";
+      document.getElementById('prod_tags').value = "";
+      document.getElementById('prod_price').value = "";
+      document.getElementById('prod_disc').value = 0;
+      document.getElementById('prod_gst').value = 18.0;
+      document.getElementById('prod_stock').value = "";
+      document.getElementById('prod_low').value = 5;
+      document.getElementById('prod_status').value = "published";
+      
+      document.getElementById('prod_featured').checked = false;
+      document.getElementById('prod_trending').checked = false;
+      document.getElementById('prod_new').checked = false;
+      
+      document.getElementById('prod_short_desc').value = "";
+      document.getElementById('prod_desc').value = "";
+      document.getElementById('prod_warranty').value = "";
+      document.getElementById('prod_video').value = "";
+      
+      document.getElementById('prod_seo_title').value = "";
+      document.getElementById('prod_seo_desc').value = "";
+      document.getElementById('prod_seo_keys').value = "";
+      
+      // Default 3 dynamic empty rows for user
+      addSpecRow(); addSpecRow();
+      addFeatureRow(); addFeatureRow();
+      
+    } else {
+      // Edit mode
+      document.getElementById('product-modal-title').innerText = "Edit Component details: " + p.name;
+      form.action = "/admin/store/product/" + p.id + "/edit";
+      document.getElementById('product_id_field').value = p.id;
+      
+      document.getElementById('prod_name').value = p.name || "";
+      document.getElementById('prod_slug').value = p.slug || "";
+      document.getElementById('prod_sku').value = p.sku || "";
+      document.getElementById('prod_cat').value = p.category || "";
+      document.getElementById('prod_sub').value = p.subcategory || "";
+      document.getElementById('prod_brand').value = p.brand || "";
+      document.getElementById('prod_tags').value = p.tags || "";
+      document.getElementById('prod_price').value = p.price_inr || "";
+      document.getElementById('prod_disc').value = p.discount_price_inr || 0;
+      document.getElementById('prod_gst').value = p.gst_percent || 18.0;
+      document.getElementById('prod_stock').value = p.stock || 0;
+      document.getElementById('prod_low').value = p.low_stock_threshold || 5;
+      document.getElementById('prod_status').value = p.status || "published";
+      
+      document.getElementById('prod_featured').checked = p.is_featured;
+      document.getElementById('prod_trending').checked = p.is_trending;
+      document.getElementById('prod_new').checked = p.is_new_arrival;
+      
+      document.getElementById('prod_short_desc').value = p.short_description || "";
+      document.getElementById('prod_desc').value = p.description || "";
+      document.getElementById('prod_warranty').value = p.warranty || "";
+      document.getElementById('prod_video').value = p.video_url || "";
+      
+      document.getElementById('prod_seo_title').value = p.seo_title || "";
+      document.getElementById('prod_seo_desc').value = p.seo_description || "";
+      document.getElementById('prod_seo_keys').value = p.seo_keywords || "";
+      
+      // Render Specs
+      if (specs && specs.length > 0) {
+        specs.forEach(s => addSpecRow(s.key, s.value));
+      } else {
+        addSpecRow();
+      }
+      
+      // Render Features
+      if (features && features.length > 0) {
+        features.forEach(f => addFeatureRow(f));
+      } else {
+        addFeatureRow();
+      }
+
+      // Render thumbnails for editing
+      if (p.gallery_images && p.gallery_images.length > 0) {
+        document.getElementById('edit-gallery-thumbnails-block').classList.remove('hidden');
+        const list = document.getElementById('edit-gallery-thumbnails');
+        p.gallery_images.forEach(img => {
+          const div = document.createElement('div');
+          div.className = "relative w-16 h-12 border border-slate-200 rounded overflow-hidden cursor-pointer group";
+          div.onclick = function() {
+            // Check if hidden input for deleting this is already present
+            let input = form.querySelector(`input[name="delete_gallery_image_ids[]"][value="${img.id}"]`);
+            if (input) {
+              input.remove();
+              div.classList.remove('opacity-30', 'border-red-500');
+            } else {
+              input = document.createElement('input');
+              input.type = "hidden";
+              input.name = "delete_gallery_image_ids[]";
+              input.value = img.id;
+              form.appendChild(input);
+              div.classList.add('opacity-30', 'border-red-500');
+            }
+          };
+          div.innerHTML = `
+            <img src="${img.image_url}" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-red-500/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+               <i class="ri-delete-bin-line text-red-700 dark:text-red-400 text-xs font-bold" aria-hidden="true"></i>
+            </div>
+          `;
+          list.appendChild(div);
+        });
+      }
+    }
+    
+    modal.classList.remove('hidden');
+  }
+
+  function closeProductModal() {
+    document.getElementById('product-modal').classList.add('hidden');
+  }
+</script>
+{% endblock %}

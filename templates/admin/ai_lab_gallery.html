@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}AI Lab Gallery — Admin{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('AI Lab Gallery', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">AI Lab Gallery Manager</h1>
+<p class="muted">Upload gallery images shown as hover cards with modal preview.</p>
+
+<div class="actions-inline" style="margin-top:1.25rem;">
+  <form method="get" action="{{ url_for('admin.ai_lab_gallery') }}" style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:flex-end;">
+    <div>
+      <label class="muted" style="font-weight:600;font-size:0.85rem;">Search</label>
+      <input type="text" name="q" value="{{ q }}" placeholder="Robotics, Drone, Workshop..." style="min-width:240px;">
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm">Search</button>
+  </form>
+  <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.ai_lab_gallery') }}">Reset</a>
+</div>
+
+<div class="card-premium reveal" style="padding:0;margin-top:1rem;overflow-x:auto;">
+  <table class="table-modern">
+    <thead>
+      <tr>
+        <th>Order</th>
+        <th>Title</th>
+        <th>Category</th>
+        <th>Preview</th>
+        <th>Active</th>
+        <th style="width:220px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in items %}
+      <tr>
+        <td style="font-weight:600;">{{ it.display_order }}</td>
+        <td><strong>{{ it.title }}</strong><br><span class="muted" style="font-size:0.85rem;">{{ it.caption[:70] }}{% if it.caption|length > 70 %}…{% endif %}</span></td>
+        <td>{{ it.category or '' }}</td>
+        <td>
+          {% if it.image_path %}
+          <img src="{{ url_for('static', filename=it.image_path) }}" alt="{{ it.title }}" style="width:48px;height:36px;object-fit:cover;border-radius:10px;border:1px solid var(--border);" loading="lazy">
+          {% endif %}
+        </td>
+        <td>
+          <span class="level-pill" style="font-size:0.65rem;background:{{ '#22c55e26' if it.is_active else '#6c757d26' }};color:{{ '#047857' if it.is_active else '#4b5563' }};border-color:transparent;">
+            {{ 'Yes' if it.is_active else 'No' }}
+          </span>
+        </td>
+        <td>
+          <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.ai_lab_gallery', q=q, page=page, edit=it.id) }}">Edit</a>
+          <form method="post" action="{{ url_for('admin.ai_lab_gallery_delete', item_id=it.id) }}" style="display:inline;margin-left:0.5rem;" onsubmit="return confirm('Delete this gallery image?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn-sm" style="color:#dc3545;">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      {% if not items %}
+      <tr><td colspan="6" class="muted">No gallery items yet.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+{% set total_pages = (total + per_page - 1) // per_page %}
+{% if total_pages > 1 %}
+<div style="margin-top:1rem;display:flex;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
+  <a class="btn btn-ghost btn-sm" {% if page <= 1 %}aria-disabled="true" style="opacity:0.5;pointer-events:none;"{% else %}href="{{ url_for('admin.ai_lab_gallery', q=q, page=page-1) }}"{% endif %}>Prev</a>
+  <div class="muted" style="align-self:center;">Page {{ page }} of {{ total_pages }}</div>
+  <a class="btn btn-ghost btn-sm" {% if page >= total_pages %}aria-disabled="true" style="opacity:0.5;pointer-events:none;"{% else %}href="{{ url_for('admin.ai_lab_gallery', q=q, page=page+1) }}"{% endif %}>Next</a>
+</div>
+{% endif %}
+
+<div class="card-premium surface-card-lg reveal" style="margin-top:1.5rem;">
+  <h2 class="page-title" style="font-size:1.2rem;margin-bottom:0.25rem;">{% if edit_item %}Edit{% else %}Create{% endif %} Gallery Image</h2>
+
+  <form method="post" action="{{ url_for('admin.ai_lab_gallery', q=q, page=1) }}" class="form-modern" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="item_id" value="{{ edit_item.id if edit_item else '' }}">
+
+    <div class="form-grid-2">
+      <div>
+        <label>Title *</label>
+        <input type="text" name="title" required value="{{ edit_item.title if edit_item else '' }}" />
+      </div>
+      <div>
+        <label>Category</label>
+        <input type="text" name="category" value="{{ edit_item.category if edit_item else '' }}" />
+      </div>
+    </div>
+
+    <label style="margin-top:1rem;">Caption</label>
+    <input type="text" name="caption" value="{{ edit_item.caption if edit_item else '' }}" />
+
+    <div class="form-grid-2">
+      <div>
+        <label style="margin-top:1rem;">Display order</label>
+        <input type="number" name="display_order" min="0" value="{{ edit_item.display_order if edit_item else 0 }}" />
+      </div>
+      <div>
+        <label style="margin-top:1rem;">Active</label>
+        <select name="is_active">
+          <option value="1" {% if edit_item is none or edit_item.is_active %}selected{% endif %}>Yes</option>
+          <option value="0" {% if edit_item and not edit_item.is_active %}selected{% endif %}>No</option>
+        </select>
+      </div>
+    </div>
+
+    <label style="margin-top:1rem;">Image upload {% if not edit_item %}*{% endif %}</label>
+    <input type="file" name="image" accept="image/*" {% if not edit_item %}required{% endif %}>
+    {% if edit_item and edit_item.image_path %}
+      <div style="margin-top:0.75rem;">
+        <p class="muted" style="margin:0 0 0.5rem;">Current image</p>
+        <img src="{{ url_for('static', filename=edit_item.image_path) }}" alt="{{ edit_item.title }}" style="width:160px;max-width:100%;height:auto;border-radius:18px;border:1px solid var(--border);" loading="lazy">
+      </div>
+    {% endif %}
+
+    <div class="form-actions-row">
+      <button type="submit" class="btn btn-primary">Save gallery item</button>
+      {% if edit_item %}
+      <a class="btn btn-ghost" href="{{ url_for('admin.ai_lab_gallery', q=q, page=1) }}">Cancel</a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}
+

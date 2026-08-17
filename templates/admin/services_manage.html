@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}Services Manager — Admin{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('Services Manager', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 style="font-size:1.5rem;">Services Manager</h1>
+<p class="muted">Create and manage public service packages dynamically.</p>
+
+<button type="button" class="btn btn-primary" id="create-service-btn" style="margin-top:1rem;margin-bottom:1.5rem;">+ Create Service</button>
+
+{% if services %}
+<div class="card-premium reveal" style="padding:0;margin-top:1rem;overflow-x:auto;">
+  <table class="table-modern">
+    <thead>
+      <tr>
+        <th>Order</th>
+        <th>Title</th>
+        <th>Pricing</th>
+        <th>Features</th>
+        <th>Active</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in services %}
+      <tr>
+        <td style="font-weight:600;">{{ s.display_order }}</td>
+        <td>
+          <strong>{{ s.title }}</strong>
+          {% if s.category %}<br><span class="muted" style="font-size:0.85rem;">{{ s.category }}</span>{% endif %}
+        </td>
+        <td><span class="level-pill">{{ s.pricing_text }}</span></td>
+        <td style="font-size:0.85rem;">{{ s.get_features_list()|length }} items</td>
+        <td>
+          <form method="post" action="{{ url_for('admin.toggle_service', sid=s.id) }}" style="margin:0;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn-toggle" style="background:{% if s.is_active %}#28a745{% else %}#6c757d{% endif %};color:white;border:none;padding:0.35rem 0.6rem;border-radius:0.25rem;cursor:pointer;font-size:0.85rem;">
+              {% if s.is_active %}✓ Active{% else %}✗ Inactive{% endif %}
+            </button>
+          </form>
+        </td>
+        <td style="white-space:nowrap;">
+          <button
+            type="button"
+            class="btn-small btn-edit"
+            data-service-id="{{ s.id }}"
+            data-title="{{ s.title|e }}"
+            data-short-description="{{ s.short_description|e }}"
+            data-full-description="{{ s.full_description|e }}"
+            data-pricing-text="{{ s.pricing_text|e }}"
+            data-features="{{ s.features|e }}"
+            data-icon="{{ s.icon|e }}"
+            data-image="{{ s.image|e }}"
+            data-button-text="{{ s.button_text|e }}"
+            data-button-link="{{ s.button_link|e }}"
+            data-category="{{ s.category|e }}"
+            data-badge-text="{{ s.badge_text|e }}"
+            data-display-order="{{ s.display_order }}"
+            style="margin-right:0.5rem;"
+          >Edit</button>
+          <button type="button" class="btn-small btn-delete" onclick="if(confirm('Delete service?')) document.getElementById('delete-form-{{ s.id }}').submit();">Delete</button>
+          <form id="delete-form-{{ s.id }}" method="post" action="{{ url_for('admin.delete_service', sid=s.id) }}" style="display:none;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="muted" style="margin-top:1rem;">No services yet. Create one to get started!</p>
+{% endif %}
+
+<div id="service-modal" class="modal-backdrop" role="dialog" aria-modal="true" style="display:none;">
+  <div class="modal-panel" style="max-width:640px;">
+    <button type="button" class="modal-close" id="service-modal-close" aria-label="Close"><i class="ri-close-line" aria-hidden="true"></i></button>
+    <h3 id="modal-title" style="margin-top:0;">Create Service</h3>
+    <form id="service-form" method="post" action="{{ url_for('admin.create_service') }}" class="form-modern">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="svc-title">Title *</label>
+      <input type="text" name="title" id="svc-title" required>
+
+      <label for="svc-short-description">Short Description *</label>
+      <input type="text" name="short_description" id="svc-short-description" required>
+
+      <label for="svc-full-description">Full Description</label>
+      <textarea name="full_description" id="svc-full-description" rows="3"></textarea>
+
+      <label for="svc-icon">Icon</label>
+      <input type="text" name="icon" id="svc-icon" value="ri-tools-line" maxlength="40" style="width:180px;" placeholder="e.g. ri-sun-line">
+
+      <label for="svc-pricing-text">Pricing Text *</label>
+      <input type="text" name="pricing_text" id="svc-pricing-text" required>
+
+      <label for="svc-features">Features (one per line)</label>
+      <textarea name="features" id="svc-features" rows="4"></textarea>
+
+      <label for="svc-category">Category</label>
+      <input type="text" name="category" id="svc-category">
+
+      <label for="svc-badge-text">Badge Text</label>
+      <input type="text" name="badge_text" id="svc-badge-text">
+
+      <label for="svc-image">Image URL (optional)</label>
+      <input type="text" name="image" id="svc-image">
+
+      <label for="svc-button-text">Button Text</label>
+      <input type="text" name="button_text" id="svc-button-text" value="Request service">
+
+      <label for="svc-button-link">Button Link</label>
+      <input type="text" name="button_link" id="svc-button-link" value="#service-modal">
+
+      <label for="svc-display-order">Display Order</label>
+      <input type="number" name="display_order" id="svc-display-order" value="0" min="0">
+
+      <button type="submit" class="btn btn-primary">Save Service</button>
+    </form>
+  </div>
+</div>
+
+<script>
+(function () {
+  var modal = document.getElementById("service-modal");
+  var form = document.getElementById("service-form");
+  var modalTitle = document.getElementById("modal-title");
+  var createBtn = document.getElementById("create-service-btn");
+  var closeBtn = document.getElementById("service-modal-close");
+
+  function openCreateModal() {
+    form.action = "{{ url_for('admin.create_service') }}";
+    modalTitle.textContent = "Create Service";
+    form.reset();
+    modal.style.display = "flex";
+    modal.classList.add("open");
+  }
+
+  function openEditModal(serviceId, data) {
+    var editUrlTemplate = "{{ url_for('admin.edit_service', sid=0) }}";
+    form.action = editUrlTemplate.replace("/0", "/" + serviceId);
+    modalTitle.textContent = "Edit Service";
+    document.getElementById("svc-title").value = data.title;
+    document.getElementById("svc-short-description").value = data.short_description;
+    document.getElementById("svc-full-description").value = data.full_description;
+    document.getElementById("svc-icon").value = data.icon;
+    document.getElementById("svc-pricing-text").value = data.pricing_text;
+    document.getElementById("svc-features").value = data.features;
+    document.getElementById("svc-category").value = data.category;
+    document.getElementById("svc-badge-text").value = data.badge_text;
+    document.getElementById("svc-image").value = data.image;
+    document.getElementById("svc-button-text").value = data.button_text;
+    document.getElementById("svc-button-link").value = data.button_link;
+    document.getElementById("svc-display-order").value = data.display_order;
+    modal.style.display = "flex";
+    modal.classList.add("open");
+  }
+
+  function closeModal() {
+    modal.classList.remove("open");
+    setTimeout(function () { modal.style.display = "none"; }, 150);
+  }
+
+  createBtn.addEventListener("click", openCreateModal);
+  closeBtn.addEventListener("click", closeModal);
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+
+  document.querySelectorAll(".btn-edit").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var serviceId = btn.getAttribute("data-service-id");
+      var data = {
+        title: btn.getAttribute("data-title") || "",
+        short_description: btn.getAttribute("data-short-description") || "",
+        full_description: btn.getAttribute("data-full-description") || "",
+        pricing_text: btn.getAttribute("data-pricing-text") || "",
+        features: btn.getAttribute("data-features") || "",
+        icon: btn.getAttribute("data-icon") || "🔧",
+        image: btn.getAttribute("data-image") || "",
+        button_text: btn.getAttribute("data-button-text") || "Request service",
+        button_link: btn.getAttribute("data-button-link") || "#service-modal",
+        category: btn.getAttribute("data-category") || "",
+        badge_text: btn.getAttribute("data-badge-text") || "",
+        display_order: btn.getAttribute("data-display-order") || "0"
+      };
+      openEditModal(serviceId, data);
+    });
+  });
+})();
+</script>
+{% endblock %}
+

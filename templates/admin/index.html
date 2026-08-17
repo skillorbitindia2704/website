@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — Skill Orbit India{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="dashboard-shell">
+  {% include "partials/dashboard_sidebar.html" %}
+  <div class="dash-main">
+    <section class="role-shell">
+      <h1 class="page-title">Admin dashboard</h1>
+      <p class="muted">Operational snapshot — users, revenue signals, and inbound leads.</p>
+
+      <div class="stat-grid reveal section-gap">
+        <div class="stat-card">
+          <p class="num">{{ stats.users }}</p>
+          <p class="lbl">Total users</p>
+        </div>
+        <div class="stat-card">
+          <p class="num">{{ stats.orders }}</p>
+          <p class="lbl">Orders</p>
+        </div>
+        <div class="stat-card">
+          <p class="num">{{ stats.courses }}</p>
+          <p class="lbl">Courses</p>
+        </div>
+        <div class="stat-card">
+          <p class="num">{{ stats.service_requests }}</p>
+          <p class="lbl">Service inquiries</p>
+        </div>
+        <div class="stat-card">
+          <p class="num">{{ stats.ai_lab_inquiries }}</p>
+          <p class="lbl">AI lab inquiries</p>
+        </div>
+        <div class="stat-card">
+          <p class="num">{{ stats.ai_lab_packages }}</p>
+          <p class="lbl">AI lab packages</p>
+        </div>
+      </div>
+
+      <div class="grid-cards section-gap-lg admin-module-grid">
+        <a href="{{ url_for('admin.content_management') }}" class="card-premium admin-module-card card-link-wrap">
+          <div class="admin-module-card-meta">
+            <span class="admin-module-icon" aria-hidden="true"><i class="ri-stack-line"></i></span>
+            <div>
+              <h3 class="admin-module-card-title">Content Management</h3>
+              <p class="admin-module-card-description">Homepage, About, course page copy, learning paths, showcase projects, certificates, branding, and site settings.</p>
+            </div>
+          </div>
+          <div class="admin-module-card-footer">
+            <span class="admin-module-count">8 items</span>
+            <span>Open module <i class="ri-arrow-right-line" aria-hidden="true"></i></span>
+          </div>
+        </a>
+
+        <a href="{{ url_for('admin.academic_management') }}" class="card-premium admin-module-card card-link-wrap">
+          <div class="admin-module-card-meta">
+            <span class="admin-module-icon" aria-hidden="true"><i class="ri-book-open-line"></i></span>
+            <div>
+              <h3 class="admin-module-card-title">Academic Management</h3>
+              <p class="admin-module-card-description">Courses, certificates, internships, teacher approvals, and student accounts.</p>
+            </div>
+          </div>
+          <div class="admin-module-card-footer">
+            <span class="admin-module-count">5 items</span>
+            <span>Open module <i class="ri-arrow-right-line" aria-hidden="true"></i></span>
+          </div>
+        </a>
+
+        <a href="{{ url_for('admin.store_management') }}" class="card-premium admin-module-card card-link-wrap">
+          <div class="admin-module-card-meta">
+            <span class="admin-module-icon" aria-hidden="true"><i class="ri-shopping-bag-line"></i></span>
+            <div>
+              <h3 class="admin-module-card-title">Store Management</h3>
+              <p class="admin-module-card-description">Store CMS, products, categories, inventory, orders, coupons, reviews, and SEO.</p>
+            </div>
+          </div>
+          <div class="admin-module-card-footer">
+            <span class="admin-module-count">7 items</span>
+            <span>Open module <i class="ri-arrow-right-line" aria-hidden="true"></i></span>
+          </div>
+        </a>
+
+        <a href="{{ url_for('admin.hr_management') }}" class="card-premium admin-module-card card-link-wrap">
+          <div class="admin-module-card-meta">
+            <span class="admin-module-icon" aria-hidden="true"><i class="ri-file-list-3-line"></i></span>
+            <div>
+              <h3 class="admin-module-card-title">HR & Payroll</h3>
+              <p class="admin-module-card-description">Manage employees, attendance, leave, and payroll from a single admin module.</p>
+            </div>
+          </div>
+          <div class="admin-module-card-footer">
+            <span class="admin-module-count">4 items</span>
+            <span>Open module <i class="ri-arrow-right-line" aria-hidden="true"></i></span>
+          </div>
+        </a>
+
+        <a href="{{ url_for('admin.ai_lab_management') }}" class="card-premium admin-module-card card-link-wrap">
+          <div class="admin-module-card-meta">
+            <span class="admin-module-icon" aria-hidden="true"><i class="ri-robot-2-line"></i></span>
+            <div>
+              <h3 class="admin-module-card-title">AI Lab Management</h3>
+              <p class="admin-module-card-description">AI Lab CMS, packages, leads, hardware, curriculum, and project galleries.</p>
+            </div>
+          </div>
+          <div class="admin-module-card-footer">
+            <span class="admin-module-count">6 items</span>
+            <span>Open module <i class="ri-arrow-right-line" aria-hidden="true"></i></span>
+          </div>
+        </a>
+
+        <a href="{{ url_for('admin.business_management') }}" class="card-premium admin-module-card card-link-wrap">
+          <div class="admin-module-card-meta">
+            <span class="admin-module-icon" aria-hidden="true"><i class="ri-briefcase-4-line"></i></span>
+            <div>
+              <h3 class="admin-module-card-title">Business Management</h3>
+              <p class="admin-module-card-description">Service inquiries, AI lab enquiries, contact messages, analytics, and reports.</p>
+            </div>
+          </div>
+          <div class="admin-module-card-footer">
+            <span class="admin-module-count">5 items</span>
+            <span>Open module <i class="ri-arrow-right-line" aria-hidden="true"></i></span>
+          </div>
+        </a>
+
+        <a href="{{ url_for('admin.user_management') }}" class="card-premium admin-module-card card-link-wrap">
+          <div class="admin-module-card-meta">
+            <span class="admin-module-icon" aria-hidden="true"><i class="ri-team-line"></i></span>
+            <div>
+              <h3 class="admin-module-card-title">User Management</h3>
+              <p class="admin-module-card-description">Users, roles, permissions, and admin accounts.</p>
+            </div>
+          </div>
+          <div class="admin-module-card-footer">
+            <span class="admin-module-count">4 items</span>
+            <span>Open module <i class="ri-arrow-right-line" aria-hidden="true"></i></span>
+          </div>
+        </a>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

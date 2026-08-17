@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Live sessions — Student{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Student', url_for('student.dashboard')), ('Live', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 class="page-title">Upcoming live classes</h1>
+<p class="muted">From your paid enrollments.</p>
+<div class="lms-lesson-list section-gap">
+  {% for s in lives %}
+  <article class="card-premium lms-lesson-card">
+    <div>
+      <h3 style="margin:0;font-size:1rem;">{{ s.title }}</h3>
+      <p class="muted" style="font-size:0.88rem;">{{ s.course.title if s.course else '' }}</p>
+      {% if s.scheduled_at %}<p class="muted" style="font-size:0.85rem;">{{ s.scheduled_at.strftime('%d %b %Y %H:%M') }}</p>{% endif %}
+      {% if s.meet_url %}
+      <form method="post" action="{{ url_for('student.student_live_attend', session_id=s.id) }}" style="margin-top:0.5rem;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-primary btn-sm">Join &amp; mark attended</button>
+      </form>
+      {% endif %}
+    </div>
+  </article>
+  {% else %}
+  <p class="muted">No upcoming sessions.</p>
+  {% endfor %}
+</div>
+{% endblock %}

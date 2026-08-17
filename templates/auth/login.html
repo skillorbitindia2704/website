@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Login — Skill Orbit India{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Login', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="content-tight">
+  <h1 class="page-title">Login</h1>
+  <p class="muted">Use your email and password. Your role decides where you land (Admin / Teacher / Student).</p>
+  <form method="post" class="card-premium form-modern reveal surface-card-lg section-gap">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% if request.args.get('next') %}
+    <input type="hidden" name="next" value="{{ request.args.get('next') }}">
+    {% endif %}
+    <label>Email <input type="email" name="email" required autocomplete="email"></label>
+    <label>
+      Password 
+      <a href="{{ url_for('auth.forgot_password') }}" style="float: right; font-size: 0.85rem;" class="muted">Forgot Password?</a>
+      <input type="password" name="password" required autocomplete="current-password">
+    </label>
+    <button type="submit" class="btn btn-primary" style="width:100%;">Login</button>
+    <p class="muted">New student? <a href="{{ url_for('auth.signup') }}">Create account</a></p>
+  </form>
+</div>
+{% endblock %}

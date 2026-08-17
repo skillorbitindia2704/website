@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}HR Payroll — Admin{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('HR & Payroll', url_for('admin.hr_management')), ('Payroll', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1>Payroll Runs</h1>
+<div class="form-actions" style="margin-bottom:1rem;">
+  <a href="{{ url_for('admin.hr_management') }}" class="btn btn-secondary btn-sm">Back to HR dashboard</a>
+</div>
+<p class="muted">Prepare salary runs, track pay status, and keep employee pay details aligned with attendance and leave.</p>
+<div class="card-premium form-modern reveal" style="padding:1.25rem;margin:1.25rem 0;">
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="grid-2 gap-4">
+      <label class="form-field">
+        <span>Employee</span>
+        <select name="employee_id" required>
+          <option value="">-- Select employee --</option>
+          {% for employee in employees %}
+          <option value="{{ employee.id }}">{{ employee.display_name }} — {{ employee.employee_code }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="form-field">
+        <span>Period start</span>
+        <input type="date" name="period_start" value="{{ today }}" required>
+      </label>
+      <label class="form-field">
+        <span>Period end</span>
+        <input type="date" name="period_end" value="{{ today }}" required>
+      </label>
+      <label class="form-field">
+        <span>Gross pay</span>
+        <input type="number" step="0.01" name="gross_pay" value="0.00" min="0">
+      </label>
+      <label class="form-field">
+        <span>Allowances</span>
+        <input type="number" step="0.01" name="allowances" value="0.00" min="0">
+      </label>
+      <label class="form-field">
+        <span>Deductions</span>
+        <input type="number" step="0.01" name="deductions" value="0.00" min="0">
+      </label>
+      <label class="form-field" style="grid-column:1/-1;">
+        <span>Remarks</span>
+        <textarea name="remarks" rows="2" placeholder="Payroll notes"></textarea>
+      </label>
+    </div>
+    <div class="form-actions" style="margin-top:1rem;">
+      <button type="submit" class="btn btn-primary">Create payroll run</button>
+    </div>
+  </form>
+</div>
+
+<div class="card-premium reveal" style="overflow-x:auto; padding:1rem;">
+  <table class="table-modern" style="min-width:1000px;">
+    <thead>
+      <tr>
+        <th>Employee</th>
+        <th>Period</th>
+        <th>Gross</th>
+        <th>Allowances</th>
+        <th>Deductions</th>
+        <th>Net pay</th>
+        <th>Status</th>
+        <th>Created</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for run in payroll_runs %}
+      <tr>
+        <td>{{ run.employee.display_name }}</td>
+        <td>{{ run.period_start.strftime('%Y-%m-%d') }} <i class="ri-arrow-right-line" aria-hidden="true" style="font-size:0.85em;"></i> {{ run.period_end.strftime('%Y-%m-%d') }}</td>
+        <td>₹{{ run.gross_pay }}</td>
+        <td>₹{{ run.allowances }}</td>
+        <td>₹{{ run.deductions }}</td>
+        <td>₹{{ run.net_pay }}</td>
+        <td>{{ run.status }}</td>
+        <td>{{ run.created_at.strftime('%Y-%m-%d') }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="8" class="muted">No payroll runs created yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

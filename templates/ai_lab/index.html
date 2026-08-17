@@ -1,0 +1,927 @@
+{% extends "base.html" %}
+
+{% block title %}AI & Robotics Labs for Schools & Colleges — Skill Orbit India{% endblock %}
+{% block meta_description %}NEP 2020 aligned AI & Robotics lab setup for schools and colleges — hardware, curriculum, teacher training, and student projects by Skill Orbit India.{% endblock %}
+{% block meta_keywords %}AI lab setup, robotics lab setup, NEP 2020, STEM lab, CBSE, ICSE, IoT, drone lab, computer vision{% endblock %}
+{% block body_class %}page-ai-lab{% endblock %}
+
+{% block structured_data %}
+{% if seo_site_url %}
+<script type="application/ld+json">
+{{ {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "AI & Robotics Lab Setup",
+  "provider": {
+    "@type": "Organization",
+    "name": seo_site_name,
+    "url": seo_site_url
+  },
+  "areaServed": "India",
+  "serviceType": "NEP 2020 aligned AI and Robotics labs for schools and colleges"
+} | tojson }}
+</script>
+{% endif %}
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('AI Lab Setup', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="ai-hero hero-premium reveal" aria-labelledby="ai-hero-title">
+  <div class="ai-hero-grid hero-inner">
+    <div class="ai-hero-copy">
+      <span class="level-pill ai-nep-badge">NEP 2020 aligned</span>
+      <h1 id="ai-hero-title">AI & Robotics Labs for Schools & Colleges</h1>
+      <p class="muted ai-hero-sub">
+        Build a future-ready STEM learning ecosystem with hands-on robotics, AI, IoT, automation, and educator enablement —
+        designed for real projects and measurable outcomes.
+      </p>
+
+      <div class="hero-cta ai-hero-cta" role="group" aria-label="Primary calls to action">
+        <button type="button" class="btn btn-primary js-scroll-to-enquiry">Book Demo</button>
+        {% if brochure %}
+        <a href="{{ url_for('static', filename=brochure.file_path) }}" class="btn btn-ghost" download>Download Brochure</a>
+        {% else %}
+        <button type="button" class="btn btn-ghost js-scroll-to-enquiry">Download Brochure</button>
+        {% endif %}
+        <button type="button" class="btn btn-ghost js-open-lab-modal" data-package="undecided">Get Quotation</button>
+      </div>
+
+      <div class="ai-hero-stats" aria-label="AI lab highlights">
+        <div class="stat-card">
+          <p class="num js-countup" data-count="120"><i class="ri-building-2-line" aria-hidden="true"></i> 120+</p>
+          <p class="lbl">Labs Installed</p>
+        </div>
+        <div class="stat-card">
+          <p class="num js-countup" data-count="5000"><i class="ri-user-3-line" aria-hidden="true"></i> 5000+</p>
+          <p class="lbl">Students Trained</p>
+        </div>
+        <div class="stat-card">
+          <p class="num js-countup" data-count="50"><i class="ri-book-open-line" aria-hidden="true"></i> 50+</p>
+          <p class="lbl">Workshops Conducted</p>
+        </div>
+      </div>
+
+      <div class="ai-hero-trust">
+        <span class="chip-soft">STEM · AI · Robotics · IoT learning</span>
+      </div>
+    </div>
+
+    <div class="ai-hero-media" aria-hidden="true">
+      <div class="ai-media-card">
+        <div class="ai-media-illustration">
+          <!-- Inline “realistic” illustration (no external assets required). -->
+          <svg viewBox="0 0 520 420" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="rgba(99,102,241,0.35)"/>
+                <stop offset="1" stop-color="rgba(249,115,22,0.22)"/>
+              </linearGradient>
+              <linearGradient id="g2" x1="0" y1="1" x2="1" y2="0">
+                <stop offset="0" stop-color="#2563eb"/>
+                <stop offset="1" stop-color="#ea580c"/>
+              </linearGradient>
+              <filter id="blur" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="10"/>
+              </filter>
+            </defs>
+            <rect x="22" y="28" width="476" height="360" rx="22" fill="url(#g1)" stroke="rgba(255,255,255,0.35)"/>
+            <circle cx="110" cy="120" r="42" fill="url(#g2)" opacity="0.25" filter="url(#blur)"/>
+            <circle cx="420" cy="140" r="58" fill="url(#g2)" opacity="0.18" filter="url(#blur)"/>
+            <!-- “Robot head” -->
+            <g transform="translate(160,120)">
+              <rect x="0" y="0" width="200" height="160" rx="24" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.35)"/>
+              <rect x="26" y="38" width="148" height="70" rx="16" fill="rgba(15,23,42,0.25)" stroke="rgba(255,255,255,0.3)"/>
+              <circle cx="62" cy="73" r="10" fill="rgba(249,115,22,0.9)"/>
+              <circle cx="138" cy="73" r="10" fill="rgba(37,99,235,0.9)"/>
+              <path d="M40 124 C 80 150, 120 150, 160 124" stroke="rgba(255,255,255,0.4)" stroke-width="6" fill="none" stroke-linecap="round"/>
+            </g>
+            <!-- Student silhouette -->
+            <g transform="translate(70,220)">
+              <path d="M100 140 C 70 120, 75 70, 120 60 C 165 50, 180 95, 150 120 C 138 130, 124 140, 100 140 Z" fill="rgba(255,255,255,0.16)"/>
+              <rect x="122" y="92" width="46" height="110" rx="18" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.25)"/>
+              <circle cx="145" cy="72" r="28" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.25)"/>
+            </g>
+            <!-- “Circuit traces” -->
+            <g stroke="rgba(255,255,255,0.35)" stroke-width="4" stroke-linecap="round" opacity="0.9">
+              <path d="M70 320 L150 270 L210 300 L260 260 L310 285 L350 250"/>
+              <path d="M170 310 L240 340 L300 300"/>
+              <path d="M410 310 L460 290"/>
+            </g>
+          </svg>
+        </div>
+
+        <div class="ai-media-caption">
+          <span class="level-pill">Hands-on AI learning</span>
+          <p class="muted" style="margin:0.5rem 0 0;">Robotics, Computer Vision, IoT & automation tracks.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST HIGHLIGHTS -->
+<section class="section-gap-lg reveal" aria-labelledby="trust-heading" id="trust">
+  <div class="section-head">
+    <h2 id="trust-heading">Trust Highlights</h2>
+    <p class="muted">Premium setup designed for outcomes, not just equipment.</p>
+  </div>
+  <div class="grid-cards ai-trust-grid">
+    <article class="card-premium ai-feature-card">
+      <h3 class="card-title-sm">NEP 2020 Aligned</h3>
+      <p class="muted">Mapping to STEM outcomes and skill progressions.</p>
+    </article>
+    <article class="card-premium ai-feature-card">
+      <h3 class="card-title-sm">CBSE/ICSE Compatible</h3>
+      <p class="muted">Works with board workflows and assessment rubrics.</p>
+    </article>
+    <article class="card-premium ai-feature-card">
+      <h3 class="card-title-sm">Setup in 7–30 Days</h3>
+      <p class="muted">Time-bound delivery and campus-ready installation.</p>
+    </article>
+    <article class="card-premium ai-feature-card">
+      <h3 class="card-title-sm">Hands-on STEM Learning</h3>
+      <p class="muted">Experiments and projects that build confidence.</p>
+    </article>
+    <article class="card-premium ai-feature-card">
+      <h3 class="card-title-sm">Industry Standard Hardware</h3>
+      <p class="muted">Reliable kits with support and maintenance guidance.</p>
+    </article>
+    <article class="card-premium ai-feature-card">
+      <h3 class="card-title-sm">AI Powered Curriculum</h3>
+      <p class="muted">Robust lesson plans, lab guides, and educator enablement.</p>
+    </article>
+  </div>
+</section>
+
+<!-- LAB GALLERY -->
+<section class="section-gap-lg reveal" aria-labelledby="gallery-heading" id="gallery">
+  <div class="section-head">
+    <h2 id="gallery-heading">Lab Gallery</h2>
+    <p class="muted">Hover to zoom · Click to preview</p>
+  </div>
+
+  <div class="grid-cards ai-gallery-grid">
+    {% if gallery_images %}
+      {% for img in gallery_images %}
+      <article class="card-premium ai-gallery-card" data-gallery-image="{{ url_for('static', filename=img.image_path) }}" data-gallery-title="{{ img.title|e }}">
+        <div class="ai-gallery-media">
+          <img src="{{ url_for('static', filename=img.image_path) }}" alt="{{ img.caption or img.title }}" loading="lazy" decoding="async">
+        </div>
+        <div class="card-body">
+          <h3 class="card-title-sm">{{ img.title }}</h3>
+          {% if img.category %}
+          <p class="muted">{{ img.category }}</p>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    {% else %}
+      {% set placeholders = [
+        'Robotics Lab Setup', 'AI Project Work', 'Drone Lab',
+        'Student Workshop', 'Faculty Training'
+      ] %}
+      {% for t in placeholders %}
+      <article class="card-premium ai-gallery-card">
+        <div class="ai-gallery-media ai-gallery-placeholder">
+          <div class="ai-placeholder-icon" aria-hidden="true"><i class="ri-robot-2-line"></i></div>
+        </div>
+        <div class="card-body">
+          <h3 class="card-title-sm">{{ t }}</h3>
+          <p class="muted">Add gallery images from admin panel</p>
+        </div>
+      </article>
+      {% endfor %}
+    {% endif %}
+  </div>
+</section>
+
+<!-- GALLERY MODAL -->
+<div id="gallery-modal" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal-panel ai-modal-panel">
+    <button type="button" class="modal-close" id="gallery-modal-close" aria-label="Close"><i class="ri-close-line" aria-hidden="true"></i></button>
+    <h3 style="margin-top:0;" id="gallery-modal-title">Gallery preview</h3>
+    <div class="ai-gallery-modal-body">
+      <img id="gallery-modal-img" src="" alt="" loading="eager">
+    </div>
+  </div>
+</div>
+
+<!-- PACKAGES -->
+<section class="section-gap-lg reveal" aria-labelledby="packages-heading" id="packages">
+  <div class="section-head">
+    <h2 id="packages-heading">Packages for Your Institution</h2>
+    <p class="muted">Dynamic pricing and features from your admin-managed SQLite data.</p>
+  </div>
+
+  <div class="grid-cards ai-pack-grid">
+    {% if packages %}
+      {% for p in packages %}
+      <article class="card-premium ai-package-card{% if p.is_popular %} ai-package-popular{% endif %}" data-package-id="{{ p.id }}">
+        <div class="card-body">
+          <div class="meta-row" style="margin-bottom:0.75rem;">
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+              <div class="ai-package-icon" aria-hidden="true">{{ p.icon|remix_icon }}</div>
+              <div>
+                <h3 class="card-title-sm" style="margin:0.1rem 0 0;">{{ p.title }}</h3>
+                <p class="muted" style="margin:0.35rem 0 0;">{{ p.subtitle }}</p>
+              </div>
+            </div>
+
+            <div>
+              {% if p.is_popular or p.badge_text %}
+              <span class="badge-pill ai-pop-badge">{{ 'Most Popular' if p.is_popular else p.badge_text }}</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <p class="price-tag" style="font-size:1.3rem;margin:0.25rem 0 1rem;">{{ p.pricing_text }}</p>
+
+          <div class="ai-package-cols">
+            <div class="ai-package-col">
+              <p class="muted" style="margin:0 0 0.5rem;font-weight:700;color:var(--text);">Features included</p>
+              <ul class="list-clean">
+                {% for f in p.get_features_list()[:6] %}
+                <li>{{ f }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+            <div class="ai-package-col">
+              <p class="muted" style="margin:0 0 0.5rem;font-weight:700;color:var(--text);">Hardware & training (overview)</p>
+              {% if p.description %}
+              <p class="muted" style="margin:0 0 0.75rem;">{{ p.description }}</p>
+              {% else %}
+              <p class="muted" style="margin:0 0 0.75rem;">We tailor hardware mix, training, and installation based on your room and batch size.</p>
+              {% endif %}
+              <div class="ai-package-meta">
+                <span class="chip-soft">Student capacity: Batch-based (customized)</span>
+                <span class="chip-soft">Installation: Campus-ready setup</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions-row" style="margin-top:1rem;">
+            <button type="button" class="btn btn-accent btn-sm js-open-lab-modal" data-package="{{ p.id }}">
+              {{ p.button_text or 'Get quotation' }}
+            </button>
+            <button type="button" class="btn btn-ghost btn-sm js-scroll-to-enquiry">
+              Book demo
+            </button>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    {% else %}
+      <div class="grid-cards">
+        <article class="skeleton-card"></article>
+        <article class="skeleton-card"></article>
+        <article class="skeleton-card"></article>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- HARDWARE -->
+<section class="section-gap-lg reveal" aria-labelledby="hardware-heading" id="hardware">
+  <div class="section-head">
+    <h2 id="hardware-heading">Hardware You’ll Work With</h2>
+    <p class="muted">Arduino, Raspberry Pi, sensors, robotics chassis, drone kits and IoT modules.</p>
+  </div>
+
+  <div class="grid-cards ai-hardware-grid">
+    {% if hardware_items %}
+      {% for h in hardware_items %}
+      <article class="card-premium ai-hardware-card">
+        <div class="card-body">
+          <div class="ai-hardware-icon">
+            {% if h.icon_path %}
+            <img src="{{ url_for('static', filename=h.icon_path) }}" alt="{{ h.name }}" loading="lazy" decoding="async" width="72" height="72">
+            {% else %}
+            <span aria-hidden="true" style="font-size:1.6rem;"><i class="ri-tools-line"></i></span>
+            {% endif %}
+          </div>
+          <h3 class="card-title-sm">{{ h.name }}</h3>
+          {% if h.category %}
+          <p class="muted" style="margin-bottom:0.5rem;">{{ h.category }}</p>
+          {% endif %}
+          {% if h.description %}
+          <p class="muted" style="margin-bottom:0;">{{ h.description }}</p>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    {% else %}
+      {% set default_hw = [
+        ('Arduino Kits','ri-brain-line','Embedded starter builds'),
+        ('Raspberry Pi','ri-plant-line','Edge computing and AI inference'),
+        ('Sensors','ri-radar-line','Real-world sensing modules'),
+        ('Robotics Chassis','ri-robot-2-line','Mobility platforms for robotics'),
+        ('AI Camera Modules','ri-camera-line','Computer vision pipelines'),
+        ('Drone Kits','ri-drone-line','Aerial robotics experimentation'),
+        ('IoT Modules','ri-global-line','Connected learning and automation'),
+        ('Servo Motors','ri-settings-2-line','Precise control for mechanisms'),
+        ('3D Printed Parts','ri-stack-line','Custom components and prototyping')
+      ] %}
+      {% for name, icon, desc in default_hw %}
+      <article class="card-premium ai-hardware-card">
+        <div class="card-body">
+          <div class="ai-hardware-icon">
+            <span aria-hidden="true" style="font-size:1.8rem;">{{ icon|remix_icon }}</span>
+          </div>
+          <h3 class="card-title-sm">{{ name }}</h3>
+          <p class="muted" style="margin-bottom:0;">{{ desc }}</p>
+        </div>
+      </article>
+      {% endfor %}
+    {% endif %}
+  </div>
+</section>
+
+<!-- CURRICULUM ROADMAP -->
+<section class="section-gap-lg reveal" aria-labelledby="curriculum-heading" id="curriculum">
+  <div class="section-head">
+    <h2 id="curriculum-heading">Curriculum Roadmap (Grade 6–8 to College)</h2>
+    <p class="muted">Robotics · AI · IoT · Computer Vision · Python · Automation</p>
+  </div>
+
+  <div class="ai-timeline">
+    {% if curriculum_blocks %}
+      {% for b in curriculum_blocks %}
+      <div class="ai-timeline-item">
+        <div class="ai-timeline-dot"></div>
+        <article class="card-premium ai-timeline-card">
+          <div class="card-body">
+            <span class="level-pill">{{ b.level }}</span>
+            <h3 class="card-title-sm" style="margin-top:0.7rem;">{{ b.title }}</h3>
+            {% if b.duration %}
+            <p class="muted" style="margin-bottom:0.75rem;">{{ b.duration }}</p>
+            {% endif %}
+            <ul class="list-clean">
+              {% for x in b.focus_list() %}
+              <li>{{ x }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </article>
+      </div>
+      {% endfor %}
+    {% else %}
+      {% set fallback = [
+        ('Grade 6–8','Robotics','Foundations of robotics, sensors, block logic','Build confidence with simple line-follow + basic sensors.'),
+        ('Grade 9–10','AI & Computer Vision','Vision projects','Train models for detection demos and lab challenges.'),
+        ('Grade 11–12','IoT & Automation','Edge pipelines','Connect devices, automate workflows, and run mini systems.'),
+        ('College Level','AI + Capstone','Industry-style capstones','Capstone prototypes with Python, automation, and demo days.')
+      ] %}
+      {% for lvl, t, _, desc in fallback %}
+      <div class="ai-timeline-item">
+        <div class="ai-timeline-dot"></div>
+        <article class="card-premium ai-timeline-card">
+          <div class="card-body">
+            <span class="level-pill">{{ lvl }}</span>
+            <h3 class="card-title-sm" style="margin-top:0.7rem;">{{ t }}</h3>
+            <ul class="list-clean">
+              <li>Robotics</li>
+              <li>AI</li>
+              <li>IoT</li>
+              <li>Python Programming</li>
+              <li>{{ desc }}</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="section-gap-lg reveal" aria-labelledby="projects-heading" id="projects">
+  <div class="section-head">
+    <h2 id="projects-heading">Student Project Showcase</h2>
+    <p class="muted">Hover for micro-interactions · Project media preview</p>
+  </div>
+
+  <div class="grid-cards ai-project-grid">
+    {% if projects %}
+      {% for prj in projects %}
+      <article class="card-premium ai-project-card">
+        <div class="ai-project-media">
+          {% set mp = prj.media_path|lower %}
+          {% if prj.media_path and (mp.endswith('.png') or mp.endswith('.jpg') or mp.endswith('.jpeg') or mp.endswith('.webp')) %}
+          <img src="{{ url_for('static', filename=prj.media_path) }}" alt="{{ prj.title }}" loading="lazy" decoding="async">
+          {% else %}
+          <div class="ai-project-video-placeholder" aria-hidden="true">
+            <span class="ai-project-play"><i class="ri-play-circle-line" aria-hidden="true"></i></span>
+          </div>
+          {% endif %}
+        </div>
+        <div class="card-body">
+          <div class="meta-row">
+            <span class="level-pill">{{ prj.difficulty }}</span>
+            <span class="muted" style="margin:0;font-size:0.86rem;">{{ prj.technologies_list()|join(', ') }}</span>
+          </div>
+          <h3 class="card-title-sm" style="margin-top:0.85rem;">{{ prj.title }}</h3>
+          {% if prj.description %}
+          <p class="muted" style="margin-bottom:0.75rem;">{{ prj.description }}</p>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    {% else %}
+      {% set fallback_projects = [
+        ('Line Follower Robot','Beginner','Arduino, IR sensors','ri-robot-2-line'),
+        ('Smart Dustbin','Intermediate','IoT, sensors','ri-delete-bin-6-line'),
+        ('Face Detection System','Advanced','Computer Vision, Python','ri-brain-line'),
+        ('Home Automation','Intermediate','IoT, Automation','ri-home-7-line'),
+        ('Smart Irrigation','Advanced','Sensors, Automation','ri-plant-line'),
+        ('Obstacle Avoiding Robot','Beginner','Robotics, sensors','ri-compass-line')
+      ] %}
+      {% for t, d, tech, ic in fallback_projects %}
+      <article class="card-premium ai-project-card">
+        <div class="ai-project-media ai-project-media-fallback">
+          <div class="ai-project-fallback-icon" aria-hidden="true">{{ ic|remix_icon }}</div>
+        </div>
+        <div class="card-body">
+          <div class="meta-row">
+            <span class="level-pill">{{ d }}</span>
+            <span class="muted" style="margin:0;font-size:0.86rem;">{{ tech }}</span>
+          </div>
+          <h3 class="card-title-sm" style="margin-top:0.85rem;">{{ t }}</h3>
+          <p class="muted" style="margin-bottom:0.75rem;">Admin can add images/video for this project.</p>
+        </div>
+      </article>
+      {% endfor %}
+    {% endif %}
+  </div>
+</section>
+
+<!-- BENEFITS -->
+<section class="section-gap-lg reveal" aria-labelledby="benefits-heading" id="benefits">
+  <div class="section-head">
+    <h2 id="benefits-heading">Why This Works</h2>
+    <p class="muted">Outcome-driven, teacher-friendly, student engaging.</p>
+  </div>
+  <div class="grid-cards ai-benefits-grid">
+    <article class="card-premium ai-benefit">
+      <h3 class="card-title-sm">Improve STEM learning</h3>
+      <p class="muted">Hands-on practice with guided learning tracks.</p>
+    </article>
+    <article class="card-premium ai-benefit">
+      <h3 class="card-title-sm">Future-ready skills</h3>
+      <p class="muted">Robotics, AI, IoT and automation for next-gen careers.</p>
+    </article>
+    <article class="card-premium ai-benefit">
+      <h3 class="card-title-sm">Competition preparation</h3>
+      <p class="muted">Project pathways for robotics & AI showcase days.</p>
+    </article>
+    <article class="card-premium ai-benefit">
+      <h3 class="card-title-sm">Practical learning</h3>
+      <p class="muted">Experiments that students can demonstrate confidently.</p>
+    </article>
+    <article class="card-premium ai-benefit">
+      <h3 class="card-title-sm">Innovation environment</h3>
+      <p class="muted">A maker mindset with continuous teacher enablement.</p>
+    </article>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="section-gap-lg reveal" aria-labelledby="process-heading" id="process">
+  <div class="section-head">
+    <h2 id="process-heading">Lab Setup Process</h2>
+    <p class="muted">A transparent timeline from discussion to ongoing support.</p>
+  </div>
+
+  <div class="ai-process-grid">
+    {% set steps = [
+      'Requirement Discussion', 'Proposal & Planning', 'Hardware Delivery',
+      'Lab Installation', 'Teacher Training', 'Student Launch',
+      'Ongoing Support'
+    ] %}
+    {% for s in steps %}
+    <article class="card-premium ai-process-step">
+      <div class="ai-process-num">{{ loop.index }}</div>
+      <h3 class="card-title-sm" style="margin:0.75rem 0 0.35rem;">{{ s }}</h3>
+      <p class="muted" style="margin-bottom:0;">{{
+        'We align goals, room constraints, and learning outcomes.' if loop.index0==0 else
+        'We finalize room layout, hardware mix, and milestones.' if loop.index0==1 else
+        'We deliver kitted hardware with labeling and checks.' if loop.index0==2 else
+        'We install and configure workstations with safety guidance.' if loop.index0==3 else
+        'We conduct workshops, LMS access, manuals, and rubrics.' if loop.index0==4 else
+        'Students begin guided lab sessions and first projects.' if loop.index0==5 else
+        'We provide remote support, upgrades, and showcase events.' if loop.index0==6 else
+        ''
+      }}</p>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- TEACHER TRAINING -->
+<section class="section-gap-lg reveal" aria-labelledby="teacher-heading" id="teachers">
+  <div class="section-head">
+    <h2 id="teacher-heading">Teacher Training & Enablement</h2>
+    <p class="muted">Workshops and ready-to-teach resources for confident facilitation.</p>
+  </div>
+  <div class="grid-cards ai-teacher-grid">
+    <article class="card-premium ai-teacher">
+      <h3 class="card-title-sm">Workshops</h3>
+      <p class="muted">On-site / virtual sessions with guided lab walkthroughs.</p>
+    </article>
+    <article class="card-premium ai-teacher">
+      <h3 class="card-title-sm">LMS access</h3>
+      <p class="muted">Lesson plans, assignments, and progress tracking support.</p>
+    </article>
+    <article class="card-premium ai-teacher">
+      <h3 class="card-title-sm">Manuals</h3>
+      <p class="muted">Lab manuals, experiment guides, and instructor notes.</p>
+    </article>
+    <article class="card-premium ai-teacher">
+      <h3 class="card-title-sm">Recorded sessions</h3>
+      <p class="muted">Replays for teachers to revisit key concepts.</p>
+    </article>
+    <article class="card-premium ai-teacher">
+      <h3 class="card-title-sm">Assessment rubrics</h3>
+      <p class="muted">Structured evaluations for project and competition readiness.</p>
+    </article>
+    <article class="card-premium ai-teacher">
+      <h3 class="card-title-sm">Continuous support</h3>
+      <p class="muted">Ongoing help and improvements based on feedback.</p>
+    </article>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section-gap-lg reveal" aria-labelledby="testimonials-heading" id="testimonials">
+  <div class="section-head">
+    <h2 id="testimonials-heading">Testimonials</h2>
+    <p class="muted">Sliding educator and student feedback.</p>
+  </div>
+
+  <div class="carousel-section reveal">
+    <div class="carousel-nav">
+    <button type="button" data-carousel-prev aria-label="Previous testimonials"><i class="ri-arrow-left-s-line" aria-hidden="true"></i></button>
+    <button type="button" data-carousel-next aria-label="Next testimonials"><i class="ri-arrow-right-s-line" aria-hidden="true"></i></button>
+    </div>
+
+    <div class="carousel" aria-label="Testimonials carousel">
+      {% if testimonials %}
+        {% for t in testimonials %}
+        <div class="carousel-item">
+          <article class="testimonial-card ai-testimonial">
+            <div class="ai-testimonial-head">
+              {% if t.logo_path %}
+              <img src="{{ url_for('static', filename=t.logo_path) }}" alt="{{ t.organization or t.name }}" class="ai-testimonial-logo" loading="lazy" decoding="async">
+              {% else %}
+              <div class="ai-testimonial-logo ai-testimonial-logo-fallback" aria-hidden="true"><i class="ri-building-2-line" aria-hidden="true"></i></div>
+              {% endif %}
+            </div>
+            <div class="stars" aria-label="Rating: {{ t.rating }}/5" title="{{ t.rating }}/5">
+              {% for _ in range(t.rating|int) %}★{% endfor %}
+            </div>
+            <p style="margin-top:0.75rem;">“{{ t.quote }}”</p>
+            <p class="author">{{ t.name }}{% if t.role %} · {{ t.role }}{% endif %}</p>
+            {% if t.organization %}<p class="muted" style="margin:0;">{{ t.organization }}</p>{% endif %}
+          </article>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="carousel-item">
+          <article class="testimonial-card ai-testimonial">
+            <div class="ai-testimonial-head">
+              <div class="ai-testimonial-logo ai-testimonial-logo-fallback" aria-hidden="true"><i class="ri-building-2-line" aria-hidden="true"></i></div>
+            </div>
+            <div class="stars" aria-label="Rating: 5/5">★★★★★</div>
+            <p style="margin-top:0.75rem;">“The AI lab turned our classroom sessions into real project-building experiences.”</p>
+            <p class="author">School Principal · Bengaluru</p>
+          </article>
+        </div>
+        <div class="carousel-item">
+          <article class="testimonial-card ai-testimonial">
+            <div class="ai-testimonial-head">
+              <div class="ai-testimonial-logo ai-testimonial-logo-fallback" aria-hidden="true"><i class="ri-graduation-cap-line"></i></div>
+            </div>
+            <div class="stars" aria-label="Rating: 5/5">★★★★★</div>
+            <p style="margin-top:0.75rem;">“Hands-on robotics + clear teacher training helped us compete with confidence.”</p>
+            <p class="author">Student · Pune</p>
+          </article>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section-gap-lg reveal" aria-labelledby="faq-heading" id="faq">
+  <div class="section-head">
+    <h2 id="faq-heading">Frequently Asked Questions</h2>
+    <p class="muted">Quick answers for institutions.</p>
+  </div>
+
+  <div class="ai-faq">
+    {% if faqs %}
+      {% for f in faqs %}
+      <details class="ai-faq-item card-premium" {% if loop.first %}open{% endif %}>
+        <summary class="ai-faq-summary">
+          <span class="ai-faq-q">{{ f.question }}</span>
+          <span class="ai-faq-chevron" aria-hidden="true">+</span>
+        </summary>
+        <div class="ai-faq-answer prewrap-content">
+          {{ f.answer }}
+        </div>
+      </details>
+      {% endfor %}
+    {% else %}
+      <details class="ai-faq-item card-premium" open>
+        <summary class="ai-faq-summary">
+          <span class="ai-faq-q">Room size?</span>
+          <span class="ai-faq-chevron" aria-hidden="true">−</span>
+        </summary>
+        <div class="ai-faq-answer prewrap-content">
+          A typical space for batch learning works well. We tailor workstation layout based on your room dimensions.
+        </div>
+      </details>
+      <details class="ai-faq-item card-premium">
+        <summary class="ai-faq-summary">
+          <span class="ai-faq-q">Internet required?</span>
+          <span class="ai-faq-chevron" aria-hidden="true">+</span>
+        </summary>
+        <div class="ai-faq-answer prewrap-content">
+          For LMS access and some AI workflows, internet is recommended. Offline modes can be planned where needed.
+        </div>
+      </details>
+      <details class="ai-faq-item card-premium">
+        <summary class="ai-faq-summary">
+          <span class="ai-faq-q">Warranty?</span>
+          <span class="ai-faq-chevron" aria-hidden="true">+</span>
+        </summary>
+        <div class="ai-faq-answer prewrap-content">
+          We provide warranty guidance as part of the installation and support plan.
+        </div>
+      </details>
+      <details class="ai-faq-item card-premium">
+        <summary class="ai-faq-summary">
+          <span class="ai-faq-q">Teacher training included?</span>
+          <span class="ai-faq-chevron" aria-hidden="true">+</span>
+        </summary>
+        <div class="ai-faq-answer prewrap-content">
+          Yes. We conduct teacher workshops with LMS access, manuals, rubrics, and hands-on facilitation training.
+        </div>
+      </details>
+      <details class="ai-faq-item card-premium">
+        <summary class="ai-faq-summary">
+          <span class="ai-faq-q">Maintenance?</span>
+          <span class="ai-faq-chevron" aria-hidden="true">+</span>
+        </summary>
+        <div class="ai-faq-answer prewrap-content">
+          Maintenance guidance and spares planning are part of ongoing support. We also provide recommended preventive checks for boards and sensors.
+        </div>
+      </details>
+      <details class="ai-faq-item card-premium">
+        <summary class="ai-faq-summary">
+          <span class="ai-faq-q">Support duration?</span>
+          <span class="ai-faq-chevron" aria-hidden="true">+</span>
+        </summary>
+        <div class="ai-faq-answer prewrap-content">
+          Support duration is defined during onboarding. Typical engagements include installation assistance, training enablement, and ongoing remote support.
+        </div>
+      </details>
+    {% endif %}
+  </div>
+</section>
+
+<!-- ENQUIRY FORM -->
+<section class="section-gap-lg reveal" aria-labelledby="enquiry-heading" id="enquiry">
+  <div class="section-head">
+    <h2 id="enquiry-heading">Enquire & Get a Proposal</h2>
+    <p class="muted">Share your needs. We’ll respond with a tailored plan and pricing.</p>
+  </div>
+
+  <div class="card-premium surface-card-lg ai-enquiry-card">
+    <form method="post" action="{{ url_for('ai_lab.inquiry') }}" class="form-modern ai-enquiry-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="package_interest" value="undecided">
+
+      <div class="ai-form-grid">
+        <div>
+          <label for="school_name">School Name</label>
+          <input type="text" id="school_name" name="institution_name" required minlength="3" autocomplete="organization">
+        </div>
+        <div>
+          <label for="city">City</label>
+          <input type="text" id="city" name="city" autocomplete="address-level2">
+        </div>
+        <div>
+          <label for="contact_person">Contact Person</label>
+          <input type="text" id="contact_person" name="contact_person" required minlength="2" autocomplete="name">
+        </div>
+        <div>
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" name="phone" required autocomplete="tel">
+        </div>
+        <div style="grid-column:1/-1;">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required autocomplete="email">
+        </div>
+        <div>
+          <label for="lab_type">Required Lab Type</label>
+          <select id="lab_type" name="lab_type">
+            <option value="">Select</option>
+            <option>Basic Lab</option>
+            <option>Advanced Lab</option>
+            <option>Premium Lab</option>
+            <option>Not sure yet</option>
+          </select>
+        </div>
+        <div>
+          <label for="budget_range">Budget Range</label>
+          <select id="budget_range" name="budget_range">
+            <option value="">Select</option>
+            <option>&lt; ₹2 L</option>
+            <option>₹2 L – ₹4 L</option>
+            <option>₹4 L – ₹7 L</option>
+            <option>&gt; ₹7 L</option>
+          </select>
+        </div>
+        <div style="grid-column:1/-1;">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="5" required minlength="15"></textarea>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary ai-enquiry-submit">Submit enquiry</button>
+    </form>
+  </div>
+</section>
+
+<!-- DOWNLOAD BROCHURE -->
+{% if brochure %}
+<section class="section-gap-lg reveal" aria-labelledby="brochure-heading">
+  <div class="cta-banner" style="animation:none;">
+    <h3 id="brochure-heading">Download the AI & Robotics Lab Brochure</h3>
+    <p>Premium PDF overview for management and STEM committees.</p>
+    <a href="{{ url_for('static', filename=brochure.file_path) }}" class="btn btn-primary" download>Download PDF</a>
+  </div>
+</section>
+{% endif %}
+
+<!-- QUOTATION MODAL (kept for backward compatibility with existing package buttons) -->
+<div id="lab-modal" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal-panel ai-modal-panel">
+    <button type="button" class="modal-close" id="lab-modal-close" aria-label="Close"><i class="ri-close-line" aria-hidden="true"></i></button>
+    <h3 style="margin-top:0;">Get a Lab Quotation</h3>
+    <form method="post" action="{{ url_for('ai_lab.inquiry') }}" class="form-modern">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="package_interest" id="lab_package_field" value="undecided">
+
+      <label for="lab_inst">School / college name</label>
+      <input type="text" name="institution_name" id="lab_inst" required minlength="3">
+
+      <label for="lab_city">City (optional)</label>
+      <input type="text" name="city" id="lab_city" autocomplete="address-level2">
+
+      <label for="lab_contact">Contact person</label>
+      <input type="text" name="contact_person" id="lab_contact" required minlength="2">
+
+      <label for="lab_phone">Phone</label>
+      <input type="tel" name="phone" id="lab_phone" required>
+
+      <label for="lab_email">Email</label>
+      <input type="email" name="email" id="lab_email" required>
+
+      <label for="lab_lab_type">Required lab type (optional)</label>
+      <select id="lab_lab_type" name="lab_type">
+        <option value="">Select</option>
+        <option>Basic Lab</option>
+        <option>Advanced Lab</option>
+        <option>Premium Lab</option>
+        <option>Not sure yet</option>
+      </select>
+
+      <label for="lab_budget">Budget range (optional)</label>
+      <select id="lab_budget" name="budget_range">
+        <option value="">Select</option>
+        <option>&lt; ₹2 L</option>
+        <option>₹2 L – ₹4 L</option>
+        <option>₹4 L – ₹7 L</option>
+        <option>&gt; ₹7 L</option>
+      </select>
+
+      <label for="lab_message">Message</label>
+      <textarea name="message" id="lab_message" rows="4" required minlength="15"></textarea>
+
+      <button type="submit" class="btn btn-primary">Send inquiry</button>
+    </form>
+  </div>
+</div>
+
+<!-- Sticky CTA -->
+<div class="ai-sticky-cta" aria-hidden="false">
+  <div class="ai-sticky-inner">
+    <p class="ai-sticky-text">Want a quick demo & pricing?</p>
+    <button type="button" class="btn btn-primary btn-sm js-scroll-to-enquiry">Book Demo</button>
+    <button type="button" class="btn btn-accent btn-sm js-open-lab-modal" data-package="undecided">Get Quotation</button>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  function scrollToEnquiry() {
+    var el = document.querySelector("#enquiry");
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.querySelectorAll(".js-scroll-to-enquiry").forEach(function (btn) {
+    btn.addEventListener("click", scrollToEnquiry);
+  });
+
+  // Lab modal open/close (reused by package CTAs)
+  var modal = document.getElementById("lab-modal");
+  var pkgField = document.getElementById("lab_package_field");
+  function openModal(pkg) {
+    if (pkgField) pkgField.value = pkg || "undecided";
+    modal.classList.add("open");
+  }
+  document.querySelectorAll(".js-open-lab-modal").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      openModal(btn.getAttribute("data-package"));
+    });
+  });
+  document.getElementById("lab-modal-close").addEventListener("click", function () {
+    modal.classList.remove("open");
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) modal.classList.remove("open");
+  });
+
+  // Gallery modal preview
+  var gModal = document.getElementById("gallery-modal");
+  var gClose = document.getElementById("gallery-modal-close");
+  var gImg = document.getElementById("gallery-modal-img");
+  var gTitle = document.getElementById("gallery-modal-title");
+  function openGalleryModal(imgSrc, title) {
+    if (!gModal || !gImg) return;
+    if (gImg) gImg.src = imgSrc || "";
+    if (gImg) gImg.alt = title || "Gallery image";
+    if (gTitle) gTitle.textContent = title || "Gallery preview";
+    gModal.classList.add("open");
+  }
+  function closeGalleryModal() {
+    gModal.classList.remove("open");
+    if (gImg) gImg.src = "";
+  }
+  gClose?.addEventListener("click", closeGalleryModal);
+  gModal?.addEventListener("click", function (e) {
+    if (e.target === gModal) closeGalleryModal();
+  });
+  document.querySelectorAll(".ai-gallery-card[data-gallery-image]").forEach(function (card) {
+    card.style.cursor = "pointer";
+    card.addEventListener("click", function () {
+      openGalleryModal(card.getAttribute("data-gallery-image"), card.getAttribute("data-gallery-title"));
+    });
+  });
+
+  // Count-up for hero stats
+  var countEls = document.querySelectorAll(".js-countup[data-count]");
+  if (countEls.length && "IntersectionObserver" in window) {
+    var started = new Set();
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var el = e.target;
+        if (started.has(el)) return;
+        started.add(el);
+
+        var raw = el.getAttribute("data-count") || "0";
+        var target = Number(String(raw).replace(/[^\d.]/g, "")) || 0;
+        var duration = 1000;
+        var start = null;
+        var prefix = el.textContent.includes("+") ? "" : "";
+        function tick(ts) {
+          if (!start) start = ts;
+          var p = Math.min(1, (ts - start) / duration);
+          var val = Math.round(target * p);
+          var suffix = (el.textContent.includes("+") ? "+" : "");
+          el.textContent = String(val) + suffix;
+          if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+        io.unobserve(el);
+      });
+    }, { threshold: 0.35 });
+    countEls.forEach(function (el) { io.observe(el); });
+  }
+})();
+</script>
+{% endblock %}

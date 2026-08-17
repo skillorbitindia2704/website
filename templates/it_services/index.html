@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}EdTech Services — Skill Orbit India{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('EdTech Services', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<section class="hero-premium reveal" style="margin-bottom:2rem;padding:2rem 1.75rem;">
+  <div class="hero-inner" style="max-width:720px;">
+    <span class="hero-eyebrow">Learn & Innovate</span>
+    <h1 style="color:#fff;">Enterprise-grade EdTech Programs</h1>
+    <p style="color:rgba(255,255,255,.92);">Coding, AI, robotics, and drone training programs for schools, colleges, and future innovators.</p>
+  </div>
+</section>
+
+<div class="grid-cards">
+  {% for s in services %}
+  <article class="card-premium reveal service-card">
+    <div class="card-body">
+      {% if s.badge_text or s.category %}
+      <p class="muted" style="font-size:0.8rem;margin-bottom:0.35rem;">{{ s.badge_text or s.category }}</p>
+      {% endif %}
+      <div style="font-size:2rem;margin-bottom:0.5rem;" aria-hidden="true">{{ s.icon|remix_icon }}</div>
+      <h2 style="font-size:1.15rem;margin-bottom:0.35rem;">{{ s.title }}</h2>
+      <p class="muted" style="font-size:0.92rem;margin-bottom:0.75rem;">{{ s.description }}</p>
+      {% if s.features %}
+      <ul style="font-size:0.85rem;padding-left:1.1rem;margin:0 0 0.75rem;color:var(--text-muted);">
+        {% for f in s.features %}<li style="margin-bottom:0.2rem;">{{ f }}</li>{% endfor %}
+      </ul>
+      {% endif %}
+      <p class="price-tag" style="font-size:0.95rem;color:var(--accent);">{{ s.price_note }}</p>
+      <button type="button" class="btn btn-primary btn-sm js-open-service-modal" style="margin-top:0.9rem;"
+        data-slug="{{ s.slug }}" data-title="{{ s.title }}">{{ s.button_text or 'Request service' }}</button>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+
+<div id="service-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="service-modal-title">
+  <div class="modal-panel">
+    <button type="button" class="modal-close" id="service-modal-close" aria-label="Close"><i class="ri-close-line" aria-hidden="true"></i></button>
+    <h3 id="service-modal-title" style="margin-top:0;">Request service</h3>
+    <form method="post" action="{{ url_for('it_services.submit_request') }}" class="form-modern">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="service_slug" id="modal_service_slug" value="">
+      <label for="sr_name">Full name</label>
+      <input type="text" name="full_name" id="sr_name" required minlength="2" autocomplete="name">
+      <label for="sr_email">Work email</label>
+      <input type="email" name="email" id="sr_email" required autocomplete="email">
+      <label for="sr_phone">Phone</label>
+      <input type="tel" name="phone" id="sr_phone" required autocomplete="tel" placeholder="10+ digits">
+      <label for="sr_req">Requirement</label>
+      <textarea name="requirement" id="sr_req" rows="4" required minlength="20" placeholder="Goals, timeline, budget band…"></textarea>
+      <button type="submit" class="btn btn-primary">Submit request</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function () {
+  var modal = document.getElementById("service-modal");
+  var slugInput = document.getElementById("modal_service_slug");
+  var titleEl = document.getElementById("service-modal-title");
+  document.querySelectorAll(".js-open-service-modal").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      slugInput.value = btn.getAttribute("data-slug") || "";
+      titleEl.textContent = "Request — " + (btn.getAttribute("data-title") || "Service");
+      modal.classList.add("open");
+    });
+  });
+  document.getElementById("service-modal-close").addEventListener("click", function () {
+    modal.classList.remove("open");
+  });
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) modal.classList.remove("open");
+  });
+})();
+</script>
+{% endblock %}

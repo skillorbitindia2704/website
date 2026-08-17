@@ -1,0 +1,123 @@
+<footer class="site-footer" role="contentinfo">
+  {% set ss = site_settings or {} %}
+  {% set contact_email = ss.get('contact_email', 'skillorbitindia2704@gmail.com') %}
+  {% set contact_phone = ss.get('contact_phone', '+91 99999 99999') %}
+  {% set whatsapp_number = ss.get('whatsapp_number', '919999999999') %}
+  {% set address_text = ss.get('address_text', 'India (Online + On-site for institutions)') %}
+  {% set map_embed_url = ss.get('map_embed_url', 'https://www.google.com/maps?q=India&output=embed') %}
+  {% set linkedin_url = ss.get('linkedin_url', '#') %}
+  {% set youtube_url = ss.get('youtube_url', '#') %}
+  {% set instagram_url = ss.get('instagram_url', '#') %}
+  {% set footer_logo_url = ss.get('logo_url', '') %}
+  {% set footer_dark_logo_url = ss.get('dark_logo_url', '') %}
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img
+        src="{{ url_for('static', filename=footer_logo_url) if footer_logo_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
+        alt=""
+        width="56"
+        height="56"
+        decoding="async"
+        class="footer-logo-img"
+        data-light-src="{{ url_for('static', filename=footer_logo_url) if footer_logo_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
+        data-dark-src="{{ url_for('static', filename=footer_dark_logo_url) if footer_dark_logo_url else '' }}"
+      />
+      <div>
+        <strong>Skill Orbit India</strong>
+        <p class="footer-tagline">Empowering Future Tech Innovators</p>
+        <p class="muted" style="margin:0.75rem 0 0;max-width:42ch;">
+          Courses, curated kits, verified certificates, internships, IT services, and NEP-aligned AI & Robotics lab setup for institutions.
+        </p>
+      </div>
+    </div>
+
+    <nav class="footer-columns" aria-label="Quick links">
+      <div>
+        <h4>Quick links</h4>
+        <a href="{{ url_for('main.home') }}">Home</a>
+        <a href="{{ url_for('main.about') }}">About</a>
+        <a href="{{ url_for('ai_lab.index') }}">AI Lab Setup</a>
+        <a href="{{ url_for('it_services.index') }}">IT Services</a>
+      </div>
+      <div>
+        <h4>Learn</h4>
+        <a href="{{ url_for('courses.list_courses') }}">Courses</a>
+        <a href="{{ url_for('certificates.verify_lookup') }}">Certificates</a>
+        <a href="{{ url_for('internships.listing') }}">Internships</a>
+      </div>
+      <div>
+        <h4>Shop</h4>
+        <a href="{{ url_for('store.listing') }}">Electronics store</a>
+        <a href="{{ url_for('store.view_cart') }}">Cart</a>
+      </div>
+      <div>
+        <h4>Account</h4>
+        {% set footer_role = session.get('role') or (current_user.role if current_user.is_authenticated else None) %}
+        {% if footer_role == 'admin' %}
+        <a href="{{ url_for('admin.index') }}">Admin</a>
+        {% elif footer_role == 'teacher' %}
+        <a href="{{ url_for('teacher.dashboard') }}">Teacher</a>
+        {% elif footer_role == 'student' %}
+        <a href="{{ url_for('student.dashboard') }}">Dashboard</a>
+        {% else %}
+        <a href="{{ url_for('auth.login') }}">Login</a>
+        <a href="{{ url_for('auth.signup') }}">Sign up</a>
+        {% endif %}
+      </div>
+    </nav>
+
+    <div class="footer-contact-and-map">
+      <div class="footer-contact">
+      <h4>Contact</h4>
+      <div class="footer-contact-items">
+        <a class="footer-contact-link" href="mailto:{{ contact_email }}" aria-label="Email Skill Orbit India">
+          <span class="footer-icon" aria-hidden="true"><i class="ri-mail-line"></i></span>
+          <span>{{ contact_email }}</span>
+        </a>
+        <a class="footer-contact-link" href="tel:{{ contact_phone|replace(' ', '') }}" aria-label="Call Skill Orbit India">
+          <span class="footer-icon" aria-hidden="true"><i class="ri-phone-line"></i></span>
+          <span>{{ contact_phone }}</span>
+        </a>
+        <a class="footer-contact-link" href="https://wa.me/{{ whatsapp_number }}" target="_blank" rel="noopener" aria-label="WhatsApp Skill Orbit India">
+          <span class="footer-icon" aria-hidden="true"><i class="ri-whatsapp-line"></i></span>
+          <span>WhatsApp support</span>
+        </a>
+        <div class="footer-contact-link" style="align-items:flex-start;">
+          <span class="footer-icon" aria-hidden="true"><i class="ri-map-pin-line"></i></span>
+          <span class="muted" style="margin:0;">{{ address_text }}</span>
+        </div>
+      </div>
+
+      <div class="footer-social" style="margin-top:1rem;">
+        <h4>Follow</h4>
+        <div class="social-icons">
+          <a href="{{ linkedin_url }}" class="social-link" aria-label="LinkedIn" rel="noopener" target="_blank"><i class="ri-linkedin-box-line" aria-hidden="true"></i></a>
+          <a href="{{ youtube_url }}" class="social-link" aria-label="YouTube" rel="noopener" target="_blank"><i class="ri-youtube-line" aria-hidden="true"></i></a>
+          <a href="{{ instagram_url }}" class="social-link" aria-label="Instagram" rel="noopener" target="_blank"><i class="ri-instagram-line" aria-hidden="true"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-map" aria-label="Map">
+      <h4>Find us</h4>
+      <div class="footer-map-embed">
+        <iframe
+          title="Skill Orbit India on Google Maps"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          src="{{ map_embed_url }}"></iframe>
+      </div>
+    </div>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <p>© {{ current_year }} Skill Orbit India. Built for learners across India.</p>
+  </div>
+
+  <a class="whatsapp-float" href="https://wa.me/{{ whatsapp_number }}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+    <span class="whatsapp-float-icon" aria-hidden="true"><i class="ri-whatsapp-line"></i></span>
+    <span class="whatsapp-float-text">WhatsApp</span>
+  </a>
+</footer>

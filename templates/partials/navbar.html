@@ -1,0 +1,71 @@
+<header class="nav-wrap" id="site-nav">
+  <div class="nav-inner glass-nav">
+    {% set ss = site_settings or {} %}
+    {% set nav_logo_url = ss.get('logo_url', '') %}
+    {% set nav_dark_logo_url = ss.get('dark_logo_url', '') %}
+    {% set nav_favicon_url = ss.get('favicon_url', '') %}
+
+    <a href="{{ url_for('main.home') }}" class="nav-brand" aria-label="{{ seo_site_name }} — Home">
+      <img
+        src="{{ url_for('static', filename=nav_logo_url) if nav_logo_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
+        alt=""
+        width="48"
+        height="48"
+        decoding="async"
+        class="nav-logo-img"
+        data-light-src="{{ url_for('static', filename=nav_logo_url) if nav_logo_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
+        data-dark-src="{{ url_for('static', filename=nav_dark_logo_url) if nav_dark_logo_url else '' }}"
+      />
+      <span class="nav-brand-text">Skill Orbit <em>India</em></span>
+    </a>
+    <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-links" id="nav-links" role="navigation" aria-label="Primary">
+      <a href="{{ url_for('courses.list_courses') }}" class="nav-link">Courses</a>
+      <a href="{{ url_for('certificates.verify_lookup') }}" class="nav-link {% if request.endpoint in ('certificates.verify_lookup', 'certificates.verify') %}is-active{% endif %}">Certificates</a>
+      <a href="{{ url_for('internships.listing') }}" class="nav-link">Internships</a>
+      <a href="{{ url_for('store.listing') }}" class="nav-link">Store</a>
+      <a href="{{ url_for('it_services.index') }}" class="nav-link">Service</a>
+      <a href="{{ url_for('ai_lab.index') }}" class="nav-link">AI Lab</a>
+      <a href="{{ url_for('main.about') }}" class="nav-link">About</a>
+      {% set nav_role = session.get('role') or (current_user.role if current_user.is_authenticated else None) %}
+      {% if nav_role == 'admin' %}
+      <a href="{{ url_for('admin.index') }}" class="nav-link nav-accent">Admin</a>
+      {% elif nav_role == 'teacher' %}
+      <a href="{{ url_for('teacher.dashboard') }}" class="nav-link">Teacher</a>
+      {% elif nav_role == 'student' %}
+      <a href="{{ url_for('student.dashboard') }}" class="nav-link">Dashboard</a>
+      {% endif %}
+    </nav>
+    <div class="nav-actions">
+      <button type="button" class="icon-btn theme-toggle" id="theme-toggle" title="Toggle theme" aria-label="Toggle dark mode">
+        <i class="ri-moon-line theme-icon-moon" aria-hidden="true"></i>
+        <i class="ri-sun-line theme-icon-sun hidden" aria-hidden="true"></i>
+      </button>
+      {% if current_user.is_authenticated or session.get('user_id') %}
+      <div class="notif-wrap">
+        <button type="button" class="icon-btn" id="notif-btn" aria-label="Notifications" aria-expanded="false">
+          <i class="ri-notification-3-line" aria-hidden="true"></i>
+          <span class="notif-dot" id="notif-dot" hidden></span>
+        </button>
+        <div class="notif-dropdown glass-panel" id="notif-dropdown" hidden>
+          <p class="notif-dropdown-title">Notifications</p>
+          <ul class="notif-list" id="notif-list"></ul>
+          <p class="notif-empty" id="notif-empty">You’re all caught up.</p>
+        </div>
+      </div>
+      {% endif %}
+      <a href="{{ url_for('store.view_cart') }}" class="icon-btn cart-btn" title="Cart" aria-label="Shopping cart">
+        <i class="ri-shopping-cart-line" aria-hidden="true"></i>
+      </a>
+      {% if current_user.is_authenticated or session.get('user_id') %}
+      <a href="{{ url_for('auth.profile') }}" class="btn btn-ghost btn-sm hide-mobile">Profile</a>
+      <a href="{{ url_for('auth.logout') }}" class="btn btn-primary btn-sm">Logout</a>
+      {% else %}
+      <a href="{{ url_for('auth.login') }}" class="btn btn-ghost btn-sm">Login</a>
+      <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-sm">Sign up</a>
+      {% endif %}
+    </div>
+  </div>
+</header>

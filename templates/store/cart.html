@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Cart — Skill Orbit India{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Store', url_for('store.listing')), ('Cart', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 class="page-title">Your cart</h1>
+<div class="card-premium reveal surface-card-lg section-gap">
+  {% for i in items %}
+  <div class="surface-list-item">
+    <div>
+      <strong>{{ i.product.name }}</strong>
+      <p class="muted">Qty {{ i.quantity }} × ₹{{ i.product.price_inr }}</p>
+    </div>
+    <span class="price-tag">₹{{ i.subtotal }}</span>
+  </div>
+  {% else %}
+  <p class="muted">Your cart is empty.</p>
+  <a href="{{ url_for('store.listing') }}" class="btn btn-primary btn-sm">Browse store</a>
+  {% endfor %}
+  {% if items %}
+  <div class="actions-inline section-gap">
+    <span class="price-tag">Total ₹{{ total }}</span>
+    {% if current_user.is_authenticated %}
+    <form method="post" action="{{ url_for('store.checkout') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-accent">Checkout</button>
+    </form>
+    {% else %}
+    <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login to checkout</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

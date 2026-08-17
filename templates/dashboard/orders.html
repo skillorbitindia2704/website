@@ -1,0 +1,59 @@
+{% extends "dashboard/layout.html" %}
+{% block title %}My Orders — Skill Orbit India{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Dashboard', url_for('dashboard.index')), ('Orders', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block dash_content %}
+<h1 class="page-title">My orders</h1>
+<p class="muted">Payment details, line items, and live order tracking.</p>
+{% if orders %}
+<div class="card-premium reveal table-wrap section-gap">
+  <table class="table-modern">
+    <thead>
+      <tr><th>Order</th><th>Total</th><th>Payment Status</th><th>Order Status</th><th>Tracking</th><th>Items</th></tr>
+    </thead>
+    <tbody>
+      {% for o in orders %}
+      {% set current_status = o.status or 'Pending' %}
+      {% set step_rank = {'Pending': 1, 'Accepted': 2, 'Shipped': 3, 'Delivered': 4} %}
+      {% set current_rank = step_rank.get(current_status, 1) %}
+      <tr>
+        <td>#{{ o.id }}</td>
+        <td>₹{{ o.total_inr }}</td>
+        <td>
+          <span class="level-pill">{{ o.payment_status }}</span>
+          {% if o.payment_status == 'payment_pending' %}
+          <a href="{{ url_for('store.pay_order', order_id=o.id) }}" class="btn btn-accent btn-xs" style="margin-left: 8px; padding: 4px 10px; font-size: 0.8rem; border-radius: 6px;">Pay Now</a>
+          {% endif %}
+        </td>
+        <td><span class="level-pill">{{ current_status }}</span></td>
+        <td>
+          {% if current_status == 'Rejected' %}
+          <span class="muted">Order was rejected</span>
+          {% else %}
+          <div class="status-track">
+            {% for step_name, step_value in [('Pending', 1), ('Accepted', 2), ('Shipped', 3), ('Delivered', 4)] %}
+            <span class="status-step {% if current_rank >= step_value %}done{% endif %}">
+              {{ step_name }}
+            </span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </td>
+        <td>
+          {% for item in o.items %}
+          {{ item.product.name if item.product else "Deleted product" }} × {{ item.quantity }}{% if not loop.last %}, {% endif %}
+          {% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="empty-state section-gap">No orders yet. <a href="{{ url_for('store.listing') }}">Browse the store</a>.</p>
+{% endif %}
+{% endblock %}

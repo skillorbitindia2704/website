@@ -1,0 +1,310 @@
+{% extends "base.html" %}
+{% block title %}Website Branding — Admin{% endblock %}
+
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('Website Branding', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Website Branding</h1>
+<p class="muted">Manage logo &amp; favicon</p>
+
+<div class="card-premium surface-card-lg reveal" style="margin-top:1.25rem;">
+  <div class="branding-grid">
+
+    <!-- MAIN LOGO -->
+    <section class="branding-card">
+      <div class="branding-card-head">
+        <h2 class="card-title-sm" style="margin:0;">Logo Upload</h2>
+        <p class="muted" style="margin:0.35rem 0 0;">Main (light theme) navbar logo</p>
+      </div>
+
+      <div class="branding-preview">
+        <img
+          id="preview-logo"
+          src="{{ url_for('static', filename=logo_url) if logo_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
+          alt="Main logo preview"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+
+      <form id="form-logo" class="branding-form" enctype="multipart/form-data">
+        <input type="hidden" name="kind" value="logo">
+        <label class="file-label">
+          <span>Choose file</span>
+          <input type="file" name="image" accept="image/png,image/jpeg,image/jpg,image/svg,image/webp" required />
+        </label>
+        <p class="muted file-hint">Allowed: png, jpg, jpeg, svg, webp · Max 5MB</p>
+        <div class="form-actions-row">
+          <button type="submit" class="btn btn-primary" id="btn-logo-upload">Upload</button>
+          <button type="button" class="btn btn-ghost" id="btn-logo-delete" data-kind="logo">Delete / Clear</button>
+        </div>
+      </form>
+
+      <div class="inline-status" id="status-logo" hidden></div>
+    </section>
+
+    <!-- DARK LOGO -->
+    <section class="branding-card">
+      <div class="branding-card-head">
+        <h2 class="card-title-sm" style="margin:0;">Dark Logo Upload</h2>
+        <p class="muted" style="margin:0.35rem 0 0;">Navbar logo for dark mode</p>
+      </div>
+
+      <div class="branding-preview">
+        <img
+          id="preview-dark-logo"
+          src="{{ url_for('static', filename=dark_logo_url) if dark_logo_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
+          alt="Dark logo preview"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+
+      <form id="form-dark-logo" class="branding-form" enctype="multipart/form-data">
+        <input type="hidden" name="kind" value="dark_logo">
+        <label class="file-label">
+          <span>Choose file</span>
+          <input type="file" name="image" accept="image/png,image/jpeg,image/jpg,image/svg,image/webp" required />
+        </label>
+        <p class="muted file-hint">Allowed: png, jpg, jpeg, svg, webp · Max 5MB</p>
+        <div class="form-actions-row">
+          <button type="submit" class="btn btn-primary" id="btn-dark-logo-upload">Upload</button>
+          <button type="button" class="btn btn-ghost" id="btn-dark-logo-delete" data-kind="dark_logo">Delete / Clear</button>
+        </div>
+      </form>
+
+      <div class="inline-status" id="status-dark-logo" hidden></div>
+    </section>
+
+    <!-- FAVICON -->
+    <section class="branding-card" style="grid-column: 1 / -1;">
+      <div class="branding-card-head">
+        <h2 class="card-title-sm" style="margin:0;">Favicon Upload</h2>
+        <p class="muted" style="margin:0.35rem 0 0;">Browser tab icon</p>
+      </div>
+
+      <div class="branding-preview">
+        <img
+          id="preview-favicon"
+          src="{{ url_for('static', filename=favicon_url) if favicon_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
+          alt="Favicon preview"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+
+      <form id="form-favicon" class="branding-form" enctype="multipart/form-data">
+        <input type="hidden" name="kind" value="favicon">
+        <label class="file-label">
+          <span>Choose file</span>
+          <input type="file" name="image" accept="image/png,image/jpeg,image/jpg,image/svg,image/webp" required />
+        </label>
+        <p class="muted file-hint">Allowed: png, jpg, jpeg, svg, webp · Max 5MB</p>
+        <div class="form-actions-row">
+          <button type="submit" class="btn btn-primary" id="btn-favicon-upload">Upload</button>
+          <button type="button" class="btn btn-ghost" id="btn-favicon-delete" data-kind="favicon">Delete / Clear</button>
+        </div>
+      </form>
+
+      <div class="inline-status" id="status-favicon" hidden></div>
+
+      <p class="muted" style="margin-top:0.75rem;">
+        Note: favicon may be cached by the browser. If it doesn’t update instantly, hard refresh (Ctrl+F5) or clear cache.
+      </p>
+    </section>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+  const MAX_BYTES = 5 * 1024 * 1024;
+
+  function setInlineStatus(el, msg, type){
+    if(!el) return;
+    el.hidden = !msg;
+    if(!msg) return;
+    el.textContent = msg;
+    el.style.color = type === 'error' ? 'var(--danger)' : 'var(--success)';
+    el.style.marginTop = '0.65rem';
+    el.style.fontSize = '0.95rem';
+    el.style.fontWeight = '500';
+  }
+
+  function buttonSetLoading(btn, loading){
+    if(!btn) return;
+    btn.disabled = loading;
+    btn.setAttribute('aria-busy', loading ? 'true' : 'false');
+    const base = btn.getAttribute('data-base-text') || btn.textContent;
+    if(!btn.getAttribute('data-base-text')) btn.setAttribute('data-base-text', base);
+    btn.textContent = loading ? 'Uploading…' : base;
+  }
+
+  async function upload(kind, file, formEl, statusEl, uploadBtn, previewEl){
+    // Client-side file validation
+    if(!file) throw new Error('Please choose a file.');
+    const extOk = ['image/png','image/jpeg','image/jpg','image/svg+xml','image/webp'];
+    if(file.size > MAX_BYTES) throw new Error('File too large. Max size is 5MB.');
+    if(file.type && !extOk.includes(file.type)){
+      // Some browsers report svg as image/svg+xml; tolerate empty type
+      if(file.type) throw new Error('Invalid file type. Allowed: png, jpg, jpeg, svg, webp.');
+    }
+
+    // Instant preview via object URL
+    let objUrl = '';
+    try{
+      objUrl = URL.createObjectURL(file);
+      if(previewEl) previewEl.src = objUrl;
+    } catch(e){ /* ignore */ }
+
+    const fd = new FormData();
+    fd.append('kind', kind);
+    fd.append('image', file);
+
+    buttonSetLoading(uploadBtn, true);
+    setInlineStatus(statusEl, 'Uploading…', 'info');
+
+    try{
+      const res = await fetch('/admin/website-branding/upload', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrf },
+        body: fd
+      });
+      const data = await res.json().catch(()=>({}));
+      if(!res.ok) throw new Error(data.error || 'Upload failed.');
+
+      // Use server-returned relative path for consistent preview
+      if(data.url && previewEl){
+        previewEl.src = data.url;
+      }
+      setInlineStatus(statusEl, 'Saved.', 'success');
+      return data;
+    } finally {
+      buttonSetLoading(uploadBtn, false);
+      if(objUrl) setTimeout(()=>URL.revokeObjectURL(objUrl), 1500);
+    }
+  }
+
+  function bindUpload(formId, kind, previewId, statusId, uploadBtnId){
+    const form = document.getElementById(formId);
+    const previewEl = document.getElementById(previewId);
+    const statusEl = document.getElementById(statusId);
+    const uploadBtn = document.getElementById(uploadBtnId);
+
+    form?.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const input = form.querySelector('input[type="file"][name="image"]');
+      const file = input?.files?.[0];
+      try{
+        const data = await upload(kind, file, form, statusEl, uploadBtn, previewEl);
+        window.dispatchEvent(new CustomEvent('branding:saved', { detail: data }));
+        // success toast via existing app showToast
+        if(data && data.toast){
+          if(window.showToast) window.showToast(data.toast, 'success');
+          else {
+            const root = document.getElementById('toast-root');
+            if(root){
+              const el = document.createElement('div');
+              el.className = 'toast success';
+              el.textContent = data.toast;
+              root.appendChild(el);
+              setTimeout(()=>el.remove(), 4200);
+            }
+          }
+        }
+      } catch(err){
+        setInlineStatus(statusEl, err.message || 'Upload failed', 'error');
+        if(window.showToast) window.showToast(err.message || 'Upload failed', 'error');
+      }
+    });
+  }
+
+  bindUpload('form-logo', 'logo', 'preview-logo', 'status-logo', 'btn-logo-upload');
+  bindUpload('form-dark-logo', 'dark_logo', 'preview-dark-logo', 'status-dark-logo', 'btn-dark-logo-upload');
+  bindUpload('form-favicon', 'favicon', 'preview-favicon', 'status-favicon', 'btn-favicon-upload');
+
+  async function del(kind, previewEl, statusEl){
+    buttonSetLoading(document.querySelector(`[data-kind="${kind}"]`)?.closest('button'), true);
+    setInlineStatus(statusEl, 'Clearing…', 'info');
+    try{
+      const res = await fetch('/admin/website-branding/delete', {
+        method:'POST',
+        headers: { 'Content-Type':'application/json', 'X-CSRFToken': csrf },
+        body: JSON.stringify({ kind })
+      });
+      const data = await res.json().catch(()=>({}));
+      if(!res.ok) throw new Error(data.error || 'Delete failed.');
+
+      if(data.url && previewEl) previewEl.src = data.url;
+      setInlineStatus(statusEl, 'Cleared.', 'success');
+      window.dispatchEvent(new CustomEvent('branding:saved', { detail: data }));
+      if(data.toast && window.showToast) window.showToast(data.toast, 'success');
+    } catch(err){
+      setInlineStatus(statusEl, err.message || 'Delete failed', 'error');
+      if(window.showToast) window.showToast(err.message || 'Delete failed', 'error');
+    } finally {
+      buttonSetLoading(document.querySelector(`[data-kind="${kind}"]`)?.closest('button'), false);
+    }
+  }
+
+  const deleteBtns = [
+    { btn: document.getElementById('btn-logo-delete'), kind:'logo', preview:'preview-logo', status:'status-logo' },
+    { btn: document.getElementById('btn-dark-logo-delete'), kind:'dark_logo', preview:'preview-dark-logo', status:'status-dark-logo' },
+    { btn: document.getElementById('btn-favicon-delete'), kind:'favicon', preview:'preview-favicon', status:'status-favicon' },
+  ];
+
+  deleteBtns.forEach(({btn, kind, preview, status})=>{
+    btn?.addEventListener('click', async ()=>{
+      const ok = confirm('Delete/clear this asset? The default branding will be used instead.');
+      if(!ok) return;
+      await del(kind, document.getElementById(preview), document.getElementById(status));
+    });
+  });
+
+  // If user uploads favicon/logo, refresh head/navbar via soft reload (server-rendered)
+  window.addEventListener('branding:saved', (e)=>{
+    const data = e.detail;
+    if (data && data.url && data.kind) {
+      const activeTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      const logoImgs = document.querySelectorAll('.nav-logo-img, .footer-logo-img');
+      logoImgs.forEach((img) => {
+        if (data.kind === 'logo') {
+          img.setAttribute('data-light-src', data.url);
+          if (activeTheme !== 'dark') {
+            img.src = data.url;
+          }
+        } else if (data.kind === 'dark_logo') {
+          img.setAttribute('data-dark-src', data.url);
+          if (activeTheme === 'dark') {
+            img.src = data.url;
+          }
+        }
+      });
+    }
+    // For favicon: server-rendered head link updates on refresh; we reload.
+    // Keep it lightweight.
+    setTimeout(()=>{ window.location.reload(); }, 450);
+  });
+})();
+</script>
+
+<style>
+  .branding-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:1rem; padding:1.25rem; }
+  .branding-card{ border-radius:18px; padding:1rem; border:1px solid var(--border); background:rgba(255,255,255,0.03); }
+  .branding-card-head{ margin-bottom:0.85rem; }
+  .branding-preview{ display:flex; align-items:center; justify-content:center; border-radius:16px; padding:0.85rem; background:rgba(0,0,0,0.15); border:1px dashed var(--border); margin-bottom:0.85rem; min-height:120px; }
+  .branding-preview img{ max-width:220px; max-height:120px; width:auto; height:auto; object-fit:contain; border-radius:14px; }
+  .branding-form{ display:flex; flex-direction:column; gap:0.55rem; }
+  .file-label{ display:inline-flex; align-items:center; justify-content:center; cursor:pointer; border-radius:12px; padding:0.75rem 1rem; border:1px solid var(--border); background:rgba(255,255,255,0.03); font-weight:600; }
+  .file-label input{ display:none; }
+  .file-hint{ font-size:0.95rem; }
+  .inline-status{ font-size:0.95rem; }
+</style>
+{% endblock %}
+

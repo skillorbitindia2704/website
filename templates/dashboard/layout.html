@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block body_class %}page-dashboard{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+{% block content %}
+<div class="dashboard-shell">
+  {% include "partials/dashboard_sidebar.html" %}
+  <div class="dash-main">
+    <section class="role-shell">
+      {% block dash_content %}{% endblock %}
+    </section>
+  </div>
+</div>
+{% endblock %}

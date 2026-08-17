@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}My courses — Teacher{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('Courses', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 class="page-title">Course manager</h1>
+<p class="muted">Edit catalog entries, modules, and LMS content.</p>
+<div class="teacher-dash-actions section-gap">
+  <a class="btn btn-primary" href="{{ url_for('teacher.create_course') }}">+ New course</a>
+  <a class="btn btn-ghost" href="{{ url_for('teacher.dashboard') }}">Dashboard</a>
+  <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_live_sessions') }}">Live sessions</a>
+  <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_recorded_sessions') }}">Recorded</a>
+  <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_notes') }}">Notes</a>
+  <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_quizzes') }}">Quizzes</a>
+</div>
+<div class="card-premium reveal" style="padding:0;overflow-x:auto;">
+  <table class="table-modern teacher-course-table">
+    <thead><tr><th>Title</th><th>Published</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for c in courses %}
+      <tr>
+        <td><strong>{{ c.title }}</strong><br><span class="muted" style="font-size:0.85rem;">{{ c.category or '—' }}</span></td>
+        <td>{% if c.is_published %}<span class="level-pill">Yes</span>{% else %}<span class="muted">No</span>{% endif %}</td>
+        <td style="white-space:nowrap;">
+          <a class="btn btn-primary btn-sm" href="{{ url_for('teacher.teacher_edit_course', course_id=c.id) }}">Edit</a>
+          <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.teacher_course_students', course_id=c.id) }}">Students</a>
+          <form method="post" action="{{ url_for('teacher.teacher_delete_course', course_id=c.id) }}" style="display:inline;" onsubmit="return confirm('Delete this course? This cannot be undone.');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn-sm" style="color:#b91c1c;">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="3" class="muted">No courses yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

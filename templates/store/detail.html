@@ -1,0 +1,911 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — Skill Orbit India{% endblock %}
+
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Store', url_for('store.listing')), (product.name, None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="product-detail-grid section-gap">
+    
+    <!-- Left Column: Gallery -->
+    <div class="gallery-column reveal">
+      <div class="card-premium main-image-card">
+        <div class="card-img-wrap detail-img-wrap">
+          <button type="button"
+            class="wishlist-btn {% if current_user.is_authenticated and product.id in wishlist_ids %}active{% endif %}"
+            data-product-id="{{ product.id }}"
+            aria-label="Wishlist"
+            aria-pressed="{% if current_user.is_authenticated and product.id in wishlist_ids %}true{% else %}false{% endif %}"><i class="ri-heart-line" aria-hidden="true"></i></button>
+          <img id="main-product-img" src="{{ product.image_url if (product.image_url and product.image_url.startswith('/static/')) else url_for('static', filename=(product.image_url or 'images/default_product.svg')) }}" alt="{{ product.name }}" class="main-image">
+        </div>
+      </div>
+      
+      <!-- Gallery Thumbnails -->
+      {% if product.gallery_images %}
+      <div class="thumbnails-slider">
+        <div class="thumb-item active" onclick="swapMainImage('{{ product.image_url if (product.image_url and product.image_url.startswith("/static/")) else url_for("static", filename=(product.image_url or "images/default_product.svg")) }}', this)">
+          <img src="{{ product.image_url if (product.image_url and product.image_url.startswith('/static/')) else url_for('static', filename=(product.image_url or 'images/default_product.svg')) }}" alt="Main View">
+        </div>
+        {% for img in product.gallery_images %}
+        <div class="thumb-item" onclick="swapMainImage('{{ img.image_url }}', this)">
+          <img src="{{ img.image_url }}" alt="Gallery Image {{ loop.index }}">
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    
+    <!-- Right Column: Product Meta and Purchase -->
+    <div class="meta-column reveal">
+      <div class="badge-row">
+        <span class="level-pill category-pill">{{ product.category }}</span>
+        {% if product.subcategory %}
+        <span class="level-pill subcategory-pill">{{ product.subcategory }}</span>
+        {% endif %}
+        {% if product.brand %}
+        <span class="brand-text">by <strong>{{ product.brand }}</strong></span>
+        {% endif %}
+      </div>
+      
+      <h1 class="product-title">{{ product.name }}</h1>
+      
+      {% if product.sku %}
+      <p class="product-sku text-muted">SKU: <code>{{ product.sku }}</code></p>
+      {% endif %}
+      
+      <!-- Ratings summary -->
+      <div class="rating-summary-row">
+        <div class="stars-bar" style="--p: {{ (((product.rating|default(4.5))|float / 5) * 100)|int }}%;"></div>
+        <span class="rating-number">{{ '%.1f'|format((product.rating|default(4.5))|float) }} / 5</span>
+        <span class="rating-count">({{ reviews|length }} customer review{{ 's' if reviews|length != 1 else '' }})</span>
+      </div>
+      
+      <!-- Pricing section -->
+      <div class="price-container">
+        {% if product.discount_price_inr > 0 and product.discount_price_inr < product.price_inr %}
+          <div class="price-row">
+            <span class="price-tag current-price">₹{{ product.discount_price_inr }}</span>
+            <span class="old-price">₹{{ product.price_inr }}</span>
+            {% set savings = (((product.price_inr - product.discount_price_inr) / product.price_inr) * 100)|int %}
+            <span class="discount-pill">Save {{ savings }}%</span>
+          </div>
+        {% else %}
+          <div class="price-row">
+            <span class="price-tag current-price">₹{{ product.price_inr }}</span>
+          </div>
+        {% endif %}
+        <p class="gst-notice text-muted">Price includes {{ product.gst_percent }}% GST</p>
+      </div>
+      
+      <!-- Short Description -->
+      <div class="short-desc">
+        <p>{{ product.short_description or product.description[:250] }}{% if not product.short_description and product.description|length > 250 %}…{% endif %}</p>
+      </div>
+      
+      <!-- Stock status -->
+      <div class="stock-status-container">
+        {% if product.stock > 0 %}
+          {% if product.stock <= product.low_stock_threshold %}
+            <span class="stock-badge low-stock-pulse"><i class="ri-alert-line" aria-hidden="true"></i> Low Stock: Only {{ product.stock }} left!</span>
+          {% else %}
+            <span class="stock-badge in-stock-badge"><i class="ri-checkbox-circle-line" aria-hidden="true"></i> In Stock ({{ product.stock }} available)</span>
+          {% endif %}
+        {% else %}
+          <span class="stock-badge out-of-stock-badge"><i class="ri-close-circle-line" aria-hidden="true"></i> Out of Stock</span>
+        {% endif %}
+      </div>
+      
+      <!-- Add to Cart Form -->
+      {% if product.stock > 0 %}
+      <form method="post" action="{{ url_for('store.add_to_cart', product_id=product.id) }}" class="purchase-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="qty-selector">
+          <label for="quantity">Quantity:</label>
+          <div class="qty-input-wrap">
+            <button type="button" class="qty-btn" onclick="adjustQty(-1)">−</button>
+            <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock }}" class="qty-field">
+            <button type="button" class="qty-btn" onclick="adjustQty(1)">+</button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary add-to-cart-large-btn">
+          <span><i class="ri-shopping-cart-2-line" aria-hidden="true"></i> Add to Cart</span>
+        </button>
+      </form>
+      {% else %}
+      <div class="purchase-fallback">
+        <button class="btn btn-ghost disabled-btn" disabled>Out of Stock</button>
+      </div>
+      {% endif %}
+      
+      {% if product.video_url %}
+      <div class="video-cta-wrap">
+        <a href="{{ product.video_url }}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm video-link">
+          <span><i class="ri-vidicon-line" aria-hidden="true"></i> Watch Product Video Demo</span>
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  
+  <!-- Interactive Tabs (Specs, Features, Warranty) -->
+  <div class="tabs-container section-gap reveal">
+    <div class="tabs-header">
+      <button type="button" class="tab-trigger active" onclick="switchTab(event, 'tab-description')">Detailed Description</button>
+      <button type="button" class="tab-trigger" onclick="switchTab(event, 'tab-specs')">Specifications</button>
+      <button type="button" class="tab-trigger" onclick="switchTab(event, 'tab-features')">Features & Highlights</button>
+      {% if product.warranty %}
+      <button type="button" class="tab-trigger" onclick="switchTab(event, 'tab-warranty')">Warranty & Support</button>
+      {% endif %}
+    </div>
+    
+    <div class="tabs-content">
+      <!-- Description Tab -->
+      <div id="tab-description" class="tab-panel active">
+        <div class="rich-content">
+          <p style="white-space: pre-line;">{{ product.description }}</p>
+        </div>
+      </div>
+      
+      <!-- Specifications Tab -->
+      <div id="tab-specs" class="tab-panel">
+        <div class="specs-table-wrap">
+          {% if specifications %}
+          <table class="specs-table">
+            <tbody>
+              {% for spec in specifications %}
+                {% if spec is mapping %}
+                  <tr>
+                    <th>{{ spec.key }}</th>
+                    <td>{{ spec.value }}</td>
+                  </tr>
+                {% else %}
+                  <tr>
+                    <td colspan="2">{{ spec }}</td>
+                  </tr>
+                {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <p class="text-muted">No specifications specified for this product.</p>
+          {% endif %}
+        </div>
+      </div>
+      
+      <!-- Features Tab -->
+      <div id="tab-features" class="tab-panel">
+        {% if features %}
+        <ul class="features-list">
+          {% for feature in features %}
+          <li>{{ feature }}</li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted">No specific features registered.</p>
+        {% endif %}
+      </div>
+      
+      <!-- Warranty Tab -->
+      {% if product.warranty %}
+      <div id="tab-warranty" class="tab-panel">
+        <div class="warranty-card">
+          <h4>Product Warranty Statement</h4>
+          <p>{{ product.warranty }}</p>
+          <div class="support-info">
+            <p class="text-muted">Need help with this component? Get in touch with our Technical Support Desk through our portal contact routes.</p>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Related Products Recommendations -->
+  {% if related_products %}
+  <div class="related-products-section section-gap reveal">
+    <h2 class="section-title">Recommended Components</h2>
+    <p class="text-muted">Students and makers also purchased these related kits.</p>
+    
+    <div class="grid-cards" style="margin-top: 1.5rem;">
+      {% for p in related_products %}
+      <article class="card-premium">
+        <div class="card-img-wrap">
+          <img src="{{ p.image_url if (p.image_url and p.image_url.startswith('/static/')) else url_for('static', filename=(p.image_url or 'images/default_product.svg')) }}" alt="{{ p.name }}" loading="lazy">
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span>{{ p.category }}</span>
+            <span>{{ '%.1f'|format((p.rating|default(4.5))|float) }} / 5</span>
+          </div>
+          <h3><a href="{{ url_for('store.product_detail', slug=p.slug or p.id) }}">{{ p.name }}</a></h3>
+          <div class="actions-inline">
+            <span class="price-tag">₹{{ p.price_inr }}</span>
+            <a href="{{ url_for('store.product_detail', slug=p.slug or p.id) }}" class="btn btn-ghost btn-sm">View details</a>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+  
+  <!-- Customer Reviews Grid & Submission -->
+  <div class="reviews-section section-gap reveal">
+    <div class="reviews-layout">
+      <!-- Left side: Review List -->
+      <div class="reviews-list-column">
+        <h2 class="section-title">Customer Reviews ({{ reviews|length }})</h2>
+        <div class="reviews-wrapper">
+          {% for review in reviews %}
+          <div class="card-premium review-item">
+            <div class="review-header">
+              <div class="user-meta">
+                <span class="user-name"><strong>{{ review.user.username }}</strong></span>
+                <span class="review-date text-muted">{{ review.created_at.strftime('%b %d, %Y') }}</span>
+              </div>
+              <div class="stars-bar" style="--p: {{ ((review.rating / 5) * 100)|int }}%;"></div>
+            </div>
+            <div class="review-body">
+              <p>{{ review.review_text }}</p>
+            </div>
+          </div>
+          {% else %}
+          <p class="text-muted empty-reviews">No reviews yet for this product. Be the first to share your experience!</p>
+          {% endfor %}
+        </div>
+      </div>
+      
+      <!-- Right side: Submit Review form -->
+      <div class="reviews-form-column">
+        <div class="card-premium review-form-card">
+          <h3>Share Your Experience</h3>
+          <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 1.25rem;">Your feedback helps thousands of fellow student makers build better projects!</p>
+          
+          <form method="post" action="{{ url_for('store.post_review', product_id=product.id) }}" class="form-modern">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            
+            <div class="form-group">
+              <label>Your Rating</label>
+              <div class="rating-select-stars">
+                {% for i in range(5, 0, -1) %}
+                <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" {% if i == 5 %}checked{% endif %}>
+                <label for="star{{ i }}" title="{{ i }} Stars">★</label>
+                {% endfor %}
+              </div>
+            </div>
+            
+            <div class="form-group" style="margin-top: 1.5rem;">
+              <label for="review_text">Review Comments</label>
+              <textarea id="review_text" name="review_text" rows="4" required placeholder="What did you build? How is the quality and ease of integration?"></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-sm" style="margin-top: 0.5rem; width: 100%;">
+              <span>Submit Review</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Encapsulated styling for Premium Product Detail CMS View */
+.product-detail-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .product-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+.main-image-card {
+  padding: 1.5rem;
+  background: var(--glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-lg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.detail-img-wrap {
+  width: 100%;
+  aspect-ratio: 4/3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.main-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.main-image-card:hover .main-image {
+  transform: scale(1.04);
+}
+
+.thumbnails-slider {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  overflow-x: auto;
+  padding: 0.25rem 0;
+}
+
+.thumb-item {
+  width: 80px;
+  height: 60px;
+  border-radius: var(--radius-sm);
+  border: 2px solid transparent;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--bg-elevated);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+}
+
+.thumb-item img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.thumb-item.active,
+.thumb-item:hover {
+  border-color: var(--primary-from);
+  opacity: 1;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xs);
+}
+
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.brand-text {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.product-title {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, var(--text), var(--text-muted));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.product-sku {
+  font-size: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.rating-summary-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.rating-number {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.rating-count {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.price-container {
+  background: rgba(99, 102, 241, 0.04);
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(8px);
+}
+
+.price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.current-price {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.old-price {
+  font-size: 1.35rem;
+  text-decoration: line-through;
+  color: var(--text-muted);
+  opacity: 0.65;
+}
+
+.discount-pill {
+  background: linear-gradient(135deg, #ea580c, var(--accent));
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 99px;
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.2);
+}
+
+.gst-notice {
+  font-size: 0.8rem;
+  margin: 0.35rem 0 0;
+}
+
+.short-desc {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  margin-bottom: 1.75rem;
+}
+
+.stock-status-container {
+  margin-bottom: 1.5rem;
+}
+
+.stock-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-xs);
+}
+
+.in-stock-badge {
+  background: rgba(34, 197, 94, 0.12);
+  color: #15803d;
+}
+
+.out-of-stock-badge {
+  background: rgba(239, 68, 68, 0.1);
+  color: #b91c1c;
+}
+
+.low-stock-pulse {
+  background: rgba(249, 115, 22, 0.12);
+  color: #c2410c;
+  animation: pulse-border 2s infinite ease-in-out;
+}
+
+@keyframes pulse-border {
+  0% { box-shadow: 0 0 0 0px rgba(249, 115, 22, 0.3); }
+  70% { box-shadow: 0 0 0 6px rgba(249, 115, 22, 0); }
+  100% { box-shadow: 0 0 0 0px rgba(249, 115, 22, 0); }
+}
+
+.purchase-form {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.qty-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.qty-selector label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.qty-input-wrap {
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg-elevated);
+  border: 1.2px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.2rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-xs);
+}
+
+.qty-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  border-radius: var(--radius-sm);
+}
+
+.qty-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--text);
+}
+
+.qty-field {
+  width: 45px;
+  border: none;
+  background: none;
+  text-align: center;
+  font-weight: 700;
+  color: var(--text);
+  font-size: 1rem;
+  -moz-appearance: textfield;
+}
+
+.qty-field::-webkit-outer-spin-button,
+.qty-field::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.add-to-cart-large-btn {
+  height: 44px;
+  padding: 0 2rem;
+  flex-grow: 1;
+  max-width: 280px;
+}
+
+.video-cta-wrap {
+  margin-top: 1rem;
+}
+
+.video-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+/* Tabs styles */
+.tabs-container {
+  background: var(--glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.tabs-header {
+  display: flex;
+  border-bottom: 1.5px solid var(--border);
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs-header::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-trigger {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 0.75rem 0;
+  cursor: pointer;
+  position: relative;
+  transition: color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.tab-trigger::after {
+  content: "";
+  position: absolute;
+  bottom: -1.5px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-from), var(--primary-to));
+  border-radius: 9px;
+  transform: scaleX(0);
+  transition: transform var(--transition);
+}
+
+.tab-trigger.active {
+  color: var(--text);
+}
+
+.tab-trigger.active::after {
+  transform: scaleX(1);
+}
+
+.tab-panel {
+  display: none;
+  animation: tab-fade-in 0.35s ease;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+@keyframes tab-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.rich-content {
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+.specs-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.specs-table th,
+.specs-table td {
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1.2px solid var(--border);
+  text-align: left;
+}
+
+.specs-table th {
+  width: 30%;
+  font-weight: 700;
+  color: var(--text);
+  background: rgba(99, 102, 241, 0.02);
+}
+
+.specs-table td {
+  color: var(--text-muted);
+}
+
+.specs-table tr:last-child th,
+.specs-table tr:last-child td {
+  border-bottom: none;
+}
+
+.features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.features-list li {
+  position: relative;
+  padding-left: 1.75rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.features-list li::before {
+  content: "✦";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.warranty-card {
+  padding: 1.25rem;
+  background: rgba(99, 102, 241, 0.03);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border);
+}
+
+.warranty-card h4 {
+  margin-bottom: 0.5rem;
+}
+
+/* Reviews Styling */
+.reviews-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .reviews-layout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+.reviews-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.review-item {
+  padding: 1.25rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-xs);
+  transition: transform var(--transition-fast);
+}
+
+.review-item:hover {
+  transform: translateY(-2px);
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.user-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.review-date {
+  font-size: 0.8rem;
+}
+
+.review-body p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.empty-reviews {
+  padding: 2.5rem;
+  text-align: center;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-md);
+}
+
+.review-form-card {
+  padding: 1.75rem;
+  background: var(--glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--glass-border);
+}
+
+.rating-select-stars {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  gap: 0.25rem;
+}
+
+.rating-select-stars input {
+  display: none;
+}
+
+.rating-select-stars label {
+  font-size: 1.75rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+  opacity: 0.4;
+}
+
+.rating-select-stars label:hover,
+.rating-select-stars label:hover ~ label,
+.rating-select-stars input:checked ~ label {
+  color: #eab308;
+  opacity: 1;
+}
+
+.section-title {
+  margin-bottom: 0.25rem;
+}
+</style>
+
+<script>
+// Image Swapper with fade transition
+function swapMainImage(src, thumbEl) {
+  const mainImg = document.getElementById('main-product-img');
+  if (!mainImg) return;
+  
+  // Apply fade-out
+  mainImg.style.opacity = '0.3';
+  mainImg.style.transform = 'scale(0.97)';
+  
+  setTimeout(() => {
+    mainImg.src = src;
+    mainImg.style.opacity = '1';
+    mainImg.style.transform = 'scale(1)';
+    
+    // Update active thumb
+    document.querySelectorAll('.thumb-item').forEach(t => t.classList.remove('active'));
+    thumbEl.classList.add('active');
+  }, 220);
+}
+
+// Adjust Cart Qty limits
+function adjustQty(amount) {
+  const input = document.getElementById('quantity');
+  if (!input) return;
+  
+  let val = parseInt(input.value || 1, 10);
+  let min = parseInt(input.min || 1, 10);
+  let max = parseInt(input.max || 99, 10);
+  
+  let newVal = val + amount;
+  if (newVal >= min && newVal <= max) {
+    input.value = newVal;
+  }
+}
+
+// Tab Swapper
+function switchTab(evt, tabId) {
+  // Hide all panels
+  document.querySelectorAll('.tab-panel').forEach(panel => {
+    panel.classList.remove('active');
+  });
+  
+  // Deactivate all triggers
+  document.querySelectorAll('.tab-trigger').forEach(trigger => {
+    trigger.classList.remove('active');
+  });
+  
+  // Show target panel and trigger
+  const targetPanel = document.getElementById(tabId);
+  if (targetPanel) {
+    targetPanel.classList.add('active');
+  }
+  
+  if (evt && evt.currentTarget) {
+    evt.currentTarget.classList.add('active');
+  }
+}
+</script>
+{% endblock %}

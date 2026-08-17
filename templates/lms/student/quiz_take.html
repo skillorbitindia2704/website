@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ quiz.title }} — Quiz{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Student', url_for('student.dashboard')), (course.title[:22], url_for('student.student_course_hub', course_id=course.id)), (quiz.title[:20], None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 class="page-title">{{ quiz.title }}</h1>
+<p class="muted">{{ course.title }} · Pass {{ quiz.pass_percent }}%{% if quiz.time_limit_seconds %} · Suggested time {{ quiz.time_limit_seconds }}s{% endif %}</p>
+{% if last_attempt %}
+<p class="muted">Last attempt: {{ last_attempt.score }}% {% if last_attempt.passed %}(passed){% else %}(not passed){% endif %}</p>
+{% endif %}
+{% if not questions %}
+<p class="muted">This quiz has no questions yet.</p>
+{% else %}
+<form id="lms-quiz-form" method="post" class="form-modern card-premium lms-content-card section-gap" style="padding:1.25rem;max-width:720px;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="duration_seconds" id="duration_seconds" value="0">
+  {% for q in questions %}
+  {% set qi = loop.index0 %}
+  <div class="lms-mcq-block chip-soft" style="padding:0.75rem;margin-bottom:0.75rem;">
+    <p><strong>Q{{ loop.index }}.</strong> {{ q.question }}</p>
+    {% for opt in q.options %}
+    <label class="lms-radio-row">
+      <input type="radio" name="sq_{{ qi }}" value="{{ opt|e }}" {% if loop.first %}required{% endif %}>
+      <span>{{ opt }}</span>
+    </label>
+    {% endfor %}
+  </div>
+  {% endfor %}
+  <button type="submit" class="btn btn-accent">Submit answers</button>
+</form>
+<script>
+(function(){
+  var t0 = Date.now();
+  var f = document.getElementById('lms-quiz-form');
+  if (f) f.addEventListener('submit', function(){
+    var el = document.getElementById('duration_seconds');
+    if (el) el.value = String(Math.floor((Date.now() - t0) / 1000));
+  });
+})();
+</script>
+{% endif %}
+<p><a href="{{ url_for('student.student_course_hub', course_id=course.id) }}" class="btn btn-ghost btn-sm">Back to course hub</a></p>
+{% endblock %}

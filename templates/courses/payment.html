@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Buy {{ course.title }} — Skill Orbit India{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Courses', url_for('courses.list_courses')), ('Payment', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="card-premium reveal surface-card content-narrow">
+  <h1 class="page-title">Complete payment</h1>
+  <p class="muted">Unlock this course after successful payment verification.</p>
+  <div class="section-gap">
+    <p><strong>Course:</strong> {{ course.title }}</p>
+    <p><strong>Amount:</strong> ₹{{ course.price_inr }}</p>
+  </div>
+
+  {% if razorpay_key_id and enrollment.razorpay_order_id %}
+  <button id="pay-now-btn" class="btn btn-primary">Pay with Razorpay</button>
+  <form id="verify-payment-form" method="post" action="{{ url_for('courses.verify_course_payment', course_id=course.id) }}" hidden>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="razorpay_order_id" id="rz-order-id">
+    <input type="hidden" name="razorpay_payment_id" id="rz-payment-id">
+    <input type="hidden" name="razorpay_signature" id="rz-signature">
+  </form>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script>
+    document.getElementById('pay-now-btn').addEventListener('click', function () {
+      const options = {
+        key: "{{ razorpay_key_id }}",
+        amount: {{ course.price_inr * 100 }},
+        currency: "INR",
+        name: "Skill Orbit India",
+        description: "{{ course.title }}",
+        order_id: "{{ enrollment.razorpay_order_id }}",
+        handler: function (response) {
+          document.getElementById('rz-order-id').value = response.razorpay_order_id || '';
+          document.getElementById('rz-payment-id').value = response.razorpay_payment_id || '';
+          document.getElementById('rz-signature').value = response.razorpay_signature || '';
+          document.getElementById('verify-payment-form').submit();
+        },
+        theme: { color: "#4f46e5" }
+      };
+      const rzp = new Razorpay(options);
+      rzp.open();
+    });
+  </script>
+  {% else %}
+  <p class="muted">Payment gateway is not configured. Add Razorpay keys in environment variables.</p>
+  {% endif %}
+</div>
+{% endblock %}

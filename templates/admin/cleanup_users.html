@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+{% block title %}Database Cleanup — Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+  <h1><i class="ri-delete-bin-line" aria-hidden="true"></i> Database Cleanup</h1>
+  <p class="subtitle">Remove all non-admin users from the database</p>
+</div>
+
+<div class="cleanup-container reveal">
+  <!-- Warning Alert -->
+  <div class="alert alert-danger" style="margin-bottom: 2rem;">
+    <h3 style="margin-top: 0; color: #dc2626;"><i class="ri-error-warning-line" aria-hidden="true"></i> WARNING: This action is IRREVERSIBLE</h3>
+    <p>You are about to permanently delete all non-admin users and their associated data from the database. This cannot be undone.</p>
+  </div>
+
+  <!-- Stats Section -->
+  <div class="cleanup-stats">
+    <h2 style="margin-bottom: 1.5rem;">Data to be Deleted</h2>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number" style="color: #e11d48;">{{ stats.non_admin_users }}</div>
+        <div class="stat-label">User Accounts</div>
+        <p class="stat-note">(Out of {{ stats.total_users }} total)</p>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-number" style="color: #ca8a04;">{{ stats.enrollments }}</div>
+        <div class="stat-label">Course Enrollments</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-number" style="color: #0891b2;">{{ stats.orders }}</div>
+        <div class="stat-label">Store Orders</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-number" style="color: #7c3aed;">{{ stats.certificates }}</div>
+        <div class="stat-label">Certificates</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-number" style="color: #059669;">{{ stats.internship_applications }}</div>
+        <div class="stat-label">Internship Applications</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Account Info -->
+  <div class="admin-info" style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 1.5rem; border-radius: var(--radius-md); margin: 2rem 0;">
+    <h3 style="margin-top: 0; color: #16a34a;">✓ Admin Account Protected</h3>
+    <p><strong>Admin Email:</strong> <code style="background: var(--bg); padding: 0.25rem 0.75rem; border-radius: 4px; font-family: monospace;">{{ stats.admin_email }}</code></p>
+    <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem;">This account will be preserved and remain accessible after cleanup.</p>
+  </div>
+
+  <!-- Deletion Confirmation Form -->
+  <form method="POST" class="cleanup-form">
+    <div class="form-modern">
+      <label for="confirmation" style="font-weight: 700; color: #dc2626;">
+        Type the confirmation code to proceed:
+      </label>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0.5rem 0 1rem; font-family: monospace; background: var(--bg); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+        DELETE_ALL_NON_ADMIN_USERS
+      </p>
+      
+      <input 
+        type="text" 
+        name="confirmation" 
+        id="confirmation"
+        placeholder="Paste the confirmation code here"
+        required
+        style="font-family: monospace; font-weight: 600;"
+      />
+      
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.75rem 0 0;">
+        ℹ️ This prevents accidental deletion. Copy and paste the code above.
+      </p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+        <a href="{{ url_for('admin.users') }}" class="btn btn-ghost">
+          <i class="ri-arrow-left-line" aria-hidden="true"></i> Cancel & Go Back
+        </a>
+      
+      <button type="submit" class="btn btn-accent" style="background: linear-gradient(135deg, #dc2626, #b91c1c); box-shadow: 0 10px 30px rgba(220, 38, 38, 0.4);">
+        <i class="ri-delete-bin-line" aria-hidden="true"></i> Permanently Delete Non-Admin Users
+      </button>
+    </div>
+  </form>
+
+  <!-- Additional Info -->
+  <div style="background: var(--bg-elevated); border: 1px solid var(--border); padding: 1.5rem; border-radius: var(--radius-md); margin-top: 2rem;">
+    <h4 style="margin-top: 0;">What gets deleted?</h4>
+    <ul style="margin: 0; padding-left: 1.5rem; color: var(--text-muted);">
+      <li>✗ All student & teacher user accounts</li>
+      <li>✗ All course enrollments</li>
+      <li>✗ All store orders & order items</li>
+      <li>✗ All issued certificates</li>
+      <li>✗ All internship applications</li>
+      <li>✗ All user notifications & wishlist items</li>
+    </ul>
+
+    <h4>What is preserved?</h4>
+    <ul style="margin: 0; padding-left: 1.5rem; color: var(--text-muted);">
+      <li>✓ Admin user account(s)</li>
+      <li>✓ Courses</li>
+      <li>✓ Products</li>
+      <li>✓ Internship listings</li>
+      <li>✓ All other system data</li>
+    </ul>
+  </div>
+</div>
+
+<style>
+  .cleanup-container {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .admin-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .admin-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    margin: 0;
+  }
+
+  .alert {
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    border-left: 4px solid currentColor;
+  }
+
+  .alert-danger {
+    background: rgba(220, 38, 38, 0.1);
+    color: #b91c1c;
+    border-left-color: #dc2626;
+  }
+
+  .cleanup-stats h2 {
+    font-size: 1.35rem;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .stat-card {
+    padding: 1.25rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    font-family: var(--font-display);
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-note {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .admin-info {
+    animation: slideIn 0.5s ease-out;
+  }
+
+  .admin-info h3 {
+    margin-bottom: 1rem;
+  }
+
+  .admin-info p {
+    margin: 0.5rem 0;
+  }
+
+  .cleanup-form {
+    background: var(--bg-elevated);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border);
+    margin-top: 2rem;
+  }
+
+  .form-modern input[type="text"] {
+    background: rgba(220, 38, 38, 0.04);
+    border-color: rgba(220, 38, 38, 0.2);
+    padding: 0.85rem 1rem;
+  }
+
+  .form-modern input[type="text"]:focus {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .cleanup-form {
+      padding: 1.5rem;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+    }
+  }
+</style>
+{% endblock %}

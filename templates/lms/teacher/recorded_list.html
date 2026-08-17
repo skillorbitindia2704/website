@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Recorded lectures — Teacher{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('Recorded', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 class="page-title">Recorded lectures</h1>
+<p class="muted">Structured video lessons appear in the student classroom.</p>
+<div class="teacher-dash-actions section-gap">
+  <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_courses') }}">Courses</a>
+</div>
+<div class="card-premium reveal" style="padding:0;overflow-x:auto;">
+  <table class="table-modern">
+    <thead><tr><th>Course</th><th>Title</th><th>Visible</th><th></th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.course.title if r.course else '—' }}</td>
+        <td><strong>{{ r.title }}</strong></td>
+        <td>{% if r.is_visible %}Yes{% else %}No{% endif %}</td>
+        <td style="white-space:nowrap;">
+          <a class="btn btn-primary btn-sm" href="{{ url_for('teacher.teacher_recorded_edit', rec_id=r.id) }}">Edit</a>
+          <form method="post" action="{{ url_for('teacher.teacher_recorded_delete', rec_id=r.id) }}" style="display:inline;" onsubmit="return confirm('Delete this lecture?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn-sm" style="color:#b91c1c;">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">No recorded lectures yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<h2 class="section-gap" style="font-size:1.05rem;">Add to a course</h2>
+<ul class="muted">
+  {% for c in courses %}
+  <li><a href="{{ url_for('teacher.teacher_recorded_new', course_id=c.id) }}">{{ c.title }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}

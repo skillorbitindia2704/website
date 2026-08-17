@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Admin — Courses{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('Courses', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 style="font-size:1.5rem;">Manage courses</h1>
+<p class="muted">Create catalog entries, then use <strong>Edit</strong> for thumbnails and marketing fields.</p>
+
+<form method="post" enctype="multipart/form-data" class="card-premium form-modern reveal" style="padding:1.25rem;margin:1.25rem 0;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="form-grid-2">
+    <div>
+      <label>Title *</label>
+      <input name="title" required>
+    </div>
+    <div>
+      <label>Category</label>
+      <input name="category" placeholder="AI, Robotics…">
+    </div>
+  </div>
+
+  <label style="margin-top:1rem;">Description</label>
+  <textarea name="description" rows="3"></textarea>
+
+  <div class="form-grid-2" style="margin-top:1rem;">
+    <div>
+      <label>Price (INR)</label>
+      <input name="price_inr" type="number" min="0" value="499">
+    </div>
+    <div>
+      <label>List / strike price (INR)</label>
+      <input name="list_price_inr" type="number" min="0" value="0">
+    </div>
+  </div>
+
+  <div class="form-grid-2" style="margin-top:1rem;">
+    <div>
+      <label>Rating average</label>
+      <input name="rating_avg" type="number" step="0.1" min="0" max="5" value="4.8">
+    </div>
+    <div>
+      <label>Rating count</label>
+      <input name="rating_count" type="number" min="0" value="0">
+    </div>
+  </div>
+
+  <div class="form-grid-2" style="margin-top:1rem;">
+    <div>
+      <label>Learners (display override)</label>
+      <input name="enrolled_count_display" type="number" min="0" value="0">
+    </div>
+    <div>
+      <label>Catalog display order</label>
+      <input name="catalog_display_order" type="number" min="0" value="0">
+    </div>
+  </div>
+
+  <div class="form-grid-2" style="margin-top:1rem;">
+    <div>
+      <label>Instructor</label>
+      <input name="instructor_name" placeholder="Name">
+    </div>
+    <div>
+      <label>Duration</label>
+      <input name="duration" placeholder="4 weeks">
+    </div>
+  </div>
+
+  <div class="form-grid-2" style="margin-top:1rem;">
+    <div>
+      <label>Level</label>
+      <input name="level" placeholder="Beginner / Intermediate">
+    </div>
+    <div>
+      <label>Featured</label>
+      <select name="is_featured">
+        <option value="0" selected>No</option>
+        <option value="1">Yes</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-grid-2" style="margin-top:1rem;">
+    <div>
+      <label>Published</label>
+      <select name="is_published">
+        <option value="1" selected>Yes</option>
+        <option value="0">No</option>
+      </select>
+    </div>
+    <div>
+      <label>Thumbnail (optional)</label>
+      <input type="file" name="thumbnail" accept="image/png,image/jpeg,image/webp,image/gif">
+    </div>
+  </div>
+
+  <label style="margin-top:1rem;">YouTube embed URL *</label>
+  <input name="video_url" required placeholder="https://www.youtube.com/embed/...">
+
+  <label style="margin-top:1rem;">Content</label>
+  <textarea name="content" rows="5"></textarea>
+
+  <div class="form-grid-2" style="margin-top:1rem;">
+    <div>
+      <label>Quiz question</label>
+      <input name="quiz_question">
+    </div>
+    <div>
+      <label>Quiz answer</label>
+      <input name="quiz_answer">
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Add course</button>
+</form>
+
+<div class="card-premium reveal" style="padding:1rem;">
+  <h3 style="font-size:0.95rem;margin-top:0;">Existing courses</h3>
+  {% for c in courses %}
+  <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.9rem;">
+    <span class="muted">{{ c.id }}</span>
+    <strong>{{ c.title }}</strong>
+    <span class="muted">₹{{ c.price_inr }}{% if c.list_price_inr %} · list ₹{{ c.list_price_inr }}{% endif %}</span>
+    <span class="muted">{{ c.level }} · {{ c.duration }}</span>
+    {% if c.is_featured %}<span class="level-pill" style="font-size:0.65rem;">Featured</span>{% endif %}
+    {% if not c.is_published %}<span class="level-pill" style="font-size:0.65rem;background:#6b7280;">Draft</span>{% endif %}
+    <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.course_edit', cid=c.id) }}" style="margin-left:auto;">Edit</a>
+  </div>
+  {% else %}
+  <p class="muted">No courses yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}

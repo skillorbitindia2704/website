@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Pay Order #{{ order.id }} — Skill Orbit India{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Store', url_for('store.listing')), ('Cart', url_for('store.view_cart')), ('Payment', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="card-premium reveal surface-card content-narrow section-gap">
+  <div class="text-center section-gap">
+    <h1 class="page-title">Securing your order #{{ order.id }}</h1>
+    <p class="muted">Review your items and complete payment securely via Razorpay.</p>
+  </div>
+
+  <div class="order-summary-box surface-card-lg section-gap" style="border: 1px solid var(--accent-alpha); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+    <h3 style="margin-top: 0; color: var(--text-bright); border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Order Summary</h3>
+    
+    <div style="margin: 15px 0;">
+      {% for item in order.items %}
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <span style="color: var(--text-normal);">
+          {{ item.product.name if item.product else "Deleted Product" }} 
+          <strong style="color: var(--accent); margin-left: 5px;">× {{ item.quantity }}</strong>
+        </span>
+        <span style="color: var(--text-bright); font-weight: 500;">₹{{ item.price_inr * item.quantity }}</span>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div style="border-top: 1px dashed var(--border-color); padding-top: 15px; display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; color: var(--text-bright);">
+      <span>Total Amount</span>
+      <span class="price-tag" style="font-size: 1.3rem;">₹{{ order.total_inr }}</span>
+    </div>
+  </div>
+
+  <div class="secure-badge-box text-center section-gap" style="margin-bottom: 24px; padding: 10px; border-radius: 8px; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15);">
+    <span style="color: #10b981; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+      <i class="ri-shield-check-line" aria-hidden="true"></i> Secured by 256-Bit SSL Encryption & Razorpay
+    </span>
+  </div>
+
+  <div class="actions-inline text-center" style="display: flex; flex-direction: column; align-items: center; gap: 15px;">
+    {% if razorpay_key_id and order.razorpay_order_id %}
+    <button id="pay-now-btn" class="btn btn-accent btn-lg" style="padding: 12px 36px; font-size: 1.1rem; width: 100%; max-width: 300px;">
+      <i class="ri-flashlight-line" aria-hidden="true"></i> Pay ₹{{ order.total_inr }} Now
+    </button>
+    
+    <form id="verify-payment-form" method="post" action="{{ url_for('store.verify_payment', order_id=order.id) }}" hidden>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="razorpay_order_id" id="rz-order-id">
+      <input type="hidden" name="razorpay_payment_id" id="rz-payment-id">
+      <input type="hidden" name="razorpay_signature" id="rz-signature">
+    </form>
+    
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+      document.getElementById('pay-now-btn').addEventListener('click', function () {
+        const options = {
+          key: "{{ razorpay_key_id }}",
+          amount: {{ order.total_inr * 100 }},
+          currency: "INR",
+          name: "Skill Orbit India",
+          description: "Order #{{ order.id }} Checkout",
+          order_id: "{{ order.razorpay_order_id }}",
+          handler: function (response) {
+            document.getElementById('rz-order-id').value = response.razorpay_order_id || '';
+            document.getElementById('rz-payment-id').value = response.razorpay_payment_id || '';
+            document.getElementById('rz-signature').value = response.razorpay_signature || '';
+            document.getElementById('verify-payment-form').submit();
+          },
+          prefill: {
+            name: "{{ current_user.full_name }}",
+            email: "{{ current_user.email }}"
+          },
+          theme: { color: "#4f46e5" }
+        };
+        const rzp = new Razorpay(options);
+        rzp.open();
+      });
+    </script>
+    {% else %}
+    <p class="muted text-center">Payment gateway integration is in simulated mode. If you see this, please configure Razorpay API keys in production environments.</p>
+    {% endif %}
+    
+    <a href="{{ url_for('dashboard.orders') }}" class="muted" style="text-decoration: underline; font-size: 0.9rem;">View my orders</a>
+  </div>
+</div>
+{% endblock %}

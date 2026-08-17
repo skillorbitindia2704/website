@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}AI Lab Brochure — Admin{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('Upload Brochure', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">AI Lab Brochure Upload</h1>
+<p class="muted">Upload a PDF brochure shown on the AI Lab landing page.</p>
+
+<div class="card-premium surface-card-lg reveal" style="margin-top:1.25rem;">
+  <form method="post" action="{{ url_for('admin.ai_lab_brochure') }}" class="form-modern" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <label>Brochure title</label>
+    <input type="text" name="title" value="{{ brochure.title if brochure else 'AI & Robotics Lab Brochure' }}" />
+
+    <label style="margin-top:1rem;">Brochure PDF *</label>
+    <input type="file" name="brochure" accept="application/pdf" required />
+
+    <div class="form-actions-row">
+      <button type="submit" class="btn btn-primary">Upload brochure</button>
+    </div>
+  </form>
+</div>
+
+{% if brochure %}
+<div class="card-premium reveal" style="margin-top:1.5rem;">
+  <h2 style="font-size:1.15rem;margin:0 0 0.5rem;">Current active brochure</h2>
+  <p class="muted" style="margin:0 0 1rem;">{{ brochure.title }}</p>
+  <a class="btn btn-ghost" href="{{ url_for('static', filename=brochure.file_path) }}" download>
+    Download PDF
+  </a>
+</div>
+{% endif %}
+
+{% endblock %}
+

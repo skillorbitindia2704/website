@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Manage Teachers — Admin{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('Teachers', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 style="font-size:1.5rem;">Teacher management</h1>
+<p class="muted">Admin-controlled teacher access. Teachers can work only after approval.</p>
+
+<div class="card-premium form-modern reveal" style="padding:1.25rem;max-width:560px;margin:1rem 0 2rem;">
+  <h3 style="font-size:1rem;margin-top:0;">Add new teacher</h3>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Name <input name="full_name" required minlength="3"></label>
+    <label>Email <input name="email" type="email" required></label>
+    <label>Temporary Password <input name="password" type="password" required minlength="8"></label>
+    <button class="btn btn-primary" type="submit">Add Teacher</button>
+  </form>
+</div>
+
+<h2 style="font-size:1.1rem;">Manage Teachers</h2>
+<div class="card-premium reveal" style="padding:0;overflow:hidden;">
+  <table class="table-modern">
+    <thead>
+      <tr><th>Name</th><th>Email</th><th>Approved</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for t in teachers %}
+      <tr>
+        <td>{{ t.full_name }}</td>
+        <td>{{ t.email }}</td>
+        <td>
+          {% if t.is_approved %}
+          <span class="badge-pill" style="background:#dcfce7;color:#166534;">Approved</span>
+          {% else %}
+          <span class="badge-pill" style="background:#fee2e2;color:#991b1b;">Pending</span>
+          {% endif %}
+        </td>
+        <td>
+          <form method="post" action="{{ url_for('admin.approve_teacher', user_id=t.id) }}" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-ghost btn-sm" type="submit">Approve</button>
+          </form>
+          <form method="post" action="{{ url_for('admin.reject_teacher', user_id=t.id) }}" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-ghost btn-sm" type="submit">Reject</button>
+          </form>
+          <form method="post" action="{{ url_for('admin.delete_teacher', user_id=t.id) }}" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-ghost btn-sm" type="submit" style="color:#dc2626;">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">No teachers yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+

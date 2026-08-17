@@ -1,0 +1,643 @@
+{% extends "base.html" %}
+{% block title %}{{ content.seo_meta_title or "Skill Orbit India — Learn, Build, Certify" }}{% endblock %}
+{% block meta_description %}{{ content.seo_meta_description or "Skill Orbit India: practical tech courses, curated electronics kits, verified certificates, internships, IT services, and AI lab setup — built for outcomes, not just content." }}{% endblock %}
+{% block meta_keywords %}{{ content.seo_keywords or "Skill Orbit India, tech courses, electronics store, certificates, internships, IT services, AI lab, online learning India" }}{% endblock %}
+
+{% block extra_head %}
+<script>
+  // Tailwind Play CDN (preflight disabled to avoid breaking existing CSS)
+  tailwind = {
+    config: {
+      corePlugins: { preflight: false },
+      darkMode: ['selector', '[data-theme="dark"]'],
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#EEF2FF",
+              500: "{{ content.theme_primary_color or '#4F46E5' }}",
+              600: "{{ content.theme_primary_color or '#4F46E5' }}",
+              700: "{{ content.theme_primary_color or '#4F46E5' }}",
+              900: "#111827"
+            },
+            accent: {
+              500: "#F97316",
+              600: "#EA580C"
+            },
+            cyan: {
+              500: "{{ content.theme_secondary_color or '#06B6D4' }}"
+            }
+          },
+          boxShadow: {
+            glow: "0 0 0 1px rgba(79,70,229,.25), 0 25px 80px rgba(79,70,229,.20)"
+          }
+        }
+      }
+    }
+  };
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family={{ (content.theme_typography or 'Outfit') | replace(' ', '+') }}:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary-from: {{ content.theme_primary_color or '#4F46E5' }};
+    --primary-to: {{ content.theme_secondary_color or '#06B6D4' }};
+    --radius-lg: {{ content.theme_card_radius or '22px' }};
+    --font-display: '{{ content.theme_typography or "Outfit" }}', sans-serif;
+  }
+  
+  body {
+    font-family: '{{ content.theme_typography or "Outfit" }}', sans-serif !important;
+  }
+  
+  .card-premium, .surface-card, .glass-panel {
+    border-radius: {{ content.theme_card_radius or '22px' }} !important;
+  }
+  
+  /* Apply preset gradient themes */
+  {% set theme = content.theme_gradient_theme or 'blue-purple' %}
+  {% if theme == 'indigo-cyan' %}
+    .hero-grad-bg { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 30%, #4338ca 60%, #06b6d4 100%) !important; }
+  {% elif theme == 'violet-orange' %}
+    .hero-grad-bg { background: linear-gradient(135deg, #090514 0%, #1e113a 30%, #6d28d9 60%, #ea580c 100%) !important; }
+  {% elif theme == 'emerald-teal' %}
+    .hero-grad-bg { background: linear-gradient(135deg, #022c22 0%, #064e3b 30%, #059669 60%, #0d9488 100%) !important; }
+  {% elif theme == 'dark-fusion' %}
+    .hero-grad-bg { background: linear-gradient(135deg, #030712 0%, #111827 30%, #1f2937 60%, #374151 100%) !important; }
+  {% elif theme == 'sunset-glow' %}
+    .hero-grad-bg { background: linear-gradient(135deg, #180808 0%, #310808 30%, #991b1b 60%, #ea580c 100%) !important; }
+  {% elif theme == 'cyber-neon' %}
+    .hero-grad-bg { background: linear-gradient(135deg, #05050a 0%, #0b0f19 30%, #4f46e5 60%, #ec4899 100%) !important; }
+  {% elif theme == 'crimson-gold' %}
+    .hero-grad-bg { background: linear-gradient(135deg, #1c0a10 0%, #300c1c 30%, #be123c 60%, #eab308 100%) !important; }
+  {% else %}
+    /* Default blue-purple */
+    .hero-grad-bg { background: linear-gradient(135deg, #0b1225 0%, #111827 30%, #1d4ed8 60%, #7c3aed 100%) !important; }
+  {% endif %}
+  
+  /* Apply animation transition speed */
+  .reveal {
+    transition: all {{ content.anim_transition_speed or '600' }}ms ease;
+  }
+</style>
+{% endblock %}
+
+{% block structured_data %}
+{% if content.seo_schema_markup %}
+{{ content.seo_schema_markup | safe }}
+{% elif seo_site_url %}
+<script type="application/ld+json">
+{{ {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": seo_site_name,
+      "url": seo_site_url,
+      "logo": url_for('static', filename='images/skill-orbit-logo.png', _external=True),
+      "description": seo_default_description
+    },
+    {
+      "@type": "WebSite",
+      "name": seo_site_name,
+      "url": seo_site_url
+    }
+  ]
+} | tojson }}
+</script>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+{% if visibilities.hero %}
+<section class="reveal section-gap home-hero" aria-labelledby="home-hero-title">
+   <div class="card-premium card-img-full" style="border-radius:var(--radius-lg);">
+    <div class="relative hero-grad-bg">
+      <div class="absolute inset-0" style="background:
+        radial-gradient(60% 60% at 20% 20%, rgba(79,70,229,.35), transparent 60%),
+        radial-gradient(50% 50% at 80% 25%, rgba(6,182,212,.25), transparent 60%),
+        radial-gradient(60% 60% at 55% 85%, rgba(249,115,22,.20), transparent 60%);
+        pointer-events:none;"></div>
+
+      <div class="relative px-6 py-10 md:px-10 md:py-14 lg:px-14 lg:py-16">
+        <div class="grid gap-10 lg:grid-cols-12 items-center">
+          <div class="lg:col-span-7">
+              <p class="inline-flex items-center gap-2 text-white/90 text-xs font-semibold tracking-widest uppercase">
+                <span class="level-pill hero-badge">{{ content.hero_badge_text }}</span>
+              <span class="text-white/70">{{ content.hero_badge_subtext }}</span>
+            </p>
+
+            <h1 id="home-hero-title" class="mt-4 text-white font-extrabold leading-tight"
+                style="font-family:var(--font-display);font-size:clamp(1.9rem,4vw,3.1rem);letter-spacing:-0.02em;">
+              {{ content.hero_heading }}
+            </h1>
+            <p class="mt-4 text-white/80 max-w-2xl" style="font-size:1.05rem;line-height:1.75;">
+              {{ content.hero_description }}
+            </p>
+
+            <div class="mt-6 flex flex-wrap gap-3">
+              {% if content.hero_primary_btn_text %}
+              <a href="{{ content.hero_primary_btn_link or url_for('courses.list_courses') }}" class="btn btn-primary">{{ content.hero_primary_btn_text }}</a>
+              {% endif %}
+              {% if content.hero_secondary_btn_text %}
+              <a href="{{ content.hero_secondary_btn_link or url_for('ai_lab.index') ~ '#enquiry' }}" class="btn btn-accent">{{ content.hero_secondary_btn_text }}</a>
+              {% endif %}
+              {% if content.hero_tertiary_btn_text %}
+              <a href="{{ content.hero_tertiary_btn_link or url_for('courses.list_courses') }}" class="btn btn-ghost hero-ghost-btn">{{ content.hero_tertiary_btn_text }}</a>
+              {% endif %}
+            </div>
+
+            <!-- Stats & Counters Inside Hero -->
+            <div class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {% for item in stats_kpis %}
+                <div class="glass-panel hero-stat-card">
+                 <p class="text-white font-extrabold hero-stat-num">
+                   {% if item.icon %}{{ item.icon|remix_icon }}{% else %}<i class="ri-bar-chart-box-line" aria-hidden="true"></i>{% endif %}
+                   <span>{{ item.number }}</span>
+                 </p>
+                 <p class="text-white/70 hero-stat-label">{{ item.label }}</p>
+               </div>
+              {% endfor %}
+            </div>
+
+            <!-- Trusted By Partners Chips Inside Hero -->
+            {% if trusted_partners %}
+            <div class="mt-8 flex flex-wrap items-center gap-2">
+              {% for p in trusted_partners %}
+              {% if p.link %}
+               <a href="{{ p.link }}" target="_blank" class="partner-chip">
+                {{ p.name }}
+              </a>
+              {% else %}
+               <span class="partner-chip">
+                {{ p.name }}
+              </span>
+              {% endif %}
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="lg:col-span-5">
+            <div class="card-premium glass-hero-card">
+              <div style="aspect-ratio:4/3;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,rgba(79,70,229,.22),rgba(6,182,212,.18),rgba(249,115,22,.14));display:flex;align-items:center;justify-content:center;" id="hero-card-image">
+                {% if content.hero_image %}
+                <img src="{{ url_for('static', filename=content.hero_image) }}" alt="{{ content.hero_heading }}" style="width:100%;height:100%;object-fit:cover;">
+                {% else %}
+                <div style="text-align:center;max-width:24ch;">
+                  <div style="font-size:2.3rem;" aria-hidden="true"><i class="ri-robot-2-line"></i></div>
+                  <p class="text-white font-bold" style="margin:0.6rem 0 0;">{{ content.hero_ai_lab_title }}</p>
+                  <p class="text-white/70" style="margin:0.35rem 0 0;font-size:0.9rem;">{{ content.hero_ai_lab_description }}</p>
+                </div>
+                {% endif %}
+              </div>
+              <div class="mt-4 grid grid-cols-2 gap-3" id="hero-card-features">
+                <div class="glass-panel hero-feature-card">
+                  <p class="text-white font-bold">Live Projects</p>
+                  <p class="text-white/70">Portfolio-ready builds</p>
+                </div>
+                <div class="glass-panel hero-feature-card">
+                  <p class="text-white font-bold">Verified Certs</p>
+                  <p class="text-white/70">QR verification</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Load Homepage Hero Data from API -->
+<script>
+  (function() {
+    const loadHeroData = async () => {
+      try {
+        const response = await fetch('/api/homepage-hero');
+        if (!response.ok) {
+          console.log('Homepage hero fallback triggered.');
+          return;
+        }
+        
+        const data = await response.json();
+        const hero = data;
+        
+        // Update card image section if not already present
+        const cardImageEl = document.getElementById('hero-card-image');
+        if (cardImageEl && !cardImageEl.querySelector('img') && hero.ai_lab_card && hero.ai_lab_card.images && hero.ai_lab_card.images.main) {
+          cardImageEl.innerHTML = `<img src="${escapeAttr(getImageUrl(hero.ai_lab_card.images.main))}" alt="${escapeHtml(hero.ai_lab_card.title)}" style="width:100%;height:100%;object-fit:cover;">`;
+        }
+      } catch (error) {
+        console.error('Error loading hero data:', error);
+      }
+    };
+    
+    const escapeHtml = (text) => {
+      const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
+      return text.replace(/[&<>"']/g, m => map[m]);
+    };
+    
+    const escapeAttr = (text) => {
+      return text.replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    };
+    
+    const getImageUrl = (path) => {
+      if (path.startsWith('http') || path.startsWith('/')) return path;
+      return `/static/${path}`;
+    };
+    
+    // Load data when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadHeroData);
+    } else {
+      loadHeroData();
+    }
+  })();
+</script>
+{% endif %}
+
+<!-- WHY CHOOSE US -->
+{% if visibilities.why_choose_us %}
+<div class="section-head reveal">
+  <h2>Why choose Skill Orbit India?</h2>
+  <p class="muted">Trust-focused learning built for hands-on outcomes.</p>
+</div>
+<section class="grid-cards reveal" aria-label="Why choose us">
+  {% set features = [
+    ('Hands-on Learning','Real hardware + guided labs'),
+    ('Industry Trainers','Mentor support & structured paths'),
+    ('Real Projects','Build portfolio-grade demos'),
+    ('Verified Certificates','Instant verification workflow'),
+    ('Affordable Fees','Value-first pricing'),
+    ('Placement Support','Internship + career guidance'),
+    ('Lifetime Access','Learn at your pace'),
+    ('24×7 Support','Always-on help when stuck')
+  ] %}
+  {% for title,desc in features %}
+  <article class="card-premium surface-card">
+    <h3 class="card-title-sm">{{ title }}</h3>
+    <p class="muted" style="margin:0;">{{ desc }}</p>
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
+
+<!-- PRODUCTS -->
+{% if visibilities.products %}
+<div class="section-head reveal">
+  <h2>Featured products</h2>
+      <a href="{{ url_for('store.listing') }}" class="section-link">View all <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+</div>
+<div class="carousel-section reveal">
+  <div class="carousel-nav">
+    <button type="button" data-carousel-prev aria-label="Previous"><i class="ri-arrow-left-s-line" aria-hidden="true"></i></button>
+    <button type="button" data-carousel-next aria-label="Next"><i class="ri-arrow-right-s-line" aria-hidden="true"></i></button>
+  </div>
+  <div class="carousel">
+    {% for p in products %}
+    <div class="carousel-item">
+      <article class="card-premium">
+        <a href="{{ url_for('store.listing') }}" class="card-img-wrap">
+          <img src="{{ p.image_url }}" alt="{{ p.name }}" loading="lazy" decoding="async" width="400" height="300">
+        </a>
+        <div class="card-body">
+          <div class="card-meta"><span>{{ p.category }}</span><span class="stars">{{ '%.1f'|format((p.rating|default(4.5))|float) }} <i class="ri-star-s-fill" aria-hidden="true"></i></span></div>
+          <h3>{{ p.name }}</h3>
+          <p class="muted">{{ p.description[:80] }}{% if p.description|length > 80 %}…{% endif %}</p>
+          <div class="meta-row mt-2">
+            <strong class="price-tag">₹{{ p.price_inr }}</strong>
+            <a class="btn btn-primary btn-sm" href="{{ url_for('store.listing') }}">Add to cart</a>
+          </div>
+        </div>
+      </article>
+    </div>
+    {% else %}
+    <p class="muted">Products coming soon — check back after admin setup.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- POPULAR COURSES -->
+{% if visibilities.courses %}
+<div class="section-head reveal">
+  <h2>Popular courses</h2>
+      <a href="{{ url_for('courses.list_courses') }}" class="section-link">All courses <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+</div>
+<div class="filter-row reveal">
+  <button type="button" class="btn btn-ghost btn-sm js-course-filter" data-level="all">All</button>
+  <button type="button" class="btn btn-ghost btn-sm js-course-filter" data-level="Beginner">Beginner</button>
+  <button type="button" class="btn btn-ghost btn-sm js-course-filter" data-level="Intermediate">Intermediate</button>
+  <button type="button" class="btn btn-ghost btn-sm js-course-filter" data-level="Advanced">Advanced</button>
+</div>
+<div class="grid-cards reveal">
+  {% for c in courses %}
+  <article class="card-premium course-card" data-course-level="{{ c.level }}">
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="level-pill">{{ c.level }}</span>
+        <span>{{ c.duration }}</span>
+      </div>
+      <h3>{{ c.title }}</h3>
+      <p class="muted">{{ c.instructor_name }}</p>
+      <p class="muted">{{ c.description[:100] }}{% if c.description|length > 100 %}…{% endif %}</p>
+      <a href="{{ url_for('courses.list_courses') }}" class="btn btn-primary btn-sm">View course</a>
+    </div>
+  </article>
+  {% else %}
+  <p class="muted">No courses yet.</p>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- INTERNSHIPS -->
+{% if visibilities.internships %}
+<div class="section-head reveal">
+  <h2>Internship highlights</h2>
+      <a href="{{ url_for('internships.listing') }}" class="section-link">See openings <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+</div>
+<div class="grid-cards reveal">
+  {% for i in internships %}
+  <article class="card-premium job-card">
+    <h3>{{ i.title }}</h3>
+    <div class="internship-tags-row">
+      {% if i.is_featured %}<span class="internship-tag tag-featured">Featured</span>{% endif %}
+      {% if i.is_remote %}<span class="internship-tag tag-remote">Remote</span>{% endif %}
+    </div>
+    <p class="muted">{{ i.description[:120] }}{% if i.description|length > 120 %}…{% endif %}</p>
+    <p class="price-tag">{{ i.stipend or 'Stipend TBD' }}</p>
+    <a href="{{ url_for('internships.listing') }}" class="btn btn-ghost btn-sm">Apply now</a>
+  </article>
+  {% else %}
+  <p class="muted">New internships will appear here.</p>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- AI LAB SETUP -->
+{% if visibilities.ai_lab %}
+<div class="section-head reveal">
+  <h2>{{ content.ai_lab_heading }}</h2>
+  <p class="muted">{{ content.ai_lab_description }}</p>
+</div>
+<section class="grid-cards grid-cards--lg reveal">
+  <article class="card-premium card-img-full">
+    <div class="card-img-wrap" style="aspect-ratio:16/9;">
+      {% if content.ai_lab_image %}
+      <img src="{{ url_for('static', filename=content.ai_lab_image) }}" alt="{{ content.ai_lab_heading }}" style="width:100%;height:100%;object-fit:cover;">
+      {% else %}
+      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(79,70,229,.18),rgba(6,182,212,.12),rgba(249,115,22,.10));">
+        <div style="text-align:center;">
+          <div style="font-size:2.3rem;" aria-hidden="true"><i class="ri-building-2-line"></i></div>
+          <p style="margin:0.6rem 0 0;font-weight:800;font-family:var(--font-display);">Demo Lab Visual</p>
+          <p class="muted" style="margin:0.25rem 0 0;">Admin can upload real lab images.</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      <h3 class="card-title-sm">Complete AI + Robotics Lab</h3>
+      <p class="muted">Robotics kits, IoT modules, teacher training, curriculum support, and installation.</p>
+      <div class="form-actions-row">
+        <a href="{{ content.ai_lab_cta_link or url_for('ai_lab.index') ~ '#enquiry' }}" class="btn btn-primary btn-sm">{{ content.ai_lab_cta_text or 'Request proposal' }}</a>
+        <a href="{{ url_for('ai_lab.index') }}" class="btn btn-ghost btn-sm">Explore demo lab</a>
+      </div>
+    </div>
+  </article>
+  <article class="card-premium surface-card-lg">
+    <h3 class="card-title-sm">What’s included</h3>
+    <ul class="list-clean">
+      {% for eq in ai_lab_equipment %}
+      <li>{{ eq }}</li>
+      {% else %}
+      <li>Complete AI Lab Setup</li>
+      <li>Robotics Kits</li>
+      <li>IoT Modules</li>
+      <li>Teacher Training</li>
+      <li>Curriculum Support</li>
+      <li>Installation & Maintenance</li>
+      {% endfor %}
+    </ul>
+    <div class="form-actions-row">
+      <a href="{{ content.ai_lab_cta_link or url_for('ai_lab.index') ~ '#enquiry' }}" class="btn btn-accent btn-sm">Book Free Demo</a>
+      <a href="{{ url_for('ai_lab.index') }}" class="btn btn-ghost btn-sm">Learn more</a>
+    </div>
+  </article>
+</section>
+{% endif %}
+
+<!-- PROJECT SHOWCASE -->
+{% if visibilities.projects %}
+<div class="section-head reveal">
+  <h2>Project showcase</h2>
+  <p class="muted">Build real projects across robotics and AI.</p>
+</div>
+<section class="grid-cards reveal">
+  {% for p in projects_list %}
+  <article class="card-premium card-img-full">
+    <div class="card-img-wrap" style="aspect-ratio:16/10;">
+      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(29,78,216,.12),rgba(109,40,217,.10),rgba(249,115,22,.08));">
+        <div style="font-size:2rem;" aria-hidden="true"><i class="ri-flashlight-line"></i></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3 class="card-title-sm">{{ p.title }}</h3>
+      <p class="muted">{{ p.description }}</p>
+      {% if p.tech_stack %}
+      <p class="text-xs text-brand-500 font-semibold mt-2" style="margin-bottom: 0.5rem;">{{ p.tech_stack }}</p>
+      {% endif %}
+      <div class="flex gap-2">
+        <a href="{{ url_for('courses.list_courses') }}" class="btn btn-ghost btn-sm">View details</a>
+        {% if p.demo_link %}
+        <a href="{{ p.demo_link }}" target="_blank" class="btn btn-ghost btn-sm">Live Demo</a>
+        {% endif %}
+      </div>
+    </div>
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
+
+<!-- TESTIMONIALS -->
+{% if visibilities.testimonials %}
+<div class="section-head reveal">
+  <h2>What learners say</h2>
+</div>
+<div class="carousel-section reveal">
+  <div class="carousel-nav">
+    <button type="button" data-carousel-prev aria-label="Previous testimonials"><i class="ri-arrow-left-s-line" aria-hidden="true"></i></button>
+    <button type="button" data-carousel-next aria-label="Next testimonials"><i class="ri-arrow-right-s-line" aria-hidden="true"></i></button>
+  </div>
+  <div class="carousel">
+    {% for t in testimonials %}
+    <div class="carousel-item">
+      <article class="testimonial-card">
+        <div class="meta-row">
+          <div class="testimonial-meta">
+            <div class="testimonial-avatar">
+              {% if t.image_path %}
+              <img src="{{ url_for('static', filename=t.image_path) }}" alt="{{ t.name }}" loading="lazy" decoding="async">
+              {% else %}
+              <span aria-hidden="true"><i class="ri-user-3-line"></i></span>
+              {% endif %}
+            </div>
+            <div>
+              <p class="testimonial-name">{{ t.name }}</p>
+              <p class="muted testimonial-sub">{{ t.city }}{% if t.course_completed %} · {{ t.course_completed }}{% endif %}</p>
+            </div>
+          </div>
+          <div class="stars" aria-label="Rating {{ t.rating }}/5">{% for _ in range(t.rating|int) %}<i class="ri-star-s-fill" aria-hidden="true"></i>{% endfor %}</div>
+        </div>
+        <p style="margin-top:1rem;">“{{ t.quote }}”</p>
+      </article>
+    </div>
+    {% else %}
+    <div class="carousel-item">
+      <article class="testimonial-card">
+        <p>“Premium learning experience — clean UI, real projects, and helpful support.”</p>
+        <p class="author">— Learner</p>
+      </article>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- EVENTS -->
+{% if visibilities.events %}
+<div class="section-head reveal">
+  <h2>Upcoming workshops & events</h2>
+  <p class="muted">Register early — limited seats.</p>
+</div>
+<section class="grid-cards reveal">
+  {% for e in events %}
+  <article class="card-premium surface-card">
+    <div class="card-meta">
+      <span class="level-pill">Event</span>
+      <span class="muted">{{ e.date_text }}</span>
+    </div>
+    <h3 class="card-title-sm">{{ e.name }}</h3>
+    <p class="muted mb-3">{{ e.location }}</p>
+    <a class="btn btn-primary btn-sm" href="{{ e.register_url or url_for('main.home') }}">Register</a>
+  </article>
+  {% else %}
+  {% set defaults = [
+    ('AI Workshop','This weekend','Online'),
+    ('Robotics Bootcamp','Next week','Hybrid'),
+    ('IoT Hackathon','Next month','Campus'),
+    ('Drone Workshop','Soon','On-site')
+  ] %}
+  {% for name, date, loc in defaults %}
+  <article class="card-premium surface-card">
+    <div class="card-meta">
+      <span class="level-pill">Event</span>
+      <span class="muted">{{ date }}</span>
+    </div>
+    <h3 class="card-title-sm">{{ name }}</h3>
+    <p class="muted mb-3">{{ loc }}</p>
+    <a class="btn btn-primary btn-sm" href="{{ url_for('main.home') }}">Register</a>
+  </article>
+  {% endfor %}
+  {% endfor %}
+</section>
+{% endif %}
+
+<!-- CERTIFICATION -->
+{% if visibilities.certification %}
+<div class="section-head reveal">
+  <h2>Verified Certificates</h2>
+  <p class="muted">Instant QR verification with a clean lookup experience.</p>
+</div>
+<section class="grid-cards grid-cards--lg reveal">
+  <article class="card-premium surface-card-lg">
+    <h3 class="card-title-sm">Certificate verification</h3>
+    <p class="muted">Verify certificates in seconds using our public lookup.</p>
+    <div class="form-actions-row">
+      <a class="btn btn-primary btn-sm" href="{{ url_for('certificates.verify_lookup') }}">Verify now</a>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('auth.signup') }}">Start learning</a>
+    </div>
+  </article>
+  <article class="card-premium card-img-full">
+    <div class="card-img-wrap" style="aspect-ratio:16/10;">
+      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(34,197,94,.14),rgba(29,78,216,.10));">
+        <div style="text-align:center;">
+          <div style="font-size:2.2rem;"><i class="ri-checkbox-circle-line" aria-hidden="true"></i></div>
+          <p style="margin:0.6rem 0 0;font-weight:800;font-family:var(--font-display);">Verified Badge</p>
+          <p class="muted" style="margin:0.25rem 0 0;">Employer-ready proof</p>
+        </div>
+      </div>
+    </div>
+  </article>
+</section>
+{% endif %}
+
+<!-- FAQ Accordion Section -->
+{% if visibilities.faq and faqs_list %}
+<div class="section-head reveal">
+  <h2>Frequently Asked Questions</h2>
+  <p class="muted">Everything you need to know about Skill Orbit India platform.</p>
+</div>
+<section class="reveal max-w-4xl mx-auto" aria-label="FAQ Accordion" style="margin-bottom: 3.5rem;">
+  <div class="space-y-4">
+    {% for faq in faqs_list %}
+    <div class="card-premium faq-card">
+      <details class="group">
+        <summary class="faq-summary">
+          <span>{{ faq.question }}</span>
+          <i class="ri-arrow-down-s-line transition group-open:rotate-180 text-brand-500 font-extrabold" style="font-size: 1.2rem;" aria-hidden="true"></i>
+        </summary>
+        <p class="mt-3 muted faq-answer">
+          {{ faq.answer }}
+        </p>
+      </details>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- CTA BANNER -->
+{% if visibilities.cta_banner %}
+<section class="cta-banner reveal" style="background: linear-gradient(135deg, var(--primary-from, #4F46E5) 0%, var(--primary-to, #06B6D4) 100%); position: relative; overflow: hidden; border-radius: var(--radius-lg, 22px);">
+  {% if content.footer_promo_image %}
+  <div class="absolute inset-0 opacity-20" style="background-image: url('{{ url_for('static', filename=content.footer_promo_image) }}'); background-size: cover; background-position: center; pointer-events: none;"></div>
+  {% endif %}
+  <div class="relative z-10">
+    <h3>{{ content.footer_promo_text }}</h3>
+    <p>{{ content.footer_promo_badge }}</p>
+    <a href="{{ content.footer_promo_btn_link or url_for('auth.signup') }}" class="btn btn-primary cta-white-btn">{{ content.footer_promo_btn_text }}</a>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  // Simple client-side course filtering by level (no backend changes)
+  const buttons = document.querySelectorAll(".js-course-filter");
+  const cards = document.querySelectorAll("[data-course-level]");
+  function setActive(btn) {
+    buttons.forEach(b => b.classList.remove("btn-primary"));
+    buttons.forEach(b => b.classList.add("btn-ghost"));
+    btn.classList.remove("btn-ghost");
+    btn.classList.add("btn-primary");
+  }
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const level = btn.getAttribute("data-level");
+      setActive(btn);
+      cards.forEach((c) => {
+        const v = (c.getAttribute("data-course-level") || "").trim();
+        const show = level === "all" || v === level;
+        c.style.display = show ? "" : "none";
+      });
+    });
+  });
+})();
+</script>
+{% endblock %}

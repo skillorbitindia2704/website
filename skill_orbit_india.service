@@ -1,0 +1,29 @@
+[Unit]
+Description=Gunicorn instance to serve Skill Orbit India EdTech Platform
+After=network.target
+
+[Service]
+# Non-privileged system user and group for process isolation
+User=appuser
+Group=appgroup
+
+# Working directory where the application is deployed
+WorkingDirectory=/app
+
+# Inject environment variables
+Environment="FLASK_ENV=production"
+Environment="PATH=/root/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# Command to execute. Ensures it uses production gunicorn config.
+ExecStart=/root/.local/bin/gunicorn --config gunicorn.conf.py wsgi:app
+
+# Restart policy for reliability
+Restart=always
+RestartSec=5
+
+# Logging configuration
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

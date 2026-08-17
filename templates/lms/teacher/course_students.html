@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Students — {{ course.title }}{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Courses', url_for('teacher.teacher_courses')), (course.title[:28], None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<nav class="teacher-course-nav">
+  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_edit_course', course_id=course.id) }}">Edit course</a>
+</nav>
+<h1 class="page-title">Enrolled students</h1>
+<p class="muted">{{ course.title }} — progress and payment flags.</p>
+<div class="card-premium reveal" style="padding:0;overflow-x:auto;">
+  <table class="table-modern">
+    <thead><tr><th>Student</th><th>Paid</th><th>Progress</th><th>Quiz passed</th><th>Since</th></tr></thead>
+    <tbody>
+      {% for e in enrolls %}
+      <tr>
+        <td>{{ e.user.full_name if e.user else '—' }}<br><span class="muted" style="font-size:0.8rem;">{{ e.user.email if e.user else '' }}</span></td>
+        <td>{% if e.is_paid %}<span class="level-pill">Yes</span>{% else %}<span class="muted">No</span>{% endif %}</td>
+        <td>{{ e.progress_pct }}%</td>
+        <td>{% if e.quiz_passed %}Yes{% else %}No{% endif %}</td>
+        <td class="muted" style="font-size:0.85rem;">{{ e.created_at.strftime('%d %b %Y') if e.created_at else '—' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="muted">No enrollments yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

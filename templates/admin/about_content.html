@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}About Content — Admin{% endblock %}
+{% block content %}
+<h1>About Page Content</h1>
+
+{% if last_updated %}
+  <p class="muted" style="margin-top:-0.5rem;margin-bottom:1.5rem;font-size:0.9rem;">
+    Last updated: <strong style="color:var(--text-color);">{{ last_updated.strftime('%Y-%m-%d %H:%M:%S UTC') }}</strong>
+  </p>
+{% endif %}
+
+<!-- Draft Restoration Alert Banner -->
+<div id="draft-alert" class="card-premium" style="background:rgba(255, 193, 7, 0.1); border:1px solid rgba(255, 193, 7, 0.4); margin-bottom:1.5rem; display:none; padding:0.75rem 1rem; border-radius:6px; justify-content:space-between; align-items:center; width:100%; box-sizing:border-box;">
+  <span style="color:#ffc107; font-size:0.95rem; display:flex; align-items:center; gap:0.5rem;">
+    <i class="ri-alert-line"></i> <strong>Draft Restored!</strong> You have unsaved edits from a previous session.
+  </span>
+  <button type="button" id="discard-draft-btn" class="btn btn-ghost btn-sm" style="color:#ffc107; border-color:rgba(255, 193, 7, 0.3); padding:0.25rem 0.5rem; margin-left:auto; cursor:pointer;">Discard Draft</button>
+</div>
+
+<div class="card-premium">
+  <form method="post" id="content-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    
+    {% for key, label in keys %}
+      <div class="form-field" style="margin-bottom:1rem;">
+        <label for="{{ key }}"><strong>{{ label }}</strong></label>
+        {% if key.endswith('_body') or key.endswith('_text') or key.endswith('_subtitle') %}
+          <textarea id="{{ key }}" name="{{ key }}" rows="4" style="width:100%;">{{ values.get(key, '') }}</textarea>
+        {% else %}
+          <input id="{{ key }}" name="{{ key }}" type="text" value="{{ values.get(key, '') }}" style="width:100%;" />
+        {% endif %}
+      </div>
+    {% endfor %}
+    <button type="submit" id="save-btn" class="btn btn-primary">Save</button>
+  </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('content-form');
+  const saveBtn = document.getElementById('save-btn');
+  const alertDiv = document.getElementById('draft-alert');
+  const discardBtn = document.getElementById('discard-draft-btn');
+  const inputs = form.querySelectorAll('input[type="text"], textarea');
+  
+  // 1. Loading State on Submit & Clear localStorage
+  form.addEventListener('submit', function() {
+    localStorage.removeItem('about_content_draft');
+    saveBtn.disabled = true;
+    saveBtn.innerText = 'Saving content...';
+  });
+
+  // 2. Draft Saving on Input
+  inputs.forEach(input => {
+    input.addEventListener('input', function() {
+      const draft = {};
+      inputs.forEach(i => {
+        draft[i.id] = i.value;
+      });
+      localStorage.setItem('about_content_draft', JSON.stringify(draft));
+    });
+  });
+
+  // 3. Draft Restoration on Page Load (if different from server state)
+  const savedDraftRaw = localStorage.getItem('about_content_draft');
+  if (savedDraftRaw) {
+    try {
+      const savedDraft = JSON.parse(savedDraftRaw);
+      let differs = false;
+      inputs.forEach(i => {
+        if (savedDraft[i.id] !== undefined && savedDraft[i.id] !== i.value) {
+          differs = true;
+        }
+      });
+
+      if (differs) {
+        inputs.forEach(i => {
+          if (savedDraft[i.id] !== undefined) {
+            i.value = savedDraft[i.id];
+          }
+        });
+        alertDiv.style.display = 'flex';
+      }
+    } catch (e) {
+      console.error('Failed to parse draft from localStorage', e);
+    }
+  }
+
+  // 4. Discard Draft Option
+  discardBtn.addEventListener('click', function() {
+    localStorage.removeItem('about_content_draft');
+    window.location.reload();
+  });
+});
+</script>
+{% endblock %}

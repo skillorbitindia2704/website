@@ -1,0 +1,490 @@
+{% extends "base.html" %}
+{% block title %}Verify Certificate Online | Skill Orbit India{% endblock %}
+{% block meta_description %}Verify Skill Orbit India digital credentials instantly. Secure certificate ID lookup, QR verification, and tamper-aware validation for employers and institutions.{% endblock %}
+{% block meta_keywords %}certificate verification, verify certificate online, digital credentials, AI certification, robotics certification, Skill Orbit India, credential verification{% endblock %}
+{% block body_class %}page-cert-verify{% endblock %}
+{% block extra_head %}
+<script>
+  tailwind = {
+    config: {
+      corePlugins: { preflight: false },
+      darkMode: ['selector', '[data-theme="dark"]'],
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ["Poppins", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+            sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+          },
+          colors: {
+            brand: { 500: "#4F46E5", 600: "#4338CA", 700: "#3730A3" },
+            violet: { 600: "#7C3AED" },
+            accent: { 500: "#F97316" },
+            cyan: { 500: "#06B6D4" },
+          },
+        },
+      },
+    },
+  };
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Certificate verification — Skill Orbit India",
+  "description": "Public certificate verification for Skill Orbit India digital credentials.",
+  "url": {{ request.url|tojson }}
+}
+</script>
+{% if cert and vm %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EducationalOccupationalCredential",
+  "identifier": {{ cert.certificate_uid|tojson }},
+  "name": {{ cert.course.title|tojson }},
+  "recognizedBy": {
+    "@type": "Organization",
+    "name": "Skill Orbit India"
+  },
+  "validFor": "P365D",
+  "dateIssued": {{ cert.issued_at.strftime('%Y-%m-%d')|tojson }}
+}
+</script>
+{% endif %}
+{% endblock %}
+{% block breadcrumbs %}
+<div class="container py-3">
+  {% set crumbs = [('Home', url_for('main.home')), ('Verify certificate', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="cert-page-root text-slate-800 dark:text-slate-100">
+  <section class="relative overflow-hidden border-b border-white/10 bg-gradient-to-br from-slate-950 via-indigo-950 to-violet-950 text-white">
+    <div class="pointer-events-none absolute inset-0 opacity-40" style="background-image:linear-gradient(rgba(99,102,241,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.12)_1px,transparent_1px);background-size:48px_48px;"></div>
+    <div class="pointer-events-none absolute -right-24 top-20 h-72 w-72 rounded-full bg-cyan-500/20 blur-3xl"></div>
+    <div class="pointer-events-none absolute -left-20 bottom-0 h-80 w-80 rounded-full bg-violet-600/25 blur-3xl"></div>
+    <div class="container relative z-10 grid gap-12 py-14 lg:grid-cols-2 lg:items-center lg:py-20">
+      <div>
+        <p class="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-200/90">Secure verification</p>
+        <h1 class="font-display text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-[2.35rem]">
+          Verify Industry-Recognized Certificates Instantly
+        </h1>
+        <p class="mt-4 max-w-xl text-base text-slate-300 sm:text-lg">
+          Secure, authentic and tamper-aware certificate verification for students, institutions &amp; employers.
+        </p>
+        <ul class="mt-8 grid gap-3 sm:grid-cols-2">
+          <li class="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm">
+            <span class="mt-0.5 text-lg" aria-hidden="true"><i class="ri-shield-check-line"></i></span>
+            <div><strong class="block text-sm">Secure verification</strong><span class="text-xs text-slate-400">Server-side database match</span></div>
+          </li>
+            <li class="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm">
+            <span class="mt-0.5 text-lg" aria-hidden="true"><i class="ri-links-line"></i></span>
+            <div><strong class="block text-sm">Immutable ID</strong><span class="text-xs text-slate-400">UUID + PDF audit trail</span></div>
+          </li>
+          <li class="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm">
+            <span class="mt-0.5 text-lg" aria-hidden="true"><i class="ri-flashlight-line"></i></span>
+            <div><strong class="block text-sm">Instant validation</strong><span class="text-xs text-slate-400">Results in seconds</span></div>
+          </li>
+          <li class="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm">
+            <span class="mt-0.5 text-lg" aria-hidden="true"><i class="ri-government-line"></i></span>
+            <div><strong class="block text-sm">Institution-ready</strong><span class="text-xs text-slate-400">Shareable verify links</span></div>
+          </li>
+        </ul>
+      </div>
+      <div class="relative mx-auto w-full max-w-md lg:max-w-none">
+        <div class="relative rounded-2xl border border-white/15 bg-gradient-to-br from-white/10 to-white/5 p-6 shadow-2xl shadow-indigo-900/50 backdrop-blur-md">
+          <div class="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-emerald-400/30 blur-2xl"></div>
+          <div class="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+            <div>
+              <p class="text-xs uppercase tracking-widest text-slate-400">Sample credential</p>
+              <p class="font-semibold">Skill Orbit India</p>
+            </div>
+            <div class="rounded-lg border border-white/20 bg-white/10 p-2">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=72x72&amp;data={{ (url_for('certificates.verify_lookup', _external=True))|urlencode }}" width="72" height="72" alt="" loading="lazy" />
+            </div>
+          </div>
+          <div class="mt-6 space-y-2 text-sm text-slate-200">
+            <p class="text-lg font-semibold text-white">Certificate of completion</p>
+            <p class="text-slate-400">Course · AI &amp; Robotics pathway</p>
+            <div class="mt-4 flex items-center gap-2 text-xs text-emerald-300">
+              <span class="inline-block h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_#34d399]"></span>
+              Shield · verification layer active
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container relative z-10 -mt-10 pb-6" style="margin-top:20px;" aria-labelledby="verify-tool-title">
+    <div class="rounded-2xl border border-slate-200/80 bg-white/90 p-6 shadow-xl shadow-indigo-900/10 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-900/90 sm:p-8">
+      <h2 id="verify-tool-title" class="sr-only">Certificate verification tool</h2>
+      <div class="grid gap-10 lg:grid-cols-2">
+        <div>
+          <h3 class="cert-subtitle">Certificate ID</h3>
+          <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Paste the UUID from the PDF or your dashboard.</p>
+          <form method="post" class="mt-5 space-y-4" id="cert-verify-form" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="relative">
+              <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true"><i class="ri-search-line"></i></span>
+              <input
+                type="text"
+                name="certificate_id"
+                id="certificate_id"
+                value="{{ lookup_id }}"
+                autocomplete="off"
+                placeholder="e.g. 550e8400-e29b-41d4-a716-446655440000"
+                class="w-full rounded-xl border border-slate-200 bg-white py-3.5 pl-10 pr-4 text-sm text-slate-900 shadow-inner outline-none ring-brand-500/30 transition focus:border-brand-500 focus:ring-4 dark:border-slate-600 dark:bg-slate-950 dark:text-white"
+                aria-describedby="cert-id-help {% if error %}cert-error-text{% endif %}"
+              />
+            </div>
+            <p id="cert-id-help" class="text-xs text-slate-500 dark:text-slate-400">Tip: open this page with <code class="rounded bg-slate-100 px-1 py-0.5 text-slate-800 dark:bg-slate-800 dark:text-slate-200">?id=</code> followed by your UUID in the address bar.</p>
+            <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-500 to-violet-600 px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:brightness-110 sm:w-auto">
+              Verify certificate
+            </button>
+          </form>
+        </div>
+        <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50/80 p-5 dark:border-slate-600 dark:bg-slate-800/50">
+          <h3 class="cert-subtitle">QR verification</h3>
+          <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Upload a photo of the QR code, or scan with your camera (browser permitting).</p>
+          <div id="cert-qr-zone" class="cert-qr-drop mt-4 flex min-h-[140px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-transparent bg-white p-4 text-center text-sm text-slate-500 shadow-inner transition hover:border-brand-500/40 dark:bg-slate-950 dark:text-slate-400">
+            <input type="file" id="cert-qr-file" accept="image/*" class="hidden" aria-label="Upload QR code image" />
+            <span class="text-2xl" aria-hidden="true"><i class="ri-upload-2-line"></i></span>
+            <span class="mt-2 font-medium text-slate-700 dark:text-slate-200">Drop image or click to upload</span>
+            <span class="mt-1 text-xs">PNG, JPG, WebP</span>
+          </div>
+          <button type="button" id="cert-qr-camera" class="btn btn-ghost mt-3 w-full text-sm">Scan with camera</button>
+          <video id="cert-qr-video" class="mt-3 hidden w-full max-h-48 rounded-lg border border-slate-200 object-cover dark:border-slate-600" playsinline muted></video>
+          <canvas id="cert-qr-canvas" class="hidden" width="320" height="240"></canvas>
+          <p id="cert-qr-status" class="mt-2 text-xs text-slate-500 dark:text-slate-400" role="status"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {% if error %}
+  <section class="container py-8" aria-labelledby="verify-fail-title">
+    <div class="rounded-2xl border border-red-200 bg-red-50/90 p-6 dark:border-red-900/50 dark:bg-red-950/40">
+      <h2 id="verify-fail-title" class="font-display text-lg font-semibold text-red-800 dark:text-red-200">Verification could not be completed</h2>
+      <p id="cert-error-text" class="mt-2 text-sm text-red-700 dark:text-red-300/90">{{ error }}</p>
+      <ul class="mt-4 list-disc space-y-1 pl-5 text-sm text-red-800/90 dark:text-red-200/80">
+        <li>Invalid ID — check for typos or missing characters.</li>
+        <li>Revoked or legacy records — contact support with your enrollment email.</li>
+        <li>Tampered QR — always confirm the URL matches this official domain.</li>
+      </ul>
+      {% set ss = site_settings or {} %}
+      <a href="mailto:{{ ss.get('contact_email', 'skillorbitindia2704@gmail.com') }}?subject=Certificate%20verification%20help" class="btn btn-primary mt-5 inline-flex">Contact support</a>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if cert and vm %}
+  <section class="container py-10">
+    {% include "certificates/_verify_success.html" %}
+  </section>
+  {% endif %}
+
+  <section class="container py-14" aria-labelledby="how-verify-title">
+    <h2 id="how-verify-title" class="cert-section-title text-center">How verification works</h2>
+    <p class="mx-auto mt-2 max-w-2xl text-center text-sm text-slate-600 dark:text-slate-400">Three transparent steps — built for auditors, HR teams, and learners.</p>
+    <ol class="mt-10 grid gap-8 md:grid-cols-3">
+      <li class="relative rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+        <span class="text-sm font-bold text-brand-600">01</span>
+        <h3 class="mt-2 cert-subtitle">Enter certificate ID</h3>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Paste the UUID or scan the QR that encodes your verify link.</p>
+        <span class="cert-step-connector hidden md:block" aria-hidden="true"></span>
+      </li>
+      <li class="relative rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+        <span class="text-sm font-bold text-brand-600">02</span>
+        <h3 class="mt-2 cert-subtitle">System validation</h3>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">We match the ID against our issuance database in real time.</p>
+        <span class="cert-step-connector cert-step-connector--2 hidden md:block" aria-hidden="true"></span>
+      </li>
+      <li class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+        <span class="text-sm font-bold text-brand-600">03</span>
+        <h3 class="mt-2 cert-subtitle">Instant result</h3>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">See learner, course, and issue metadata. Download when authorized.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="border-y border-slate-200 bg-slate-50 py-14 dark:border-slate-800 dark:bg-slate-900/50">
+    <div class="container">
+      <h2 class="cert-section-title text-center">Impact at a glance</h2>
+      <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <p class="font-display text-2xl font-bold text-brand-600"><span data-count-up="5000">0</span>+</p>
+          <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Certificates issued</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <p class="font-display text-2xl font-bold text-violet-600"><span data-count-up="120">0</span>+</p>
+          <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Workshops</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <p class="font-display text-2xl font-bold text-cyan-600"><span data-count-up="95">0</span>%</p>
+          <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Satisfaction</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <p class="font-display text-2xl font-bold text-emerald-600"><span data-count-up="50">0</span>+</p>
+          <p class="text-xs font-medium uppercase tracking-wide text-slate-500">School partners</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:col-span-2 lg:col-span-1">
+          <p class="font-display text-2xl font-bold text-accent-500">24×7</p>
+          <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Support</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container carousel-section py-14" aria-labelledby="sample-certs-title">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h2 id="sample-certs-title" class="cert-section-title">Sample credentials</h2>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Illustrative layouts — verify always uses your unique ID.</p>
+      </div>
+      <div class="flex gap-2">
+        <button type="button" class="btn btn-ghost btn-sm" data-carousel-prev aria-label="Previous samples"><i class="ri-arrow-left-s-line" aria-hidden="true"></i></button>
+        <button type="button" class="btn btn-ghost btn-sm" data-carousel-next aria-label="Next samples"><i class="ri-arrow-right-s-line" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div class="carousel mt-6 flex gap-4 overflow-x-auto pb-2 scroll-smooth" tabindex="0">
+      {% for title, sub, grad in [
+        ('AI & Machine Learning', 'Neural foundations & labs', 'from-violet-600 to-indigo-700'),
+        ('Robotics Engineering', 'Mechanisms & control', 'from-indigo-600 to-slate-800'),
+        ('Internet of Things (IoT)', 'Sensors & cloud', 'from-cyan-600 to-brand-700'),
+        ('Python Programming', 'Core to deployment', 'from-emerald-600 to-teal-800')
+      ] %}
+      <article class="cert-sample-card min-w-[260px] max-w-xs flex-1 cursor-pointer rounded-2xl border border-slate-200 bg-white p-0 shadow-md transition hover:-translate-y-1 hover:shadow-xl dark:border-slate-700 dark:bg-slate-900" data-cert-preview="{{ title }}">
+        <div class="h-36 rounded-t-2xl bg-gradient-to-br {{ grad }} relative overflow-hidden">
+          <div class="absolute right-3 top-3 h-14 w-14 rounded bg-white/20 p-1 backdrop-blur-sm">
+            <div class="h-full w-full rounded bg-white/90 opacity-80"></div>
+          </div>
+          <p class="absolute bottom-3 left-4 text-sm font-bold text-white drop-shadow">Skill Orbit India</p>
+        </div>
+        <div class="p-4">
+          <h3 class="font-semibold cert-subtitle">{{ title }}</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400">{{ sub }}</p>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="container py-14" aria-labelledby="trust-title">
+    <h2 id="trust-title" class="cert-section-title text-center">Trust &amp; security</h2>
+    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+      {% for icon, t, d in [
+        ('<i class="ri-key-2-line"></i>', 'Unique certificate ID', 'UUID v4 per issuance, indexed for instant lookup.'),
+        ('<i class="ri-smartphone-line"></i>', 'QR verification', 'Encodes your public verify URL — scan with any phone.'),
+        ('<i class="ri-shield-check-line"></i>', 'Tamper-aware', 'Mismatch or unknown IDs surface a clear failure state.'),
+        ('<i class="ri-global-line"></i>', 'Global recognition', 'Shareable links for HR and institution records.'),
+        ('<i class="ri-database-2-line"></i>', 'Secure database', 'Read-only public lookup; downloads remain access-controlled.')
+      ] %}
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-brand-500/40 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900">
+        <span class="text-2xl" aria-hidden="true">{{ icon }}</span>
+        <h3 class="mt-3 cert-subtitle">{{ t }}</h3>
+        <p class="mt-2 text-xs text-slate-600 dark:text-slate-400">{{ d }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="border-t border-slate-200 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 py-16 text-white dark:border-slate-800">
+    <div class="container grid gap-10 lg:grid-cols-2">
+      <div>
+        <h2 class="font-display text-2xl font-bold">For institutions &amp; employers</h2>
+        <ul class="mt-4 space-y-3 text-sm text-slate-300">
+          <li>· Bulk verification workflows (contact us for API &amp; reporting).</li>
+          <li>· Organization dashboards for training partners.</li>
+          <li>· Real-time verification suitable for audit trails.</li>
+        </ul>
+        {% set ss = site_settings or {} %}
+        <a href="mailto:{{ ss.get('contact_email', 'skillorbitindia2704@gmail.com') }}?subject=Enterprise%20certificate%20verification" class="btn btn-primary mt-6 inline-flex">Contact for enterprise access</a>
+      </div>
+      <div>
+        <h2 class="font-display text-2xl font-bold">For students</h2>
+        <ul class="mt-4 space-y-3 text-sm text-slate-300">
+          <li>· Download PDF after login.</li>
+          <li>· Share verify links on LinkedIn.</li>
+          <li>· Add credential details to resumes and portfolios.</li>
+        </ul>
+        <a href="{{ url_for('dashboard.certificates') }}" class="btn btn-ghost mt-6 inline-flex border border-white/20 text-white hover:bg-white/10">View your achievements</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<dialog id="cert-sample-dialog" class="cert-sample-dialog rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+  <button type="button" class="cert-dialog-close absolute right-3 top-3 rounded-lg px-2 py-1 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Close"><i class="ri-close-line" aria-hidden="true"></i></button>
+  <div id="cert-sample-dialog-inner" class="mt-4"></div>
+</dialog>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script>
+(function () {
+  function toast(m) {
+    const root = document.getElementById("toast-root");
+    if (!root || !m) return;
+    const el = document.createElement("div");
+    el.className = "toast info";
+    el.textContent = m;
+    root.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+
+  $("#cert-copy-link")?.addEventListener("click", async function () {
+    const u = this.getAttribute("data-url");
+    if (!u || !navigator.clipboard) {
+      toast("Copy not supported in this browser.");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(u);
+      toast("Verification link copied.");
+    } catch {
+      toast("Could not copy link.");
+    }
+  });
+
+  const form = $("#cert-verify-form");
+  const input = $("#certificate_id");
+  const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+  function applyDetectedId(text) {
+    if (!text || !input) return false;
+    const m = text.match(uuidRe);
+    const id = m ? m[0] : text.trim();
+    if (!uuidRe.test(id)) return false;
+    input.value = id.toLowerCase();
+    toast("Certificate ID detected — verify to confirm.");
+    return true;
+  }
+
+  const zone = $("#cert-qr-zone");
+  const file = $("#cert-qr-file");
+  const status = $("#cert-qr-status");
+  const video = $("#cert-qr-video");
+  const canvas = $("#cert-qr-canvas");
+  const camBtn = $("#cert-qr-camera");
+  let stream = null;
+  let scanTimer = null;
+
+  zone?.addEventListener("click", () => file?.click());
+  zone?.addEventListener("dragover", (e) => { e.preventDefault(); zone.classList.add("cert-qr-drop-active"); });
+  zone?.addEventListener("dragleave", () => zone.classList.remove("cert-qr-drop-active"));
+  zone?.addEventListener("drop", (e) => {
+    e.preventDefault();
+    zone.classList.remove("cert-qr-drop-active");
+    const f = e.dataTransfer?.files?.[0];
+    if (f) readQrFile(f);
+  });
+  file?.addEventListener("change", () => {
+    const f = file.files && file.files[0];
+    if (f) readQrFile(f);
+  });
+
+  function readQrFile(f) {
+    if (typeof jsQR !== "function") {
+      if (status) status.textContent = "QR library failed to load. Try another network or browser.";
+      return;
+    }
+    if (!status) return;
+    status.textContent = "Reading image…";
+    const img = new Image();
+    const url = URL.createObjectURL(f);
+    img.onload = () => {
+      try {
+        const c = document.createElement("canvas");
+        c.width = img.naturalWidth;
+        c.height = img.naturalHeight;
+        const ctx = c.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        const data = ctx.getImageData(0, 0, c.width, c.height);
+        const code = jsQR(data.data, data.width, data.height, { inversionAttempts: "dontInvert" });
+        URL.revokeObjectURL(url);
+        if (code && code.data) {
+          if (applyDetectedId(code.data)) status.textContent = "QR decoded. Review the ID and tap Verify.";
+          else status.textContent = "QR decoded but no certificate UUID found.";
+        } else status.textContent = "No QR found in image. Try a sharper photo.";
+      } catch {
+        status.textContent = "Could not read image.";
+      }
+    };
+    img.onerror = () => { status.textContent = "Invalid image."; URL.revokeObjectURL(url); };
+    img.src = url;
+  }
+
+  function stopCam() {
+    if (scanTimer) cancelAnimationFrame(scanTimer);
+    scanTimer = null;
+    if (stream) {
+      stream.getTracks().forEach((t) => t.stop());
+      stream = null;
+    }
+    if (video) { video.classList.add("hidden"); video.srcObject = null; }
+  }
+
+  camBtn?.addEventListener("click", async () => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      toast("Camera not supported here.");
+      return;
+    }
+    if (stream) {
+      stopCam();
+      if (status) status.textContent = "Camera stopped.";
+      return;
+    }
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+      video.classList.remove("hidden");
+      video.srcObject = stream;
+      await video.play();
+      const ctx = canvas.getContext("2d");
+      function tick() {
+        if (!stream) return;
+        if (typeof jsQR !== "function") {
+          if (status) status.textContent = "QR library unavailable.";
+          stopCam();
+          return;
+        }
+        canvas.width = video.videoWidth || 320;
+        canvas.height = video.videoHeight || 240;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(data.data, data.width, data.height, { inversionAttempts: "attemptBoth" });
+        if (code && code.data && applyDetectedId(code.data)) {
+          if (status) status.textContent = "Certificate ID captured from camera.";
+          stopCam();
+          return;
+        }
+        scanTimer = requestAnimationFrame(tick);
+      }
+      if (status) status.textContent = "Point the camera at the QR code…";
+      tick();
+    } catch {
+      toast("Camera permission denied or unavailable.");
+    }
+  });
+
+  document.querySelectorAll("[data-cert-preview]").forEach((card) => {
+    card.addEventListener("click", () => {
+      const title = card.getAttribute("data-cert-preview") || "Certificate";
+      const dlg = $("#cert-sample-dialog");
+      const inner = $("#cert-sample-dialog-inner");
+      if (!dlg || !inner) return;
+      inner.innerHTML = "<p class=\"text-lg font-semibold cert-section-title\">" + title + "</p><p class=\"mt-2 text-sm muted\">Illustrative preview. Real verification always uses your unique certificate ID.</p>";
+      if (typeof dlg.showModal === "function") dlg.showModal();
+    });
+  });
+  $(".cert-dialog-close")?.addEventListener("click", () => $("#cert-sample-dialog")?.close());
+  $("#cert-sample-dialog")?.addEventListener("click", (e) => {
+    if (e.target === $("#cert-sample-dialog")) $("#cert-sample-dialog").close();
+  });
+})();
+</script>
+{% endblock %}

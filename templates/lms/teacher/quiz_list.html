@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Quizzes — Teacher{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('Quizzes', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 class="page-title">Quizzes</h1>
+<p class="muted">Structured quizzes auto-score in the classroom when published.</p>
+<div class="teacher-dash-actions section-gap">
+  <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_courses') }}">Courses</a>
+</div>
+<div class="card-premium reveal" style="padding:0;overflow-x:auto;">
+  <table class="table-modern">
+    <thead><tr><th>Course</th><th>Title</th><th>Pass %</th><th>Published</th><th></th></tr></thead>
+    <tbody>
+      {% for q in rows %}
+      <tr>
+        <td>{{ q.course.title if q.course else '—' }}</td>
+        <td><strong>{{ q.title }}</strong></td>
+        <td>{{ q.pass_percent }}%</td>
+        <td>{% if q.is_published %}Yes{% else %}No{% endif %}</td>
+        <td style="white-space:nowrap;">
+          <a class="btn btn-primary btn-sm" href="{{ url_for('teacher.teacher_quiz_edit', quiz_id=q.id) }}">Edit</a>
+          <form method="post" action="{{ url_for('teacher.teacher_quiz_delete', quiz_id=q.id) }}" style="display:inline;" onsubmit="return confirm('Delete quiz?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn-sm" style="color:#b91c1c;">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="muted">No LMS quizzes yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<h2 class="section-gap" style="font-size:1.05rem;">Create on a course</h2>
+<ul class="muted">
+  {% for c in courses %}
+  <li><a href="{{ url_for('teacher.teacher_quiz_new', course_id=c.id) }}">{{ c.title }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}

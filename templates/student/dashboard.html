@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Student Dashboard — Skill Orbit India{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Student', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="dashboard-shell">
+  {% include "partials/dashboard_sidebar.html" %}
+  <div class="dash-main">
+    <section class="role-shell">
+      <h1 class="page-title">Student dashboard</h1>
+      <p class="muted">Track courses, store orders, certificates, and leaderboard rank.</p>
+
+      <div class="stat-grid reveal section-gap">
+        <div class="stat-card"><p class="num"><i class="ri-shopping-bag-line" aria-hidden="true"></i> {{ order_count }}</p><p class="lbl">Orders</p></div>
+        <div class="stat-card"><p class="num"><i class="ri-book-open-line" aria-hidden="true"></i> {{ course_count }}</p><p class="lbl">Courses</p></div>
+        <div class="stat-card"><p class="num"><i class="ri-certificate-line" aria-hidden="true"></i> {{ cert_count }}</p><p class="lbl">Certificates</p></div>
+        <div class="stat-card"><p class="num"><i class="ri-star-line" aria-hidden="true"></i> {{ user.points }}</p><p class="lbl">Points</p></div>
+      </div>
+
+      <div class="grid-cards section-gap">
+        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('courses.list_courses') }}">
+          <h3 class="card-title-sm">Course catalog</h3>
+          <p class="muted">Browse and enroll in new courses</p>
+        </a>
+        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('student.student_live_sessions') }}">
+          <h3 class="card-title-sm">Live sessions</h3>
+          <p class="muted">Upcoming classes across your courses</p>
+        </a>
+        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('student.student_recorded_sessions') }}">
+          <h3 class="card-title-sm">Recorded lectures</h3>
+          <p class="muted">All video lessons in one place</p>
+        </a>
+        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('student.student_notes') }}">
+          <h3 class="card-title-sm">Notes &amp; resources</h3>
+          <p class="muted">Downloads from your courses</p>
+        </a>
+        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('store.listing') }}">
+          <h3 class="card-title-sm">Store</h3>
+          <p class="muted">Purchase learning kits and electronics</p>
+        </a>
+        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('dashboard.certificates') }}">
+          <h3 class="card-title-sm">Certificates</h3>
+          <p class="muted">View and download your certificates</p>
+        </a>
+      </div>
+
+      <h2>Continue learning</h2>
+      <p class="muted section-gap">Paid enrollments — open the learning hub or full classroom (tabs + legacy content).</p>
+      <div class="grid-cards section-gap">
+        {% for en in enrollments %}
+        <div class="card-premium reveal surface-card" style="padding:1.1rem;">
+          <h3 class="card-title-sm">{{ en.course.title }}</h3>
+          <div class="lms-progress-track progress-track" style="max-width:100%;margin:0.5rem 0;">
+            <div class="progress-fill" style="width: {{ en.progress_pct }}%;"></div>
+          </div>
+          <p class="muted" style="font-size:0.85rem;">Progress {{ en.progress_pct }}%</p>
+          <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.75rem;">
+            <a class="btn btn-primary btn-sm" href="{{ url_for('student.student_course_hub', course_id=en.course_id) }}">Learning hub</a>
+            <a class="btn btn-ghost btn-sm" href="{{ url_for('courses.learn', course_id=en.course_id) }}">Classroom</a>
+          </div>
+        </div>
+        {% else %}
+        <p class="muted">No paid enrollments yet. <a href="{{ url_for('courses.list_courses') }}">Browse courses</a>.</p>
+        {% endfor %}
+      </div>
+
+      <h2>Leaderboard</h2>
+      <div class="card-premium reveal" style="padding:0;">
+        <table class="table-modern">
+          <thead><tr><th>Rank</th><th>Name</th><th>Points</th></tr></thead>
+          <tbody>
+            {% for u in top_users %}
+            <tr class="{% if u.id == user.id %}row-highlight{% endif %}">
+              <td>#{{ loop.index }}</td>
+              <td>{{ u.full_name }}{% if u.id == user.id %} (You){% endif %}</td>
+              <td>{{ u.points }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+

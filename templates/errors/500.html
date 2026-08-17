@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Internal Server Error - Skill Orbit India{% endblock %}
+{% block content %}
+<div class="error-container py-5 my-5 text-center">
+  <div class="error-code display-1 text-danger fw-bold mb-3" style="font-size: 6rem; background: linear-gradient(135deg, #f43f5e, #e11d48); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">500</div>
+  <h1 class="error-title h2 mb-3 fw-bold">Internal Server Error</h1>
+  <p class="error-message text-muted mb-4 max-w-md mx-auto" style="max-width: 480px;">An unexpected error occurred on the server. Our technical team has been notified and we are working to resolve the issue as fast as possible.</p>
+  <a href="{{ url_for('main.home') }}" class="btn btn-primary px-4 py-2" style="border-radius: 8px;">Go to Homepage</a>
+</div>
+{% endblock %}

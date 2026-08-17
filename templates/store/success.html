@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Order #{{ order.id }} Success — Skill Orbit India{% endblock %}
+{% block content %}
+<div class="card-premium reveal surface-card content-narrow text-center section-gap" style="max-width: 600px; margin: 40px auto; padding: 40px;">
+  <div style="font-size: 4rem; color: #10b981; margin-bottom: 20px;">
+    <i class="ri-party-popper-line" aria-hidden="true"></i>
+  </div>
+  
+  <h1 class="page-title" style="color: #10b981;">Order Placed Successfully!</h1>
+  <p class="muted">Thank you for your purchase. Your payment was verified, and your items are being prepared for shipping.</p>
+
+  <div class="receipt-box surface-card-lg text-left" style="border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; margin: 30px 0; text-align: left;">
+    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 15px;">
+      <span style="font-weight: 600; color: var(--text-bright);">Order ID: #{{ order.id }}</span>
+      <span style="color: var(--text-normal);">{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+      {% for item in order.items %}
+      <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+        <span style="color: var(--text-normal);">
+          {{ item.product.name if item.product else "Deleted Product" }} 
+          <strong style="color: var(--accent);">× {{ item.quantity }}</strong>
+        </span>
+        <span style="color: var(--text-bright);">₹{{ item.price_inr * item.quantity }}</span>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div style="border-top: 1px dashed var(--border-color); padding-top: 15px; display: flex; justify-content: space-between; font-weight: bold; color: var(--text-bright); font-size: 1.1rem;">
+      <span>Paid via Razorpay</span>
+      <span class="price-tag">₹{{ order.total_inr }}</span>
+    </div>
+
+    {% if order.razorpay_payment_id %}
+    <div style="margin-top: 15px; font-size: 0.85rem; color: var(--text-muted); text-align: center; background: rgba(255,255,255,0.03); padding: 8px; border-radius: 6px;">
+      Transaction ID: <strong>{{ order.razorpay_payment_id }}</strong>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="reward-pill" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(79, 70, 229, 0.1); border: 1px solid rgba(79, 70, 229, 0.2); padding: 8px 16px; border-radius: 20px; color: var(--accent); font-weight: 600; margin-bottom: 30px;">
+    <i class="ri-gift-line" aria-hidden="true"></i> +15 Skill Orbit Points Earned!
+  </div>
+
+  <div class="actions" style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+    <a href="{{ url_for('dashboard.orders') }}" class="btn btn-accent"><i class="ri-archive-line" aria-hidden="true"></i> Track My Order</a>
+    <a href="{{ url_for('store.listing') }}" class="btn btn-primary btn-outline"><i class="ri-shopping-cart-2-line" aria-hidden="true"></i> Continue Shopping</a>
+  </div>
+</div>
+{% endblock %}

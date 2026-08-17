@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Profile — Skill Orbit India{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Profile', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="content-narrow">
+  <h1 class="page-title">Your profile</h1>
+  <p class="muted">{{ current_user.email }}</p>
+  <div class="card-premium reveal surface-card section-gap actions-inline">
+    <div class="stat-card" style="flex:1;min-width:120px;">
+      <p class="num">{{ current_user.points }}</p>
+      <p class="lbl">Points</p>
+    </div>
+    <span class="badge-pill">{{ current_user.badge }}</span>
+  </div>
+  <form method="post" class="card-premium form-modern reveal surface-card-lg">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Full name <input type="text" name="full_name" value="{{ current_user.full_name }}" required></label>
+    <label>Bio <textarea name="bio" rows="4" placeholder="Tell the community about you">{{ current_user.bio }}</textarea></label>
+    <button type="submit" class="btn btn-primary">Save changes</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Attendance Correction Requests — Admin{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('HR & Payroll', url_for('admin.hr_management')), ('Correction Requests', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1>Attendance Correction Requests</h1>
+<div class="form-actions" style="margin-bottom:1rem;">
+  <a href="{{ url_for('admin.hr_management') }}" class="btn btn-secondary btn-sm">Back to HR dashboard</a>
+</div>
+<p class="muted">Review employee-submitted attendance correction requests and approve or reject them. Admin cannot directly alter employee ownership of requests.</p>
+<div class="card-premium reveal" style="overflow-x:auto; padding:1rem;">
+  <table class="table-modern" style="min-width:1100px;">
+    <thead>
+      <tr>
+        <th>Employee</th>
+        <th>Record date</th>
+        <th>Requested check in</th>
+        <th>Requested check out</th>
+        <th>Status</th>
+        <th>Reason</th>
+        <th>Submitted</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for request in correction_requests %}
+      <tr>
+        <td>{{ request.employee.display_name }}</td>
+        <td>{{ request.attendance_record.attendance_date.strftime('%Y-%m-%d') }}</td>
+        <td>{{ request.requested_check_in.strftime('%Y-%m-%d %H:%M') if request.requested_check_in else '—' }}</td>
+        <td>{{ request.requested_check_out.strftime('%Y-%m-%d %H:%M') if request.requested_check_out else '—' }}</td>
+        <td>{{ request.status }}</td>
+        <td>{{ request.reason or '—' }}</td>
+        <td>{{ request.submitted_at.strftime('%Y-%m-%d') }}</td>
+        <td>
+          {% if request.status == 'Pending' %}
+          <form method="post" action="{{ url_for('admin.hr_correction_request_action', request_id=request.id) }}" style="display:flex; gap:0.35rem; flex-wrap:wrap; align-items:center;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="text" name="review_notes" placeholder="Notes" class="form-field" style="min-width:120px;" />
+            <button name="action" value="approve" class="btn btn-sm btn-primary">Approve</button>
+            <button name="action" value="reject" class="btn btn-sm btn-danger">Reject</button>
+          </form>
+          {% else %}
+          <span class="muted">Reviewed</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="8" class="muted">No correction requests at this time.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

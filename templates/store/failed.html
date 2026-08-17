@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Payment Failed — Skill Orbit India{% endblock %}
+{% block content %}
+<div class="card-premium reveal surface-card content-narrow text-center section-gap" style="max-width: 600px; margin: 40px auto; padding: 40px;">
+  <div style="font-size: 4rem; color: #ef4444; margin-bottom: 20px;">
+    <i class="ri-close-circle-line"></i>
+  </div>
+  
+  <h1 class="page-title" style="color: #ef4444;">Payment Verification Failed</h1>
+  <p class="muted">We were unable to verify your payment signature for Order #{{ order.id }}. If the money was debited from your account, it will be refunded shortly, or you can contact support for assistance.</p>
+
+  <div class="summary-box surface-card-lg text-left" style="border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; margin: 30px 0; text-align: left;">
+    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 15px; font-weight: 600; color: var(--text-bright);">
+      <span>Order ID: #{{ order.id }}</span>
+      <span style="color: #ef4444;">Verification Failed</span>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: bold; color: var(--text-bright);">
+      <span>Total Outstanding</span>
+      <span class="price-tag">₹{{ order.total_inr }}</span>
+    </div>
+  </div>
+
+  <div class="actions" style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+    <a href="{{ url_for('store.pay_order', order_id=order.id) }}" class="btn btn-accent"><i class="ri-refresh-line" aria-hidden="true"></i> Try Paying Again</a>
+    <a href="{{ url_for('dashboard.orders') }}" class="btn btn-primary btn-outline"><i class="ri-archive-line" aria-hidden="true"></i> My Orders Dashboard</a>
+  </div>
+</div>
+{% endblock %}

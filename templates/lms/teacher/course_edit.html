@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Edit course — {{ course.title }}{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('Courses', url_for('teacher.teacher_courses')), (course.title[:28], None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<nav class="teacher-course-nav">
+  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_edit_course', course_id=course.id) }}">Overview</a>
+  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_live_session_new', course_id=course.id) }}">+ Live</a>
+  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_recorded_new', course_id=course.id) }}">+ Recording</a>
+  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_note_new', course_id=course.id) }}">+ Note</a>
+  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_quiz_new', course_id=course.id) }}">+ Quiz</a>
+  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_course_students', course_id=course.id) }}">Students</a>
+</nav>
+<div class="card-premium teacher-lms-card reveal" style="padding:1.25rem;max-width:720px;">
+  <h1 style="font-size:1.25rem;margin-top:0;">Edit course</h1>
+  <form method="post" enctype="multipart/form-data" class="form-modern teacher-lms-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Title <input name="title" value="{{ course.title }}" required></label>
+    <label>Description <textarea name="description" rows="3">{{ course.description }}</textarea></label>
+    <label>Instructor <input name="instructor_name" value="{{ course.instructor_name }}"></label>
+    <label>Duration <input name="duration" value="{{ course.duration }}"></label>
+    <label>Level <input name="level" value="{{ course.level }}"></label>
+    <label>Price (₹) <input name="price_inr" type="number" value="{{ course.price_inr }}"></label>
+    <label>Category <input name="category" value="{{ course.category }}"></label>
+    <label>Prerequisites <textarea name="prerequisites" rows="2">{{ course.prerequisites }}</textarea></label>
+    <label>Learning outcomes <textarea name="learning_outcomes" rows="2">{{ course.learning_outcomes }}</textarea></label>
+    <label>Lesson body <textarea name="content" rows="4">{{ course.content }}</textarea></label>
+    <label class="int-check" style="display:flex;align-items:center;gap:0.5rem;margin-top:0.75rem;">
+      <input type="checkbox" name="is_published" {% if course.is_published %}checked{% endif %}>
+      Published (visible in course catalog)
+    </label>
+    <label>Thumbnail image <input type="file" name="thumbnail" accept=".jpg,.jpeg,.png,.webp,.gif"></label>
+    {% if course.thumbnail_path %}<p class="muted" style="font-size:0.85rem;">Current: <a href="{{ course.thumbnail_path }}" target="_blank" rel="noopener">view</a></p>{% endif %}
+    <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Save</button>
+  </form>
+</div>
+<h2 style="font-size:1.05rem;margin-top:2rem;">Modules</h2>
+<form method="post" action="{{ url_for('teacher.teacher_module_add', course_id=course.id) }}" class="form-modern teacher-lms-form" style="max-width:480px;margin-bottom:1rem;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:flex-end;">
+    <label style="flex:1;min-width:160px;">New module <input name="title" placeholder="Module title" required></label>
+    <label style="width:100px;">Order <input name="sort_order" type="number" value="0"></label>
+    <button type="submit" class="btn btn-secondary btn-sm">Add</button>
+  </div>
+</form>
+<ul class="teacher-module-list" style="max-width:520px;">
+  {% for m in modules %}
+  <li style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+    <span>{{ m.title }} <span class="muted" style="font-size:0.8rem;">(order {{ m.sort_order }})</span></span>
+    <form method="post" action="{{ url_for('teacher.teacher_module_delete', course_id=course.id, module_id=m.id) }}" onsubmit="return confirm('Remove module?');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-ghost btn-sm">Remove</button>
+    </form>
+  </li>
+  {% else %}
+  <li class="muted">No modules yet — optional grouping for live/recordings/notes.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

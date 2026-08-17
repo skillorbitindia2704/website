@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Admin — Products{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('Products', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 style="font-size:1.5rem;">Manage products</h1>
+<form method="post" enctype="multipart/form-data" class="card-premium form-modern reveal" style="padding:1.25rem;margin:1.25rem 0;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Name <input name="name" required></label>
+  <label>Description <textarea name="description" rows="3"></textarea></label>
+  <label>Category <input name="category" placeholder="Electronics, Arduino, Sensors…" value="Electronics"></label>
+  <label>Rating (0–5) <input type="number" name="rating" min="0" max="5" step="0.1" value="4.5"></label>
+  <label>Price (INR) <input type="number" name="price_inr" min="1" required></label>
+  <label>Stock <input type="number" name="stock" min="0" required></label>
+  <label>Product Image <input type="file" name="image" accept=".png,.jpg,.jpeg,.webp,.gif"></label>
+  <button type="submit" class="btn btn-primary">Add product</button>
+</form>
+{% for p in products %}
+<div class="card-premium reveal" style="padding:1.25rem;margin-bottom:1rem;">
+  <p><strong>#{{ p.id }}</strong> {{ p.name }} — ₹{{ p.price_inr }} · {{ p.category }} · ★ {{ '%.1f'|format((p.rating|default(4.5))|float) }}</p>
+  <img src="{{ p.image_url if (p.image_url and p.image_url.startswith('/static/')) else url_for('static', filename=(p.image_url or 'images/default_product.svg')) }}" alt="{{ p.name }}" style="max-width:180px;border-radius:10px;margin-bottom:0.75rem;">
+  <form method="post" enctype="multipart/form-data" action="{{ url_for('admin.edit_product', product_id=p.id) }}" class="form-modern">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Name <input name="name" value="{{ p.name }}"></label>
+    <label>Description <textarea name="description" rows="2">{{ p.description }}</textarea></label>
+    <label>Category <input name="category" value="{{ p.category }}"></label>
+    <label>Rating <input type="number" name="rating" min="0" max="5" step="0.1" value="{{ p.rating|default(4.5) }}"></label>
+    <label>Price <input type="number" name="price_inr" value="{{ p.price_inr }}" min="1"></label>
+    <label>Stock <input type="number" name="stock" value="{{ p.stock }}" min="0"></label>
+    <label>Replace Image <input type="file" name="image" accept=".png,.jpg,.jpeg,.webp,.gif"></label>
+    <button type="submit" class="btn btn-primary btn-sm">Save</button>
+  </form>
+  <form method="post" action="{{ url_for('admin.delete_product', product_id=p.id) }}" style="margin-top:0.5rem;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-ghost btn-sm" style="color:#dc2626;">Delete</button>
+  </form>
+</div>
+{% endfor %}
+{% endblock %}

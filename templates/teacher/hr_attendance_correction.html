@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Attendance Correction — Teacher{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('My HR', url_for('teacher.teacher_hr_dashboard')), ('Attendance Correction', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1>Attendance Correction Request</h1>
+<div class="form-actions" style="margin-bottom:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+  <a href="{{ url_for('teacher.teacher_hr_dashboard') }}" class="btn btn-secondary btn-sm">Back to HR dashboard</a>
+  <a href="{{ url_for('teacher.teacher_hr_attendance') }}" class="btn btn-secondary btn-sm">Attendance</a>
+  <a href="{{ url_for('teacher.teacher_leave_requests') }}" class="btn btn-secondary btn-sm">Leave Requests</a>
+</div>
+<div class="card-premium form-modern reveal" style="padding:1.25rem;margin:1.25rem 0;">
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="grid-2 gap-4">
+      <label class="form-field">
+        <span>Attendance record</span>
+        <select name="attendance_id" required>
+          <option value="">-- Select record --</option>
+          {% for record in attendance %}
+          <option value="{{ record.id }}">{{ record.attendance_date.strftime('%Y-%m-%d') }} — {{ record.status }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="form-field">
+        <span>Requested check in</span>
+        <input type="datetime-local" name="requested_check_in">
+      </label>
+      <label class="form-field">
+        <span>Requested check out</span>
+        <input type="datetime-local" name="requested_check_out">
+      </label>
+      <label class="form-field" style="grid-column:1/-1;">
+        <span>Reason</span>
+        <textarea name="reason" rows="3" placeholder="Explain why correction is needed" required></textarea>
+      </label>
+    </div>
+    <div class="form-actions" style="margin-top:1rem;">
+      <button type="submit" class="btn btn-primary">Submit correction request</button>
+    </div>
+  </form>
+</div>
+<div class="card-premium reveal" style="overflow-x:auto; padding:1rem;">
+  <h2>Submitted correction requests</h2>
+  <table class="table-modern" style="min-width:1000px;">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Requested check in</th>
+        <th>Requested check out</th>
+        <th>Reason</th>
+        <th>Submitted</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for request in correction_requests %}
+      <tr>
+        <td>{{ request.attendance_record.attendance_date.strftime('%Y-%m-%d') }}</td>
+        <td>{{ request.status }}</td>
+        <td>{{ request.requested_check_in.strftime('%Y-%m-%d %H:%M') if request.requested_check_in else '—' }}</td>
+        <td>{{ request.requested_check_out.strftime('%Y-%m-%d %H:%M') if request.requested_check_out else '—' }}</td>
+        <td>{{ request.reason or '—' }}</td>
+        <td>{{ request.submitted_at.strftime('%Y-%m-%d') }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="muted">No correction requests submitted yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

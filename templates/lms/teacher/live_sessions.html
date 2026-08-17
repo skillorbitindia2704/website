@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Live sessions — Teacher{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('Live sessions', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 class="page-title">Live sessions</h1>
+<p class="muted">Schedule classes with Meet or Zoom links. Learners see these in the classroom.</p>
+<div class="teacher-dash-actions section-gap">
+  <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_courses') }}">Courses</a>
+  <a class="btn btn-ghost" href="{{ url_for('teacher.dashboard') }}">Dashboard</a>
+</div>
+<div class="card-premium reveal" style="padding:0;overflow-x:auto;">
+  <table class="table-modern">
+    <thead><tr><th>Course</th><th>Title</th><th>When</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for s in lives %}
+      <tr>
+        <td>{{ s.course.title if s.course else '—' }}</td>
+        <td><strong>{{ s.title }}</strong></td>
+        <td class="muted">{% if s.scheduled_at %}{{ s.scheduled_at.strftime('%d %b %Y %H:%M') }}{% else %}—{% endif %}</td>
+        <td><span class="level-pill">{{ s.status }}</span></td>
+        <td style="white-space:nowrap;">
+          <a class="btn btn-primary btn-sm" href="{{ url_for('teacher.teacher_live_session_edit', session_id=s.id) }}">Edit</a>
+          <form method="post" action="{{ url_for('teacher.teacher_live_session_delete', session_id=s.id) }}" style="display:inline;" onsubmit="return confirm('Delete this session?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn-sm" style="color:#b91c1c;">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="muted">No live sessions yet. Add one from a course.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<h2 class="section-gap" style="font-size:1.05rem;">Create on a course</h2>
+<ul class="muted">
+  {% for c in courses %}
+  <li><a href="{{ url_for('teacher.teacher_live_session_new', course_id=c.id) }}">{{ c.title }}</a></li>
+  {% else %}
+  <li>No courses available.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

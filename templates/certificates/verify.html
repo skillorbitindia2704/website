@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Verified: {{ cert.course.title }} | Skill Orbit India{% endblock %}
+{% block meta_description %}Official verification record for Skill Orbit India certificate {{ cert.certificate_uid[:8] }}…. View learner, course, and issue metadata.{% endblock %}
+{% block meta_keywords %}certificate verification, verified credential, {{ cert.course.title }}, Skill Orbit India{% endblock %}
+{% block body_class %}page-cert-verify{% endblock %}
+{% block extra_head %}
+<script>
+  tailwind = {
+    config: {
+      corePlugins: { preflight: false },
+      darkMode: ['selector', '[data-theme="dark"]'],
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ["Poppins", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+            sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+          },
+          colors: {
+            brand: { 500: "#4F46E5", 600: "#4338CA", 700: "#3730A3" },
+            violet: { 600: "#7C3AED" },
+            accent: { 500: "#F97316" },
+            cyan: { 500: "#06B6D4" },
+          },
+        },
+      },
+    },
+  };
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EducationalOccupationalCredential",
+  "identifier": {{ cert.certificate_uid|tojson }},
+  "name": {{ cert.course.title|tojson }},
+  "url": {{ request.url|tojson }},
+  "recognizedBy": {
+    "@type": "Organization",
+    "name": "Skill Orbit India"
+  },
+  "dateIssued": {{ cert.issued_at.strftime('%Y-%m-%d')|tojson }}
+}
+</script>
+{% endblock %}
+{% block breadcrumbs %}
+<div class="container py-3">
+  {% set crumbs = [('Home', url_for('main.home')), ('Verify', url_for('certificates.verify_lookup')), ('Verified credential', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="cert-page-root text-slate-800 dark:text-slate-100">
+  <section class="border-b border-slate-200 bg-gradient-to-r from-brand-600 to-violet-700 py-10 text-white dark:border-slate-800">
+    <div class="container flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-widest text-white/80">Public verification</p>
+        <h1 class="font-display mt-1 text-2xl font-bold">Credential verified</h1>
+        <p class="mt-2 max-w-xl text-sm text-white/90">This URL matches our issuance database. Share it with employers and institutions.</p>
+      </div>
+      <a href="{{ url_for('certificates.verify_lookup') }}" class="inline-flex items-center justify-center rounded-xl border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur hover:bg-white/20">Verify another ID</a>
+    </div>
+  </section>
+  <section class="container py-10">
+    {% include "certificates/_verify_success.html" %}
+  </section>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function () {
+  const btn = document.getElementById("cert-copy-link");
+  btn?.addEventListener("click", async function () {
+    const u = this.getAttribute("data-url");
+    const root = document.getElementById("toast-root");
+    if (!u || !navigator.clipboard) return;
+    try {
+      await navigator.clipboard.writeText(u);
+      if (root) {
+        const el = document.createElement("div");
+        el.className = "toast info";
+        el.textContent = "Verification link copied.";
+        root.appendChild(el);
+        setTimeout(() => el.remove(), 4000);
+      }
+    } catch { /* ignore */ }
+  });
+})();
+</script>
+{% endblock %}

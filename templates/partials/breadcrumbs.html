@@ -1,0 +1,16 @@
+{# expects: crumbs = [("Label", url_or_none), ...] #}
+{% if crumbs %}
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ol>
+    {% for label, href in crumbs %}
+    <li>
+      {% if href %}
+      <a href="{{ href }}">{{ label }}</a>
+      {% else %}
+      <span {% if loop.last %}aria-current="page"{% endif %}>{{ label }}</span>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+</nav>
+{% endif %}

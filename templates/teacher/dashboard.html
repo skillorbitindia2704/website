@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Teacher Dashboard — Skill Orbit India{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="dashboard-shell">
+  {% include "partials/dashboard_sidebar.html" %}
+  <div class="dash-main">
+    <section class="role-shell">
+      <h1 class="page-title">Teacher dashboard</h1>
+      <p class="muted">Create courses, upload materials, and manage learning.</p>
+
+      <div class="grid-cards section-gap">
+        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('teacher.create_course') }}">
+          <h3 class="card-title-sm">Create a course</h3>
+          <p class="muted">Upload video, materials, and quiz</p>
+        </a>
+        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('teacher.teacher_courses') }}">
+          <h3 class="card-title-sm">Course manager</h3>
+          <p class="muted">Publish, thumbnail, modules, prerequisites</p>
+        </a>
+        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('teacher.teacher_live_sessions') }}">
+          <h3 class="card-title-sm">Live sessions</h3>
+          <p class="muted">Schedule and meeting links</p>
+        </a>
+        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('teacher.teacher_recorded_sessions') }}">
+          <h3 class="card-title-sm">Recorded lectures</h3>
+          <p class="muted">Videos, resources, visibility</p>
+        </a>
+        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('teacher.teacher_notes') }}">
+          <h3 class="card-title-sm">Notes &amp; files</h3>
+          <p class="muted">PDFs and documents by module</p>
+        </a>
+        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('teacher.teacher_quizzes') }}">
+          <h3 class="card-title-sm">LMS quizzes</h3>
+          <p class="muted">MCQs, timer, pass threshold</p>
+        </a>
+        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('teacher.teacher_hr_dashboard') }}">
+          <h3 class="card-title-sm">My HR</h3>
+          <p class="muted">Attendance, payroll and leave summary</p>
+        </a>
+      </div>
+
+      {% if employee %}
+      <h2>HR Summary</h2>
+      <div class="grid-cards section-gap">
+        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('teacher.teacher_hr_dashboard') }}">
+          <h3 class="card-title-sm">My HR Dashboard</h3>
+          <p class="muted">Attendance, payroll and leave at a glance</p>
+        </a>
+        <div class="card-premium surface-card reveal">
+          <h3 class="card-title-sm">Attendance records</h3>
+          <p class="muted">{{ attendance_count or 0 }} records</p>
+        </div>
+        <div class="card-premium surface-card reveal">
+          <h3 class="card-title-sm">Payroll runs</h3>
+          <p class="muted">{{ payroll_count or 0 }} payroll cycles</p>
+        </div>
+        <div class="card-premium surface-card reveal">
+          <h3 class="card-title-sm">Leave requests</h3>
+          <p class="muted">{{ leave_count or 0 }} requests</p>
+        </div>
+      </div>
+      {% endif %}
+
+      <h2>Recent courses</h2>
+      <div class="card-premium reveal" style="padding:0;">
+        <table class="table-modern">
+          <thead><tr><th>Title</th><th>Level</th><th>Duration</th><th></th></tr></thead>
+          <tbody>
+            {% for c in courses %}
+            <tr>
+              <td>{{ c.title }}</td>
+              <td>{{ c.level }}</td>
+              <td>{{ c.duration }}</td>
+              <td style="white-space:nowrap;">
+                <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.teacher_edit_course', course_id=c.id) }}">Manage</a>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="3" class="muted">No courses yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+

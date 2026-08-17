@@ -1,0 +1,700 @@
+
+{% extends "base.html" %}
+{% block title %}{{ content.seo_meta_title if (content and content.seo_meta_title) else 'About Us — Skill Orbit India' }}{% endblock %}
+{% block meta_description %}{{ content.seo_meta_description if (content and content.seo_meta_description) else 'About Skill Orbit India: our mission, hands-on EdTech approach, courses, certificates, internships, and services for tech learners across India.' }}{% endblock %}
+{% block meta_keywords %}{{ content.seo_keywords if (content and content.seo_keywords) else 'about Skill Orbit India, EdTech mission, tech education India, courses, certificates' }}{% endblock %}
+
+{% block canonical_href %}
+  {%- if content and content.seo_canonical_url -%}
+    {{ content.seo_canonical_url }}
+  {%- else -%}
+    {{ super() }}
+  {%- endif -%}
+{% endblock %}
+
+{% block og_image %}
+  {%- if content and content.seo_og_image -%}
+    {{ url_for('static', filename=content.seo_og_image, _external=True) }}
+  {%- else -%}
+    {{ super() }}
+  {%- endif -%}
+{% endblock %}
+
+{% block extra_head %}
+<script>
+  // Tailwind Play CDN (preflight disabled so existing CSS remains safe)
+  tailwind = {
+    config: {
+      corePlugins: { preflight: false },
+      darkMode: ['selector', '[data-theme="dark"]'],
+      theme: {
+        extend: {
+          colors: {
+            brand: { 500: "#4F46E5", 600: "#4338CA", 700: "#3730A3" },
+            violet: { 600: "#7C3AED" },
+            accent: { 500: "#F97316", 600: "#EA580C" },
+            cyan: { 500: "#06B6D4" },
+            dark: { 900: "#0F172A", 950: "#111827" }
+          }
+        }
+      }
+    }
+  };
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+{% endblock %}
+
+{% block structured_data %}
+{% if content and content.seo_schema_markup %}
+{{ content.seo_schema_markup | safe }}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% if visibilities.hero != False %}
+<!-- PREMIUM HERO -->
+<section class="reveal" aria-labelledby="about-hero-title">
+  <div class="card-premium" style="padding:0;overflow:hidden;border-radius:var(--radius-lg);">
+    {% set theme = content.hero_gradient_theme or 'blue-purple' %}
+    {% if theme == 'indigo-cyan' %}
+      {% set grad = 'linear-gradient(135deg, #0a0f1d 0%, #0e1e38 35%, #4f46e5 75%, #10b981 100%)' %}
+    {% elif theme == 'dark-slate' %}
+      {% set grad = 'linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #334155 80%, #475569 100%)' %}
+    {% elif theme == 'orange-amber' %}
+      {% set grad = 'linear-gradient(135deg, #180805 0%, #2e1007 30%, #ea580c 70%, #d97706 100%)' %}
+    {% else %}
+      {% set grad = 'linear-gradient(135deg, #0B1225 0%, #111827 30%, #1D4ED8 60%, #7C3AED 100%)' %}
+    {% endif %}
+    <div class="relative" style="background:{{ grad }};">
+      <div class="absolute inset-0" style="background:
+        radial-gradient(60% 60% at 20% 20%, rgba(79,70,229,.35), transparent 60%),
+        radial-gradient(50% 50% at 80% 25%, rgba(6,182,212,.25), transparent 60%),
+        radial-gradient(60% 60% at 55% 85%, rgba(249,115,22,.20), transparent 60%);
+        pointer-events:none;"></div>
+      <div class="relative px-6 py-10 md:px-10 md:py-14 lg:px-14 lg:py-16">
+        <div class="grid gap-10 lg:grid-cols-12 items-center">
+          <div class="lg:col-span-7">
+            {% if content.hero_badge_text %}
+            <span class="level-pill" style="background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.18);">{{ content.hero_badge_text }}</span>
+            {% endif %}
+            <h1 id="about-hero-title" class="mt-4 text-white font-extrabold leading-tight"
+                style="font-family:var(--font-display);font-size:clamp(1.9rem,4vw,3.1rem);letter-spacing:-0.02em;">
+              {{ (content.hero_heading if content else 'About Skill Orbit India') }}
+            </h1>
+            <p class="mt-4 text-white/85 max-w-2xl" style="font-size:1.05rem;line-height:1.75;">
+              {{ (content.hero_subtitle if content else 'Empowering Future Tech Innovators through practical, hands-on learning.') }}
+            </p>
+            {% if content.hero_description %}
+            <p class="mt-3 text-white/70 max-w-2xl text-sm md:text-base" style="line-height:1.65;">
+              {{ content.hero_description }}
+            </p>
+            {% endif %}
+            <div class="mt-6 flex flex-wrap gap-3">
+              {% if content.hero_primary_btn_text %}
+              <a href="{{ content.hero_primary_btn_link or url_for('courses.list_courses') }}" class="btn btn-primary">{{ content.hero_primary_btn_text }}</a>
+              {% endif %}
+              {% if content.hero_secondary_btn_text %}
+              <a href="{{ content.hero_secondary_btn_link or url_for('ai_lab.index') }}" class="btn btn-accent">{{ content.hero_secondary_btn_text }}</a>
+              {% endif %}
+            </div>
+            
+            {% if content.hero_trust_line %}
+            <p class="mt-5 text-white/50 text-xs font-semibold tracking-wider uppercase">{{ content.hero_trust_line }}</p>
+            {% endif %}
+
+            <div class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {% set kpis = [] %}
+              {% if content.hero_stat1_num and content.hero_stat1_lbl %}
+                {% set _ = kpis.append((content.hero_stat1_num, content.hero_stat1_lbl)) %}
+              {% endif %}
+              {% if content.hero_stat2_num and content.hero_stat2_lbl %}
+                {% set _ = kpis.append((content.hero_stat2_num, content.hero_stat2_lbl)) %}
+              {% endif %}
+              {% if content.hero_stat3_num and content.hero_stat3_lbl %}
+                {% set _ = kpis.append((content.hero_stat3_num, content.hero_stat3_lbl)) %}
+              {% endif %}
+              {% if content.hero_stat4_num and content.hero_stat4_lbl %}
+                {% set _ = kpis.append((content.hero_stat4_num, content.hero_stat4_lbl)) %}
+              {% endif %}
+              {% if not kpis %}
+                {% set kpis = [('5000+','Students Trained'),('120+','Workshops'),('50+','School Partners'),('24×7','Support')] %}
+              {% endif %}
+              {% for n,lbl in kpis %}
+              <div class="glass-panel about-hero-kpi">
+                <p class="text-white font-extrabold" style="margin:0;font-family:var(--font-display);font-size:1.25rem;">{{ n }}</p>
+                <p class="text-white/70" style="margin:0;font-size:0.85rem;">{{ lbl }}</p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="lg:col-span-5">
+            <div class="card-premium glass-hero-card">
+              <div class="relative" style="aspect-ratio:4/3;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,rgba(79,70,229,.22),rgba(6,182,212,.18),rgba(249,115,22,.14));display:flex;align-items:center;justify-content:center;">
+                {% if content.hero_image %}
+                  <img src="{{ url_for('static', filename=content.hero_image) }}" alt="About Skill Orbit India" style="width:100%;height:100%;object-fit:cover;display:block;">
+                {% else %}
+                  <div style="text-align:center;max-width:24ch;">
+                    <div style="font-size:2.3rem;" aria-hidden="true"><i class="ri-robot-2-line"></i></div>
+                    <p class="text-white font-bold" style="margin:0.6rem 0 0;">AI & Robotics learning</p>
+                    <p class="text-white/70" style="margin:0.35rem 0 0;font-size:0.9rem;">Add real visuals via admin gallery.</p>
+                  </div>
+                {% endif %}
+              </div>
+              <div class="mt-4 grid grid-cols-2 gap-3">
+                <div class="glass-panel" style="padding:0.85rem;border-radius:16px;">
+                  <p class="text-white font-bold" style="margin:0;">Hands-on labs</p>
+                  <p class="text-white/70" style="margin:0.25rem 0 0;font-size:0.85rem;">Robotics, IoT, AI</p>
+                </div>
+                <div class="glass-panel" style="padding:0.85rem;border-radius:16px;">
+                  <p class="text-white font-bold" style="margin:0;">Mentor support</p>
+                  <p class="text-white/70" style="margin:0.25rem 0 0;font-size:0.85rem;">Project pathways</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if visibilities.who_we_are != False %}
+<!-- WHO WE ARE -->
+<div class="section-head reveal section-gap-lg">
+  <h2>{{ content.who_we_are_title if content else 'Who we are' }}</h2>
+  <p class="muted">Trust-building, AI + Robotics branded storytelling.</p>
+</div>
+<section class="grid-cards grid-cards--lg reveal">
+  <article class="card-premium surface-card-lg">
+    <h3 class="card-title-sm">A mission-driven EdTech startup</h3>
+    <p class="muted" style="margin-top:0.75rem;line-height:1.75;">{{ content.who_we_are_body if content else '' }}</p>
+    <p class="muted" style="line-height:1.75;">We combine curriculum, projects, kits, and verified certificates — designed for outcomes.</p>
+    
+    {% if content.who_we_are_feature1 or content.who_we_are_feature2 or content.who_we_are_feature3 %}
+    <ul style="margin:1.25rem 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:0.6rem;">
+      {% if content.who_we_are_feature1 %}
+      <li style="display:flex;align-items:center;gap:0.6rem;font-weight:500;" class="muted">
+        <span style="color:var(--primary-from);font-size:1.1rem;"><i class="ri-checkbox-circle-line" aria-hidden="true"></i></span> {{ content.who_we_are_feature1 }}
+      </li>
+      {% endif %}
+      {% if content.who_we_are_feature2 %}
+      <li style="display:flex;align-items:center;gap:0.6rem;font-weight:500;" class="muted">
+        <span style="color:var(--primary-from);font-size:1.1rem;"><i class="ri-checkbox-circle-line" aria-hidden="true"></i></span> {{ content.who_we_are_feature2 }}
+      </li>
+      {% endif %}
+      {% if content.who_we_are_feature3 %}
+      <li style="display:flex;align-items:center;gap:0.6rem;font-weight:500;" class="muted">
+        <span style="color:var(--primary-from);font-size:1.1rem;"><i class="ri-checkbox-circle-line" aria-hidden="true"></i></span> {{ content.who_we_are_feature3 }}
+      </li>
+      {% endif %}
+    </ul>
+    {% endif %}
+
+    <div class="form-actions-row" style="margin-top:auto;">
+      <a href="{{ content.who_we_are_btn_link or url_for('courses.list_courses') }}" class="btn btn-primary btn-sm">{{ content.who_we_are_btn_text or 'Explore Programs' }}</a>
+      <a href="{{ url_for('ai_lab.index') }}" class="btn btn-ghost btn-sm">Visit AI Lab</a>
+    </div>
+  </article>
+
+   {% if content.who_we_are_side_image %}
+   <article class="card-premium card-img-full">
+     <img src="{{ url_for('static', filename=content.who_we_are_side_image) }}" alt="Skill Orbit India Story" style="width:100%;height:100%;object-fit:cover;display:block;">
+   </article>
+   {% else %}
+   <article class="card-premium card-img-full">
+     <div class="about-gallery-grid">
+       {% set imgs = (gallery[:3] if gallery else []) %}
+       {% if imgs %}
+         {% for g in imgs %}
+         <a href="{{ url_for('static', filename=g.image_path) }}" class="about-gal-thumb" data-lightbox="1" data-title="{{ g.title|e }}">
+           <img src="{{ url_for('static', filename=g.image_path) }}" alt="{{ g.title }}" loading="lazy" decoding="async">
+         </a>
+         {% endfor %}
+       {% else %}
+         {% for _ in range(3) %}
+         <div style="border-radius:16px;aspect-ratio:1/1;border:1px solid var(--border);background:linear-gradient(135deg,rgba(79,70,229,.18),rgba(6,182,212,.12),rgba(249,115,22,.10));"></div>
+         {% endfor %}
+       {% endif %}
+     </div>
+    <div class="card-body">
+      <p class="muted" style="margin:0;">AI lab · Student workshop · Robotics projects</p>
+    </div>
+  </article>
+  {% endif %}
+</section>
+{% endif %}
+
+{% if visibilities.mission_vision != False %}
+<!-- MISSION & VISION -->
+<div class="section-head reveal section-gap-lg">
+  <h2>Mission & Vision</h2>
+  <p class="muted">Premium glassmorphism cards with strong story.</p>
+</div>
+<section class="grid-cards grid-cards--lg reveal">
+  <article class="card-premium glass-panel surface-card-lg">
+    <div style="font-size:2rem;" aria-hidden="true"><i class="ri-focus-3-line"></i></div>
+    <h3 class="card-title-sm">{{ content.mission_heading or 'Our Mission' }}</h3>
+    <p class="muted" style="line-height:1.65;">{{ content.mission_text if content else '' }}</p>
+  </article>
+  <article class="card-premium glass-panel surface-card-lg">
+    <div style="font-size:2rem;" aria-hidden="true"><i class="ri-rocket-line"></i></div>
+    <h3 class="card-title-sm">{{ content.vision_heading or 'Our Vision' }}</h3>
+    <p class="muted" style="line-height:1.65;">{{ content.vision_text if content else '' }}</p>
+  </article>
+</section>
+{% endif %}
+
+{% if visibilities.what_we_offer != False %}
+<!-- WHAT WE OFFER -->
+<div class="section-head reveal section-gap-lg">
+  <h2>What we offer</h2>
+</div>
+<section class="grid-cards reveal">
+  {% if what_we_offer_cards %}
+    {% for card in what_we_offer_cards %}
+    <article class="card-premium surface-card-lg d-flex flex-column min-h-200">
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <div class="about-feature-icon">{{ (card.icon|remix_icon) if card.icon else ('✨'|remix_icon) }}</div>
+        <h3 class="card-title-sm" style="margin:0;">{{ card.title }}</h3>
+      </div>
+      <p class="muted" style="margin-top:0.75rem;line-height:1.6;flex:1;">{{ card.description }}</p>
+      {% if card.link %}
+       <a href="{{ card.link }}" class="btn btn-ghost btn-sm btn-fit">Learn more</a>
+      {% endif %}
+    </article>
+    {% endfor %}
+  {% else %}
+    {% set offers = [
+      ('AI & Machine Learning','Practical ML foundations + applied AI.','ri-brain-line', url_for('courses.list_courses')),
+      ('Robotics Training','Arduino + sensors + robotics builds.','ri-robot-2-line', url_for('courses.list_courses')),
+      ('IoT & Embedded Systems','ESP32, IoT, automation, edge.','ri-global-line', url_for('courses.list_courses')),
+      ('Internship Programs','Mentor-led real work experience.','ri-briefcase-line', url_for('internships.listing')),
+      ('AI Lab Setup','NEP-aligned labs for institutions.','ri-building-2-line', url_for('ai_lab.index')),
+      ('Verified Certifications','Public verification workflow.','ri-checkbox-circle-line', url_for('certificates.verify_lookup'))
+    ] %}
+    {% for title,desc,icon,link in offers %}
+    <article class="card-premium surface-card-lg d-flex flex-column min-h-200">
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <div class="about-feature-icon">{{ icon|remix_icon }}</div>
+        <h3 class="card-title-sm" style="margin:0;">{{ title }}</h3>
+      </div>
+      <p class="muted mt-3 flex-1" style="line-height:1.6;">{{ desc }}</p>
+      <a href="{{ link }}" class="btn btn-ghost btn-sm btn-fit">Learn more</a>
+    </article>
+    {% endfor %}
+  {% endif %}
+</section>
+{% endif %}
+
+{% if visibilities.why_choose_us != False %}
+<!-- WHY CHOOSE US -->
+<div class="section-head reveal section-gap-lg">
+  <h2>Why choose us</h2>
+</div>
+<section class="grid-cards reveal">
+  {% if why_choose_us_cards %}
+    {% for card in why_choose_us_cards %}
+    <article class="card-premium surface-card">
+      <h3 class="card-title-sm">{{ card.title }}</h3>
+      <p class="muted" style="margin:0;line-height:1.6;">{{ card.description }}</p>
+    </article>
+    {% endfor %}
+  {% else %}
+    {% set reasons = [
+      ('Practical Learning','Hands-on projects, not just theory.'),
+      ('Industry Projects','Real problem-solving and demos.'),
+      ('Verified Credentials','Certificates with public verification.'),
+      ('Expert Mentorship','Guidance from experienced mentors.'),
+      ('Complete Ecosystem','Courses + kits + internships + labs.'),
+      ('Affordable Access','Premium quality at fair pricing.')
+    ] %}
+    {% for t,d in reasons %}
+    <article class="card-premium surface-card">
+      <h3 class="card-title-sm">{{ t }}</h3>
+      <p class="muted" style="margin:0;line-height:1.6;">{{ d }}</p>
+    </article>
+    {% endfor %}
+  {% endif %}
+</section>
+{% endif %}
+
+{% if visibilities.counters != False %}
+<!-- ACHIEVEMENT COUNTERS -->
+<div class="section-head reveal section-gap-lg">
+  <h2>Achievements</h2>
+  <p class="muted">Animated counters on scroll.</p>
+</div>
+<section class="grid-cards reveal" aria-label="Achievement counters">
+  {% if counters %}
+    {% for c in counters %}
+    <article class="card-premium surface-card">
+      <p class="muted" style="margin:0 0 0.35rem;">{{ c.icon|remix_icon }} {{ c.label }}</p>
+      <p class="num js-countup count-num" data-count="{{ c.value }}">{{ c.value }}{{ c.suffix }}</p>
+    </article>
+    {% endfor %}
+  {% else %}
+    {% set defs = [(5000,'Students','+'),(120,'Workshops','+'),(50,'Schools','+'),(100,'Projects','+'),(95,'Satisfaction','%'),(20,'Mentors','+')] %}
+    {% for v,l,s in defs %}
+    <article class="card-premium surface-card">
+      <p class="muted" style="margin:0 0 0.35rem;">{{ ('✨')|remix_icon }} {{ l }}</p>
+      <p class="num js-countup count-num" data-count="{{ v }}">{{ v }}{{ s }}</p>
+    </article>
+    {% endfor %}
+  {% endif %}
+</section>
+{% endif %}
+
+{% if visibilities.timeline != False %}
+<!-- JOURNEY TIMELINE -->
+<div class="section-head reveal section-gap-lg">
+  <h2>Our journey</h2>
+</div>
+  <section class="card-premium reveal" style="padding:1.25rem;overflow:hidden;">
+  <div class="about-timeline" style="display:flex;gap:1rem;overflow:auto;padding:0.5rem 0.25rem;scroll-snap-type:x mandatory;">
+    {% if timeline %}
+      {% for t in timeline %}
+      <button type="button" class="about-timeline-node" data-year="{{ t.year|e }}" data-title="{{ t.title|e }}" data-desc="{{ t.description|e }}" data-badge="{{ t.achievement_badge|e if t.achievement_badge else '' }}">
+        <p class="muted" style="margin:0;font-weight:800;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
+          <span>{{ t.year }}</span>
+          {% if t.achievement_badge %}
+          <span class="timeline-badge">{{ t.achievement_badge }}</span>
+          {% endif %}
+        </p>
+        <p style="margin:0.25rem 0 0;font-weight:800;">{{ t.title }}</p>
+      </button>
+      {% endfor %}
+    {% else %}
+      {% set steps = [('2022','The Beginning'),('2023','First Milestone'),('2024','Expansion'),('2025','Growth'),('2026','Innovation'),('2027','Future Vision')] %}
+      {% for y,tt in steps %}
+      <button type="button" class="about-timeline-node" data-year="{{ y }}" data-title="{{ tt }}" data-desc="" data-badge="">
+        <p class="muted" style="margin:0;font-weight:800;">{{ y }}</p>
+        <p style="margin:0.25rem 0 0;font-weight:800;">{{ tt }}</p>
+      </button>
+      {% endfor %}
+    {% endif %}
+  </div>
+  <div id="about-timeline-detail" class="timeline-detail-box">
+    <p style="margin:0;font-weight:800;">Hover or tap a milestone</p>
+    <p class="muted" style="margin:0.35rem 0 0;">We’ll show more details here.</p>
+  </div>
+</section>
+{% endif %}
+
+{% if visibilities.team != False %}
+<!-- TEAM -->
+<div class="section-head reveal section-gap-lg">
+  <h2>Our team</h2>
+</div>
+<section class="grid-cards reveal">
+  {% if team %}
+    {% for m in team %}
+    <article class="card-premium surface-card-lg d-flex flex-column">
+      <div style="display:flex;align-items:center;gap:0.9rem;">
+        <div class="team-avatar">
+          {% if m.image_path %}
+          <img src="{{ url_for('static', filename=m.image_path) }}" alt="{{ m.name }}" loading="lazy" decoding="async">
+          {% else %}
+          <i class="ri-user-3-line" aria-hidden="true" style="font-size:1.35rem;"></i>
+          {% endif %}
+        </div>
+        <div>
+          <p style="margin:0;font-weight:900;font-family:var(--font-display);">{{ m.name }}</p>
+          <p class="muted" style="margin:0.15rem 0 0;">{{ m.role }}</p>
+        </div>
+      </div>
+      {% if m.bio %}
+      <p class="muted" style="margin-top:0.9rem;line-height:1.6;flex:1;">{{ m.bio }}</p>
+      {% else %}
+      <div style="flex:1;"></div>
+      {% endif %}
+      <div class="form-actions-row" style="margin-top:1rem;">
+        {% if m.linkedin_url %}<a class="btn btn-ghost btn-sm" href="{{ m.linkedin_url }}" target="_blank" rel="noopener">LinkedIn</a>{% endif %}
+        {% if m.github_url %}<a class="btn btn-ghost btn-sm" href="{{ m.github_url }}" target="_blank" rel="noopener">GitHub</a>{% endif %}
+        {% if m.instagram_url %}<a class="btn btn-ghost btn-sm" href="{{ m.instagram_url }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
+        {% if m.email %}<a class="btn btn-ghost btn-sm" href="mailto:{{ m.email }}">Email</a>{% endif %}
+      </div>
+    </article>
+    {% endfor %}
+  {% else %}
+    {% set defs = [('Founder & CEO','Strategy, partnerships, and product vision.'),('AI Trainer','Applied ML and CV learning paths.'),('Robotics Expert','Arduino and robotics systems.'),('Embedded Systems Lead','ESP32, IoT, and edge systems.')] %}
+    {% for role,bio in defs %}
+    <article class="card-premium surface-card-lg">
+      <div style="display:flex;align-items:center;gap:0.9rem;">
+        <div style="width:64px;height:64px;border-radius:999px;overflow:hidden;border:1px solid var(--border);background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;">
+          <i class="ri-user-3-line" aria-hidden="true" style="font-size:1.35rem;"></i>
+        </div>
+        <div>
+          <p style="margin:0;font-weight:900;font-family:var(--font-display);">Team member</p>
+          <p class="muted" style="margin:0.15rem 0 0;">{{ role }}</p>
+        </div>
+      </div>
+      <p class="muted" style="margin-top:0.9rem;line-height:1.6;">{{ bio }}</p>
+    </article>
+    {% endfor %}
+  {% endif %}
+</section>
+{% endif %}
+
+{% if visibilities.gallery != False %}
+<!-- LAB GALLERY -->
+<div class="section-head reveal section-gap-lg">
+  <h2>Lab gallery</h2>
+  <p class="muted">Masonry feel + lightbox preview</p>
+</div>
+<section class="grid-cards reveal" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+  {% if gallery %}
+    {% for g in gallery %}
+    <article class="card-premium card-img-full">
+      <a href="{{ url_for('static', filename=g.image_path) }}" data-lightbox="1" data-title="{{ g.title|e }}" class="about-gal-thumb">
+        <div class="card-img-wrap" style="aspect-ratio:4/3;">
+          <img src="{{ url_for('static', filename=g.image_path) }}" alt="{{ g.title }}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+      </a>
+      <div class="card-body">
+        <h3 class="card-title-sm">{{ g.title }}</h3>
+        <p class="muted" style="margin:0;">{{ g.category }}</p>
+      </div>
+    </article>
+    {% endfor %}
+  {% else %}
+    {% for t in ['Students working','Robotics projects','AI lab','Electronics hardware','Classroom training'] %}
+    <article class="card-premium card-img-full">
+      <div class="card-img-wrap" style="aspect-ratio:4/3;">
+        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(79,70,229,.18),rgba(6,182,212,.12),rgba(249,115,22,.10));"><i class="ri-camera-line" aria-hidden="true"></i></div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title-sm">{{ t }}</h3>
+        <p class="muted" style="margin:0;">Add images from admin</p>
+      </div>
+    </article>
+    {% endfor %}
+  {% endif %}
+</section>
+{% endif %}
+
+{% if visibilities.partners != False %}
+<!-- PARTNERS -->
+<div class="section-head reveal section-gap-lg">
+  <h2>Partners</h2>
+</div>
+<section class="card-premium reveal" style="padding:1rem;overflow:hidden;">
+  <div class="about-partners-track" style="display:flex;gap:0.75rem;overflow:hidden;white-space:nowrap;">
+    {% set default_partners = ['Arduino','ESPRESSIF','NVIDIA','Raspberry Pi','Microsoft','AWS'] %}
+      {% if partners %}
+        {% for p in partners %}
+        <a href="{{ p.url or '#' }}" target="_blank" rel="noopener" class="partner-chip">
+          {% if p.logo_path %}
+          <img src="{{ url_for('static', filename=p.logo_path) }}" alt="{{ p.name }}" loading="lazy" decoding="async" style="width:22px;height:22px;object-fit:contain;">
+          {% endif %}
+          <span>{{ p.name }}</span>
+        </a>
+        {% endfor %}
+      {% else %}
+       {% for name in default_partners + default_partners %}
+       <span class="partner-chip">
+         {{ name }}
+       </span>
+       {% endfor %}
+     {% endif %}
+  </div>
+</section>
+{% endif %}
+
+{% if visibilities.testimonials != False %}
+<!-- TESTIMONIALS -->
+<div class="section-head reveal section-gap-lg">
+  <h2>Testimonials</h2>
+</div>
+<div class="carousel-section reveal">
+  <div class="carousel-nav">
+    <button type="button" data-carousel-prev aria-label="Previous testimonials"><i class="ri-arrow-left-s-line" aria-hidden="true"></i></button>
+    <button type="button" data-carousel-next aria-label="Next testimonials"><i class="ri-arrow-right-s-line" aria-hidden="true"></i></button>
+  </div>
+  <div class="carousel">
+    {% if testimonials %}
+      {% for t in testimonials %}
+      <div class="carousel-item">
+        <article class="testimonial-card">
+          <div class="meta-row">
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+              <div class="testimonial-avatar">
+                {% if t.image_path %}
+                <img src="{{ url_for('static', filename=t.image_path) }}" alt="{{ t.name }}" loading="lazy" decoding="async">
+                {% else %}
+                <i class="ri-user-3-line" aria-hidden="true"></i>
+                {% endif %}
+              </div>
+              <div>
+                <p style="margin:0;font-weight:800;color:var(--primary-from);">{{ t.name }}</p>
+                <p class="muted" style="margin:0;font-size:0.85rem;">{{ t.city }}{% if t.course_name %} · {{ t.course_name }}{% endif %}</p>
+              </div>
+            </div>
+            <div class="stars" aria-label="Rating {{ t.rating }}/5">{% for _ in range(t.rating|int) %}<i class="ri-star-s-fill" aria-hidden="true"></i>{% endfor %}</div>
+          </div>
+          <p style="margin-top:1rem;line-height:1.6;">“{{ t.feedback }}”</p>
+        </article>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="carousel-item">
+        <article class="testimonial-card">
+          <p style="line-height:1.6;">“Hands-on learning with real projects — best place to learn robotics and AI.”</p>
+          <p class="author">— Learner</p>
+        </article>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+{% if visibilities.recognition != False %}
+<!-- RECOGNITION -->
+<div class="section-head reveal section-gap-lg">
+  <h2>Recognition</h2>
+</div>
+<section class="grid-cards reveal">
+  {% if recognition %}
+    {% for r in recognition %}
+    <article class="card-premium surface-card recognition-card">
+      {% if r.image_path %}
+      <a href="{{ url_for('static', filename=r.image_path) }}" data-lightbox="1" data-title="{{ r.title|e }}" class="recognition-img-link">
+        <img src="{{ url_for('static', filename=r.image_path) }}" alt="{{ r.title }}" loading="lazy" decoding="async">
+      </a>
+      {% endif %}
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <div style="font-size:1.8rem;flex-shrink:0;" aria-hidden="true"><i class="ri-award-line"></i></div>
+        <div style="flex:1;">
+          <h3 class="card-title-sm" style="margin:0;">{{ r.title }}</h3>
+          {% if r.organization or r.year %}
+          <p class="muted" style="margin:0.15rem 0 0;font-size:0.85rem;font-weight:600;">
+            {{ r.organization }}{% if r.organization and r.year %} · {% endif %}{{ r.year }}
+          </p>
+          {% endif %}
+        </div>
+      </div>
+      <p class="muted" style="margin:0;line-height:1.55;">{{ r.subtitle }}</p>
+    </article>
+    {% endfor %}
+  {% else %}
+  {% set rec = [('ISO Certified','Quality-driven processes','ri-award-line'),('Startup India','Recognized startup initiative','ri-global-line'),('MSME Registered','Registered business entity','ri-file-paper-line'),('Google Reviews','Trust signals and ratings','ri-star-s-fill')] %}
+    {% for t,sub,ic in rec %}
+    <article class="card-premium surface-card">
+      <div style="font-size:1.8rem;">{{ ic|remix_icon }}</div>
+      <h3 class="card-title-sm">{{ t }}</h3>
+      <p class="muted" style="margin:0;">{{ sub }}</p>
+    </article>
+    {% endfor %}
+  {% endif %}
+</section>
+{% endif %}
+
+<!-- FINAL CTA -->
+<section class="cta-banner reveal" style="background:linear-gradient(135deg, rgba(249,115,22,0.96), rgba(234,88,12,0.93));">
+  <h3>Ready to Start Your Learning Journey?</h3>
+  <p>Join thousands of learners mastering AI, robotics, IoT and embedded systems.</p>
+  <div class="hero-cta" style="justify-content:center;">
+    <a href="{{ url_for('auth.signup') }}" class="btn btn-primary">Sign Up Now</a>
+    <a href="{{ url_for('courses.list_courses') }}" class="btn btn-ghost">Browse Courses</a>
+  </div>
+</section>
+
+<!-- LIGHTBOX -->
+<div id="about-lightbox" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal-panel" style="width:min(980px,100%);padding:1.25rem;">
+    <button type="button" class="modal-close" id="about-lightbox-close" aria-label="Close"><i class="ri-close-line" aria-hidden="true"></i></button>
+    <h3 id="about-lightbox-title" style="margin-top:0;">Preview</h3>
+    <div style="border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border);">
+      <img id="about-lightbox-img" src="" alt="" style="width:100%;height:auto;display:block;">
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var countEls = document.querySelectorAll(".js-countup[data-count]");
+  if (countEls.length && "IntersectionObserver" in window) {
+    var started = new Set();
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var el = e.target;
+        if (started.has(el)) return;
+        started.add(el);
+        var target = Number(el.getAttribute("data-count") || "0") || 0;
+        var suffix = (el.textContent || "").replace(/[0-9]/g, "");
+        var start = null;
+        function tick(ts) {
+          if (!start) start = ts;
+          var p = Math.min(1, (ts - start) / 900);
+          var val = Math.round(target * p);
+          el.textContent = String(val) + suffix;
+          if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+        io.unobserve(el);
+      });
+    }, { threshold: 0.35 });
+    countEls.forEach(function (el) { io.observe(el); });
+  }
+
+  var detail = document.getElementById("about-timeline-detail");
+  document.querySelectorAll(".about-timeline-node").forEach(function (btn) {
+    function render() {
+      var y = btn.getAttribute("data-year") || "";
+      var t = btn.getAttribute("data-title") || "";
+      var d = btn.getAttribute("data-desc") || "";
+      var b = btn.getAttribute("data-badge") || "";
+      if (detail) {
+        var badgeHtml = b ? " <span style='font-size:0.75rem;padding:0.15rem 0.4rem;border-radius:6px;background:rgba(79,70,229,0.14);color:#4f46e5;font-weight:600;margin-left:0.5rem;'>" + b + "</span>" : "";
+        detail.innerHTML = "<p style='margin:0;font-weight:900;display:flex;align-items:center;'>" + y + " — " + t + badgeHtml + "</p>" +
+          "<p class='muted' style='margin:0.35rem 0 0;white-space:pre-wrap;'>" + (d || "Tap other milestones to explore.") + "</p>";
+      }
+    }
+    btn.addEventListener("mouseenter", render);
+    btn.addEventListener("click", render);
+  });
+
+  var lb = document.getElementById("about-lightbox");
+  var lbImg = document.getElementById("about-lightbox-img");
+  var lbTitle = document.getElementById("about-lightbox-title");
+  var lbClose = document.getElementById("about-lightbox-close");
+  function openLb(src, title) {
+    if (!lb || !lbImg) return;
+    lbImg.src = src || "";
+    lbImg.alt = title || "Preview";
+    if (lbTitle) lbTitle.textContent = title || "Preview";
+    lb.classList.add("open");
+  }
+  function closeLb() {
+    lb.classList.remove("open");
+    if (lbImg) lbImg.src = "";
+  }
+  if (lbClose) lbClose.addEventListener("click", closeLb);
+  if (lb) lb.addEventListener("click", function (e) { if (e.target === lb) closeLb(); });
+  document.querySelectorAll("[data-lightbox='1']").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      openLb(a.getAttribute("href"), a.getAttribute("data-title"));
+    });
+  });
+
+  var track = document.querySelector(".about-partners-track");
+  if (track) {
+    track.style.animation = "about-marquee 20s linear infinite";
+    track.addEventListener("mouseenter", function () { track.style.animationPlayState = "paused"; });
+    track.addEventListener("mouseleave", function () { track.style.animationPlayState = "running"; });
+  }
+})();
+</script>
+<style>
+@keyframes about-marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.about-gal-thumb img { transition: transform 0.25s ease; }
+.about-gal-thumb:hover img { transform: scale(1.06); }
+.about-partners-track a:hover, .about-partners-track span:hover { filter: grayscale(0) !important; opacity: 1 !important; }
+</style>
+{% endblock %}

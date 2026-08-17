@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% block title %}AI Lab Packages — Admin{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('AI Lab Packages', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 style="font-size:1.5rem;">AI Lab Packages Manager</h1>
+<p class="muted">Create and manage custom AI Lab packages dynamically.</p>
+
+<button type="button" class="btn btn-primary" id="create-pkg-btn" style="margin-top:1rem;margin-bottom:1.5rem;">+ Create Package</button>
+
+{% if packages %}
+<div class="card-premium reveal" style="padding:0;margin-top:1rem;overflow-x:auto;">
+  <table class="table-modern">
+    <thead>
+      <tr>
+        <th>Order</th>
+        <th>Title</th>
+        <th>Pricing</th>
+        <th>Features</th>
+        <th>Active</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in packages %}
+      <tr>
+        <td style="font-weight:600;font-size:1.2rem;">{{ p.display_order }}</td>
+        <td><strong>{{ p.title }}</strong><br><span class="muted" style="font-size:0.85rem;">{{ p.subtitle }}</span></td>
+        <td><span class="level-pill">{{ p.pricing_text }}</span></td>
+        <td style="font-size:0.85rem;">{{ p.get_features_list()|length }} items</td>
+        <td>
+          <form method="post" action="{{ url_for('admin.toggle_ai_lab_package', pkg_id=p.id) }}" style="margin:0;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn-toggle" title="Toggle status" style="background:{% if p.is_active %}#28a745{% else %}#6c757d{% endif %};color:white;border:none;padding:0.35rem 0.6rem;border-radius:0.25rem;cursor:pointer;font-size:0.85rem;">
+              {% if p.is_active %}✓ Active{% else %}✗ Inactive{% endif %}
+            </button>
+          </form>
+        </td>
+        <td style="white-space:nowrap;">
+          <button
+            type="button"
+            class="btn-small btn-edit"
+            data-pkg-id="{{ p.id }}"
+            data-title="{{ p.title|e }}"
+            data-subtitle="{{ p.subtitle|e }}"
+            data-icon="{{ p.icon|e }}"
+            data-pricing-text="{{ p.pricing_text|e }}"
+            data-description="{{ p.description|e }}"
+            data-features="{{ p.features|e }}"
+            data-button-text="{{ p.button_text|e }}"
+            data-display-order="{{ p.display_order }}"
+            style="margin-right:0.5rem;"
+          >Edit</button>
+          <button type="button" class="btn-small btn-delete" data-pkg-id="{{ p.id }}" onclick="if(confirm('Delete package?')) document.getElementById('delete-form-{{ p.id }}').submit();">Delete</button>
+          <form id="delete-form-{{ p.id }}" method="post" action="{{ url_for('admin.delete_ai_lab_package', pkg_id=p.id) }}" style="display:none;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="muted" style="margin-top:1rem;">No packages yet. Create one to get started!</p>
+{% endif %}
+
+<!-- Create/Edit Modal -->
+<div id="package-modal" class="modal-backdrop" role="dialog" aria-modal="true" style="display:none;">
+  <div class="modal-panel" style="max-width:600px;">
+    <button type="button" class="modal-close" id="package-modal-close" aria-label="Close"><i class="ri-close-line" aria-hidden="true"></i></button>
+    <h3 id="modal-title" style="margin-top:0;">Create Package</h3>
+    <form id="package-form" method="post" action="{{ url_for('admin.create_ai_lab_package') }}" class="form-modern">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" id="pkg-id" name="pkg_id" value="">
+
+      <label for="pkg-title">Title *</label>
+      <input type="text" name="title" id="pkg-title" required>
+
+      <label for="pkg-subtitle">Subtitle *</label>
+      <input type="text" name="subtitle" id="pkg-subtitle" required>
+
+      <label for="pkg-icon">Icon (emoji)</label>
+      <input type="text" name="icon" id="pkg-icon" value="ri-tools-line" maxlength="32" style="width:100px;">
+
+      <label for="pkg-pricing">Pricing Text *</label>
+      <input type="text" name="pricing_text" id="pkg-pricing" placeholder="e.g., From ₹1.8 L" required>
+
+      <label for="pkg-description">Description *</label>
+      <textarea name="description" id="pkg-description" rows="3" required></textarea>
+
+      <label for="pkg-features">Features (one per line) *</label>
+      <textarea name="features" id="pkg-features" rows="5" placeholder="10–15 learner workstations&#10;Arduino & sensor starter bundles&#10;Printed lab curriculum outline" required></textarea>
+
+      <label for="pkg-button">Button Text</label>
+      <input type="text" name="button_text" id="pkg-button" value="Get started">
+
+      <label for="pkg-order">Display Order</label>
+      <input type="number" name="display_order" id="pkg-order" value="0" min="0">
+
+      <button type="submit" class="btn btn-primary">Save Package</button>
+    </form>
+  </div>
+</div>
+
+<style>
+.btn-small {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  background: #007bff;
+  color: white;
+}
+.btn-small:hover {
+  opacity: 0.85;
+}
+.btn-edit {
+  background: #007bff;
+}
+.btn-delete {
+  background: #dc3545;
+}
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-backdrop.open {
+  display: flex;
+}
+.modal-panel {
+  background: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #999;
+}
+.modal-close:hover {
+  color: #333;
+}
+.form-modern label {
+  display: block;
+  margin-top: 1rem;
+  margin-bottom: 0.35rem;
+  font-weight: 500;
+}
+.form-modern input,
+.form-modern textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+.form-modern textarea {
+  resize: vertical;
+}
+</style>
+
+<script>
+(function () {
+  var modal = document.getElementById("package-modal");
+  var form = document.getElementById("package-form");
+  var modalTitle = document.getElementById("modal-title");
+  var createBtn = document.getElementById("create-pkg-btn");
+  var closeBtn = document.getElementById("package-modal-close");
+  var pkgIdField = document.getElementById("pkg-id");
+
+  function openCreateModal() {
+    form.action = "{{ url_for('admin.create_ai_lab_package') }}";
+    form.method = "post";
+    modalTitle.textContent = "Create Package";
+    form.reset();
+    pkgIdField.value = "";
+    modal.style.display = "flex";
+    modal.classList.add("open");
+  }
+
+  function openEditModal(pkgId, data) {
+    // url_for() is evaluated server-side, so we must not pass placeholder strings
+    // into an <int:pkg_id> route converter. Generate a safe template with 0 then
+    // replace the exact "/0/edit" segment in JS.
+    var editUrlTemplate = "{{ url_for('admin.edit_ai_lab_package', pkg_id=0) }}";
+    form.action = editUrlTemplate.replace("/0/edit", "/" + pkgId + "/edit");
+    form.method = "post";
+    modalTitle.textContent = "Edit Package";
+    pkgIdField.value = pkgId;
+    document.getElementById("pkg-title").value = data.title;
+    document.getElementById("pkg-subtitle").value = data.subtitle;
+    document.getElementById("pkg-icon").value = data.icon;
+    document.getElementById("pkg-pricing").value = data.pricing_text;
+    document.getElementById("pkg-description").value = data.description;
+    document.getElementById("pkg-features").value = data.features;
+    document.getElementById("pkg-button").value = data.button_text;
+    document.getElementById("pkg-order").value = data.display_order;
+    modal.style.display = "flex";
+    modal.classList.add("open");
+  }
+
+  function closeModal() {
+    modal.classList.remove("open");
+    setTimeout(function() { modal.style.display = "none"; }, 150);
+  }
+
+  createBtn.addEventListener("click", openCreateModal);
+  closeBtn.addEventListener("click", closeModal);
+  
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
+  });
+
+  document.querySelectorAll(".btn-edit").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var pkgId = btn.getAttribute("data-pkg-id");
+      var data = {
+        title: btn.getAttribute("data-title") || "",
+        subtitle: btn.getAttribute("data-subtitle") || "",
+        icon: btn.getAttribute("data-icon") || "🔧",
+        pricing_text: btn.getAttribute("data-pricing-text") || "",
+        description: btn.getAttribute("data-description") || "",
+        features: btn.getAttribute("data-features") || "",
+        button_text: btn.getAttribute("data-button-text") || "Get started",
+        display_order: btn.getAttribute("data-display-order") || "0"
+      };
+      openEditModal(pkgId, data);
+    });
+  });
+})();
+</script>
+{% endblock %}

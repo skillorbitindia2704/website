@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}{{ course.title }} — Classroom{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Courses', url_for('courses.list_courses')), (course.title[:24] ~ '…' if course.title|length > 24 else course.title, None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="reveal">
+  <div class="card-meta">
+    <span class="level-pill">{{ course.level }}</span>
+    <span>{{ course.duration }}</span>
+    <span class="muted">{{ course.instructor_name }}</span>
+  </div>
+  <h1 class="page-title">{{ course.title }}</h1>
+  <p class="muted">{{ course.description }}</p>
+</div>
+
+<!-- PRIMARY VIDEO -->
+<div class="video-shell reveal section-gap">
+  {% if course.video_url and course.video_url.startswith('/') %}
+    <!-- Uploaded video file -->
+    <video controls style="width:100%;max-height:500px;">
+      <source src="{{ course.video_url }}" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  {% else %}
+    <!-- Fallback for legacy embedded URLs -->
+    <iframe src="{{ course.video_url }}" title="Course video" allowfullscreen loading="lazy"></iframe>
+  {% endif %}
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="card-premium reveal surface-card">
+  <h3>Lesson content</h3>
+  <div class="prewrap-content">{{ course.content }}</div>
+  <p class="muted">Progress: {{ enrollment.progress_pct }}%</p>
+  <div class="progress-track" style="max-width:360px;">
+    <div class="progress-fill" style="width: {{ enrollment.progress_pct }}%;"></div>
+  </div>
+  <form method="post" class="form-modern section-gap">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="progress">
+    <button type="submit" class="btn btn-primary btn-sm">Mark lesson complete (+20%)</button>
+  </form>
+</div>
+
+<!-- LIVE CLASS -->
+{% if course.live_class.url %}
+<div class="card-premium reveal surface-card section-gap" style="background:var(--accent-light);">
+  <h3>✨ Live Class</h3>
+  {% if course.live_class.datetime %}
+  <p class="muted">Scheduled: {{ course.live_class.datetime }}</p>
+  {% endif %}
+  <a href="{{ course.live_class.url }}" target="_blank" class="btn btn-primary btn-sm">Join live class <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+</div>
+{% endif %}
+
+<!-- RECORDED SESSIONS (PAID CONTENT) -->
+{% if course.videos and enrollment.is_paid %}
+<div class="card-premium reveal surface-card section-gap">
+  <h3><i class="ri-play-circle-line" aria-hidden="true"></i> Recorded Sessions</h3>
+  {% for video in course.videos %}
+  <div class="chip-soft">
+    <p><strong>{{ video.title or 'Session ' ~ loop.index }}</strong></p>
+    <div class="video-shell">
+      {% if video.url.startswith('/') %}
+        <!-- Uploaded video -->
+        <video controls style="width:100%;">
+          <source src="{{ video.url }}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      {% else %}
+        <!-- Fallback for legacy URLs -->
+        <iframe src="{{ video.url }}" title="Session {{ loop.index }}" allowfullscreen loading="lazy"></iframe>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% elif course.videos and not enrollment.is_paid %}
+<div class="card-premium reveal surface-card section-gap" style="background:var(--bg-warning);">
+  <h3><i class="ri-play-circle-line" aria-hidden="true"></i> Recorded Sessions</h3>
+  <p class="muted">This course includes {{ course.videos|length }} recorded sessions. Purchase to access them.</p>
+  <form method="post" class="form-modern">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="enroll">
+    <button type="submit" class="btn btn-accent btn-sm">Purchase course (₹{{ course.price_inr }})</button>
+  </form>
+</div>
+{% endif %}
+
+<!-- STUDY NOTES (PAID CONTENT) -->
+{% if course.notes and enrollment.is_paid %}
+<div class="card-premium reveal surface-card section-gap">
+  <h3><i class="ri-file-text-line" aria-hidden="true"></i> Study Notes</h3>
+  {% for note in course.notes %}
+  <div class="chip-soft">
+    <h4>{{ note.title }}</h4>
+    <div class="prewrap-content">{{ note.content }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% elif course.notes and not enrollment.is_paid %}
+<div class="card-premium reveal surface-card section-gap" style="background:var(--bg-warning);">
+  <h3><i class="ri-file-text-line" aria-hidden="true"></i> Study Notes</h3>
+  <p class="muted">This course includes {{ course.notes|length }} study notes. Purchase to access them.</p>
+</div>
+{% endif %}
+
+<!-- QUIZ SECTION -->
+<div class="card-premium reveal surface-card section-gap">
+  <h3>❓ Assessment</h3>
+  
+  {% if course.quiz and course.quiz|length > 0 and enrollment.is_paid %}
+    <!-- Multiple quizzes -->
+    <div id="quiz-container">
+      {% for q in course.quiz %}
+      <div class="chip-soft">
+        <p><strong>Question {{ loop.index }}: {{ q.question }}</strong></p>
+        <form method="post" class="form-modern">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="action" value="quiz_new">
+          <input type="hidden" name="quiz_index" value="{{ loop.index0 }}">
+          <input type="hidden" name="correct_answer" value="{{ q.correctAnswer }}">
+          {% for option in q.options %}
+          <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+            <input type="radio" name="answer_{{ loop.index0 }}" value="{{ option }}" required>
+            <span>{{ option }}</span>
+          </label>
+          {% endfor %}
+          <button type="submit" class="btn btn-accent btn-sm">Check answer</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+  {% elif course.quiz_question and enrollment.is_paid %}
+    <!-- Fallback: Legacy quiz -->
+    <p>{{ course.quiz_question }}</p>
+    <form method="post" class="form-modern">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="quiz">
+      <input type="text" name="quiz_answer" required placeholder="Your answer" style="max-width:320px;">
+      <button type="submit" class="btn btn-accent btn-sm">Submit quiz</button>
+    </form>
+  {% elif not enrollment.is_paid and (course.quiz|length > 0 or course.quiz_question) %}
+    <p class="muted">Quizzes available after purchase. {{ 'This course has ' ~ course.quiz|length ~ ' quiz questions.' if course.quiz|length > 0 }}</p>
+    <form method="post" class="form-modern">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="enroll">
+      <button type="submit" class="btn btn-accent btn-sm">Purchase course (₹{{ course.price_inr }})</button>
+    </form>
+  {% else %}
+    <p class="muted">No assessment available yet.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

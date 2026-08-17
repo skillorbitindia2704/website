@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Bad Request - Skill Orbit India{% endblock %}
+{% block content %}
+<div class="error-container py-5 my-5 text-center">
+  <div class="error-code display-1 text-warning fw-bold mb-3" style="font-size: 6rem; background: linear-gradient(135deg, #f59e0b, #d97706); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">400</div>
+  <h1 class="error-title h2 mb-3 fw-bold">Bad Request</h1>
+  <p class="error-message text-muted mb-4 max-w-md mx-auto" style="max-width: 480px;">The server could not understand the request due to invalid syntax or corrupted data. Please try again or check your inputs.</p>
+  <a href="{{ url_for('main.home') }}" class="btn btn-primary px-4 py-2" style="border-radius: 8px;">Go to Homepage</a>
+</div>
+{% endblock %}

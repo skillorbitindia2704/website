@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Orders Management — Skill Orbit India{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('Orders', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 style="font-size:1.5rem;">Orders management</h1>
+<p class="muted">Review and update every order from one place.</p>
+
+{% if orders %}
+<div class="card-premium reveal" style="padding:0;margin-top:1rem;overflow:auto;">
+  <table class="table-modern">
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>User Name</th>
+        <th>Products Ordered</th>
+        <th>Total Price</th>
+        <th>Payment Status</th>
+        <th>Order Status</th>
+        <th>Order Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for o in orders %}
+      <tr id="order-row-{{ o.id }}">
+        <td>#{{ o.id }}</td>
+        <td>{{ o.user.full_name if o.user else "Unknown" }}</td>
+        <td>
+          {% for item in o.items %}
+          {{ item.product.name if item.product else "Deleted product" }} × {{ item.quantity }}{% if not loop.last %}, {% endif %}
+          {% endfor %}
+        </td>
+        <td>₹{{ o.total_inr }}</td>
+        <td><span class="level-pill" style="font-size:0.65rem;">{{ o.payment_status }}</span></td>
+        <td><span class="level-pill" style="font-size:0.65rem;" data-order-status-id="{{ o.id }}">{{ o.status or 'Pending' }}</span></td>
+        <td>{{ o.created_at.strftime('%d %b %Y, %I:%M %p') if o.created_at else '-' }}</td>
+        <td>
+          <div style="display:flex;gap:0.35rem;flex-wrap:wrap;">
+            {% for status in order_statuses if status != (o.status or 'Pending') %}
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm order-status-btn"
+              data-order-id="{{ o.id }}"
+              data-status="{{ status }}"
+            >
+              {{ status }}
+            </button>
+            {% endfor %}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="muted" style="margin-top:1rem;">No orders yet.</p>
+{% endif %}
+
+<script>
+(function () {
+  const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+  function setButtonsDisabled(orderId, disabled) {
+    document.querySelectorAll(`.order-status-btn[data-order-id="${orderId}"]`).forEach((btn) => {
+      btn.disabled = disabled;
+    });
+  }
+  document.querySelectorAll('.order-status-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const orderId = btn.getAttribute('data-order-id');
+      const status = btn.getAttribute('data-status');
+      setButtonsDisabled(orderId, true);
+      try {
+        const res = await fetch(`/api/admin/orders/${orderId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': token
+          },
+          body: JSON.stringify({ status })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Request failed');
+        const statusEl = document.querySelector(`[data-order-status-id="${orderId}"]`);
+        if (statusEl) statusEl.textContent = data.status;
+        window.location.reload();
+      } catch (e) {
+        alert('Could not update order status.');
+      } finally {
+        setButtonsDisabled(orderId, false);
+      }
+    });
+  });
+})();
+</script>
+{% endblock %}

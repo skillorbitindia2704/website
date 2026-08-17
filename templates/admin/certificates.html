@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Issue Certificates — Admin{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('Certificates', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 style="font-size:1.5rem;">Generate certificates</h1>
+<p class="muted">Manually issue a PDF certificate for any learner and course. They’ll receive a notification.</p>
+{% if users_list and courses_list %}
+<div class="card-premium form-modern reveal" style="padding:1.25rem;margin:1.25rem 0;max-width:480px;">
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="user_id">Learner</label>
+    <select name="user_id" id="user_id" required>
+      {% for u in users_list %}
+      <option value="{{ u.id }}">{{ u.full_name }} ({{ u.email }})</option>
+      {% endfor %}
+    </select>
+    <label for="course_id">Course</label>
+    <select name="course_id" id="course_id" required>
+      {% for c in courses_list %}
+      <option value="{{ c.id }}">{{ c.title }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary">Issue certificate</button>
+  </form>
+</div>
+{% else %}
+<p class="muted"	style="margin-top:1rem;">Add at least one user (sign up) and one course before issuing certificates.</p>
+{% endif %}
+<h2 style="font-size:1.1rem;">Recently issued</h2>
+<div class="card-premium reveal" style="padding:0;overflow:hidden;">
+  <table class="table-modern">
+    <thead>
+      <tr><th>Issued</th><th>Learner</th><th>Course</th><th>Certificate ID</th></tr>
+    </thead>
+    <tbody>
+      {% for c in recent_certificates %}
+      <tr>
+        <td>{{ c.issued_at.strftime('%d %b %Y') }}</td>
+        <td>{{ c.user.full_name }}</td>
+        <td>{{ c.course.title }}</td>
+        <td style="font-size:0.78rem;word-break:break-all;">{{ c.certificate_uid }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">No certificates yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

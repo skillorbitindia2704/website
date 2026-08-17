@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}{{ course.title }} — Learning hub{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Student', url_for('student.dashboard')), (course.title[:28], None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="lms-shell reveal">
+  <aside class="lms-sidebar">
+    <div class="lms-sidebar-head">
+      <p class="lms-course-label">Learning hub</p>
+      <h1 class="lms-course-title">{{ course.title }}</h1>
+      <p class="lms-instructor muted">{{ course.instructor_name }} · {{ course.level }}</p>
+      <div class="lms-progress-track progress-track" style="max-width:100%;margin-top:0.5rem;">
+        <div class="progress-fill" style="width: {{ enrollment.progress_pct }}%;"></div>
+      </div>
+      <p class="muted" style="font-size:0.8rem;">Progress {{ enrollment.progress_pct }}%</p>
+    </div>
+    <nav class="lms-nav">
+      <a class="lms-nav-link" href="{{ url_for('courses.learn', course_id=course.id) }}">Full classroom</a>
+      <a class="lms-nav-link" href="{{ url_for('student.student_live_sessions') }}">All live</a>
+      <a class="lms-nav-link" href="{{ url_for('student.student_recorded_sessions') }}">All recordings</a>
+      <a class="lms-nav-link" href="{{ url_for('student.student_notes') }}">All notes</a>
+    </nav>
+  </aside>
+  <div class="lms-main">
+    <section class="lms-panel">
+      <h2 class="lms-panel-title">This course</h2>
+      <div class="grid-cards">
+        <a class="card-premium card-link-wrap surface-card" href="{{ url_for('courses.learn', course_id=course.id) }}">
+          <h3 class="card-title-sm">Open classroom</h3>
+          <p class="muted">Video, live, quizzes, and legacy content</p>
+        </a>
+      </div>
+      <h3 style="font-size:1rem;margin-top:1.5rem;">Modules</h3>
+      {% if modules %}
+      <ul class="teacher-module-list">
+        {% for m in modules %}<li>{{ m.title }}</li>{% endfor %}
+      </ul>
+      {% else %}
+      <p class="muted">No modules yet — content may still use the legacy structure.</p>
+      {% endif %}
+      <h3 style="font-size:1rem;margin-top:1.5rem;">Upcoming live</h3>
+      <div class="lms-lesson-list">
+        {% set upcoming = lives | selectattr('status', 'equalto', 'upcoming') | list %}
+        {% for s in upcoming %}
+        <article class="card-premium lms-lesson-card">
+          <div>
+            <h4 style="margin:0;">{{ s.title }}</h4>
+            {% if s.scheduled_at %}<p class="muted" style="font-size:0.85rem;">{{ s.scheduled_at.strftime('%d %b %Y %H:%M') }}</p>{% endif %}
+            {% if s.meet_url %}
+            <form method="post" action="{{ url_for('student.student_live_attend', session_id=s.id) }}" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-primary btn-sm">Join &amp; mark attended</button>
+            </form>
+            {% endif %}
+          </div>
+        </article>
+        {% else %}
+        <p class="muted">No upcoming sessions.</p>
+        {% endfor %}
+      </div>
+      <h3 style="font-size:1rem;margin-top:1.5rem;">Recorded</h3>
+      <div class="lms-lesson-list">
+        {% for lec in recordings %}
+        <article class="card-premium lms-content-card">
+          <h4 style="margin:0;">{{ lec.title }}</h4>
+          {% set p = prog_by_lec.get(lec.id) %}
+          <p class="muted" style="font-size:0.85rem;">{% if p and p.completed %}Completed{% elif p %}Watched ~{{ p.progress_pct }}%{% else %}Not started{% endif %}</p>
+          {% if lec.video_path.startswith('/') %}
+          <video controls playsinline style="width:100%;max-height:240px;border-radius:var(--radius-md);margin-top:0.5rem;">
+            <source src="{{ lec.video_path }}" type="video/mp4">
+          </video>
+          {% else %}
+          <iframe src="{{ lec.video_path }}" title="{{ lec.title }}" style="width:100%;min-height:200px;border:0;border-radius:var(--radius-md);"></iframe>
+          {% endif %}
+          <form method="post" action="{{ url_for('student.student_lecture_progress', rec_id=lec.id) }}" class="form-modern" style="margin-top:0.5rem;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="next" value="{{ url_for('student.student_course_hub', course_id=course.id) }}">
+            <input type="hidden" name="progress_pct" value="100">
+            <label class="int-check" style="display:flex;align-items:center;gap:0.35rem;">
+              <input type="checkbox" name="completed" checked> Mark completed
+            </label>
+            <button type="submit" class="btn btn-ghost btn-sm">Save progress</button>
+          </form>
+        </article>
+        {% else %}
+        <p class="muted">No structured recordings — check classroom for legacy videos.</p>
+        {% endfor %}
+      </div>
+      <h3 style="font-size:1rem;margin-top:1.5rem;">Notes</h3>
+      <div class="lms-lesson-list">
+        {% for n in notes %}
+        <article class="card-premium lms-content-card">
+          <div class="lms-resource-head">
+            <h4 style="margin:0;">{{ n.title }}</h4>
+            {% if n.file_path %}<a href="{{ n.file_path }}" class="btn btn-primary btn-sm" download target="_blank" rel="noopener">Download</a>{% endif %}
+          </div>
+          {% if n.description %}<p class="muted">{{ n.description }}</p>{% endif %}
+        </article>
+        {% else %}
+        <p class="muted">No file notes — legacy text notes may appear in the classroom.</p>
+        {% endfor %}
+      </div>
+      <h3 style="font-size:1rem;margin-top:1.5rem;">Quizzes</h3>
+      <ul class="muted">
+        {% for q in quizzes %}
+        <li><a href="{{ url_for('student.student_quiz_take', quiz_id=q.id) }}">{{ q.title }}</a></li>
+        {% else %}
+        <li>No LMS quizzes — use classroom tab for legacy quizzes.</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+</div>
+{% endblock %}

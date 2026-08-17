@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Notes & files — Teacher{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('Notes', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 class="page-title">Notes & resources</h1>
+<div class="teacher-dash-actions section-gap">
+  <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_courses') }}">Courses</a>
+</div>
+<div class="card-premium reveal" style="padding:0;overflow-x:auto;">
+  <table class="table-modern">
+    <thead><tr><th>Course</th><th>Title</th><th>File</th><th></th></tr></thead>
+    <tbody>
+      {% for n in rows %}
+      <tr>
+        <td>{{ n.course.title if n.course else '—' }}</td>
+        <td><strong>{{ n.title }}</strong></td>
+        <td><a href="{{ n.file_path }}" target="_blank" rel="noopener">Open</a></td>
+        <td style="white-space:nowrap;">
+          <a class="btn btn-primary btn-sm" href="{{ url_for('teacher.teacher_note_edit', note_id=n.id) }}">Edit</a>
+          <form method="post" action="{{ url_for('teacher.teacher_note_delete', note_id=n.id) }}" style="display:inline;" onsubmit="return confirm('Delete?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn-sm" style="color:#b91c1c;">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">No notes uploaded yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<h2 class="section-gap" style="font-size:1.05rem;">Upload to a course</h2>
+<ul class="muted">
+  {% for c in courses %}
+  <li><a href="{{ url_for('teacher.teacher_note_new', course_id=c.id) }}">{{ c.title }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}

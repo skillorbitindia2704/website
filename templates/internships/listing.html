@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Internships — Skill Orbit India{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Internships', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 class="reveal page-title">Internships & early-career roles</h1>
+<p class="muted reveal">Work with hardware, edtech, and community programs. Apply with your resume in one click.</p>
+<div class="section-gap">
+  {% for i in internships %}
+  <article class="card-premium job-card reveal">
+    <div class="meta-row" style="align-items:flex-start;">
+      <div>
+        <h3>{{ i.title }}</h3>
+        <div class="internship-public-tags" style="margin:0.35rem 0 0.5rem;display:flex;flex-wrap:wrap;gap:0.35rem;">
+          {% if i.is_featured %}<span class="internship-tag tag-featured">Featured</span>{% endif %}
+          {% if i.is_urgent %}<span class="internship-tag tag-urgent">Urgent</span>{% endif %}
+          {% if i.is_remote %}<span class="internship-tag tag-remote">Remote</span>{% endif %}
+          {% if i.internship_type %}<span class="internship-tag tag-neutral">{{ i.internship_type }}</span>{% endif %}
+          {% if i.duration %}<span class="internship-tag tag-neutral">{{ i.duration }}</span>{% endif %}
+          {% if i.location %}<span class="internship-tag tag-neutral">{{ i.location }}</span>{% endif %}
+        </div>
+        <p class="muted">{{ i.description }}</p>
+        {% if i.requirements %}<p class="muted" style="font-size:0.9rem;"><strong>Requirements:</strong> {{ i.requirements }}</p>{% endif %}
+        {% if i.skills_needed %}<p class="muted" style="font-size:0.9rem;"><strong>Skills:</strong> {{ i.skills_needed }}</p>{% endif %}
+        <p class="price-tag">{{ i.stipend or 'Stipend discussed on selection' }}</p>
+      </div>
+      <div>
+        {% if current_user.is_authenticated %}
+        <button type="button" class="btn btn-primary" data-open-internship-modal data-internship-id="{{ i.id }}" data-internship-title="Apply — {{ i.title }}">Apply</button>
+        {% else %}
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login to apply</a>
+        {% endif %}
+      </div>
+    </div>
+  </article>
+  {% else %}
+  <p class="muted reveal">No active internships. Check back soon.</p>
+  {% endfor %}
+</div>
+
+{% if current_user.is_authenticated and internships %}
+<div id="internship-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="internship-modal-title">
+  <div class="modal-panel">
+    <button type="button" class="modal-close" id="internship-modal-close" aria-label="Close"><i class="ri-close-line" aria-hidden="true"></i></button>
+    <h3 id="internship-modal-title">Apply</h3>
+    <form id="internship-modal-form" method="post" action="{{ url_for('internships.apply', internship_id=internships[0].id) }}" enctype="multipart/form-data" class="form-modern">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="modal_cover">Cover letter</label>
+      <textarea name="cover_letter" id="modal_cover" rows="4" placeholder="Why this role?"></textarea>
+      <label for="modal_resume">Resume (PDF / DOC / DOCX)</label>
+      <input type="file" name="resume" id="modal_resume" accept=".pdf,.doc,.docx" required>
+      <button type="submit" class="btn btn-primary">Submit application</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

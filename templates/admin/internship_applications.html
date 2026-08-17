@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}Applicants — {{ internship.title }}{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [
+    ('Home', url_for('main.home')),
+    ('Admin', url_for('admin.index')),
+    ('Internships', url_for('admin.internships')),
+    ('Applications', None),
+  ] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="admin-header-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
+  <div>
+    <h1 style="font-size:1.5rem; font-weight:800; color:#0f172a; margin:0; display:flex; align-items:center; gap:0.5rem;">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="color:#4f46e5;"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>
+      Applicants Database
+    </h1>
+    <p class="muted" style="margin:0.25rem 0 0 0; font-size:0.9rem;">
+      Managing submissions for <strong>{{ internship.title }}</strong>
+      <span style="color:#cbd5e1; margin:0 0.35rem;">•</span> 
+      Listing status: 
+      {% if internship.listing_status == 'active' %}
+      <span class="int-badge int-badge--active">Active</span>
+      {% elif internship.listing_status == 'closed' %}
+      <span class="int-badge int-badge--closed">Closed</span>
+      {% else %}
+      <span class="int-badge int-badge--draft">Draft</span>
+      {% endif %}
+    </p>
+  </div>
+  
+  <a href="{{ url_for('admin.internships') }}" class="btn btn-ghost" style="display:inline-flex; align-items:center; gap:0.35rem; border-radius:8px; font-weight:600; padding:0.5rem 1rem;">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+    Back to listings
+  </a>
+</div>
+
+{% if applications %}
+<div class="card-premium reveal" style="padding:0; margin-top:1rem; overflow:hidden; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+  <div style="overflow-x:auto;">
+    <table class="table-modern" style="width:100%; border-collapse:collapse; text-align:left;">
+      <thead>
+        <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+          <th style="padding:1rem; font-weight:700; color:#475569; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Submission Date</th>
+          <th style="padding:1rem; font-weight:700; color:#475569; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Applicant Details</th>
+          <th style="padding:1rem; font-weight:700; color:#475569; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Cover Letter Preview</th>
+          <th style="padding:1rem; font-weight:700; color:#475569; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Resume File</th>
+          <th style="padding:1rem; font-weight:700; color:#475569; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Application Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in applications %}
+        <tr class="app-row" style="border-bottom:1px solid #f1f5f9; transition:background 0.15s ease;">
+          <td style="padding:1rem; white-space:nowrap; font-size:0.85rem; color:#475569; font-weight:500;">
+            {{ a.created_at.strftime('%d %b %Y') }}<br>
+            <span class="muted" style="font-size:0.75rem;">{{ a.created_at.strftime('%H:%M') }}</span>
+          </td>
+          
+          <td style="padding:1rem; min-width:180px;">
+            <div style="font-weight:700; color:#0f172a; font-size:0.92rem;">{{ a.user.full_name }}</div>
+            <div class="muted" style="font-size:0.8rem; color:#64748b; margin-top:0.1rem;">{{ a.user.email }}</div>
+          </td>
+          
+          <td style="padding:1rem; max-width:320px;">
+            <p class="muted" style="font-size:0.85rem; line-height:1.45; color:#334155; margin:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+              {{ a.cover_letter or 'No cover letter provided.' }}
+            </p>
+            {% if a.cover_letter %}
+            <button type="button" class="btn-read-letter" style="background:none; border:none; color:#4f46e5; font-size:0.78rem; font-weight:700; padding:0.2rem 0 0 0; cursor:pointer;"
+              data-name="{{ a.user.full_name|e }}"
+              data-letter="{{ a.cover_letter|e }}"
+            >Read full letter <i class="ri-arrow-right-line" aria-hidden="true"></i></button>
+            {% endif %}
+          </td>
+          
+          <td style="padding:1rem;">
+            <a href="{{ a.resume_path }}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm" style="display:inline-flex; align-items:center; gap:0.35rem; border-radius:6px; font-weight:600; padding:0.35rem 0.65rem; font-size:0.82rem; color:#0f172a;">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>
+              View Resume
+            </a>
+          </td>
+          
+          <td style="padding:1rem; white-space:nowrap;">
+            <form method="post" action="{{ url_for('admin.update_application_status', app_id=a.id) }}" style="display:inline-flex; gap:0.35rem; align-items:center; margin:0;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="next" value="{{ request.path }}">
+              <select name="status" onchange="this.form.submit()" style="width:auto; margin:0; padding:0.4rem 1.75rem 0.4rem 0.5rem; font-size:0.82rem; border-radius:6px; background:#f8fafc; font-weight:600; color:#334155; cursor:pointer; border:1px solid #cbd5e1;">
+                <option value="pending" {% if a.status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="approved" {% if a.status == 'approved' %}selected{% endif %}>Approved</option>
+                <option value="rejected" {% if a.status == 'rejected' %}selected{% endif %}>Rejected</option>
+              </select>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="card-premium reveal" style="padding:4rem; text-align:center; background:#f8fafc; border-radius:12px; margin-top:1rem;">
+  <div style="background:#f1f5f9; border-radius:50%; width:56px; height:56px; display:flex; align-items:center; justify-content:center; color:#94a3b8; margin:0 auto 1rem auto;">
+    <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0-3.741-.479 3 3 0 0 0-4.518 0 9.094 9.094 0 0 0-3.741.479m12.002-14.28a3.003 3.003 0 0 0-3.745-.247M12 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6-1.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+  </div>
+  <h3 style="margin:0 0 0.5rem 0; font-size:1.1rem; font-weight:700; color:#475569;">No applicants yet</h3>
+  <p class="muted" style="margin:0; font-size:0.9rem;">Applications submitted for this listing will appear here.</p>
+</div>
+{% endif %}
+
+<!-- Full Cover Letter Reader Modal -->
+<div id="letter-modal" class="modal-backdrop" role="dialog" aria-modal="true" style="display:none; justify-content:center; align-items:center;">
+  <div class="modal-panel" style="max-width:540px; width:90%; padding:2rem; border-radius:12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+    <button type="button" class="modal-close" id="letter-modal-close" aria-label="Close" style="top:1.25rem; right:1.25rem;"><i class="ri-close-line" aria-hidden="true"></i></button>
+    <h3 style="margin:0 0 0.25rem 0; font-size:1.15rem; font-weight:800; color:#0f172a;">Cover Letter</h3>
+    <p class="muted" style="font-size:0.85rem; margin:0 0 1.25rem 0;">From applicant: <strong id="letter-applicant" style="color:#334155;">-</strong></p>
+    
+    <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:1.25rem; max-height:40vh; overflow-y:auto;">
+      <p id="letter-content" style="margin:0; font-size:0.92rem; line-height:1.6; color:#1e293b; white-space:pre-wrap;"></p>
+    </div>
+    
+    <div style="margin-top:1.5rem; display:flex; justify-content:flex-end;">
+      <button type="button" class="btn btn-primary" id="letter-modal-close-btn" style="border-radius:8px; font-weight:600; padding:0.6rem 1.25rem;">Close Reader</button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Tailored Styles */
+.app-row:hover {
+  background: #f8fafc;
+}
+
+.int-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  display: inline-block;
+  white-space: nowrap;
+}
+.int-badge--active { background: rgba(16, 185, 129, 0.12); color: #059669; border: 1px solid rgba(16, 185, 129, 0.2); }
+.int-badge--closed { background: rgba(100, 116, 139, 0.12); color: #475569; border: 1px solid rgba(100, 116, 139, 0.2); }
+.int-badge--draft { background: rgba(245, 158, 11, 0.12); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.2); }
+</style>
+
+<script>
+(function() {
+  var lModal = document.getElementById("letter-modal");
+  var lApplicant = document.getElementById("letter-applicant");
+  var lContent = document.getElementById("letter-content");
+  var lClose = document.getElementById("letter-modal-close");
+  var lCloseBtn = document.getElementById("letter-modal-close-btn");
+
+  function showModal(el) {
+    el.style.display = "flex";
+    setTimeout(function() { el.classList.add("open"); }, 10);
+  }
+  function hideModal(el) {
+    el.classList.remove("open");
+    setTimeout(function () { el.style.display = "none"; }, 150);
+  }
+
+  document.querySelectorAll(".btn-read-letter").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      lApplicant.textContent = btn.getAttribute("data-name");
+      lContent.textContent = btn.getAttribute("data-letter") || "No content.";
+      showModal(lModal);
+    });
+  });
+
+  lClose.addEventListener("click", function() { hideModal(lModal); });
+  lCloseBtn.addEventListener("click", function() { hideModal(lModal); });
+  lModal.addEventListener("click", function(e) {
+    if (e.target === lModal) hideModal(lModal);
+  });
+})();
+</script>
+{% endblock %}

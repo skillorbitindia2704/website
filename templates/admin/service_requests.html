@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Service Requests — Admin{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('IT requests', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<h1 style="font-size:1.5rem;">Service requests</h1>
+<p class="muted">Leads captured from the public Services page.</p>
+{% if requests %}
+<div class="card-premium reveal" style="padding:0;margin-top:1rem;overflow-x:auto;">
+  <table class="table-modern">
+    <thead>
+      <tr><th>When</th><th>Service</th><th>Contact</th><th>Requirement</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for r in requests %}
+      <tr>
+        <td style="white-space:nowrap;font-size:0.85rem;">{{ r.created_at.strftime('%d %b %Y %H:%M') }}</td>
+        <td><strong>{{ r.service_title }}</strong><br><span class="muted" style="font-size:0.8rem;">{{ r.service_slug }}</span></td>
+        <td>{{ r.full_name }}<br><span class="muted" style="font-size:0.85rem;">{{ r.email }}<br>{{ r.phone }}</span></td>
+        <td style="max-width:280px;font-size:0.88rem;">{{ r.requirement[:200] }}{% if r.requirement|length > 200 %}…{% endif %}</td>
+        <td>
+          <form method="post" action="{{ url_for('admin.service_request_status', rid=r.id) }}" style="margin:0;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <select name="status" onchange="this.form.submit()" style="width:auto;margin:0;padding:0.35rem;">
+              <option value="new" {% if r.status == 'new' %}selected{% endif %}>New</option>
+              <option value="in_progress" {% if r.status == 'in_progress' %}selected{% endif %}>In progress</option>
+              <option value="closed" {% if r.status == 'closed' %}selected{% endif %}>Closed</option>
+            </select>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="muted" style="margin-top:1rem;">No requests yet.</p>
+{% endif %}
+{% endblock %}

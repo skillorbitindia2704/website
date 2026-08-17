@@ -1,0 +1,1347 @@
+{% extends "base.html" %}
+{% block title %}About Page Manager — Admin Dashboard{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('About Page Manager', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<!-- Tailwind CSS for modern layout inside admin -->
+<script>
+  tailwind = {
+    config: {
+      corePlugins: { preflight: false },
+      darkMode: ['selector', '[data-theme="dark"]'],
+      theme: {
+        extend: {
+          colors: {
+            brand: { 500: "#4F46E5", 600: "#4338CA", 700: "#3730A3" },
+            dark: { 800: "#1E293B", 900: "#0F172A" }
+          }
+        }
+      }
+    }
+  };
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+  .manager-container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .card-premium {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    font-weight: 500;
+    color: #4a5568;
+    border-radius: 8px;
+    transition: all 0.2s;
+    text-align: left;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  .tab-btn:hover {
+    background: #f1f5f9;
+    color: #1a202c;
+  }
+  .tab-btn.active {
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+    color: #ffffff;
+  }
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #2d3748;
+    font-size: 0.9rem;
+  }
+  .form-control, .form-textarea, .form-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background-color: #fff;
+    color: #2d3748;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-control:focus, .form-textarea:focus, .form-select:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  }
+  .upload-zone {
+    border: 2px dashed #cbd5e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    background: #f8fafc;
+    transition: all 0.2s;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: #4f46e5;
+    background: #eef2ff;
+  }
+  .btn-action {
+    padding: 0.6rem 1.2rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .sortable-item {
+    cursor: grab;
+    transition: transform 0.2s;
+  }
+  .sortable-item:active {
+    cursor: grabbing;
+    transform: scale(0.98);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="manager-container py-6 px-4">
+  <!-- Top Banner -->
+  <div class="card-premium p-6 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4" style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); color: #fff; border: none;">
+    <div>
+      <h1 class="text-2xl font-bold text-white mb-1">About Page Manager</h1>
+      <p class="text-indigo-200 text-sm">Orchestrate and publish all contents, sections, repeatable cards, and models for the About page.</p>
+    </div>
+    <div class="flex items-center gap-3">
+      {% if last_updated %}
+      <span class="text-xs text-indigo-300 bg-indigo-950/50 px-3 py-1.5 rounded-full border border-indigo-900">
+        <i class="ri-time-line"></i> Last updated: {{ last_updated.strftime('%Y-%m-%d %H:%M:%S UTC') }}
+      </span>
+      {% endif %}
+      {% if content.is_published == '1' %}
+      <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-semibold px-2.5 py-1 rounded-full">
+        ● Live on Website
+      </span>
+      {% else %}
+      <span class="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-semibold px-2.5 py-1 rounded-full">
+        ● Draft mode
+      </span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Local Storage Draft Banner -->
+  <div id="draft-banner" class="hidden bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg mb-6 flex justify-between items-center">
+    <div class="flex items-center gap-2">
+      <span><i class="ri-edit-2-line"></i></span>
+      <span class="text-sm font-medium">We restored an autosaved draft of your changes from local storage.</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="clearDraft()" class="text-xs text-amber-700 underline font-semibold hover:text-amber-900 bg-transparent border-none cursor-pointer">Discard Draft</button>
+      <button onclick="dismissDraftBanner()" class="text-sm font-bold text-amber-800 bg-transparent border-none cursor-pointer">&times;</button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <!-- Left Sidebar: Tabs -->
+    <div class="lg:col-span-1 flex flex-col gap-2">
+      <div class="card-premium p-4 flex flex-col gap-1.5 bg-slate-50">
+        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">Sections Copy</div>
+        <button onclick="switchTab('hero')" id="tab-btn-hero" class="tab-btn active"><i class="ri-focus-3-line"></i> About Hero</button>
+        <button onclick="switchTab('who-we-are')" id="tab-btn-who-we-are" class="tab-btn"><i class="ri-team-line"></i> Who We Are</button>
+        <button onclick="switchTab('mission-vision')" id="tab-btn-mission-vision" class="tab-btn"><i class="ri-rocket-line"></i> Mission & Vision</button>
+        <button onclick="switchTab('what-we-offer')" id="tab-btn-what-we-offer" class="tab-btn"><i class="ri-brain-line"></i> What We Offer</button>
+        <button onclick="switchTab('why-choose-us')" id="tab-btn-why-choose-us" class="tab-btn"><i class="ri-shield-check-line"></i> Why Choose Us</button>
+        
+        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mt-4 mb-2">Dynamic Modules</div>
+        <button onclick="switchTab('timeline')" id="tab-btn-timeline" class="tab-btn"><i class="ri-calendar-event-line"></i> Timeline Nodes</button>
+        <button onclick="switchTab('team')" id="tab-btn-team" class="tab-btn"><i class="ri-user-star-line"></i> Team CMS</button>
+        <button onclick="switchTab('gallery')" id="tab-btn-gallery" class="tab-btn"><i class="ri-image-line"></i> Media Gallery</button>
+        <button onclick="switchTab('testimonials')" id="tab-btn-testimonials" class="tab-btn"><i class="ri-star-line"></i> Testimonials</button>
+        <button onclick="switchTab('partners')" id="tab-btn-partners" class="tab-btn"><i class="ri-hand-heart-line"></i> Partners & Logos</button>
+        <button onclick="switchTab('recognition')" id="tab-btn-recognition" class="tab-btn"><i class="ri-award-line"></i> Recognition</button>
+        <button onclick="switchTab('counters')" id="tab-btn-counters" class="tab-btn"><i class="ri-bar-chart-box-line"></i> Stat Counters</button>
+
+        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mt-4 mb-2">Configurations</div>
+        <button onclick="switchTab('visibility')" id="tab-btn-visibility" class="tab-btn"><i class="ri-eye-line"></i> Page Layout</button>
+        <button onclick="switchTab('seo')" id="tab-btn-seo" class="tab-btn"><i class="ri-search-line"></i> SEO & Tags</button>
+        <button onclick="switchTab('history')" id="tab-btn-history" class="tab-btn"><i class="ri-history-line"></i> History & Logs</button>
+      </div>
+    </div>
+
+    <!-- Right Pane: Tab Content Form -->
+    <div class="lg:col-span-3">
+      <form id="about-cms-form" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" id="what_we_offer_cards" name="what_we_offer_cards" value="{{ content.what_we_offer_cards }}">
+        <input type="hidden" id="why_choose_us_cards" name="why_choose_us_cards" value="{{ content.why_choose_us_cards }}">
+        <input type="hidden" id="section_visibilities" name="section_visibilities" value="{{ content.section_visibilities }}">
+
+        <!-- ======================= TAB: HERO ======================= -->
+        <div id="tab-content-hero" class="tab-pane card-premium p-6">
+          <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="ri-target-line" aria-hidden="true"></i> Hero Section</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="form-group">
+              <label for="hero_badge_text">Badge Text</label>
+              <input type="text" id="hero_badge_text" name="hero_badge_text" class="form-control" value="{{ content.hero_badge_text }}" placeholder="e.g. AI • Robotics • Electronics">
+            </div>
+            <div class="form-group">
+              <label for="hero_trust_line">Trust Line Text</label>
+              <input type="text" id="hero_trust_line" name="hero_trust_line" class="form-control" value="{{ content.hero_trust_line }}" placeholder="e.g. India's learning orbit">
+            </div>
+          </div>
+          <div class="form-group mb-4">
+            <label for="hero_heading">Main Heading <span class="text-red-500">*</span></label>
+            <input type="text" id="hero_heading" name="hero_heading" class="form-control" value="{{ content.hero_heading }}" placeholder="Main visible H1 title">
+          </div>
+          <div class="form-group mb-4">
+            <label for="hero_subtitle">Hero Subheading</label>
+            <input type="text" id="hero_subtitle" name="hero_subtitle" class="form-control" value="{{ content.hero_subtitle }}" placeholder="Under-heading summary text">
+          </div>
+          <div class="form-group mb-4">
+            <label for="hero_description">Description / Detailed Paragraph</label>
+            <textarea id="hero_description" name="hero_description" class="form-control h-28" placeholder="Detailed about section introduction...">{{ content.hero_description }}</textarea>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 border-t pt-4">
+            <div class="form-group">
+              <label for="hero_primary_btn_text">Primary Button Text</label>
+              <input type="text" id="hero_primary_btn_text" name="hero_primary_btn_text" class="form-control" value="{{ content.hero_primary_btn_text }}" placeholder="e.g. Explore Programs">
+            </div>
+            <div class="form-group">
+              <label for="hero_primary_btn_link">Primary Button Link</label>
+              <input type="text" id="hero_primary_btn_link" name="hero_primary_btn_link" class="form-control" value="{{ content.hero_primary_btn_link }}" placeholder="e.g. /courses">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="form-group">
+              <label for="hero_secondary_btn_text">Secondary Button Text</label>
+              <input type="text" id="hero_secondary_btn_text" name="hero_secondary_btn_text" class="form-control" value="{{ content.hero_secondary_btn_text }}" placeholder="e.g. Visit AI Lab">
+            </div>
+            <div class="form-group">
+              <label for="hero_secondary_btn_link">Secondary Button Link</label>
+              <input type="text" id="hero_secondary_btn_link" name="hero_secondary_btn_link" class="form-control" value="{{ content.hero_secondary_btn_link }}" placeholder="e.g. /ai-lab">
+            </div>
+          </div>
+          
+          <div class="border-t pt-4 mb-4">
+            <label class="block font-semibold text-slate-800 text-sm mb-3"><i class="ri-hashtag" aria-hidden="true"></i> Hero Stat Pillars</label>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div class="p-3 bg-slate-50 border rounded-lg">
+                <input type="text" name="hero_stat1_num" class="form-control py-1 mb-1 font-bold text-center" value="{{ content.hero_stat1_num }}" placeholder="5000+">
+                <input type="text" name="hero_stat1_lbl" class="form-control py-1 text-xs text-center" value="{{ content.hero_stat1_lbl }}" placeholder="Students">
+              </div>
+              <div class="p-3 bg-slate-50 border rounded-lg">
+                <input type="text" name="hero_stat2_num" class="form-control py-1 mb-1 font-bold text-center" value="{{ content.hero_stat2_num }}" placeholder="120+">
+                <input type="text" name="hero_stat2_lbl" class="form-control py-1 text-xs text-center" value="{{ content.hero_stat2_lbl }}" placeholder="Workshops">
+              </div>
+              <div class="p-3 bg-slate-50 border rounded-lg">
+                <input type="text" name="hero_stat3_num" class="form-control py-1 mb-1 font-bold text-center" value="{{ content.hero_stat3_num }}" placeholder="50+">
+                <input type="text" name="hero_stat3_lbl" class="form-control py-1 text-xs text-center" value="{{ content.hero_stat3_lbl }}" placeholder="Partners">
+              </div>
+              <div class="p-3 bg-slate-50 border rounded-lg">
+                <input type="text" name="hero_stat4_num" class="form-control py-1 mb-1 font-bold text-center" value="{{ content.hero_stat4_num }}" placeholder="24×7">
+                <input type="text" name="hero_stat4_lbl" class="form-control py-1 text-xs text-center" value="{{ content.hero_stat4_lbl }}" placeholder="Support">
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t pt-4">
+            <div class="form-group">
+              <label>Hero Background Theme / Gradient</label>
+              <select name="hero_gradient_theme" class="form-select">
+                <option value="blue-purple" {% if content.hero_gradient_theme == 'blue-purple' %}selected{% endif %}>Indigo / Violet / Orange Sunset (Premium default)</option>
+                <option value="indigo-cyan" {% if content.hero_gradient_theme == 'indigo-cyan' %}selected{% endif %}>Indigo to Emerald Mint</option>
+                <option value="dark-slate" {% if content.hero_gradient_theme == 'dark-slate' %}selected{% endif %}>Charcoal Midnight Slate</option>
+                <option value="orange-amber" {% if content.hero_gradient_theme == 'orange-amber' %}selected{% endif %}>Fiery Sunrise Amber</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Main Hero Image File</label>
+              <div class="upload-zone" onclick="document.getElementById('hero_image_input').click();">
+                <div class="text-2xl mb-1"><i class="ri-folder-3-line" aria-hidden="true"></i></div>
+                <div class="text-sm font-semibold text-slate-700 upload-txt">Click or drag image here</div>
+                <div class="text-xs text-slate-400 mt-1">Recommended: 800×600px | PNG, JPG, WebP</div>
+                <input type="file" id="hero_image_input" name="hero_image" class="hidden" accept="image/*" onchange="previewFile(this)">
+              </div>
+              {% if content.hero_image %}
+              <div class="mt-3 flex items-center gap-3 p-2 bg-slate-50 border rounded-lg">
+                <img src="{{ url_for('static', filename=content.hero_image) }}" alt="Hero" class="w-16 h-12 object-cover rounded border">
+                <div class="flex-1 text-xs truncate">{{ content.hero_image }}</div>
+                <button type="submit" form="about-delete-hero-img-form" class="bg-red-50 text-red-600 border border-red-200 px-2.5 py-1 text-xs font-semibold rounded hover:bg-red-100 cursor-pointer">Delete</button>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================= TAB: WHO WE ARE ======================= -->
+        <div id="tab-content-who-we-are" class="tab-pane hidden card-premium p-6">
+          <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="ri-group-line" aria-hidden="true"></i> Who We Are</h2>
+          <div class="form-group mb-4">
+            <label for="who_we_are_title">Section Title</label>
+            <input type="text" id="who_we_are_title" name="who_we_are_title" class="form-control" value="{{ content.who_we_are_title }}" placeholder="e.g. Who we are">
+          </div>
+          <div class="form-group mb-4">
+            <label for="who_we_are_body">Body Story Text</label>
+            <textarea id="who_we_are_body" name="who_we_are_body" class="form-control h-32" placeholder="Branded narrative explaining the platform...">{{ content.who_we_are_body }}</textarea>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 border-t pt-4">
+            <div class="form-group">
+              <label for="who_we_are_btn_text">Story CTA Button Text</label>
+              <input type="text" id="who_we_are_btn_text" name="who_we_are_btn_text" class="form-control" value="{{ content.who_we_are_btn_text }}" placeholder="Explore Programs">
+            </div>
+            <div class="form-group">
+              <label for="who_we_are_btn_link">Story CTA Button Link</label>
+              <input type="text" id="who_we_are_btn_link" name="who_we_are_btn_link" class="form-control" value="{{ content.who_we_are_btn_link }}" placeholder="/courses">
+            </div>
+          </div>
+          <div class="border-t pt-4 mb-4">
+            <label class="block font-semibold text-slate-800 text-sm mb-3"><i class="ri-star-line" aria-hidden="true"></i> Core Highlight Points (List style)</label>
+            <div class="flex flex-col gap-3">
+              <input type="text" name="who_we_are_feature1" class="form-control" value="{{ content.who_we_are_feature1 }}" placeholder="Point 1: e.g. Fully equipped robotics & embedded AI development lab">
+              <input type="text" name="who_we_are_feature2" class="form-control" value="{{ content.who_we_are_feature2 }}" placeholder="Point 2: e.g. Mentor-guided internships with industry verification">
+              <input type="text" name="who_we_are_feature3" class="form-control" value="{{ content.who_we_are_feature3 }}" placeholder="Point 3: e.g. ISO-Certified learning pathways aligned with NEP framework">
+            </div>
+          </div>
+          <div class="form-group border-t pt-4">
+            <label>Who We Are Side Image</label>
+            <div class="upload-zone" onclick="document.getElementById('who_we_are_side_image_input').click();">
+              <div class="text-2xl mb-1"><i class="ri-camera-line" aria-hidden="true"></i></div>
+              <div class="text-sm font-semibold text-slate-700 upload-txt">Click or drag side image here</div>
+              <input type="file" id="who_we_are_side_image_input" name="who_we_are_side_image" class="hidden" accept="image/*" onchange="previewFile(this)">
+            </div>
+            {% if content.who_we_are_side_image %}
+            <div class="mt-3 flex items-center gap-3 p-2 bg-slate-50 border rounded-lg">
+              <img src="{{ url_for('static', filename=content.who_we_are_side_image) }}" alt="Side" class="w-16 h-12 object-cover rounded border">
+              <div class="flex-1 text-xs truncate">{{ content.who_we_are_side_image }}</div>
+              <button type="submit" form="about-delete-side-img-form" class="bg-red-50 text-red-600 border border-red-200 px-2.5 py-1 text-xs font-semibold rounded hover:bg-red-100 cursor-pointer">Delete</button>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- ======================= TAB: MISSION & VISION ======================= -->
+        <div id="tab-content-mission-vision" class="tab-pane hidden card-premium p-6">
+          <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="ri-star-line" aria-hidden="true"></i> Mission & Vision</h2>
+          
+          <div class="mb-6 p-4 border rounded-xl bg-slate-50/50">
+            <h3 class="font-bold text-slate-700 text-sm mb-3"><i class="ri-target-line" aria-hidden="true"></i> Mission Section</h3>
+            <div class="grid grid-cols-3 gap-3 mb-3">
+              <div class="col-span-1">
+                <label for="mission_icon" class="text-xs font-semibold text-slate-500 mb-1 block">Icon (Emoji)</label>
+                <input type="text" id="mission_icon" name="mission_icon" class="form-control text-center" value="{{ content.mission_icon }}">
+              </div>
+              <div class="col-span-2">
+                <label for="mission_heading" class="text-xs font-semibold text-slate-500 mb-1 block">Heading</label>
+                <input type="text" id="mission_heading" name="mission_heading" class="form-control" value="{{ content.mission_heading }}">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="mission_text" class="text-xs font-semibold text-slate-500 mb-1 block">Mission Statement Text</label>
+              <textarea id="mission_text" name="mission_text" class="form-control h-20">{{ content.mission_text }}</textarea>
+            </div>
+          </div>
+
+          <div class="p-4 border rounded-xl bg-slate-50/50">
+             <h3 class="font-bold text-slate-700 text-sm mb-3"><i class="ri-rocket-line" aria-hidden="true"></i> Vision Section</h3>
+            <div class="grid grid-cols-3 gap-3 mb-3">
+              <div class="col-span-1">
+                <label for="vision_icon" class="text-xs font-semibold text-slate-500 mb-1 block">Icon (Emoji)</label>
+                <input type="text" id="vision_icon" name="vision_icon" class="form-control text-center" value="{{ content.vision_icon }}">
+              </div>
+              <div class="col-span-2">
+                <label for="vision_heading" class="text-xs font-semibold text-slate-500 mb-1 block">Heading</label>
+                <input type="text" id="vision_heading" name="vision_heading" class="form-control" value="{{ content.vision_heading }}">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="vision_text" class="text-xs font-semibold text-slate-500 mb-1 block">Vision Statement Text</label>
+              <textarea id="vision_text" name="vision_text" class="form-control h-20">{{ content.vision_text }}</textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================= TAB: WHAT WE OFFER ======================= -->
+        <div id="tab-content-what-we-offer" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800">🧠 What We Offer Section</h2>
+            <button type="button" onclick="openCardModal('offer')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-3 py-1.5 rounded flex items-center gap-1 border-none cursor-pointer">
+              <span>+</span> Add Service Card
+            </button>
+          </div>
+          <p class="text-xs text-slate-400 mb-4">Click and drag to sort the active cards display order.</p>
+          <div id="offer-list" class="flex flex-col gap-3">
+            <!-- Dynamic cards rendered by JS -->
+          </div>
+        </div>
+
+        <!-- ======================= TAB: WHY CHOOSE US ======================= -->
+        <div id="tab-content-why-choose-us" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800"><i class="ri-shield-check-line" aria-hidden="true"></i> Why Choose Us Section</h2>
+            <button type="button" onclick="openCardModal('why')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-3 py-1.5 rounded flex items-center gap-1 border-none cursor-pointer">
+              <span>+</span> Add Feature Card
+            </button>
+          </div>
+          <p class="text-xs text-slate-400 mb-4">Reorder, edit or update specific key selling propositions.</p>
+          <div id="why-list" class="flex flex-col gap-3">
+            <!-- Dynamic cards rendered by JS -->
+          </div>
+        </div>
+
+        <!-- ======================= TAB: TIMELINE ======================= -->
+        <div id="tab-content-timeline" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800"><i class="ri-calendar-line" aria-hidden="true"></i> Timeline Milestones</h2>
+            <a href="{{ url_for('admin.about_timeline') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-3 py-1.5 rounded flex items-center gap-1 no-underline">
+              Manage / Add Milestones
+            </a>
+          </div>
+          <p class="text-xs text-slate-400 mb-3">Reorder dynamic journey nodes using drag & drop.</p>
+          
+          <div class="border rounded-lg divide-y bg-white" id="list-timeline" data-model="timeline">
+            {% for t in timeline %}
+            <div class="sortable-item p-3.5 flex items-center justify-between gap-4 bg-slate-50/20" data-id="{{ t.id }}">
+              <div class="flex items-center gap-3">
+                <span class="text-slate-400 cursor-grab text-lg"><i class="ri-drag-move-line" aria-hidden="true"></i></span>
+                <div>
+                  <span class="text-sm font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full mr-2">{{ t.year }}</span>
+                  <span class="text-sm font-semibold text-slate-700">{{ t.title }}</span>
+                  {% if t.achievement_badge %}
+                  <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded ml-2">{{ t.achievement_badge }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                {% if not t.is_active %}<span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded mr-2">Inactive</span>{% endif %}
+                <a href="{{ url_for('admin.about_timeline') }}?edit={{ t.id }}" class="text-xs text-slate-500 hover:text-indigo-600 hover:underline">Edit</a>
+              </div>
+            </div>
+            {% endfor %}
+            {% if not timeline %}
+            <div class="p-6 text-center text-slate-400 text-sm">No journey milestones saved. Click "Manage / Add" to create.</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- ======================= TAB: TEAM ======================= -->
+        <div id="tab-content-team" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800"><i class="ri-team-line" aria-hidden="true"></i> Team CMS</h2>
+            <a href="{{ url_for('admin.about_team') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-3 py-1.5 rounded flex items-center gap-1 no-underline">
+              Manage / Add Members
+            </a>
+          </div>
+          <p class="text-xs text-slate-400 mb-3">Control profiles and presentation order of core staff.</p>
+          
+          <div class="border rounded-lg divide-y bg-white" id="list-team" data-model="team">
+            {% for m in team %}
+            <div class="sortable-item p-3 flex items-center justify-between gap-4 bg-slate-50/20" data-id="{{ m.id }}">
+              <div class="flex items-center gap-3">
+                <span class="text-slate-400 cursor-grab text-lg"><i class="ri-drag-move-line" aria-hidden="true"></i></span>
+                <div class="w-10 h-10 rounded-full border bg-slate-100 flex items-center justify-center overflow-hidden">
+                  {% if m.image_path %}
+                  <img src="{{ url_for('static', filename=m.image_path) }}" alt="" class="w-full h-full object-cover">
+                  {% else %}
+                  <span class="text-sm"><i class="ri-user-3-line" aria-hidden="true"></i></span>
+                  {% endif %}
+                </div>
+                <div>
+                  <div class="text-sm font-bold text-slate-700">{{ m.name }}</div>
+                  <div class="text-xs text-slate-400">{{ m.role }} {% if m.email %}({{ m.email }}){% endif %}</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                {% if not m.is_active %}<span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded mr-2">Hidden</span>{% endif %}
+                <a href="{{ url_for('admin.about_team') }}?edit={{ m.id }}" class="text-xs text-slate-500 hover:text-indigo-600 hover:underline">Edit</a>
+              </div>
+            </div>
+            {% endfor %}
+            {% if not team %}
+            <div class="p-6 text-center text-slate-400 text-sm">No team members defined yet.</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- ======================= TAB: GALLERY ======================= -->
+        <div id="tab-content-gallery" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800"><i class="ri-gallery-line" aria-hidden="true"></i> Media Gallery</h2>
+            <a href="{{ url_for('admin.about_gallery') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-3 py-1.5 rounded flex items-center gap-1 no-underline">
+              Manage / Upload Media
+            </a>
+          </div>
+          <p class="text-xs text-slate-400 mb-3">Reorder images displayed in the interactive lab gallery masonry.</p>
+          
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white p-3 border rounded-lg" id="list-gallery" data-model="gallery">
+            {% for g in gallery %}
+            <div class="sortable-item p-2 bg-slate-50 border rounded-lg relative" data-id="{{ g.id }}">
+              <span class="text-slate-400 cursor-grab text-xs absolute top-1 left-1 bg-white/80 border px-1 rounded shadow-xs"><i class="ri-drag-move-line"></i> drag</span>
+              <img src="{{ url_for('static', filename=g.image_path) }}" alt="" class="w-full aspect-video object-cover rounded mb-1">
+              <div class="text-xs font-semibold text-slate-700 truncate text-center">{{ g.title }}</div>
+              <div class="text-[10px] text-slate-400 text-center truncate">{{ g.category }}</div>
+            </div>
+            {% endfor %}
+            {% if not gallery %}
+            <div class="col-span-full p-6 text-center text-slate-400 text-sm">No media gallery items uploaded.</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- ======================= TAB: TESTIMONIALS ======================= -->
+        <div id="tab-content-testimonials" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800">⭐ Client Testimonials</h2>
+            <a href="{{ url_for('admin.about_testimonials') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-3 py-1.5 rounded flex items-center gap-1 no-underline">
+              Manage Testimonials
+            </a>
+          </div>
+          
+          <div class="border rounded-lg divide-y bg-white" id="list-testimonials" data-model="testimonials">
+            {% for t in testimonials %}
+            <div class="sortable-item p-3 flex items-center justify-between gap-4 bg-slate-50/20" data-id="{{ t.id }}">
+              <div class="flex items-center gap-3">
+                <span class="text-slate-400 cursor-grab text-lg"><i class="ri-drag-move-line" aria-hidden="true"></i></span>
+                <div>
+                  <div class="text-sm font-bold text-slate-700">{{ t.name }} <span class="text-amber-500 ml-1">★{{ t.rating }}</span></div>
+                  <div class="text-xs text-slate-400">{{ t.city }} · {{ t.course_name }}</div>
+                  <div class="text-xs text-slate-500 italic mt-0.5 truncate max-w-lg">"{{ t.feedback }}"</div>
+                </div>
+              </div>
+              <a href="{{ url_for('admin.about_testimonials') }}?edit={{ t.id }}" class="text-xs text-slate-500 hover:text-indigo-600 hover:underline">Edit</a>
+            </div>
+            {% endfor %}
+            {% if not testimonials %}
+            <div class="p-6 text-center text-slate-400 text-sm">No testimonials added yet.</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- ======================= TAB: PARTNERS ======================= -->
+        <div id="tab-content-partners" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800">🤝 Partners & Collaborators</h2>
+            <a href="{{ url_for('admin.about_partners') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-3 py-1.5 rounded flex items-center gap-1 no-underline">
+              Manage / Add Partners
+            </a>
+          </div>
+          
+          <div class="border rounded-lg divide-y bg-white" id="list-partners" data-model="partners">
+            {% for p in partners %}
+            <div class="sortable-item p-3 flex items-center justify-between gap-4 bg-slate-50/20" data-id="{{ p.id }}">
+              <div class="flex items-center gap-3">
+                <span class="text-slate-400 cursor-grab text-lg"><i class="ri-drag-move-line" aria-hidden="true"></i></span>
+                <div class="w-8 h-8 rounded border bg-slate-100 flex items-center justify-center p-1 overflow-hidden">
+                  {% if p.logo_path %}
+                  <img src="{{ url_for('static', filename=p.logo_path) }}" alt="" class="w-full h-full object-contain">
+                  {% else %}
+                  <span class="text-xs">🤝</span>
+                  {% endif %}
+                </div>
+                <div>
+                  <div class="text-sm font-bold text-slate-700">{{ p.name }}</div>
+                  <div class="text-xs text-slate-400 truncate max-w-sm">{{ p.url }}</div>
+                </div>
+              </div>
+              <a href="{{ url_for('admin.about_partners') }}?edit={{ p.id }}" class="text-xs text-slate-500 hover:text-indigo-600 hover:underline">Edit</a>
+            </div>
+            {% endfor %}
+            {% if not partners %}
+            <div class="p-6 text-center text-slate-400 text-sm">No partner logos uploaded yet.</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- ======================= TAB: RECOGNITION ======================= -->
+        <div id="tab-content-recognition" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800"><i class="ri-award-line" aria-hidden="true"></i> Recognition & Achievements</h2>
+            <a href="{{ url_for('admin.about_recognition') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-3 py-1.5 rounded flex items-center gap-1 no-underline">
+              Manage / Add Awards
+            </a>
+          </div>
+          
+          <div class="border rounded-lg divide-y bg-white" id="list-recognition" data-model="recognition">
+            {% for r in recognition %}
+            <div class="sortable-item p-3 flex items-center justify-between gap-4 bg-slate-50/20" data-id="{{ t.id }}">
+              <div class="flex items-center gap-3">
+                <span class="text-slate-400 cursor-grab text-lg"><i class="ri-drag-move-line" aria-hidden="true"></i></span>
+                <span class="text-xl">{{ r.icon }}</span>
+                <div>
+                  <div class="text-sm font-bold text-slate-700">{{ r.title }}</div>
+                  <div class="text-xs text-slate-400">
+                    {{ r.subtitle }}
+                    {% if r.organization %}· Issued by {{ r.organization }}{% endif %}
+                    {% if r.year %}· {{ r.year }}{% endif %}
+                  </div>
+                </div>
+              </div>
+              <a href="{{ url_for('admin.about_recognition') }}?edit={{ r.id }}" class="text-xs text-slate-500 hover:text-indigo-600 hover:underline">Edit</a>
+            </div>
+            {% endfor %}
+            {% if not recognition %}
+            <div class="p-6 text-center text-slate-400 text-sm">No recognition badges entered yet.</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- ======================= TAB: COUNTERS ======================= -->
+        <div id="tab-content-counters" class="tab-pane hidden card-premium p-6">
+          <div class="flex justify-between items-center mb-4 border-b pb-2">
+            <h2 class="text-xl font-bold text-slate-800"><i class="ri-bar-chart-line" aria-hidden="true"></i> Animated Stat Counters</h2>
+            <a href="{{ url_for('admin.about_counters') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-3 py-1.5 rounded flex items-center gap-1 no-underline">
+              Manage Counters
+            </a>
+          </div>
+          
+            <div class="border rounded-lg divide-y bg-white" id="list-counters" data-model="counters">
+            {% for c in counters %}
+            <div class="sortable-item p-3 flex items-center justify-between gap-4 bg-slate-50/20" data-id="{{ c.id }}">
+              <div class="flex items-center gap-3">
+                <span class="text-slate-400 cursor-grab text-lg"><i class="ri-drag-move-line" aria-hidden="true"></i></span>
+                <span class="text-lg">{{ c.icon }}</span>
+                <div>
+                  <span class="text-sm font-bold text-slate-700">{{ c.value }}{{ c.suffix }}</span>
+                  <span class="text-xs text-slate-400 ml-2">Label: {{ c.label }}</span>
+                </div>
+              </div>
+              <a href="{{ url_for('admin.about_counters') }}?edit={{ c.id }}" class="text-xs text-slate-500 hover:text-indigo-600 hover:underline">Edit</a>
+            </div>
+            {% endfor %}
+            {% if not counters %}
+            <div class="p-6 text-center text-slate-400 text-sm">No custom counter stats added.</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- ======================= TAB: VISIBILITY ======================= -->
+        <div id="tab-content-visibility" class="tab-pane hidden card-premium p-6">
+          <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2">👁️ Page Layout & Section Visibility</h2>
+          <p class="text-xs text-slate-400 mb-4">Toggle section visibilities dynamically on the front end without editing any HTML template code.</p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 border rounded-lg bg-slate-50 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-sm block">Hero Banner</span>
+                <span class="text-xs text-slate-400">Large header, theme gradients & counters</span>
+              </div>
+              <input type="checkbox" data-vis="hero" class="w-5 h-5 cursor-pointer accent-indigo-600" checked onchange="updateVisibilities()">
+            </div>
+
+            <div class="p-4 border rounded-lg bg-slate-50 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-sm block">Who We Are Story</span>
+                <span class="text-xs text-slate-400">Story, feature points & side image gallery</span>
+              </div>
+              <input type="checkbox" data-vis="who_we_are" class="w-5 h-5 cursor-pointer accent-indigo-600" checked onchange="updateVisibilities()">
+            </div>
+
+            <div class="p-4 border rounded-lg bg-slate-50 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-sm block">Mission & Vision Cards</span>
+                <span class="text-xs text-slate-400">Dual cards expressing mission/vision values</span>
+              </div>
+              <input type="checkbox" data-vis="mission_vision" class="w-5 h-5 cursor-pointer accent-indigo-600" checked onchange="updateVisibilities()">
+            </div>
+
+            <div class="p-4 border rounded-lg bg-slate-50 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-sm block">What We Offer Cards</span>
+                <span class="text-xs text-slate-400">Services repeater grid cards</span>
+              </div>
+              <input type="checkbox" data-vis="what_we_offer" class="w-5 h-5 cursor-pointer accent-indigo-600" checked onchange="updateVisibilities()">
+            </div>
+
+            <div class="p-4 border rounded-lg bg-slate-50 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-sm block">Why Choose Us section</span>
+                <span class="text-xs text-slate-400">KSP points grid block</span>
+              </div>
+              <input type="checkbox" data-vis="why_choose_us" class="w-5 h-5 cursor-pointer accent-indigo-600" checked onchange="updateVisibilities()">
+            </div>
+
+            <div class="p-4 border rounded-lg bg-slate-50 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-sm block">Animated Achievement Counters</span>
+                <span class="text-xs text-slate-400">Stat metrics countup numbers</span>
+              </div>
+              <input type="checkbox" data-vis="counters" class="w-5 h-5 cursor-pointer accent-indigo-600" checked onchange="updateVisibilities()">
+            </div>
+
+            <div class="p-4 border rounded-lg bg-slate-50 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-sm block">Journey Timeline Scroll</span>
+                <span class="text-xs text-slate-400">Horizontal scroll history nodes</span>
+              </div>
+              <input type="checkbox" data-vis="timeline" class="w-5 h-5 cursor-pointer accent-indigo-600" checked onchange="updateVisibilities()">
+            </div>
+
+            <div class="p-4 border rounded-lg bg-slate-50 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-sm block">Our Team Members</span>
+                <span class="text-xs text-slate-400">Active team list with social links</span>
+              </div>
+              <input type="checkbox" data-vis="team" class="w-5 h-5 cursor-pointer accent-indigo-600" checked onchange="updateVisibilities()">
+            </div>
+
+            <div class="p-4 border rounded-lg bg-slate-50 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-sm block">Lab gallery Images</span>
+                <span class="text-xs text-slate-400">Masonry grid with lightbox popup</span>
+              </div>
+              <input type="checkbox" data-vis="gallery" class="w-5 h-5 cursor-pointer accent-indigo-600" checked onchange="updateVisibilities()">
+            </div>
+
+            <div class="p-4 border rounded-lg bg-slate-50 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-sm block">Partner Logo Marquee</span>
+                <span class="text-xs text-slate-400">Autoscrolling partners list</span>
+              </div>
+              <input type="checkbox" data-vis="partners" class="w-5 h-5 cursor-pointer accent-indigo-600" checked onchange="updateVisibilities()">
+            </div>
+
+            <div class="p-4 border rounded-lg bg-slate-50 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-sm block">Testimonial Reviews Carousel</span>
+                <span class="text-xs text-slate-400">Swipeable ratings and feedback cards</span>
+              </div>
+              <input type="checkbox" data-vis="testimonials" class="w-5 h-5 cursor-pointer accent-indigo-600" checked onchange="updateVisibilities()">
+            </div>
+
+            <div class="p-4 border rounded-lg bg-slate-50 flex items-center justify-between">
+              <div>
+                <span class="font-bold text-sm block">Recognition Badges</span>
+                <span class="text-xs text-slate-400">Trust elements, MSME, certified lists</span>
+              </div>
+              <input type="checkbox" data-vis="recognition" class="w-5 h-5 cursor-pointer accent-indigo-600" checked onchange="updateVisibilities()">
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================= TAB: SEO ======================= -->
+        <div id="tab-content-seo" class="tab-pane hidden card-premium p-6">
+          <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2">🔍 Search Engine Optimization</h2>
+          <div class="form-group mb-4">
+            <label for="seo_meta_title">Meta HTML Title Tag</label>
+            <input type="text" id="seo_meta_title" name="seo_meta_title" class="form-control" value="{{ content.seo_meta_title }}" placeholder="Defaults to 'About Us — Skill Orbit India'">
+          </div>
+          <div class="form-group mb-4">
+            <label for="seo_meta_description">Meta HTML Description Tag</label>
+            <textarea id="seo_meta_description" name="seo_meta_description" class="form-control h-20" placeholder="Enter clean index description summary (recommended under 155 characters)...">{{ content.seo_meta_description }}</textarea>
+          </div>
+          <div class="form-group mb-4">
+            <label for="seo_keywords">Keywords List (comma separated)</label>
+            <input type="text" id="seo_keywords" name="seo_keywords" class="form-control" value="{{ content.seo_keywords }}" placeholder="about Skill Orbit India, robotics learning platform, stem education">
+          </div>
+          <div class="form-group mb-4">
+            <label for="seo_canonical_url">Canonical URL Override</label>
+            <input type="url" id="seo_canonical_url" name="seo_canonical_url" class="form-control" value="{{ content.seo_canonical_url }}" placeholder="https://skillorbitindia.in/about">
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="form-group">
+              <label>Open Graph (OG) Social Image</label>
+              <div class="upload-zone" onclick="document.getElementById('seo_og_image_input').click();">
+                <div class="text-2xl mb-1">🖼️</div>
+                <div class="text-sm font-semibold text-slate-700 upload-txt">Click to select OG image</div>
+                <input type="file" id="seo_og_image_input" name="seo_og_image" class="hidden" accept="image/*" onchange="previewFile(this)">
+              </div>
+              {% if content.seo_og_image %}
+              <div class="mt-3 flex items-center gap-3 p-2 bg-slate-50 border rounded-lg">
+                <img src="{{ url_for('static', filename=content.seo_og_image) }}" alt="OG" class="w-16 h-12 object-cover rounded border">
+                <div class="flex-1 text-xs truncate">{{ content.seo_og_image }}</div>
+                <button type="submit" form="about-delete-og-img-form" class="bg-red-50 text-red-600 border border-red-200 px-2.5 py-1 text-xs font-semibold rounded hover:bg-red-100 cursor-pointer">Delete</button>
+              </div>
+              {% endif %}
+            </div>
+            <div class="form-group">
+              <label for="seo_schema_markup">Structured JSON-LD Schema Markup</label>
+              <textarea id="seo_schema_markup" name="seo_schema_markup" class="form-control h-28 font-mono text-xs" placeholder='{ "@context": "https://schema.org", "@type": "AboutPage", ... }'>{{ content.seo_schema_markup }}</textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================= TAB: HISTORY & LOGS ======================= -->
+        <div id="tab-content-history" class="tab-pane hidden card-premium p-6">
+          <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2">📜 Change History & Version Restoration</h2>
+          
+          <div class="mb-6">
+            <h3 class="font-bold text-slate-700 text-sm mb-3">🕒 Published Version Snapshots</h3>
+            <div class="border rounded-lg overflow-hidden bg-white">
+              <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr class="bg-slate-100 border-b font-semibold text-slate-700">
+                    <th class="p-3">Published Timestamp</th>
+                    <th class="p-3">Author</th>
+                    <th class="p-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y text-slate-600">
+                  {% for v in versions %}
+                  <tr>
+                    <td class="p-3 font-semibold">{{ v.created_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}</td>
+                    <td class="p-3">{{ v.published_by or 'System' }}</td>
+                    <td class="p-3 text-right">
+                      <button type="submit" form="restore-form-{{ v.id }}" onclick="return confirm('Are you sure you want to restore the entire About page settings to this snapshot?');" class="bg-indigo-50 border border-indigo-200 text-indigo-700 px-3 py-1 text-xs font-bold rounded hover:bg-indigo-100 cursor-pointer">Restore Snapshot</button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                  {% if not versions %}
+                  <tr>
+                    <td colspan="3" class="p-4 text-center text-slate-400">No published versions saved yet. Click "Publish Changes" to save a snapshot.</td>
+                  </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="font-bold text-slate-700 text-sm mb-3">📊 Admin CRM Audit Logs</h3>
+            <div class="border rounded-lg overflow-hidden bg-white max-h-96 overflow-y-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-slate-100 border-b font-semibold text-slate-700">
+                    <th class="p-2.5">Time</th>
+                    <th class="p-2.5">Operation Description</th>
+                    <th class="p-2.5">Admin Email</th>
+                    <th class="p-2.5">IP Address</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y text-slate-600">
+                  {% for l in logs %}
+                  <tr>
+                    <td class="p-2.5 whitespace-nowrap">{{ l.timestamp.strftime('%Y-%m-%d %H:%M UTC') }}</td>
+                    <td class="p-2.5 font-medium">{{ l.action }}</td>
+                    <td class="p-2.5">{{ l.admin_email }}</td>
+                    <td class="p-2.5">{{ l.ip_address }}</td>
+                  </tr>
+                  {% endfor %}
+                  {% if not logs %}
+                  <tr>
+                    <td colspan="4" class="p-4 text-center text-slate-400">No logs captured.</td>
+                  </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Global Save/Publish Bar -->
+        <div class="card-premium p-4 mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-50">
+          <div class="text-xs text-slate-400">
+            * Required fields are marked. Changing copy fields does not edit active timeline elements or gallery uploads.
+          </div>
+          <div class="flex items-center gap-3 justify-end">
+            <button type="submit" name="action" value="save" class="btn-action bg-slate-200 text-slate-700 border border-slate-300 hover:bg-slate-300 font-semibold text-sm cursor-pointer" onclick="onSubmitForm(this, 'Saving draft...')"><i class="ri-save-line" aria-hidden="true"></i> Save Draft</button>
+            <button type="submit" name="action" value="publish" class="btn-action bg-indigo-600 text-white hover:bg-indigo-700 font-semibold text-sm border-none cursor-pointer" onclick="onSubmitForm(this, 'Publishing to live site...')"><i class="ri-rocket-line" aria-hidden="true"></i> Publish Changes</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Extra hidden forms for individual operations -->
+{% if content.hero_image %}
+<form id="about-delete-hero-img-form" method="POST" action="{{ url_for('admin.about_delete_image', image_field='hero_image') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+</form>
+{% endif %}
+{% if content.who_we_are_side_image %}
+<form id="about-delete-side-img-form" method="POST" action="{{ url_for('admin.about_delete_image', image_field='who_we_are_side_image') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+</form>
+{% endif %}
+{% if content.seo_og_image %}
+<form id="about-delete-og-img-form" method="POST" action="{{ url_for('admin.about_delete_image', image_field='seo_og_image') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+</form>
+{% endif %}
+
+{% for v in versions %}
+<form id="restore-form-{{ v.id }}" method="POST" action="{{ url_for('admin.about_restore_version', version_id=v.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+</form>
+{% endfor %}
+
+<!-- Repeatable Cards Add/Edit Modal -->
+<div id="card-modal" class="fixed inset-0 bg-slate-900/60 flex items-center justify-center hidden z-50 p-4">
+  <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative border">
+    <button onclick="closeCardModal()" class="absolute top-4 right-4 text-2xl font-bold text-slate-400 hover:text-slate-600 bg-transparent border-none cursor-pointer">&times;</button>
+    <h3 class="text-lg font-bold text-slate-800 mb-4" id="modal-title">Add Card</h3>
+    
+    <input type="hidden" id="modal-card-type">
+    <input type="hidden" id="modal-card-index">
+
+    <div class="form-group mb-3">
+      <label for="modal_card_icon">Icon / Image (Emoji or Icon Code)</label>
+      <input type="text" id="modal_card_icon" class="form-control" placeholder="e.g. 🧠, 🤖, 🌐, ✅">
+    </div>
+    <div class="form-group mb-3">
+      <label for="modal_card_title">Title</label>
+      <input type="text" id="modal_card_title" class="form-control" placeholder="Card Title text">
+    </div>
+    <div class="form-group mb-3">
+      <label for="modal_card_desc">Short Description</label>
+      <textarea id="modal_card_desc" class="form-control h-20" placeholder="Summary copy..."></textarea>
+    </div>
+    
+    <!-- Only visible for What We Offer section -->
+    <div id="offer-btn-fields" class="hidden border-t pt-3 mt-3">
+      <div class="form-group mb-3">
+        <label for="modal_card_btn_text">Button Text</label>
+        <input type="text" id="modal_card_btn_text" class="form-control" placeholder="Learn more">
+      </div>
+      <div class="form-group mb-3">
+        <label for="modal_card_btn_link">Button Link</label>
+        <input type="text" id="modal_card_btn_link" class="form-control" placeholder="/courses">
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-4 border-t pt-4">
+      <button type="button" onclick="closeCardModal()" class="bg-slate-100 hover:bg-slate-200 border text-slate-700 px-4 py-2 text-sm font-semibold rounded cursor-pointer">Cancel</button>
+      <button type="button" onclick="saveCardModal()" class="bg-indigo-600 hover:bg-indigo-700 border-none text-white px-4 py-2 text-sm font-semibold rounded cursor-pointer">Save Card</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- HTML5 Drag & Drop Sortable Logic -->
+<script>
+  let dragEl = null;
+
+  document.querySelectorAll('.divide-y, #list-gallery').forEach(container => {
+    container.addEventListener('dragstart', (e) => {
+      const target = e.target.closest('.sortable-item');
+      if (target) {
+        dragEl = target;
+        e.dataTransfer.effectAllowed = 'move';
+      }
+    });
+
+    container.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      const target = e.target.closest('.sortable-item');
+      if (target && target !== dragEl) {
+        const bounding = target.getBoundingClientRect();
+        const offset = e.clientY - bounding.top;
+        if (offset > bounding.height / 2) {
+          target.after(dragEl);
+        } else {
+          target.before(dragEl);
+        }
+      }
+    });
+
+    container.addEventListener('dragend', () => {
+      dragEl = null;
+      // Trigger database sorting API
+      triggerReorder(container);
+    });
+  });
+
+  function triggerReorder(container) {
+    const model = container.getAttribute('data-model');
+    if (!model) return;
+    const items = [...container.querySelectorAll('.sortable-item')];
+    const ids = items.map(item => item.getAttribute('data-id'));
+    
+    fetch('{{ url_for("admin.about_reorder") }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token() }}'
+      },
+      body: JSON.stringify({ model: model, ids: ids })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) {
+        alert("Failed to save display order: " + data.error);
+      }
+    })
+    .catch(err => console.error("Error updating order:", err));
+  }
+
+  // File Upload zone dragover visual toggle
+  document.querySelectorAll('.upload-zone').forEach(zone => {
+    ['dragenter', 'dragover'].forEach(name => {
+      zone.addEventListener(name, () => zone.classList.add('dragover'));
+    });
+    ['dragleave', 'drop'].forEach(name => {
+      zone.addEventListener(name, () => zone.classList.remove('dragover'));
+    });
+  });
+
+  function previewFile(input) {
+    const zone = input.closest('.upload-zone');
+    if (input.files.length > 0) {
+      zone.querySelector('.upload-txt').textContent = "Selected: " + input.files[0].name;
+      zone.style.borderColor = '#4f46e5';
+    }
+  }
+
+  // Switch tabs
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    
+    document.getElementById('tab-content-' + tabId).classList.remove('hidden');
+    document.getElementById('tab-btn-' + tabId).classList.add('active');
+  }
+
+  // Loading States
+  function onSubmitForm(button, message) {
+    button.disabled = true;
+    button.textContent = message;
+    button.form.submit();
+  }
+
+  // Section Visibilities
+  let visibilities = {};
+  try {
+    visibilities = JSON.parse(document.getElementById('section_visibilities').value || "{}");
+  } catch(e) {
+    visibilities = {};
+  }
+
+  // Initialize visibility checkmarks
+  document.querySelectorAll('[data-vis]').forEach(checkbox => {
+    const section = checkbox.getAttribute('data-vis');
+    checkbox.checked = visibilities[section] !== false; // defaults to true
+  });
+
+  function updateVisibilities() {
+    document.querySelectorAll('[data-vis]').forEach(checkbox => {
+      const section = checkbox.getAttribute('data-vis');
+      visibilities[section] = checkbox.checked;
+    });
+    document.getElementById('section_visibilities').value = JSON.stringify(visibilities);
+    saveLocalDraft();
+  }
+
+  // What We Offer and Why Choose Us JSON render lists
+  let offerList = [];
+  let whyList = [];
+
+  try {
+    offerList = JSON.parse(document.getElementById('what_we_offer_cards').value || "[]");
+  } catch(e) {
+    offerList = [];
+  }
+  try {
+    whyList = JSON.parse(document.getElementById('why_choose_us_cards').value || "[]");
+  } catch(e) {
+    whyList = [];
+  }
+
+  function renderOfferList() {
+    const container = document.getElementById('offer-list');
+    container.innerHTML = '';
+    offerList.forEach((card, index) => {
+      container.innerHTML += `
+        <div class="sortable-item p-3.5 bg-slate-50 border rounded-lg flex items-center justify-between gap-4" data-card-index="${index}">
+          <div class="flex items-center gap-3">
+            <span class="text-slate-400 text-lg cursor-grab select-none">☰</span>
+            <div class="w-10 h-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-lg">${card.icon || '🧠'}</div>
+            <div>
+              <div class="text-sm font-bold text-slate-700">${card.title}</div>
+              <div class="text-xs text-slate-400">${card.desc}</div>
+              <div class="text-[10px] text-slate-500 font-semibold mt-0.5">Link: ${card.btn_text || 'Learn more'} <i class="ri-arrow-right-line" aria-hidden="true"></i> ${card.btn_link || '#'}</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="editCard('offer', ${index})" class="text-xs text-indigo-600 font-semibold bg-transparent border-none cursor-pointer">Edit</button>
+            <button type="button" onclick="deleteCard('offer', ${index})" class="text-xs text-red-600 font-semibold bg-transparent border-none cursor-pointer">Delete</button>
+          </div>
+        </div>
+      `;
+    });
+    if(!offerList.length) {
+      container.innerHTML = '<div class="p-6 text-center text-slate-400 text-sm border border-dashed rounded-lg bg-slate-50/50">No service cards configured. Click "Add Service Card" to create.</div>';
+    }
+  }
+
+  function renderWhyList() {
+    const container = document.getElementById('why-list');
+    container.innerHTML = '';
+    whyList.forEach((card, index) => {
+      container.innerHTML += `
+        <div class="sortable-item p-3.5 bg-slate-50 border rounded-lg flex items-center justify-between gap-4" data-card-index="${index}">
+          <div class="flex items-center gap-3">
+            <span class="text-slate-400 text-lg cursor-grab select-none">☰</span>
+            <div class="w-10 h-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-lg">${card.icon || '🛡️'}</div>
+            <div>
+              <div class="text-sm font-bold text-slate-700">${card.title}</div>
+              <div class="text-xs text-slate-400">${card.desc}</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="editCard('why', ${index})" class="text-xs text-indigo-600 font-semibold bg-transparent border-none cursor-pointer">Edit</button>
+            <button type="button" onclick="deleteCard('why', ${index})" class="text-xs text-red-600 font-semibold bg-transparent border-none cursor-pointer">Delete</button>
+          </div>
+        </div>
+      `;
+    });
+    if(!whyList.length) {
+      container.innerHTML = '<div class="p-6 text-center text-slate-400 text-sm border border-dashed rounded-lg bg-slate-50/50">No choose-us features added yet.</div>';
+    }
+  }
+
+  // Modal actions
+  function openCardModal(type) {
+    document.getElementById('modal-card-type').value = type;
+    document.getElementById('modal-card-index').value = '-1';
+    
+    document.getElementById('modal_card_icon').value = type === 'offer' ? '🧠' : '🛡️';
+    document.getElementById('modal_card_title').value = '';
+    document.getElementById('modal_card_desc').value = '';
+    document.getElementById('modal_card_btn_text').value = 'Learn more';
+    document.getElementById('modal_card_btn_link').value = '/courses';
+
+    document.getElementById('modal-title').textContent = type === 'offer' ? 'Add Service Card' : 'Add Feature Card';
+    
+    if(type === 'offer') {
+      document.getElementById('offer-btn-fields').classList.remove('hidden');
+    } else {
+      document.getElementById('offer-btn-fields').classList.add('hidden');
+    }
+
+    document.getElementById('card-modal').classList.remove('hidden');
+  }
+
+  function editCard(type, index) {
+    const list = type === 'offer' ? offerList : whyList;
+    const card = list[index];
+    
+    document.getElementById('modal-card-type').value = type;
+    document.getElementById('modal-card-index').value = String(index);
+    
+    document.getElementById('modal_card_icon').value = card.icon || '';
+    document.getElementById('modal_card_title').value = card.title || '';
+    document.getElementById('modal_card_desc').value = card.desc || '';
+    document.getElementById('modal_card_btn_text').value = card.btn_text || 'Learn more';
+    document.getElementById('modal_card_btn_link').value = card.btn_link || '/courses';
+
+    document.getElementById('modal-title').textContent = type === 'offer' ? 'Edit Service Card' : 'Edit Feature Card';
+    
+    if(type === 'offer') {
+      document.getElementById('offer-btn-fields').classList.remove('hidden');
+    } else {
+      document.getElementById('offer-btn-fields').classList.add('hidden');
+    }
+
+    document.getElementById('card-modal').classList.remove('hidden');
+  }
+
+  function deleteCard(type, index) {
+    if(confirm('Are you sure you want to delete this card?')) {
+      if(type === 'offer') {
+        offerList.splice(index, 1);
+        document.getElementById('what_we_offer_cards').value = JSON.stringify(offerList);
+        renderOfferList();
+      } else {
+        whyList.splice(index, 1);
+        document.getElementById('why_choose_us_cards').value = JSON.stringify(whyList);
+        renderWhyList();
+      }
+      saveLocalDraft();
+    }
+  }
+
+  function closeCardModal() {
+    document.getElementById('card-modal').classList.add('hidden');
+  }
+
+  function saveCardModal() {
+    const type = document.getElementById('modal-card-type').value;
+    const index = parseInt(document.getElementById('modal-card-index').value);
+    
+    const icon = document.getElementById('modal_card_icon').value.trim();
+    const title = document.getElementById('modal_card_title').value.trim();
+    const desc = document.getElementById('modal_card_desc').value.trim();
+    const btn_text = document.getElementById('modal_card_btn_text').value.trim();
+    const btn_link = document.getElementById('modal_card_btn_link').value.trim();
+
+    if(!title) {
+      alert('Card title is required!');
+      return;
+    }
+
+    const newCard = { icon, title, desc };
+    if(type === 'offer') {
+      newCard.btn_text = btn_text;
+      newCard.btn_link = btn_link;
+    }
+
+    const list = type === 'offer' ? offerList : whyList;
+    if(index === -1) {
+      list.push(newCard);
+    } else {
+      list[index] = newCard;
+    }
+
+    if(type === 'offer') {
+      document.getElementById('what_we_offer_cards').value = JSON.stringify(offerList);
+      renderOfferList();
+    } else {
+      document.getElementById('why_choose_us_cards').value = JSON.stringify(whyList);
+      renderWhyList();
+    }
+
+    closeCardModal();
+    saveLocalDraft();
+  }
+
+  // Drag Sorting for JSON cards within tabs
+  function makeJsonCardsSortable(containerId, listType) {
+    const container = document.getElementById(containerId);
+    let dragCardIndex = null;
+    
+    container.addEventListener('dragstart', (e) => {
+      const item = e.target.closest('.sortable-item');
+      if (item) {
+        dragCardIndex = parseInt(item.getAttribute('data-card-index'));
+        e.dataTransfer.effectAllowed = 'move';
+      }
+    });
+
+    container.addEventListener('dragover', (e) => {
+      e.preventDefault();
+    });
+
+    container.addEventListener('drop', (e) => {
+      const item = e.target.closest('.sortable-item');
+      if (item && dragCardIndex !== null) {
+        const dropCardIndex = parseInt(item.getAttribute('data-card-index'));
+        if (dragCardIndex !== dropCardIndex) {
+          const list = listType === 'offer' ? offerList : whyList;
+          const [dragged] = list.splice(dragCardIndex, 1);
+          list.splice(dropCardIndex, 0, dragged);
+          
+          if(listType === 'offer') {
+            document.getElementById('what_we_offer_cards').value = JSON.stringify(offerList);
+            renderOfferList();
+          } else {
+            document.getElementById('why_choose_us_cards').value = JSON.stringify(whyList);
+            renderWhyList();
+          }
+          saveLocalDraft();
+        }
+      }
+      dragCardIndex = null;
+    });
+  }
+
+  // Initial Renders
+  renderOfferList();
+  renderWhyList();
+  makeJsonCardsSortable('offer-list', 'offer');
+  makeJsonCardsSortable('why-list', 'why');
+
+  // ==============================================
+  // LOCAL STORAGE DRAFT AUTOSAVE MECHANICS
+  // ==============================================
+  const DRAFT_KEY = "about_page_cms_draft";
+
+  function saveLocalDraft() {
+    const fields = [
+      "hero_badge_text", "hero_trust_line", "hero_heading", "hero_subtitle", "hero_description",
+      "hero_primary_btn_text", "hero_primary_btn_link", "hero_secondary_btn_text", "hero_secondary_btn_link",
+      "hero_stat1_num", "hero_stat1_lbl", "hero_stat2_num", "hero_stat2_lbl",
+      "hero_stat3_num", "hero_stat3_lbl", "hero_stat4_num", "hero_stat4_lbl",
+      "hero_gradient_theme",
+      "who_we_are_title", "who_we_are_body",
+      "who_we_are_btn_text", "who_we_are_btn_link",
+      "who_we_are_feature1", "who_we_are_feature2", "who_we_are_feature3",
+      "mission_icon", "mission_heading", "mission_text",
+      "vision_icon", "vision_heading", "vision_text",
+      "seo_meta_title", "seo_meta_description", "seo_keywords", "seo_canonical_url", "seo_schema_markup"
+    ];
+    
+    const draft = {};
+    fields.forEach(f => {
+      const el = document.getElementById(f) || document.getElementsByName(f)[0];
+      if(el) draft[f] = el.value;
+    });
+
+    draft.what_we_offer_cards = document.getElementById('what_we_offer_cards').value;
+    draft.why_choose_us_cards = document.getElementById('why_choose_us_cards').value;
+    draft.section_visibilities = document.getElementById('section_visibilities').value;
+
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  }
+
+  function restoreLocalDraft() {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if(!raw) return;
+
+    try {
+      const draft = JSON.parse(raw);
+      let changed = false;
+
+      Object.keys(draft).forEach(f => {
+        const el = document.getElementById(f) || document.getElementsByName(f)[0];
+        if(el && el.value !== draft[f]) {
+          el.value = draft[f];
+          changed = true;
+        }
+      });
+
+      if(changed) {
+        offerList = JSON.parse(draft.what_we_offer_cards || "[]");
+        whyList = JSON.parse(draft.why_choose_us_cards || "[]");
+        visibilities = JSON.parse(draft.section_visibilities || "{}");
+        
+        renderOfferList();
+        renderWhyList();
+        
+        document.querySelectorAll('[data-vis]').forEach(checkbox => {
+          const section = checkbox.getAttribute('data-vis');
+          checkbox.checked = visibilities[section] !== false;
+        });
+
+        document.getElementById('draft-banner').classList.remove('hidden');
+      }
+    } catch(e) {
+      console.error("Failed to restore draft:", e);
+    }
+  }
+
+  function clearDraft() {
+    localStorage.removeItem(DRAFT_KEY);
+    window.location.reload();
+  }
+
+  function dismissDraftBanner() {
+    document.getElementById('draft-banner').classList.add('hidden');
+  }
+
+  // Attach input listeners for auto-save
+  document.querySelectorAll('#about-cms-form input, #about-cms-form textarea, #about-cms-form select').forEach(input => {
+    input.addEventListener('input', saveLocalDraft);
+    input.addEventListener('change', saveLocalDraft);
+  });
+
+  // On successful submit, clear browser draft
+  document.getElementById('about-cms-form').addEventListener('submit', () => {
+    localStorage.removeItem(DRAFT_KEY);
+  });
+
+  // Run on page load
+  window.addEventListener('load', restoreLocalDraft);
+</script>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "dashboard/layout.html" %}
+{% block title %}My Certificates — Skill Orbit India{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Dashboard', url_for('dashboard.index')), ('Certificates', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block dash_content %}
+<h1 class="page-title">My certificates</h1>
+<p class="muted">Share your verify link or download PDFs for employers.</p>
+{% if certificates %}
+<div class="card-premium reveal table-wrap section-gap">
+  <table class="table-modern">
+    <thead>
+      <tr><th>Course</th><th>Certificate ID</th><th>Issued</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for c in certificates %}
+      <tr>
+        <td>{{ c.course.title }}</td>
+        <td><code>{{ c.certificate_uid }}</code></td>
+        <td>{{ c.issued_at.strftime('%d %b %Y') }}</td>
+        <td>
+          <a href="{{ url_for('certificates.verify', uid=c.certificate_uid) }}">Verify</a>
+          ·
+          <a href="{{ url_for('certificates.download', uid=c.certificate_uid) }}">Download</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="empty-state section-gap">Complete a course quiz to earn your first certificate.</p>
+{% endif %}
+{% endblock %}

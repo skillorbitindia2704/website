@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}AI Lab Hardware — Admin{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('AI Lab Hardware', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">AI Lab Hardware Manager</h1>
+<p class="muted">Add/edit hardware items and icons used on the AI Lab setup page.</p>
+
+<div class="actions-inline" style="margin-top:1.25rem;">
+  <form method="get" action="{{ url_for('admin.ai_lab_hardware') }}" style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:flex-end;">
+    <div>
+      <label class="muted" style="font-weight:600;font-size:0.85rem;">Search</label>
+      <input type="text" name="q" value="{{ q }}" placeholder="Arduino, sensors..." style="min-width:240px;">
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm">Search</button>
+  </form>
+  <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.ai_lab_hardware') }}">Reset</a>
+</div>
+
+<div class="card-premium reveal" style="padding:0;margin-top:1rem;overflow-x:auto;">
+  <table class="table-modern">
+    <thead>
+      <tr>
+        <th>Order</th>
+        <th>Name</th>
+        <th>Category</th>
+        <th>Icon</th>
+        <th>Active</th>
+        <th style="width:220px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in items %}
+      <tr>
+        <td style="font-weight:600;">{{ it.display_order }}</td>
+        <td>
+          <strong>{{ it.name }}</strong>
+          {% if it.description %}
+          <br><span class="muted" style="font-size:0.85rem;">{{ it.description[:80] }}{% if it.description|length > 80 %}…{% endif %}</span>
+          {% endif %}
+        </td>
+        <td>{{ it.category }}</td>
+        <td>
+          {% if it.icon_path %}
+          <img src="{{ url_for('static', filename=it.icon_path) }}" alt="{{ it.name }}" style="width:34px;height:34px;object-fit:contain;border-radius:10px;border:1px solid var(--border);background:var(--bg-elevated);" loading="lazy">
+          {% else %}
+          <span class="muted">—</span>
+          {% endif %}
+        </td>
+        <td>
+          <span class="level-pill" style="font-size:0.65rem;background:{{ '#22c55e26' if it.is_active else '#6c757d26' }};color:{{ '#047857' if it.is_active else '#4b5563' }};border-color:transparent;">
+            {{ 'Yes' if it.is_active else 'No' }}
+          </span>
+        </td>
+        <td>
+          <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.ai_lab_hardware', q=q, page=page, edit=it.id) }}">Edit</a>
+          <form method="post" action="{{ url_for('admin.ai_lab_hardware_delete', item_id=it.id) }}" style="display:inline;margin-left:0.5rem;" onsubmit="return confirm('Delete this hardware item?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn-sm" style="color:#dc3545;">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      {% if not items %}
+      <tr><td colspan="6" class="muted">No hardware items yet.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+{% set total_pages = (total + per_page - 1) // per_page %}
+{% if total_pages > 1 %}
+<div style="margin-top:1rem;display:flex;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
+  <a class="btn btn-ghost btn-sm" {% if page <= 1 %}aria-disabled="true" style="opacity:0.5;pointer-events:none;"{% else %}href="{{ url_for('admin.ai_lab_hardware', q=q, page=page-1) }}"{% endif %}>Prev</a>
+  <div class="muted" style="align-self:center;">Page {{ page }} of {{ total_pages }}</div>
+  <a class="btn btn-ghost btn-sm" {% if page >= total_pages %}aria-disabled="true" style="opacity:0.5;pointer-events:none;"{% else %}href="{{ url_for('admin.ai_lab_hardware', q=q, page=page+1) }}"{% endif %}>Next</a>
+</div>
+{% endif %}
+
+<div class="card-premium surface-card-lg reveal" style="margin-top:1.5rem;">
+  <h2 class="page-title" style="font-size:1.2rem;margin-bottom:0.25rem;">{% if edit_item %}Edit{% else %}Create{% endif %} Hardware Item</h2>
+
+  <form method="post" action="{{ url_for('admin.ai_lab_hardware', q=q, page=1) }}" class="form-modern" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="item_id" value="{{ edit_item.id if edit_item else '' }}">
+
+    <div class="form-grid-2">
+      <div>
+        <label>Name *</label>
+        <input type="text" name="name" required value="{{ edit_item.name if edit_item else '' }}" />
+      </div>
+      <div>
+        <label>Category</label>
+        <input type="text" name="category" value="{{ edit_item.category if edit_item else '' }}" />
+      </div>
+    </div>
+
+    <label style="margin-top:1rem;">Description</label>
+    <textarea name="description" rows="3">{{ edit_item.description if edit_item else '' }}</textarea>
+
+    <div class="form-grid-2">
+      <div>
+        <label>Display order</label>
+        <input type="number" name="display_order" min="0" value="{{ edit_item.display_order if edit_item else 0 }}" />
+      </div>
+      <div>
+        <label>Active</label>
+        <select name="is_active">
+          <option value="1" {% if edit_item is none or edit_item.is_active %}selected{% endif %}>Yes</option>
+          <option value="0" {% if edit_item and not edit_item.is_active %}selected{% endif %}>No</option>
+        </select>
+      </div>
+    </div>
+
+    <label style="margin-top:1rem;">Icon / image upload</label>
+    <input type="file" name="icon" accept="image/*" />
+    {% if edit_item and edit_item.icon_path %}
+    <div style="margin-top:0.75rem;">
+      <p class="muted" style="margin:0 0 0.5rem;">Current icon</p>
+      <img src="{{ url_for('static', filename=edit_item.icon_path) }}" alt="{{ edit_item.name }}" style="width:92px;height:92px;object-fit:contain;border-radius:18px;border:1px solid var(--border);" loading="lazy">
+    </div>
+    {% endif %}
+
+    <div class="form-actions-row">
+      <button type="submit" class="btn btn-primary">Save hardware</button>
+      {% if edit_item %}
+      <a class="btn btn-ghost" href="{{ url_for('admin.ai_lab_hardware', q=q, page=1) }}">Cancel edit</a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}
+

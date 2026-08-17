@@ -1,0 +1,29 @@
+{% extends "dashboard/layout.html" %}
+{% block title %}My Courses — Skill Orbit India{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Dashboard', url_for('dashboard.index')), ('Courses', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block dash_content %}
+<h1 style="font-size:1.5rem;">My courses</h1>
+<p class="muted">Resume learning anytime — progress syncs automatically.</p>
+<div class="grid-cards" style="margin-top:1.25rem;">
+  {% for e in enrollments %}
+  <article class="card-premium course-card reveal">
+    <div class="card-body">
+      <h3>{{ e.course.title }}</h3>
+      <p class="muted" style="font-size:0.85rem;">{{ e.course.instructor_name }} · {{ e.course.level }}</p>
+      <div class="progress-track">
+        <div class="progress-fill" style="width: {{ e.progress_pct }}%;"></div>
+      </div>
+      <p class="muted" style="font-size:0.8rem;margin-top:0.35rem;">{{ e.progress_pct }}% complete · Quiz: {{ 'Passed' if e.quiz_passed else 'Pending' }}</p>
+      <a href="{{ url_for('courses.learn', course_id=e.course.id) }}" class="btn btn-primary btn-sm" style="margin-top:0.75rem;">Continue</a>
+    </div>
+  </article>
+  {% else %}
+  <p class="muted">No enrollments. <a href="{{ url_for('courses.list_courses') }}">Explore courses</a>.</p>
+  {% endfor %}
+</div>
+{% endblock %}
