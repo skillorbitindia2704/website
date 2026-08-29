@@ -182,6 +182,8 @@ def _ensure_ai_lab_packages():
 
 def create_app():
     app = Flask(__name__)
+
+    os.makedirs(app.instance_path, exist_ok=True)
     
     # Configure production logging with RotatingFileHandler
     import logging
