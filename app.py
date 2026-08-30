@@ -212,14 +212,42 @@ def create_app():
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key-change")
 
     configured_db_uri = os.getenv("DATABASE_URL")
-    if configured_db_uri:
-        uri = configured_db_uri.strip()
-        if uri.lower().startswith("sqlite:///") and not uri.lower().startswith("sqlite:////"):
-            relative_db_path = uri[len("sqlite:///") :].strip()
-            if relative_db_path:
-                sqlite_file = os.path.normpath(os.path.join(app.instance_path, relative_db_path))
-                uri = f"sqlite:///{sqlite_file}"
-        app.config["SQLALCHEMY_DATABASE_URI"] = uri
+
+if configured_db_uri:
+    uri = configured_db_uri.strip()
+
+    # PostgreSQL: explicitly use Psycopg 3
+    if uri.startswith("postgres://"):
+        uri = uri.replace(
+            "postgres://",
+            "postgresql+psycopg://",
+            1
+        )
+    elif uri.startswith("postgresql://"):
+        uri = uri.replace(
+            "postgresql://",
+            "postgresql+psycopg://",
+            1
+        )
+
+    # SQLite: keep existing local-development behavior
+    elif uri.lower().startswith("sqlite:///") and not uri.lower().startswith("sqlite:////"):
+        relative_db_path = uri[len("sqlite:///") :].strip()
+        if relative_db_path:
+            sqlite_file = os.path.normpath(
+                os.path.join(app.instance_path, relative_db_path)
+            )
+            uri = f"sqlite:///{sqlite_file}"
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = uri
+
+else:
+    # Local development fallback
+    db_file = os.path.join(
+        app.instance_path,
+        "skill_orbit_india.db"
+    )
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_file}"
     else:
         # Keep SQLite under the instance folder so local dev and deployment both point to a stable file.
         db_file = os.path.join(app.instance_path, "skill_orbit_india.db")
