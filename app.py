@@ -182,8 +182,6 @@ def _ensure_ai_lab_packages():
 
 def create_app():
     app = Flask(__name__)
-
-    os.makedirs(app.instance_path, exist_ok=True)
     
     # Configure production logging with RotatingFileHandler
     import logging
@@ -212,7 +210,6 @@ def create_app():
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key-change")
 
     configured_db_uri = os.getenv("DATABASE_URL")
-    
     if configured_db_uri:
         uri = configured_db_uri.strip()
         if uri.lower().startswith("sqlite:///") and not uri.lower().startswith("sqlite:////"):
@@ -221,13 +218,6 @@ def create_app():
                 sqlite_file = os.path.normpath(os.path.join(app.instance_path, relative_db_path))
                 uri = f"sqlite:///{sqlite_file}"
         app.config["SQLALCHEMY_DATABASE_URI"] = uri
-else:
-    # Local development fallback
-    db_file = os.path.join(
-        app.instance_path,
-        "skill_orbit_india.db"
-    )
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_file}"
     else:
         # Keep SQLite under the instance folder so local dev and deployment both point to a stable file.
         db_file = os.path.join(app.instance_path, "skill_orbit_india.db")
