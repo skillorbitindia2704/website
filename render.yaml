@@ -10,4 +10,6 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
-        value: sqlite:///skill_orbit_india.db
+        fromDatabase:
+          name: skill-orbit-india-db
+          property: connectionString
