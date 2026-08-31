@@ -1623,12 +1623,14 @@ a:hover {
   padding: 1.5rem;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-soft);
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--bg-elevated);
+  color: var(--text);
   box-shadow: var(--shadow-sm);
 }
 
 [data-theme="dark"] .dash-sidebar {
-  background: rgba(15, 23, 42, 0.92);
+  background: var(--bg-elevated);
+  color: var(--text);
 }
 
 .dash-sidebar-title {
@@ -1646,11 +1648,13 @@ a:hover {
 }
 
 .dash-nav-link {
+  display: block;
   padding: 0.7rem 0.9rem;
   border-radius: var(--radius-sm);
-  color: var(--text-muted);
+  color: var(--text);
   font-size: 0.95rem;
   font-weight: 600;
+  text-decoration: none;
   transition: all var(--transition-fast);
 }
 
