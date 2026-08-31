@@ -209,24 +209,53 @@ def create_app():
 
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key-change")
 
+    # Database configuration
+    #
+    # Local development:
+    #   - If DATABASE_URL is not set, continue using SQLite exactly as before.
+    #
+    # Render / PostgreSQL:
+    #   - Render may provide a DATABASE_URL beginning with postgresql://
+    #     (or the legacy postgres:// form).
+    #   - The project already uses psycopg v3, so explicitly select the
+    #     psycopg SQLAlchemy driver with postgresql+psycopg://.
     configured_db_uri = os.getenv("DATABASE_URL")
     if configured_db_uri:
         uri = configured_db_uri.strip()
+
+        # Preserve the existing SQLite path handling.
         if uri.lower().startswith("sqlite:///") and not uri.lower().startswith("sqlite:////"):
             relative_db_path = uri[len("sqlite:///") :].strip()
             if relative_db_path:
                 sqlite_file = os.path.normpath(os.path.join(app.instance_path, relative_db_path))
                 uri = f"sqlite:///{sqlite_file}"
+
+        # SQLAlchemy defaults postgresql:// to the psycopg2 dialect in this
+        # environment. This application uses psycopg v3, so explicitly
+        # select the psycopg driver to avoid importing psycopg2.
+        elif uri.lower().startswith("postgres://"):
+            uri = "postgresql+psycopg://" + uri[len("postgres://") :]
+        elif uri.lower().startswith("postgresql://"):
+            uri = "postgresql+psycopg://" + uri[len("postgresql://") :]
+
         app.config["SQLALCHEMY_DATABASE_URI"] = uri
     else:
-        # Keep SQLite under the instance folder so local dev and deployment both point to a stable file.
+        # Keep SQLite under the instance folder so local development remains
+        # compatible with the existing setup.
         db_file = os.path.join(app.instance_path, "skill_orbit_india.db")
         app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_file}"
 
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    if app.config["SQLALCHEMY_DATABASE_URI"].startswith("sqlite"):
+
+    if app.config["SQLALCHEMY_DATABASE_URI"].lower().startswith("sqlite"):
+        # SQLite-specific connection options.
         app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
             "connect_args": {"check_same_thread": False, "timeout": 30},
+            "pool_pre_ping": True,
+        }
+    elif app.config["SQLALCHEMY_DATABASE_URI"].lower().startswith("postgresql+psycopg://"):
+        # PostgreSQL / psycopg v3 connection options.
+        app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
             "pool_pre_ping": True,
         }
     # Allow larger LMS media uploads (per-route validation still applies).
@@ -536,7 +565,12 @@ def create_app():
     with app.app_context():
         try:
             db.create_all()
-            migrate_sqlite_schema(app)
+
+            # migrate_sqlite_schema() contains SQLite-specific schema migration
+            # logic. Never run it against PostgreSQL.
+            if app.config["SQLALCHEMY_DATABASE_URI"].lower().startswith("sqlite"):
+                migrate_sqlite_schema(app)
+
             _ensure_admin_account()
             _ensure_ai_lab_packages()
             ensure_default_service_packages()
