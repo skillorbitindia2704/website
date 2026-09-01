@@ -2814,6 +2814,11 @@ a:hover {
   
 }
 
+.dash-sidebar.glass-panel {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
 .hide-mobile {
   display: inline-flex;
 }
