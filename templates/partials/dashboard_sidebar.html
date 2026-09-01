@@ -1,4 +1,4 @@
-<aside class="dash-sidebar glass-panel">
+<aside class="dash-sidebar">
   {% set role = session.get('role') or (current_user.role if current_user.is_authenticated else None) %}
   <p class="dash-sidebar-title">{{ role|capitalize if role else 'My' }} workspace</p>
   <nav class="dash-nav">
