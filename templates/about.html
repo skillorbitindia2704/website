@@ -675,23 +675,6 @@
     countEls.forEach(function (el) { io.observe(el); });
   }
 
-  var detail = document.getElementById("about-timeline-detail");
-  document.querySelectorAll(".about-timeline-node").forEach(function (btn) {
-    function render() {
-      var y = btn.getAttribute("data-year") || "";
-      var t = btn.getAttribute("data-title") || "";
-      var d = btn.getAttribute("data-desc") || "";
-      var b = btn.getAttribute("data-badge") || "";
-      if (detail) {
-        var badgeHtml = b ? " <span style='font-size:0.75rem;padding:0.15rem 0.4rem;border-radius:6px;background:rgba(79,70,229,0.14);color:#4f46e5;font-weight:600;margin-left:0.5rem;'>" + b + "</span>" : "";
-        detail.innerHTML = "<p style='margin:0;font-weight:900;display:flex;align-items:center;'>" + y + " — " + t + badgeHtml + "</p>" +
-          "<p class='muted' style='margin:0.35rem 0 0;white-space:pre-wrap;'>" + (d || "Tap other milestones to explore.") + "</p>";
-      }
-    }
-    btn.addEventListener("mouseenter", render);
-    btn.addEventListener("click", render);
-  });
-
   var lb = document.getElementById("about-lightbox");
   var lbImg = document.getElementById("about-lightbox-img");
   var lbTitle = document.getElementById("about-lightbox-title");
