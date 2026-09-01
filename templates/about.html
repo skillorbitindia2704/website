@@ -381,13 +381,25 @@
     {% if timeline %}
       {% for t in timeline %}
       <button type="button" class="about-timeline-node" data-year="{{ t.year|e }}" data-title="{{ t.title|e }}" data-desc="{{ t.description|e }}" data-badge="{{ t.achievement_badge|e if t.achievement_badge else '' }}">
+       
         <p class="muted" style="margin:0;font-weight:800;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
           <span>{{ t.year }}</span>
+          
           {% if t.achievement_badge %}
-          <span class="timeline-badge">{{ t.achievement_badge }}</span>
+            ...
           {% endif %}
         </p>
-        <p style="margin:0.25rem 0 0;font-weight:800;">{{ t.title }}</p>
+
+        <p style="margin:0.25rem 0 0;font-weight:800;">
+          {{ t.title }}
+        </p>
+          
+        {% if t.description %}
+        <p class="muted" style="margin:0.5rem 0 0;line-height:1.5;font-size:0.9rem;">
+          {{ t.description }}
+        </p>
+        {% endif %}
+        
       </button>
       {% endfor %}
     {% else %}
