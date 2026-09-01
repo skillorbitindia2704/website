@@ -2376,24 +2376,21 @@ a:hover {
 }
 
 .about-timeline-node {
-  scroll-snap-align: start;
-  flex: 0 0 auto;
-  padding: 0.75rem 1rem;
+  flex: 0 0 100%;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1rem 1.25rem;
   border-radius: 16px;
   border: 1px solid var(--border);
   background: var(--bg-elevated);
   box-shadow: var(--shadow-xs);
-  cursor: pointer;
-  min-width: 220px;
+  cursor: default;
+  min-width: 0;
   text-align: left;
   font-family: inherit;
   color: inherit;
-  transition: all var(--transition-fast);
-}
-
-.about-timeline-node:hover {
-  border-color: rgba(79, 70, 229, 0.3);
-  box-shadow: var(--shadow-sm);
+  white-space: normal;
+  transition: none;
 }
 
 .about-timeline-node:focus {
