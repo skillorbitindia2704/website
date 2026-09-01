@@ -377,7 +377,7 @@
   <h2>Our journey</h2>
 </div>
   <section class="card-premium reveal" style="padding:1.25rem;overflow:hidden;">
-  <div class="about-timeline" style="display:flex;gap:1rem;overflow:auto;padding:0.5rem 0.25rem;scroll-snap-type:x mandatory;">
+  <div class="about-timeline" style="display:flex;gap:1rem;overflow:auto;padding:0.5rem 0.25rem;">
     {% if timeline %}
       {% for t in timeline %}
       <button type="button" class="about-timeline-node" data-year="{{ t.year|e }}" data-title="{{ t.title|e }}" data-desc="{{ t.description|e }}" data-badge="{{ t.achievement_badge|e if t.achievement_badge else '' }}">
