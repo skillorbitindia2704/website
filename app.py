@@ -108,26 +108,18 @@ if load_dotenv is not None:
 
 def _ensure_admin_account():
     """Create fixed default admin on first run if not present."""
-    admin_email = "skillorbitindia2704@gmail.com"
-    admin_password = "MAAN0864208642"
+    admin_email = os.getenv("ADMIN_EMAIL", "skillorbitindia2704@gmail.com").strip().lower()
     existing = User.query.filter_by(email=admin_email).first()
+    
     if existing:
         return
-    password_hash = bcrypt.generate_password_hash(admin_password).decode("utf-8")
-    if not existing:
-        user = User(
-            full_name="Platform Admin",
-            email=admin_email,
-            password_hash=password_hash,
-            role="admin",
-            is_admin=True,
-            is_approved=True,
+    admin_password = os.getenv("ADMIN_PASSWORD")    
+    if not admin_password:
+        raise RuntimeError(
+            "ADMIN_PASSWORD environment variable is required to create the admin account."
         )
-        user.sync_admin_flags()
-        db.session.add(user)
-        db.session.commit()
-
-
+    password_hash = bcrypt.generate_password_hash(admin_password).decode("utf-8")
+    
 def _ensure_ai_lab_packages():
     """Seed default AI Lab packages on first run if none exist."""
     try:
