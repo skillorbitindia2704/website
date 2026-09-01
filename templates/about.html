@@ -255,17 +255,29 @@
   {% if what_we_offer_cards %}
     {% for card in what_we_offer_cards %}
     <article class="card-premium surface-card-lg d-flex flex-column min-h-200">
+      
       <div style="display:flex;align-items:center;gap:0.75rem;">
-        <div class="about-feature-icon">{{ (card.icon|remix_icon) if card.icon else ('✨'|remix_icon) }}</div>
-        <h3 class="card-title-sm" style="margin:0;">{{ card.title }}</h3>
+        <div class="about-feature-icon">
+          {{ (card.icon|remix_icon) if card.icon else ('✨'|remix_icon) }}
+        </div>
+        
+        <h3 class="card-title-sm" style="margin:0;">
+          {{ card.title }}
+        </h3>
       </div>
-      <p class="muted" style="margin-top:0.75rem;line-height:1.6;flex:1;">{{ card.description }}</p>
-      {% if card.link %}
-       <a href="{{ card.link }}" class="btn btn-ghost btn-sm btn-fit">Learn more</a>
+      <p class="muted" style="margin-top:0.75rem;line-height:1.6;flex:1;">
+        {{ card.description }}
+      </p>
+      
+      {% if card.btn_link %}
+       <a href="{{ card.link }}" class="btn btn-ghost btn-sm btn-fit">
+         {{ card.btn_text or 'Learn more' }}
+       </a>
       {% endif %}
+      
     </article>
     {% endfor %}
-  {% else %}
+  {% endif %}
     {% set offers = [
       ('AI & Machine Learning','Practical ML foundations + applied AI.','ri-brain-line', url_for('courses.list_courses')),
       ('Robotics Training','Arduino + sensors + robotics builds.','ri-robot-2-line', url_for('courses.list_courses')),
