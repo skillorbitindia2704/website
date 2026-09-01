@@ -311,8 +311,19 @@
   {% if why_choose_us_cards %}
     {% for card in why_choose_us_cards %}
     <article class="card-premium surface-card">
-      <h3 class="card-title-sm">{{ card.title }}</h3>
-      <p class="muted" style="margin:0;line-height:1.6;">{{ card.description }}</p>
+      <div style="display:flex;align-items:centre;gap:0.75rem;">
+        <div class="about-feature-icon">
+          {{ (card.icon|remix_icon) if card.icon else ("✨"|remix_icon }}
+      </div>
+      
+      <h3 class="card-title-sm" style="margin:0;">
+        {{ card.title }}
+      </h3>
+    </div>
+      
+      <p class="muted" style="margin:0;line-height:1.6;">
+        {{ card.desc }}
+      </p>
     </article>
     {% endfor %}
   {% else %}
