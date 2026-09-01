@@ -159,13 +159,16 @@ a:hover {
 
 .nav-brand {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: center;
+  gap: 2px;
   color: var(--text);
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 1.1rem;
   transition: transform var(--transition-fast);
+  flex: 0 0 auto;
 }
 
 .nav-brand:hover {
@@ -174,8 +177,13 @@ a:hover {
 
 .nav-brand-text {
   display: inline-flex;
-  flex-direction: column;
-  line-height: 1.05;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  line-height: 1;
+  white-space: nowrap;
+  font-size: 0.82rem;
 }
 
 .nav-brand-text em {
