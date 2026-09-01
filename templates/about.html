@@ -266,18 +266,20 @@
         </h3>
       </div>
       <p class="muted" style="margin-top:0.75rem;line-height:1.6;flex:1;">
-        {{ card.description }}
+        {{ card.desc }}
       </p>
       
       {% if card.btn_link %}
-       <a href="{{ card.link }}" class="btn btn-ghost btn-sm btn-fit">
+       <a href="{{ card.btn_link }}" class="btn btn-ghost btn-sm btn-fit">
          {{ card.btn_text or 'Learn more' }}
        </a>
       {% endif %}
       
     </article>
     {% endfor %}
-  {% endif %}
+  
+  {% else %}
+  
     {% set offers = [
       ('AI & Machine Learning','Practical ML foundations + applied AI.','ri-brain-line', url_for('courses.list_courses')),
       ('Robotics Training','Arduino + sensors + robotics builds.','ri-robot-2-line', url_for('courses.list_courses')),
