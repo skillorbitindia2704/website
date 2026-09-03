@@ -211,6 +211,12 @@ def _save_branding_upload(file_storage, *, kind: str) -> str:
         raise ValueError("Could not upload branding image. Please try again.")
 
 def _branding_static_url(rel_path: str) -> str:
+    if not rel_path:
+        return ""
+
+    if rel_path.startswith(("http://", "https://")):
+        return rel_path
+
     return url_for("static", filename=rel_path)
 
 
