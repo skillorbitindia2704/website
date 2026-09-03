@@ -446,23 +446,10 @@ def create_app():
     @app.context_processor
     def inject_globals() -> Dict[str, Any]:
         # Make admin permission helper available in all templates.
-        # (Used by templates/admin/index.html)
         try:
-            from utils.role_auth import admin_can  # local import avoids cycles
+            from utils.role_auth import admin_can
         except Exception:
             admin_can = cast(Callable[[str], bool], lambda _key: False)
-            
-                # If a template passes an already-hosted asset URL
-                # such as a Cloudinary URL to url_for('static', filename=...),
-                # return that URL directly instead of prefixing /static/.
-                if endpoint == "static":
-                    filename = values.get("filename")
-
-                    if isinstance(filename, str):
-                        filename = filename.strip()
-
-                    if filename.startswith(("http://", "https://")):
-                        return filename
 
         site_url = (os.getenv("SITE_URL") or "").rstrip("/")
         if not site_url and has_request_context():
@@ -481,14 +468,15 @@ def create_app():
             "dark_logo_url": "",
             "favicon_url": "",
         }
+
         site_settings = dict(default_settings)
+
         try:
             rows = SiteSetting.query.all()
             for row in rows:
                 if row.key in site_settings and row.value:
                     site_settings[row.key] = row.value
         except Exception:
-            # If table is not ready yet, keep defaults.
             pass
 
         return {
