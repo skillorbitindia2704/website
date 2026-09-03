@@ -184,22 +184,31 @@ def _save_branding_upload(file_storage, *, kind: str) -> str:
         if int(file_storage.content_length) > MAX_BRANDING_UPLOAD_BYTES:
             raise ValueError("File too large. Max size is 5MB.")
 
-    # Ensure branding directory exists
-    upload_abs_dir = os.path.join(current_app.static_folder, BRANDING_DIR_REL)
-    os.makedirs(upload_abs_dir, exist_ok=True)
-
-    # Unique name (keep extension)
     ext = filename.rsplit(".", 1)[1].lower()
-    from datetime import datetime
-    import os as py_os
-    unique_name = f"{kind}_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{py_os.urandom(8).hex()}.{ext}"
-    abs_path = os.path.join(upload_abs_dir, unique_name)
+    public_id = f"branding/{kind}_{uuid4().hex}"
 
-    file_storage.save(abs_path)
+    try:
+        import cloudinary.uploader
 
-    # Store as relative path for url_for('static')
-    rel_path = os.path.join(BRANDING_DIR_REL, unique_name).replace(os.sep, "/")
-    return rel_path
+        result = cloudinary.uploader.upload(
+            file_storage,
+            public_id=public_id,
+            resource_type="image",
+            overwrite=False,
+            invalidate=True,
+        )
+
+        secure_url = result.get("secure_url")
+        if not secure_url:
+            raise RuntimeError("Cloudinary did not return an image URL.")
+
+        return secure_url
+
+    except Exception as exc:
+        current_app.logger.error(
+            f"Cloudinary branding upload failed for {kind}: {exc}"
+        )
+        raise ValueError("Could not upload branding image. Please try again.")
 
 def _branding_static_url(rel_path: str) -> str:
     return url_for("static", filename=rel_path)
