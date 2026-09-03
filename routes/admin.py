@@ -2334,7 +2334,7 @@ def home_testimonials():
 
             img = request.files.get("image")
             if img and img.filename:
-                row.image_path = _upload_ai_lab_asset(
+                row.image_path = _upload_about_hero_image(img)(
                     img,
                     subdir=os.path.join("home", "testimonials").replace("\\", "/"),
                     allowed_exts=ALLOWED_AI_IMAGE_EXTENSIONS,
