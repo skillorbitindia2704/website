@@ -3142,32 +3142,72 @@ def about_restore_version(version_id: int):
 
 @admin_bp.post("/about/delete-image/<image_field>")
 @admin_required
+@admin_bp.post("/about/delete-image/<image_field>")
+@admin_required
 def about_delete_image(image_field: str):
-    """Deletes uploaded hero or story images from disk and database."""
+    """Delete About page image from Cloudinary or local storage and database."""
     allowed_fields = {"hero_image", "who_we_are_side_image", "seo_og_image"}
+
     if image_field not in allowed_fields:
         flash("Invalid operation.", "danger")
         return redirect(url_for("admin.about_manager"))
-        
+
     row = AboutContent.query.filter_by(key=image_field).first()
+
     if row and row.value:
-        filepath = os.path.join(current_app.static_folder, row.value)
-        if os.path.exists(filepath):
+        image_value = row.value
+
+        # Cloudinary image
+        if image_value.startswith(("http://", "https://")):
             try:
-                os.remove(filepath)
+                import cloudinary.uploader
+
+                # Extract Cloudinary public ID from the URL
+                public_id = image_value.split("/upload/")[-1]
+
+                # Remove version number if present
+                parts = public_id.split("/")
+                if parts and parts[0].startswith("v") and parts[0][1:].isdigit():
+                    parts = parts[1:]
+
+                public_id = "/".join(parts)
+
+                # Remove file extension
+                public_id = os.path.splitext(public_id)[0]
+
+                cloudinary.uploader.destroy(
+                    public_id,
+                    resource_type="image",
+                    invalidate=True,
+                )
+
             except Exception as e:
-                current_app.logger.warning(f"Could not remove file {filepath}: {e}")
-        
+                current_app.logger.warning(
+                    f"Could not remove Cloudinary image {image_value}: {e}"
+                )
+
+        # Old/local image
+        else:
+            filepath = os.path.join(current_app.static_folder, image_value)
+
+            if os.path.exists(filepath):
+                try:
+                    os.remove(filepath)
+                except Exception as e:
+                    current_app.logger.warning(
+                        f"Could not remove local file {filepath}: {e}"
+                    )
+
         row.value = ""
+
         try:
             db.session.commit()
             flash("Image deleted successfully.", "info")
         except SQLAlchemyError:
             db.session.rollback()
             flash("Database update failed.", "danger")
-            
-    return redirect(url_for("admin.about_manager"))
 
+    return redirect(url_for("admin.about_manager"))
 
 @admin_bp.post("/about/reorder")
 @admin_required
