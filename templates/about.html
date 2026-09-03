@@ -132,7 +132,9 @@
             <div class="card-premium glass-hero-card">
               <div class="relative" style="aspect-ratio:4/3;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,rgba(79,70,229,.22),rgba(6,182,212,.18),rgba(249,115,22,.14));display:flex;align-items:center;justify-content:center;">
                 {% if content.hero_image %}
-                  <img src="{{ url_for('static', filename=content.hero_image) }}" alt="About Skill Orbit India" style="width:100%;height:100%;object-fit:cover;display:block;">
+                    <img src="{{ content.hero_image }}"
+                         alt="About Skill Orbit India"
+                         style="width:100%;height:100%;object-fit:cover;display:block;">
                 {% else %}
                   <div style="text-align:center;max-width:24ch;">
                     <div style="font-size:2.3rem;" aria-hidden="true"><i class="ri-robot-2-line"></i></div>
