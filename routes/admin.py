@@ -2785,10 +2785,6 @@ def _upload_about_image(file_storage):
     file_storage.save(abs_path)
     return f"{upload_rel_dir.replace(os.sep, '/')}/{unique_name}"
 
-
-@admin_bp.route("/about/manager", methods=["GET", "POST"])
-@admin_required
-
 def _upload_about_hero_image(file_storage):
     """Upload About Hero image to Cloudinary and return its permanent URL."""
     if not file_storage or not file_storage.filename:
@@ -2819,7 +2815,9 @@ def _upload_about_hero_image(file_storage):
         secure_url = result.get("secure_url")
 
         if not secure_url:
-            raise RuntimeError("Cloudinary did not return a secure image URL.")
+            raise RuntimeError(
+                "Cloudinary did not return a secure image URL."
+            )
 
         return secure_url
 
@@ -2830,6 +2828,9 @@ def _upload_about_hero_image(file_storage):
         raise ValueError(
             "Could not upload About Hero image. Please try again."
         )
+
+@admin_bp.route("/about/manager", methods=["GET", "POST"])
+@admin_required
         
 def about_manager():
     """Unified full-page CMS manager for all About page content, configurations, and sections."""
