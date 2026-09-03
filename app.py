@@ -7,6 +7,7 @@ try:
 except ImportError:
     load_dotenv = None
 from flask import Flask, flash, redirect, request, url_for, render_template
+import cloudinary
 from flask_wtf.csrf import CSRFError
 from markupsafe import Markup, escape
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
@@ -174,6 +175,13 @@ def _ensure_ai_lab_packages():
 
 def create_app():
     app = Flask(__name__)
+    
+        cloudinary.config(
+        cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+        api_key=os.getenv("CLOUDINARY_API_KEY"),
+        api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+        secure=True,
+    )
     
     # Configure production logging with RotatingFileHandler
     import logging
