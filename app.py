@@ -457,10 +457,25 @@ def create_app():
 
         def safe_url_for(endpoint, **values):
             try:
+                # If a template passes an already-hosted asset URL
+                # such as a Cloudinary URL to url_for('static', filename=...),
+                # return that URL directly instead of prefixing /static/.
+                if endpoint == "static":
+                    filename = values.get("filename")
+
+                    if isinstance(filename, str):
+                        filename = filename.strip()
+
+                    if filename.startswith(("http://", "https://")):
+                        return filename
+
                 return original_url_for(endpoint, **values)
+
             except BuildError as e:
-                app.logger.warning(f"Jinja BuildError for endpoint '{endpoint}': {e}. Falling back to '#'.")
-                return "#"
+                app.logger.warning(
+                    f"Jinja BuildError for endpoint '{endpoint}': {e}. Falling back to '#'."
+                )
+        return "#"
 
         site_url = (os.getenv("SITE_URL") or "").rstrip("/")
         if not site_url and has_request_context():
