@@ -236,16 +236,6 @@ def _branding_static_url(rel_path: str) -> str:
 
     return url_for("static", filename=rel_path)
 
-def _branding_static_url(rel_path: str) -> str:
-    if not rel_path:
-        return ""
-
-    if rel_path.startswith(("http://", "https://")):
-        return rel_path
-
-    return url_for("static", filename=rel_path)
-
-
 def _slugify_package_title(title: str) -> str:
     base = re.sub(r"[^a-z0-9]+", "-", (title or "").strip().lower()).strip("-")
     return base or f"package-{uuid4().hex[:8]}"
