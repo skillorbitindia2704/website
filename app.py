@@ -6,7 +6,7 @@ try:
     from dotenv import load_dotenv
 except ImportError:
     load_dotenv = None
-from flask import Flask, flash, redirect, request, url_for, render_template
+from flask import Flask, flash, redirect, request, url_for, render_template, has_request_context
 import cloudinary
 from flask_wtf.csrf import CSRFError
 from markupsafe import Markup, escape
@@ -451,12 +451,7 @@ def create_app():
             from utils.role_auth import admin_can  # local import avoids cycles
         except Exception:
             admin_can = cast(Callable[[str], bool], lambda _key: False)
-
-        from flask import has_request_context, request, url_for as original_url_for
-        from werkzeug.routing import BuildError
-
-        def safe_url_for(endpoint, **values):
-            try:
+            
                 # If a template passes an already-hosted asset URL
                 # such as a Cloudinary URL to url_for('static', filename=...),
                 # return that URL directly instead of prefixing /static/.
@@ -468,14 +463,6 @@ def create_app():
 
                     if filename.startswith(("http://", "https://")):
                         return filename
-
-                return original_url_for(endpoint, **values)
-
-            except BuildError as e:
-                app.logger.warning(
-                    f"Jinja BuildError for endpoint '{endpoint}': {e}. Falling back to '#'."
-                )
-        return "#"
 
         site_url = (os.getenv("SITE_URL") or "").rstrip("/")
         if not site_url and has_request_context():
@@ -505,7 +492,6 @@ def create_app():
             pass
 
         return {
-            "url_for": safe_url_for,
             "current_year": datetime.now(timezone.utc).year,
             "admin_can": admin_can,
             "seo_site_url": site_url,
