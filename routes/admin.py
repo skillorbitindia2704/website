@@ -2936,9 +2936,9 @@ def about_manager():
             if "who_we_are_side_image" in request.files:
                 file = request.files["who_we_are_side_image"]
                 if file and file.filename:
-                    side_img_path = _upload_about_image(file)
-                    if side_img_path:
-                        set_content("who_we_are_side_image", side_img_path)
+                    side_img_url = _upload_about_hero_image(file)
+                    if side_img_url:
+                        set_content("who_we_are_side_image", side_img_url)
                         
             if "seo_og_image" in request.files:
                 file = request.files["seo_og_image"]
