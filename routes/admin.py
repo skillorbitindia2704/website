@@ -175,16 +175,27 @@ def _save_branding_upload(file_storage, *, kind: str) -> str:
     if not filename:
         raise ValueError("Invalid file name.")
 
-    allowed_exts = ALLOWED_LOGO_EXTS if kind in {"logo", "dark_logo"} else ALLOWED_FAVICON_EXTS
-    ok, err = _allowed_branding_file(filename, allowed_exts=allowed_exts)
+    allowed_exts = (
+        ALLOWED_LOGO_EXTS
+        if kind in {"logo", "dark_logo"}
+        else ALLOWED_FAVICON_EXTS
+    )
+
+    ok, err = _allowed_branding_file(
+        filename,
+        allowed_exts=allowed_exts,
+    )
+
     if not ok:
         raise ValueError(err)
 
-    if hasattr(file_storage, "content_length") and file_storage.content_length is not None:
+    if (
+        hasattr(file_storage, "content_length")
+        and file_storage.content_length is not None
+    ):
         if int(file_storage.content_length) > MAX_BRANDING_UPLOAD_BYTES:
             raise ValueError("File too large. Max size is 5MB.")
 
-    ext = filename.rsplit(".", 1)[1].lower()
     public_id = f"branding/{kind}_{uuid4().hex}"
 
     try:
@@ -199,16 +210,31 @@ def _save_branding_upload(file_storage, *, kind: str) -> str:
         )
 
         secure_url = result.get("secure_url")
+
         if not secure_url:
-            raise RuntimeError("Cloudinary did not return an image URL.")
+            raise RuntimeError(
+                "Cloudinary did not return an image URL."
+            )
 
         return secure_url
 
     except Exception as exc:
-        current_app.logger.error(
+        current_app.logger.exception(
             f"Cloudinary branding upload failed for {kind}: {exc}"
         )
-        raise ValueError("Could not upload branding image. Please try again.")
+        raise ValueError(
+            "Could not upload branding image. Please try again."
+        )
+
+
+def _branding_static_url(rel_path: str) -> str:
+    if not rel_path:
+        return ""
+
+    if rel_path.startswith(("http://", "https://")):
+        return rel_path
+
+    return url_for("static", filename=rel_path)
 
 def _branding_static_url(rel_path: str) -> str:
     if not rel_path:
