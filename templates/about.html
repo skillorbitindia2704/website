@@ -429,7 +429,7 @@
       <div style="display:flex;align-items:center;gap:0.9rem;">
         <div class="team-avatar">
           {% if m.image_path %}
-          <img src="{{ url_for('static', filename=m.image_path) }}" alt="{{ m.name }}" loading="lazy" decoding="async">
+          <img src="{{ m.image_path }}" alt="{{ m.name }}" loading="lazy" decoding="async">
           {% else %}
           <i class="ri-user-3-line" aria-hidden="true" style="font-size:1.35rem;"></i>
           {% endif %}
