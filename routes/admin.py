@@ -3139,9 +3139,6 @@ def about_restore_version(version_id: int):
         
     return redirect(url_for("admin.about_manager"))
 
-
-@admin_bp.post("/about/delete-image/<image_field>")
-@admin_required
 @admin_bp.post("/about/delete-image/<image_field>")
 @admin_required
 def about_delete_image(image_field: str):
