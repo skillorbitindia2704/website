@@ -24,9 +24,9 @@
   {% set favicon_url = ss.get('favicon_url','') %}
   {% set logo_url = ss.get('logo_url','') %}
 
-  <link rel="icon" type="image/png" href="{% if favicon_url %}{{ url_for('static', filename=favicon_url, _external=False) }}{% else %}{{ url_for('static', filename='images/skill-orbit-logo.png', _external=False) }}{% endif %}">
+  <link rel="icon" type="image/png" href="{% if favicon_url %}{{ favicon_url }}{% else %}{{ url_for('static', filename='images/skill-orbit-logo.png', _external=False) }}{% endif %}">
 
-  <meta property="og:image" content="{% block og_image %}{{ url_for('static', filename=(logo_url if logo_url else 'images/skill-orbit-logo.png'), _external=True) }}{% endblock %}">
+  <meta property="og:image" content="{% block og_image %}{% if logo_url %}{{ logo_url }}{% else %}{{ url_for('static', filename='images/skill-orbit-logo.png', _external=True) }}{% endif %}{% endblock %}">
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{% block twitter_title %}{{ self.title() }}{% endblock %}">
