@@ -13,14 +13,14 @@
   <div class="footer-inner">
     <div class="footer-brand">
       <img
-        src="{{ url_for('static', filename=footer_logo_url) if footer_logo_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
+        src="{{ footer_logo_url if footer_logo_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
         alt=""
         width="56"
         height="56"
         decoding="async"
         class="footer-logo-img"
-        data-light-src="{{ url_for('static', filename=footer_logo_url) if footer_logo_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
-        data-dark-src="{{ url_for('static', filename=footer_dark_logo_url) if footer_dark_logo_url else '' }}"
+        data-light-src="{{ footer_logo_url if footer_logo_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
+        data-dark-src="{{ footer_dark_logo_url if footer_dark_logo_url else '' }}"
       />
       <div>
         <strong>Skill Orbit India</strong>
