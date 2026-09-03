@@ -2928,7 +2928,7 @@ def about_manager():
                 file = request.files["hero_image"]
                 
                 if file and file.filename:
-                    hero_img_url = _upload_about_image(file)
+                    hero_img_url = _upload_about_hero_image(file)
                     
                     if hero_img_url:
                         set_content("hero_image", hero_img_url)
