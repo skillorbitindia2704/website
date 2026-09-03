@@ -2925,10 +2925,12 @@ def about_manager():
             # 7. File uploads
             if "hero_image" in request.files:
                 file = request.files["hero_image"]
+                
                 if file and file.filename:
-                    hero_img_path = _upload_about_image(file)
-                    if hero_img_path:
-                        set_content("hero_image", hero_img_path)
+                    hero_img_url = _upload_about_image(file)
+                    
+                    if hero_img_url:
+                        set_content("hero_image", hero_img_url)
             
             if "who_we_are_side_image" in request.files:
                 file = request.files["who_we_are_side_image"]
