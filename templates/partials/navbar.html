@@ -7,14 +7,14 @@
 
     <a href="{{ url_for('main.home') }}" class="nav-brand" aria-label="{{ seo_site_name }} — Home">
       <img
-        src="{{ url_for('static', filename=nav_logo_url) if nav_logo_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
+        src="{{ nav_logo_url if nav_logo_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
         alt=""
         width="48"
         height="48"
         decoding="async"
         class="nav-logo-img"
-        data-light-src="{{ url_for('static', filename=nav_logo_url) if nav_logo_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
-        data-dark-src="{{ url_for('static', filename=nav_dark_logo_url) if nav_dark_logo_url else '' }}"
+        data-light-src="{{ nav_logo_url if nav_logo_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
+        data-dark-src="{{ nav_dark_logo_url if nav_dark_logo_url else '' }}"
       />
       <span class="nav-brand-text">Skill Orbit <em>India</em></span>
     </a>
