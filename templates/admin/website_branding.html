@@ -25,8 +25,7 @@
       <div class="branding-preview">
         <img
           id="preview-logo"
-          src="{{ url_for('static', filename=logo_url) if logo_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
-          alt="Main logo preview"
+          src="{{ logo_url if logo_url else url_for('static', filename='images/skill-orbit-logo.png') }}"          alt="Main logo preview"
           loading="lazy"
           decoding="async"
         />
@@ -58,7 +57,7 @@
       <div class="branding-preview">
         <img
           id="preview-dark-logo"
-          src="{{ url_for('static', filename=dark_logo_url) if dark_logo_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
+          src="{{ dark_logo_url if dark_logo_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
           alt="Dark logo preview"
           loading="lazy"
           decoding="async"
@@ -91,7 +90,7 @@
       <div class="branding-preview">
         <img
           id="preview-favicon"
-          src="{{ url_for('static', filename=favicon_url) if favicon_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
+          src="{{ favicon_url if favicon_url else url_for('static', filename='images/skill-orbit-logo.png') }}"
           alt="Favicon preview"
           loading="lazy"
           decoding="async"
