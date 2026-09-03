@@ -2788,6 +2788,49 @@ def _upload_about_image(file_storage):
 
 @admin_bp.route("/about/manager", methods=["GET", "POST"])
 @admin_required
+
+def _upload_about_hero_image(file_storage):
+    """Upload About Hero image to Cloudinary and return its permanent URL."""
+    if not file_storage or not file_storage.filename:
+        return None
+
+    safe_name = secure_filename(file_storage.filename)
+
+    if not safe_name or "." not in safe_name:
+        raise ValueError("Invalid image file name.")
+
+    ext = safe_name.rsplit(".", 1)[1].lower()
+
+    if ext not in ALLOWED_PRODUCT_IMAGE_EXTENSIONS:
+        raise ValueError("Allowed image formats: png, jpg, jpeg, webp, gif.")
+
+    try:
+        import cloudinary.uploader
+
+        result = cloudinary.uploader.upload(
+            file_storage,
+            folder="skill-orbit-india/about",
+            public_id=f"hero_{uuid4().hex}",
+            resource_type="image",
+            overwrite=False,
+            invalidate=True,
+        )
+
+        secure_url = result.get("secure_url")
+
+        if not secure_url:
+            raise RuntimeError("Cloudinary did not return a secure image URL.")
+
+        return secure_url
+
+    except Exception as exc:
+        current_app.logger.exception(
+            f"Cloudinary About Hero upload failed: {exc}"
+        )
+        raise ValueError(
+            "Could not upload About Hero image. Please try again."
+        )
+        
 def about_manager():
     """Unified full-page CMS manager for all About page content, configurations, and sections."""
     from datetime import datetime
