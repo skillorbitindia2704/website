@@ -84,7 +84,7 @@
         <input type="file" name="image" accept="image/*" />
         {% if edit_item and edit_item.image_path %}
           <div style="margin-top:0.75rem;">
-            <img src="{{ edit_item.image_path }}"
+            <img src="{{ url_for('static', filename=edit_item.image_path) }}"
                  alt="{{ edit_item.name }}"
                  style="width:100px;height:100px;object-fit:cover;border-radius:12px;border:1px solid #ddd;">
             <p class="muted" style="margin:0.5rem 0 0;">
