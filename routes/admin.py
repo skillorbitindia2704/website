@@ -4030,11 +4030,8 @@ def about_team():
             row.is_active = is_active
 
             if img and img.filename:
-                row.image_path = _upload_ai_lab_asset(
-                    img,
-                    subdir=os.path.join("about", "team").replace("\\", "/"),
-                    allowed_exts=ALLOWED_AI_IMAGE_EXTENSIONS,
-                )
+                row.image_path = _upload_about_team_image(img)
+                
             db.session.add(row)
             db.session.commit()
             current_app.logger.info(f"Successfully saved team member ID {row.id}: Name='{row.name}', Role='{row.role}'")
