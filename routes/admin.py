@@ -2277,6 +2277,51 @@ def _upload_ai_lab_asset(file_storage, *, subdir: str, allowed_exts: set[str]) -
     file_storage.save(abs_path)
     return f"{upload_rel_dir}/{unique_name}"
 
+def _upload_about_gallery_image(file_storage) -> str:
+    """Upload About Gallery image to Cloudinary and return its permanent URL."""
+    if not file_storage or not getattr(file_storage, "filename", None):
+        raise ValueError("No image uploaded.")
+
+    safe_name = secure_filename(file_storage.filename)
+
+    if not safe_name or "." not in safe_name:
+        raise ValueError("Invalid image file name.")
+
+    ext = safe_name.rsplit(".", 1)[1].lower()
+
+    if ext not in ALLOWED_AI_IMAGE_EXTENSIONS:
+        raise ValueError(
+            "Allowed image formats: png, jpg, jpeg, webp, gif."
+        )
+
+    try:
+        import cloudinary.uploader
+
+        result = cloudinary.uploader.upload(
+            file_storage,
+            folder="skill-orbit-india/about/gallery",
+            public_id=f"gallery_{uuid4().hex}",
+            resource_type="image",
+            overwrite=False,
+            invalidate=True,
+        )
+
+        secure_url = result.get("secure_url")
+
+        if not secure_url:
+            raise RuntimeError(
+                "Cloudinary did not return a secure image URL."
+            )
+
+        return secure_url
+
+    except Exception as exc:
+        current_app.logger.exception(
+            f"Cloudinary About Gallery upload failed: {exc}"
+        )
+        raise ValueError(
+            "Could not upload About Gallery image. Please try again."
+        )
 
 # =========================
 # Homepage CMS (Testimonials, Events)
@@ -4215,11 +4260,7 @@ def about_gallery():
             row.is_active = is_active
             
             if img and img.filename:
-                row.image_path = _upload_ai_lab_asset(
-                    img,
-                    subdir=os.path.join("about", "gallery").replace("\\", "/"),
-                    allowed_exts=ALLOWED_AI_IMAGE_EXTENSIONS,
-                )
+                row.image_path = _upload_about_gallery_image(img)
             
             if not row.image_path:
                 raise ValueError("Image path is missing.")
