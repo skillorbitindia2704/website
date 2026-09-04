@@ -484,18 +484,39 @@
 <section class="grid-cards reveal" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
   {% if gallery %}
     {% for g in gallery %}
+  
+        {% if g.image_path and (g.image_path.startswith('http://') or g.image_path.startswith('https://')) %}
+            {% set gallery_image_url = g.image_path %}
+        {% else %}
+            {% set gallery_image_url = url_for('static', filename=g.image_path) %}
+        {% endif %}
+  
     <article class="card-premium card-img-full">
-      <a href="{{ url_for('static', filename=g.image_path) }}" data-lightbox="1" data-title="{{ g.title|e }}" class="about-gal-thumb">
-        <div class="card-img-wrap" style="aspect-ratio:4/3;">
-          <img src="{{ url_for('static', filename=g.image_path) }}" alt="{{ g.title }}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;">
-        </div>
-      </a>
+      
+        <a href="{{ gallery_image_url }}"
+           data-lightbox="1"
+           data-title="{{ g.title|e }}"
+           class="about-gal-thumb">
+          
+            <div class="card-img-wrap" style="aspect-ratio:4/3;">
+              
+                <img src="{{ gallery_image_url }}"
+                     alt="{{ g.title }}"
+                     loading="lazy"
+                     decoding="async"
+                     style="width:100%;height:100%;object-fit:cover;">
+            </div>
+      
+        </a>
+      
       <div class="card-body">
         <h3 class="card-title-sm">{{ g.title }}</h3>
         <p class="muted" style="margin:0;">{{ g.category }}</p>
       </div>
-    </article>
-    {% endfor %}
+      
+  </article>
+{% endfor %}
+  
   {% else %}
     {% for t in ['Students working','Robotics projects','AI lab','Electronics hardware','Classroom training'] %}
     <article class="card-premium card-img-full">
