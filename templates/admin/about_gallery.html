@@ -28,8 +28,15 @@
       <td>{{ row.category }}</td>
       <td>{{ 'Yes' if row.is_active else 'No' }}</td>
       <td>
-        {% if row.image_path %}
-          <img src="{{ url_for('static', filename=row.image_path) }}" alt="" style="width:56px;height:40px;object-fit:cover;border-radius:8px;border:1px solid var(--border);" loading="lazy" />
+        {% if row.image_path and (row.image_path.startswith('http://') or row.image_path.startswith('https://')) %}
+            {% set gallery_image_url = row.image_path %}
+        {% else %}
+            {% set gallery_image_url = url_for('static', filename=row.image_path) %}
+        {% endif %}
+          <img src="{{ gallery_image_url }}"
+               alt=""
+               style="width:56px;height:40px;object-fit:cover;border-radius:8px;border:1px solid var(--border);"
+               loading="lazy" />
         {% endif %}
       </td>
       <td style="white-space:nowrap;">
