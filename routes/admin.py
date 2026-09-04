@@ -2289,7 +2289,7 @@ def _upload_about_gallery_image(file_storage) -> str:
 
     ext = safe_name.rsplit(".", 1)[1].lower()
 
-    if ext not in ALLOWED_AI_IMAGE_EXTENSIONS:
+    if ext not in ALLOWED_PRODUCT_IMAGE_EXTENSIONS:
         raise ValueError(
             "Allowed image formats: png, jpg, jpeg, webp, gif."
         )
