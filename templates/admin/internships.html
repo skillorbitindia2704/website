@@ -548,7 +548,7 @@
     currentActiveEditButton = btn;
     modalTitle.textContent = "Edit Internship Listing";
     var id = btn.getAttribute("data-id");
-    form.action = "{{ url_for('admin.edit_internship', iid=0) }}".replace("/0/", "/" + id + "/");
+    form.action = "{{ url_for('admin.edit_internship', iid=0) }}".replace("/0", "/" + id);
     document.getElementById("f-title").value = btn.getAttribute("data-title") || "";
     document.getElementById("f-description").value = btn.getAttribute("data-description") || "";
     document.getElementById("f-stipend").value = btn.getAttribute("data-stipend") || "";
