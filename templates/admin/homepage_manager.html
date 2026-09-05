@@ -597,7 +597,11 @@
             <input type="file" name="footer_promo_image" class="form-control mb-2">
             {% if content.footer_promo_image %}
             <div class="flex items-center gap-3 bg-slate-50 p-2 border rounded">
-              <img src="{{ url_for('static', filename=content.footer_promo_image) }}" class="w-16 h-12 object-cover border rounded">
+             <img
+               src="{% if content.footer_promo_image.startswith('http://') or content.footer_promo_image.startswith('https://') %}{{ content.footer_promo_image }}{% else %}{{ url_for('static', filename=content.footer_promo_image) }}{% endif %}"
+               class="w-16 h-12 object-cover border rounded"
+               alt="Footer Promo"
+             >
               <span class="text-xs truncate flex-1">{{ content.footer_promo_image }}</span>
               <button type="submit" form="homepage-delete-image-form" onclick="setActionField('footer_promo_image')" class="text-xs text-red-600 font-semibold cursor-pointer">Remove</button>
             </div>
