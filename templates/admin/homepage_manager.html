@@ -414,7 +414,11 @@
             <input type="file" name="ai_lab_image" class="form-control mb-2">
             {% if content.ai_lab_image %}
             <div class="flex items-center gap-3 bg-slate-50 p-2 border rounded">
-              <img src="{{ url_for('static', filename=content.ai_lab_image) }}" class="w-16 h-12 object-cover border rounded">
+              <img
+                src="{% if content.ai_lab_image.startswith('http://') or content.ai_lab_image.startswith('https://') %}{{ content.ai_lab_image }}{% else %}{{ url_for('static', filename=content.ai_lab_image) }}{% endif %}"
+                class="w-16 h-12 object-cover border rounded"
+                alt="AI Lab"
+              >
               <span class="text-xs truncate flex-1">{{ content.ai_lab_image }}</span>
               <button type="submit" form="homepage-delete-image-form" onclick="setActionField('ai_lab_image')" class="text-xs text-red-600 font-semibold cursor-pointer">Remove</button>
             </div>
