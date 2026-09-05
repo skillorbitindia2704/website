@@ -650,6 +650,9 @@
       setTimeout(function() { openEditModal(currentActiveEditButton); }, 200);
     }
   });
+  
+      delForm.action = "{{ url_for('admin.delete_internship', iid=0) }}".replace("/0", "/" + id + "/");
+      
       
       if (hasApps) {
         delMsg.innerHTML = "Listing <strong>" + title + "</strong> has active applicants. To preserve application history, it will be safely <strong>archived</strong> (status marked as Closed, visible flag turned Off, and closed for new intakes).";
