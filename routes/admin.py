@@ -3410,6 +3410,43 @@ def homepage_manager():
             set_content("hero_layout", request.form.get("hero_layout", "default").strip())
             set_content("hero_ai_lab_title", request.form.get("hero_ai_lab_title", "").strip())
             set_content("hero_ai_lab_description", request.form.get("hero_ai_lab_description", "").strip())
+            # Hero Carousel Configuration
+            set_content(
+                "hero_carousel_enabled",
+                "1" if request.form.get("hero_carousel_enabled") == "1" else "0"
+            )
+
+            set_content(
+                "hero_carousel_autoplay",
+                "1" if request.form.get("hero_carousel_autoplay") == "1" else "0"
+            )
+
+            try:
+                carousel_interval = int(
+                    request.form.get("hero_carousel_interval", "5").strip()
+                )
+            except (TypeError, ValueError):
+                carousel_interval = 5
+
+            carousel_interval = max(3, min(carousel_interval, 30))
+
+            set_content(
+                "hero_carousel_interval",
+                str(carousel_interval)
+            )
+
+            transition = request.form.get(
+                "hero_carousel_transition",
+                "fade"
+            ).strip().lower()
+
+            if transition not in {"fade", "slide"}:
+               transition = "fade"
+
+            set_content(
+                "hero_carousel_transition",
+                transition
+            )
 
             # 2. Section Visibilities Configuration
             set_content("section_visibilities", request.form.get("section_visibilities", "{}").strip())
