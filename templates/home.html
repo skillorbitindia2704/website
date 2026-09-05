@@ -78,9 +78,220 @@
   {% endif %}
   
   /* Apply animation transition speed */
-  .reveal {
-    transition: all {{ content.anim_transition_speed or '600' }}ms ease;
+.reveal {
+  transition: all {{ content.anim_transition_speed or '600' }}ms ease;
+}
+
+
+/* =========================================================
+   HERO PRESENTATION LAYOUTS
+   Controlled by Admin → Homepage Manager → Hero Layout
+   ========================================================= */
+
+
+/* =========================================================
+   1. DEFAULT
+   Standard Side-by-Side Layout
+   ========================================================= */
+
+.hero-layout-default .hero-layout-container {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.hero-layout-default .hero-layout-container > div:first-child {
+  grid-column: span 7 / span 7;
+}
+
+.hero-layout-default .hero-layout-container > div:last-child {
+  grid-column: span 5 / span 5;
+}
+
+
+/* =========================================================
+   2. MINIMAL
+   Centered Compact Layout
+   ========================================================= */
+
+.hero-layout-minimal .hero-layout-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  gap: 1.5rem;
+}
+
+.hero-layout-minimal .hero-layout-container > div:first-child {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-layout-minimal .hero-layout-container > div:last-child {
+  width: min(100%, 650px);
+}
+
+.hero-layout-minimal .hero-layout-container h1 {
+  max-width: 850px;
+}
+
+.hero-layout-minimal .hero-layout-container p {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+/* =========================================================
+   3. VISUAL HEAVY
+   Visual Banner Focus
+   ========================================================= */
+
+.hero-layout-visual-heavy .hero-layout-container {
+  position: relative;
+  display: block;
+  min-height: 620px;
+}
+
+
+/* Make visual card fill the hero */
+.hero-layout-visual-heavy .hero-layout-container > div:last-child {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+
+/* Keep text above visual */
+.hero-layout-visual-heavy .hero-layout-container > div:first-child {
+  position: relative;
+  z-index: 5;
+  max-width: 760px;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+
+/* Make visual card full size */
+.hero-layout-visual-heavy .glass-hero-card {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+
+/* Make hero image fill banner */
+.hero-layout-visual-heavy #hero-card-image {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 620px !important;
+  aspect-ratio: auto !important;
+  border-radius: 18px !important;
+}
+
+
+/* Make image itself cover entire area */
+.hero-layout-visual-heavy #hero-card-image img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+
+/* Dark overlay so white text remains readable */
+.hero-layout-visual-heavy .hero-layout-container > div:last-child::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(7, 12, 30, 0.90) 0%,
+    rgba(7, 12, 30, 0.60) 45%,
+    rgba(7, 12, 30, 0.20) 100%
+  );
+  border-radius: 18px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+
+/* Put feature cards above image */
+.hero-layout-visual-heavy #hero-card-features {
+  position: relative;
+  z-index: 6;
+}
+
+
+/* =========================================================
+   4. MOBILE RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1023px) {
+
+  /* Default layout becomes vertical */
+  .hero-layout-default .hero-layout-container {
+    display: flex;
+    flex-direction: column;
   }
+
+  .hero-layout-default .hero-layout-container > div:first-child,
+  .hero-layout-default .hero-layout-container > div:last-child {
+    width: 100%;
+  }
+
+
+  /* Minimal layout */
+  .hero-layout-minimal .hero-layout-container {
+    width: 100%;
+  }
+
+
+  /* Visual heavy layout */
+  .hero-layout-visual-heavy .hero-layout-container {
+    min-height: 560px;
+  }
+
+  .hero-layout-visual-heavy #hero-card-image {
+    min-height: 560px !important;
+  }
+
+  .hero-layout-visual-heavy .hero-layout-container > div:first-child {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+}
+
+
+@media (max-width: 640px) {
+
+  .hero-layout-default .hero-layout-container {
+    gap: 1.5rem;
+  }
+
+  .hero-layout-minimal .hero-layout-container {
+    gap: 1rem;
+  }
+
+  .hero-layout-visual-heavy .hero-layout-container {
+    min-height: 600px;
+  }
+
+  .hero-layout-visual-heavy #hero-card-image {
+    min-height: 600px !important;
+  }
+
+  .hero-layout-visual-heavy .hero-layout-container > div:first-child {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+}
 </style>
 {% endblock %}
 
