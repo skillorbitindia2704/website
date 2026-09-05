@@ -1077,21 +1077,25 @@
 {% endblock %}
 
 {% block extra_js %}
+
 <script>
 (function () {
-  // Simple client-side course filtering by level (no backend changes)
+  // Existing course filtering code
   const buttons = document.querySelectorAll(".js-course-filter");
   const cards = document.querySelectorAll("[data-course-level]");
+
   function setActive(btn) {
     buttons.forEach(b => b.classList.remove("btn-primary"));
     buttons.forEach(b => b.classList.add("btn-ghost"));
     btn.classList.remove("btn-ghost");
     btn.classList.add("btn-primary");
   }
+
   buttons.forEach((btn) => {
     btn.addEventListener("click", () => {
       const level = btn.getAttribute("data-level");
       setActive(btn);
+
       cards.forEach((c) => {
         const v = (c.getAttribute("data-course-level") || "").trim();
         const show = level === "all" || v === level;
@@ -1101,4 +1105,193 @@
   });
 })();
 </script>
+
+
+<!-- HERO CAROUSEL -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const carousel = document.getElementById("hero-card-image");
+
+    if (!carousel) {
+        return;
+    }
+
+    const slides = Array.from(
+        carousel.querySelectorAll(".hero-carousel-slide")
+    );
+
+    const dots = Array.from(
+        carousel.querySelectorAll(".hero-carousel-dot")
+    );
+
+    const prevButton = carousel.querySelector(
+        ".hero-carousel-prev"
+    );
+
+    const nextButton = carousel.querySelector(
+        ".hero-carousel-next"
+    );
+
+    // No carousel or only one image
+    if (slides.length <= 1) {
+        return;
+    }
+
+    // Admin: Enable Hero Carousel
+    const enabled =
+        carousel.dataset.enabled !== "0";
+
+    if (!enabled) {
+        return;
+    }
+
+    // Admin: Autoplay
+    const autoplay =
+        carousel.dataset.autoplay !== "0";
+
+    // Admin: Interval
+    const intervalSeconds = Math.max(
+        3,
+        Math.min(
+            30,
+            parseInt(
+                carousel.dataset.interval || "5",
+                10
+            ) || 5
+        )
+    );
+
+    // Accessibility
+    const reducedMotion =
+        window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+    let currentIndex = 0;
+    let autoplayTimer = null;
+
+    function showSlide(index) {
+        currentIndex =
+            (index + slides.length) % slides.length;
+
+        slides.forEach((slide, i) => {
+            slide.classList.toggle(
+                "is-active",
+                i === currentIndex
+            );
+        });
+
+        dots.forEach((dot, i) => {
+            dot.classList.toggle(
+                "is-active",
+                i === currentIndex
+            );
+        });
+    }
+
+    function nextSlide() {
+        showSlide(currentIndex + 1);
+    }
+
+    function previousSlide() {
+        showSlide(currentIndex - 1);
+    }
+
+    function stopAutoplay() {
+        if (autoplayTimer) {
+            clearInterval(autoplayTimer);
+            autoplayTimer = null;
+        }
+    }
+
+    function startAutoplay() {
+        stopAutoplay();
+
+        if (
+            autoplay &&
+            !reducedMotion &&
+            document.visibilityState === "visible"
+        ) {
+            autoplayTimer = setInterval(
+                nextSlide,
+                intervalSeconds * 1000
+            );
+        }
+    }
+
+    // NEXT button
+    if (nextButton) {
+        nextButton.addEventListener(
+            "click",
+            function () {
+                nextSlide();
+                startAutoplay();
+            }
+        );
+    }
+
+    // PREVIOUS button
+    if (prevButton) {
+        prevButton.addEventListener(
+            "click",
+            function () {
+                previousSlide();
+                startAutoplay();
+            }
+        );
+    }
+
+    // DOT navigation
+    dots.forEach((dot, index) => {
+        dot.addEventListener(
+            "click",
+            function () {
+                showSlide(index);
+                startAutoplay();
+            }
+        );
+    });
+
+    // Pause when mouse is over carousel
+    carousel.addEventListener(
+        "mouseenter",
+        stopAutoplay
+    );
+
+    // Resume when mouse leaves
+    carousel.addEventListener(
+        "mouseleave",
+        startAutoplay
+    );
+
+    // Pause when keyboard focuses carousel
+    carousel.addEventListener(
+        "focusin",
+        stopAutoplay
+    );
+
+    // Resume after keyboard focus leaves
+    carousel.addEventListener(
+        "focusout",
+        startAutoplay
+    );
+
+    // Pause when browser tab is hidden
+    document.addEventListener(
+        "visibilitychange",
+        function () {
+            if (document.visibilityState === "visible") {
+                startAutoplay();
+            } else {
+                stopAutoplay();
+            }
+        }
+    );
+
+    // Initialize
+    showSlide(0);
+    startAutoplay();
+});
+</script>
+
 {% endblock %}
