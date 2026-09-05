@@ -301,23 +301,50 @@ def _upload_product_image(file_storage):
 
 
 def _upload_hero_image(file_storage):
-    """Upload images for homepage hero section."""
-    if not file_storage or not file_storage.filename:
+    """Upload homepage hero images to Cloudinary and return a permanent URL."""
+    if not file_storage or not getattr(file_storage, "filename", None):
         return None
-    safe_name = secure_filename(file_storage.filename)
-    if "." not in safe_name:
-        raise ValueError("Invalid image file.")
-    ext = safe_name.rsplit(".", 1)[1].lower()
-    if ext not in ALLOWED_PRODUCT_IMAGE_EXTENSIONS:
-        raise ValueError("Allowed image formats: png, jpg, jpeg, webp, gif.")
-    upload_rel_dir = os.path.join("uploads", "homepage")
-    upload_abs_dir = os.path.join(current_app.static_folder, upload_rel_dir)
-    os.makedirs(upload_abs_dir, exist_ok=True)
-    unique_name = f"{uuid4().hex}_{safe_name}"
-    abs_path = os.path.join(upload_abs_dir, unique_name)
-    file_storage.save(abs_path)
-    return f"{upload_rel_dir.replace(os.sep, '/')}/{unique_name}"
 
+    safe_name = secure_filename(file_storage.filename)
+
+    if not safe_name or "." not in safe_name:
+        raise ValueError("Invalid image file.")
+
+    ext = safe_name.rsplit(".", 1)[1].lower()
+
+    if ext not in ALLOWED_PRODUCT_IMAGE_EXTENSIONS:
+        raise ValueError(
+            "Allowed image formats: png, jpg, jpeg, webp, gif."
+        )
+
+    try:
+        import cloudinary.uploader
+
+        result = cloudinary.uploader.upload(
+            file_storage,
+            folder="skill-orbit-india/homepage",
+            public_id=f"hero_{uuid4().hex}",
+            resource_type="image",
+            overwrite=False,
+            invalidate=True,
+        )
+
+        secure_url = result.get("secure_url")
+
+        if not secure_url:
+            raise RuntimeError(
+                "Cloudinary did not return a secure image URL."
+            )
+
+        return secure_url
+
+    except Exception as exc:
+        current_app.logger.exception(
+            f"Cloudinary homepage hero upload failed: {exc}"
+        )
+        raise ValueError(
+            "Could not upload homepage image. Please try again."
+        )
 
 @admin_bp.get("/")
 @admin_bp.get("/dashboard")
