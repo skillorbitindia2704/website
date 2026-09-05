@@ -113,7 +113,10 @@
 {% block content %}
 <!-- HERO -->
 {% if visibilities.hero %}
-<section class="reveal section-gap home-hero" aria-labelledby="home-hero-title">
+<section
+    class="reveal section-gap home-hero hero-layout-{{ content.hero_layout or 'default' }}"
+    aria-labelledby="home-hero-title"
+>
    <div class="card-premium card-img-full" style="border-radius:var(--radius-lg);">
     <div class="relative hero-grad-bg">
       <div class="absolute inset-0" style="background:
