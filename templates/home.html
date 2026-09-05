@@ -397,23 +397,76 @@
 
           <div class="lg:col-span-5">
             <div class="card-premium glass-hero-card">
-              <div style="aspect-ratio:4/3;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,rgba(79,70,229,.22),rgba(6,182,212,.18),rgba(249,115,22,.14));display:flex;align-items:center;justify-content:center;" id="hero-card-image">
-                {% if content.hero_image %}
+<div
+    id="hero-card-image"
+    class="hero-carousel"
+    data-enabled="{{ content.hero_carousel_enabled or '1' }}"
+    data-autoplay="{{ content.hero_carousel_autoplay or '1' }}"
+    data-interval="{{ content.hero_carousel_interval or '5' }}"
+    data-transition="{{ content.hero_carousel_transition or 'fade' }}"
+>
+    {% set hero_slides = [
+        ('main', content.hero_image, content.hero_heading),
+        ('ai-lab', content.hero_ai_lab_image, content.hero_ai_lab_title),
+        ('robotics', content.hero_robotics_image, 'AI & Robotics'),
+        ('workshop', content.hero_workshop_image, 'Skill Development Workshop')
+    ] %}
+
+    {% set slide_index = namespace(value=0) %}
+
+    {% for slide_key, slide_image, slide_alt in hero_slides %}
+        {% if slide_image %}
+            <div
+                class="hero-carousel-slide {% if slide_index.value == 0 %}is-active{% endif %}"
+                data-slide="{{ slide_index.value }}"
+            >
                 <img
-                    src="{% if content.hero_image.startswith('http://') or content.hero_image.startswith('https://') %}{{ content.hero_image }}{% else %}{{ url_for('static', filename=content.hero_image) }}{% endif %}"
-                    alt="{{ content.hero_heading }}"
-                    style="width:100%;height:100%;object-fit:cover;"
-                    loading="eager"
+                    src="{% if slide_image.startswith('http://') or slide_image.startswith('https://') %}{{ slide_image }}{% else %}{{ url_for('static', filename=slide_image) }}{% endif %}"
+                    alt="{{ slide_alt or content.hero_heading }}"
+                    loading="{% if slide_index.value == 0 %}eager{% else %}lazy{% endif %}"
                     decoding="async"
                 >
-                {% else %}
-                <div style="text-align:center;max-width:24ch;">
-                  <div style="font-size:2.3rem;" aria-hidden="true"><i class="ri-robot-2-line"></i></div>
-                  <p class="text-white font-bold" style="margin:0.6rem 0 0;">{{ content.hero_ai_lab_title }}</p>
-                  <p class="text-white/70" style="margin:0.35rem 0 0;font-size:0.9rem;">{{ content.hero_ai_lab_description }}</p>
-                </div>
+            </div>
+
+            {% set slide_index.value = slide_index.value + 1 %}
+        {% endif %}
+    {% endfor %}
+
+    {% if slide_index.value > 1 %}
+        <button
+            type="button"
+            class="hero-carousel-control hero-carousel-prev"
+            aria-label="Previous slide"
+        >
+            ‹
+        </button>
+
+        <button
+            type="button"
+            class="hero-carousel-control hero-carousel-next"
+            aria-label="Next slide"
+        >
+            ›
+        </button>
+
+        <div class="hero-carousel-dots" aria-label="Hero carousel navigation">
+            {% set dot_index = namespace(value=0) %}
+
+            {% for slide_key, slide_image, slide_alt in hero_slides %}
+                {% if slide_image %}
+                    <button
+                        type="button"
+                        class="hero-carousel-dot {% if dot_index.value == 0 %}is-active{% endif %}"
+                        data-slide="{{ dot_index.value }}"
+                        aria-label="Go to slide {{ dot_index.value + 1 }}"
+                    ></button>
+
+                    {% set dot_index.value = dot_index.value + 1 %}
                 {% endif %}
-              </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
               <div class="mt-4 grid grid-cols-2 gap-3" id="hero-card-features">
                 <div class="glass-panel hero-feature-card">
                   <p class="text-white font-bold">Live Projects</p>
