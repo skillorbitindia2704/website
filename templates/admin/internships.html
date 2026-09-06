@@ -651,23 +651,45 @@
     }
   });
   
-      delForm.action = "{{ url_for('admin.delete_internship', iid=0) }}".replace("/0", "/" + id + "/");
-      
-      
+  document.querySelectorAll(".btn-delete-int").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var id = btn.getAttribute("data-id");
+      var title = btn.getAttribute("data-title") || "this listing";
+      var hasApps = btn.getAttribute("data-has-apps") === "1";
+
+      if (!id) {
+        console.error("Internship ID missing.");
+        return;
+      }
+
+      delForm.action =
+        "{{ url_for('admin.delete_internship', iid=0) }}"
+          .replace("/0", "/" + id);
+
       if (hasApps) {
-        delMsg.innerHTML = "Listing <strong>" + title + "</strong> has active applicants. To preserve application history, it will be safely <strong>archived</strong> (status marked as Closed, visible flag turned Off, and closed for new intakes).";
+        delMsg.innerHTML =
+          "Listing <strong>" + title +
+          "</strong> has active applicants. To preserve application history, " +
+          "it will be safely <strong>archived</strong> (status marked as Closed, " +
+          "visible flag turned Off, and closed for new intakes).";
+
         delBtn.textContent = "Archive Safely";
         delBtn.style.background = "#4f46e5";
       } else {
-        delMsg.innerHTML = "Are you sure you want to permanently delete <strong>" + title + "</strong>? This listing has no applications and will be completely removed from the system. This action is irreversible.";
+        delMsg.innerHTML =
+          "Are you sure you want to permanently delete <strong>" +
+          title +
+          "</strong>? This listing has no applications and will be completely " +
+          "removed from the system. This action is irreversible.";
+
         delBtn.textContent = "Permanently Delete";
         delBtn.style.background = "#dc2626";
       }
-      
+
       showModal(delBackdrop);
     });
   });
-
+  
   delClose.addEventListener("click", function () { hideModal(delBackdrop); });
   delCancel.addEventListener("click", function () { hideModal(delBackdrop); });
   delBackdrop.addEventListener("click", function (e) {
