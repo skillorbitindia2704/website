@@ -3,7 +3,7 @@ services:
     name: skill-orbit-india
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn wsgi:app
+    startCommand: gunicorn --config gunicorn.conf.py wsgi:app
     envVars:
       - key: FLASK_ENV
         value: production

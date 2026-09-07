@@ -175,6 +175,7 @@ def _ensure_ai_lab_packages():
 
 def create_app():
     app = Flask(__name__)
+    os.makedirs(app.instance_path, exist_ok=True)
     
     cloudinary.config(
         cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
@@ -263,6 +264,7 @@ def create_app():
     app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, "static", "uploads", "resumes")
     app.config["RAZORPAY_KEY_ID"] = os.getenv("RAZORPAY_KEY_ID", "")
     app.config["RAZORPAY_KEY_SECRET"] = os.getenv("RAZORPAY_KEY_SECRET", "")
+    app.config["RAZORPAY_WEBHOOK_SECRET"] = os.getenv("RAZORPAY_WEBHOOK_SECRET", "")
     app.config["ADMIN_EMAIL"] = "skillorbitindia2704@gmail.com"
     
     # Session Cookie Security Hardening

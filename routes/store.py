@@ -38,7 +38,7 @@ def listing():
         q = q.filter(Product.price_inr >= min_p)
     if max_p is not None:
         q = q.filter(Product.price_inr <= max_p)
-    products = q.order_by(Product.created_at.desc()).all()
+    products = q.order_by(Product.created_at.desc(), Product.id.desc()).all()
     # Extract valid categories from products only, trim whitespace
     categories = sorted(set(
         row[0].strip() for row in db.session.query(Product.category)
@@ -83,6 +83,74 @@ def add_to_cart(product_id):
     session.modified = True
     flash(f"{product.name} added to cart.", "success")
     return redirect(url_for("store.listing"))
+
+
+@store_bp.post("/cart/remove/<int:product_id>")
+@login_required
+def remove_from_cart(product_id):
+    """Remove an item from the cart via AJAX or form submission."""
+    cart = _get_cart()
+    if str(product_id) in cart:
+        del cart[str(product_id)]
+        session["cart"] = cart
+        session.modified = True
+    
+    # If it's an AJAX request, return JSON
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({"success": True, "message": "Item removed from cart"}), 200
+    
+    # Otherwise redirect back to cart
+    return redirect(url_for("store.view_cart"))
+
+
+@store_bp.post("/cart/update/<int:product_id>")
+@login_required
+def update_cart_quantity(product_id):
+    """Update quantity of an item in the cart via AJAX."""
+    try:
+        quantity = int(request.form.get("quantity", 1)) if request.method == "POST" else int(request.json.get("quantity", 1) if request.json else 1)
+    except (TypeError, ValueError):
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return jsonify({"error": "Invalid quantity"}), 400
+        flash("Invalid quantity.", "warning")
+        return redirect(url_for("store.view_cart"))
+    
+    quantity = max(1, quantity)
+    product = Product.query.get_or_404(product_id)
+    
+    if product.is_deleted or product.status != "published":
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return jsonify({"error": "Product not available"}), 400
+        flash("Product is not available.", "warning")
+        return redirect(url_for("store.view_cart"))
+    
+    if quantity > product.stock:
+        quantity = product.stock
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return jsonify({
+                "warning": f"Only {product.stock} units available",
+                "quantity": quantity
+            }), 200
+    
+    cart = _get_cart()
+    if quantity > 0:
+        cart[str(product.id)] = quantity
+    else:
+        cart.pop(str(product.id), None)
+    
+    session["cart"] = cart
+    session.modified = True
+    
+    # If it's an AJAX request, return JSON
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({
+            "success": True,
+            "quantity": quantity,
+            "message": f"Updated {product.name} quantity to {quantity}"
+        }), 200
+    
+    # Otherwise redirect back to cart
+    return redirect(url_for("store.view_cart"))
 
 
 @store_bp.get("/cart")
@@ -221,51 +289,22 @@ def checkout():
             flash("Order placed successfully.", "success")
             return redirect(url_for("dashboard.orders"))
         
-        rp_order = create_razorpay_order(net_total, f"order_{order.id}")
-        if rp_order:
-            order.razorpay_order_id = rp_order.get("id", "")
-            db.session.commit()
-            return redirect(url_for("store.pay_order", order_id=order.id))
-        else:
-            # Fallback to simulated payment if Razorpay is not configured
-            order.payment_status = "cod_simulated"
-            order.status = "Paid"
-            
-            # Decrease stock for fallback flow
-            for pid, qty in cart.items():
-                p = db.session.get(Product, int(pid))
-                if p:
-                    p.stock = max(0, p.stock - qty)
-            
-                    # Add inventory history log
-                    from models.store import InventoryHistory
-                    db.session.add(InventoryHistory(
-                        product_id=p.id,
-                        quantity_changed=-qty,
-                        reason=f"COD Simulated checkout order #{order.id}"
-                    ))
-            
-            # Log status timeline
-            from models.store import OrderStatusTimeline
-            db.session.add(OrderStatusTimeline(
-                order_id=order.id,
-                status="Paid",
-                notes="Order marked as paid via COD simulation checkout."
-            ))
-            
-            current_user.points += 15
-            current_user.update_badge()
-            notify_user(current_user.id, f"Order #{order.id} placed — ₹{net_total}. (COD Simulated)")
-            db.session.commit()
-            
-            # Clear cart and coupon strictly on successful capture
-            session["cart"] = {}
-            session.pop("coupon_code", None)
-            session.pop("coupon_discount", None)
-            session.modified = True
-            
-            flash("Order placed successfully (COD simulation).", "success")
-            return redirect(url_for("dashboard.orders"))
+        try:
+            rp_order = create_razorpay_order(net_total, f"order_{order.id}")
+        except Exception:
+            db.session.rollback()
+            current_app.logger.exception("Razorpay order creation failed for local order %s", order.id)
+            flash("Payment gateway is unavailable. Please try again later.", "danger")
+            return redirect(url_for("store.view_cart"))
+
+        if not rp_order or not rp_order.get("id"):
+            db.session.rollback()
+            flash("Payment gateway is not configured. Please try again later.", "danger")
+            return redirect(url_for("store.view_cart"))
+
+        order.razorpay_order_id = rp_order["id"]
+        db.session.commit()
+        return redirect(url_for("store.pay_order", order_id=order.id))
             
     except SQLAlchemyError as e:
         db.session.rollback()
@@ -487,7 +526,7 @@ def verify_payment(order_id):
 def webhook():
     signature = request.headers.get("x-razorpay-signature", "").strip()
     secret = current_app.config.get("RAZORPAY_KEY_SECRET", "")
-    webhook_secret = current_app.config.get("RAZORPAY_WEBHOOK_SECRET") or os.getenv("RAZORPAY_WEBHOOK_SECRET") or secret
+    webhook_secret = current_app.config.get("RAZORPAY_WEBHOOK_SECRET", "")
     body = request.data
     
     # Audit log entry for webhook receipt
@@ -510,11 +549,6 @@ def webhook():
     is_valid = False
     if webhook_secret:
         is_valid = verify_razorpay_webhook_signature(body, signature, webhook_secret)
-    else:
-        # Allow simulated bypass if env is development/testing
-        if current_app.config.get("ENV") == "development" or os.getenv("FLASK_ENV") == "development":
-            is_valid = True
-            audit_log.message += " (Signature bypassed in development mode)"
             
     if not is_valid:
         audit_log.status = "error"
@@ -554,6 +588,12 @@ def webhook():
             audit_log.message = f"Webhook payment captured but no matching order found for Razorpay order ID {rp_order_id}"
             db.session.commit()
             return jsonify({"status": "success", "message": "order_not_found"}), 200
+
+        if payment_entity.get("amount") != order.total_inr * 100 or payment_entity.get("currency") != "INR":
+            audit_log.status = "error"
+            audit_log.message = f"Webhook amount or currency mismatch for order #{order.id}"
+            db.session.commit()
+            return jsonify({"status": "failed", "reason": "amount_mismatch"}), 400
             
         # Check if already paid
         if order.payment_status == "paid":

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Cart — Skill Orbit India{% endblock %}
+{% block title %}Shopping Cart — Skill Orbit India{% endblock %}
 {% block breadcrumbs %}
 <div class="container breadcrumbs-wrap">
   {% set crumbs = [('Home', url_for('main.home')), ('Store', url_for('store.listing')), ('Cart', None)] %}
@@ -7,32 +7,417 @@
 </div>
 {% endblock %}
 {% block content %}
-<h1 class="page-title">Your cart</h1>
-<div class="card-premium reveal surface-card-lg section-gap">
-  {% for i in items %}
-  <div class="surface-list-item">
-    <div>
-      <strong>{{ i.product.name }}</strong>
-      <p class="muted">Qty {{ i.quantity }} × ₹{{ i.product.price_inr }}</p>
-    </div>
-    <span class="price-tag">₹{{ i.subtotal }}</span>
+<!-- Cart Header -->
+<div class="cart-header reveal">
+  <div class="cart-header-content">
+    <h1 class="cart-title">
+      <i class="ri-shopping-cart-2-line"></i> Your Cart
+    </h1>
+    <p class="cart-subtitle">Review your items and proceed to checkout</p>
   </div>
-  {% else %}
-  <p class="muted">Your cart is empty.</p>
-  <a href="{{ url_for('store.listing') }}" class="btn btn-primary btn-sm">Browse store</a>
-  {% endfor %}
-  {% if items %}
-  <div class="actions-inline section-gap">
-    <span class="price-tag">Total ₹{{ total }}</span>
-    {% if current_user.is_authenticated %}
-    <form method="post" action="{{ url_for('store.checkout') }}">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" class="btn btn-accent">Checkout</button>
-    </form>
-    {% else %}
-    <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login to checkout</a>
-    {% endif %}
-  </div>
-  {% endif %}
 </div>
+
+{% if items %}
+<div class="cart-layout section-gap reveal">
+  <!-- Cart Items Section -->
+  <div class="cart-items-section">
+    <div class="cart-items-header">
+      <span class="items-count">{{ items|length }} item{{ "s" if items|length != 1 else "" }} in cart</span>
+    </div>
+
+    <div class="cart-items-list">
+      {% for i in items %}
+      <div class="cart-item-card" data-product-id="{{ i.product.id }}">
+        <!-- Product Image -->
+        <div class="cart-item-image">
+          <img src="{{ i.product.image_url if (i.product.image_url and i.product.image_url.startswith('/static/')) else url_for('static', filename=(i.product.image_url or 'images/default_product.svg')) }}" 
+               alt="{{ i.product.name }}" 
+               loading="lazy"
+               width="120"
+               height="120"
+               class="product-thumb">
+          {% if i.product.discount_price_inr and i.product.discount_price_inr > 0 %}
+          <span class="discount-badge-cart">
+            {{ ((i.product.price_inr - i.product.discount_price_inr) / i.product.price_inr * 100)|int }}% OFF
+          </span>
+          {% endif %}
+        </div>
+
+        <!-- Product Details -->
+        <div class="cart-item-details">
+          <div class="item-header">
+            <div>
+              <h3 class="item-title">{{ i.product.name }}</h3>
+              {% if i.product.brand %}
+              <p class="item-brand">
+                <i class="ri-price-tag-3-line"></i> {{ i.product.brand }}
+              </p>
+              {% endif %}
+            </div>
+          </div>
+
+          <p class="item-category">
+            <i class="ri-layout-grid-line"></i> {{ i.product.category }}
+          </p>
+
+          <!-- SKU if available -->
+          {% if i.product.sku %}
+          <p class="item-meta">SKU: <code>{{ i.product.sku }}</code></p>
+          {% endif %}
+
+          <!-- Rating -->
+          <div class="item-rating-section">
+            <div class="stars-bar" style="--p: {{ (((i.product.rating|default(4.5))|float / 5) * 100)|int }}%; max-width: 88px;"></div>
+            <span class="rating-text">{{ '%.1f'|format((i.product.rating|default(4.5))|float) }} / 5.0</span>
+          </div>
+        </div>
+
+        <!-- Pricing & Actions -->
+        <div class="cart-item-pricing">
+          <div class="price-info">
+            {% if i.product.discount_price_inr and i.product.discount_price_inr > 0 %}
+            <div class="price-column">
+              <span class="price-label">Unit Price</span>
+              <span class="price-original">₹{{ i.product.price_inr }}</span>
+              <span class="price-current">₹{{ i.product.discount_price_inr }}</span>
+            </div>
+            {% else %}
+            <div class="price-column">
+              <span class="price-label">Unit Price</span>
+              <span class="price-current">₹{{ i.product.price_inr }}</span>
+            </div>
+            {% endif %}
+
+            <div class="qty-column">
+              <span class="price-label">Quantity</span>
+              <div class="qty-control-inline">
+                <button type="button" class="qty-btn qty-minus-cart" data-product-id="{{ i.product.id }}" aria-label="Decrease quantity">−</button>
+                <span class="qty-display cart-qty" data-product-id="{{ i.product.id }}">{{ i.quantity }}x</span>
+                <button type="button" class="qty-btn qty-plus-cart" data-product-id="{{ i.product.id }}" data-max-stock="{{ i.product.stock }}" aria-label="Increase quantity">+</button>
+              </div>
+            </div>
+
+            <div class="subtotal-column">
+              <span class="price-label">Subtotal</span>
+              <span class="price-subtotal price-tag cart-subtotal" data-product-id="{{ i.product.id }}" data-unit-price="{% if i.product.discount_price_inr and i.product.discount_price_inr > 0 %}{{ i.product.discount_price_inr }}{% else %}{{ i.product.price_inr }}{% endif %}">₹{{ i.subtotal }}</span>
+            </div>
+          </div>
+
+          <!-- Remove Button -->
+          <div class="item-actions">
+            <button type="button" class="item-remove-btn" data-product-id="{{ i.product.id }}" title="Remove item">
+              <i class="ri-delete-bin-6-line"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Cart Summary Sidebar -->
+  <aside class="cart-summary-section">
+    <div class="cart-summary-card">
+      <!-- Summary Header -->
+      <div class="summary-header">
+        <h3>Order Summary</h3>
+      </div>
+
+      <!-- Summary Details -->
+      <div class="summary-details">
+        <div class="summary-row">
+          <span class="summary-label">Subtotal ({{ items|length }} item{{ "s" if items|length != 1 else "" }})</span>
+          <span class="summary-value">₹{{ total }}</span>
+        </div>
+
+        {% if discount > 0 %}
+        <div class="summary-row discount-row">
+          <span class="summary-label">
+            <i class="ri-discount-2-line"></i> Discount ({{ coupon_code or 'Applied' }})
+          </span>
+          <span class="summary-value discount-value">-₹{{ discount }}</span>
+        </div>
+        {% endif %}
+
+        <!-- Shipping Info -->
+        <div class="summary-row">
+          <span class="summary-label">
+            <i class="ri-truck-line"></i> Shipping
+          </span>
+          <span class="summary-value shipping-value">Free</span>
+        </div>
+
+        <!-- GST Info -->
+        <div class="summary-row">
+          <span class="summary-label">
+            <i class="ri-government-line"></i> GST Included
+          </span>
+          <span class="summary-value gst-value">18%</span>
+        </div>
+
+        <!-- Total -->
+        <div class="summary-divider"></div>
+        <div class="summary-row total-row">
+          <span class="summary-label">Total Amount</span>
+          <span class="summary-total">₹{{ net_total }}</span>
+        </div>
+      </div>
+
+      <!-- Checkout Button -->
+      <div class="summary-actions">
+        {% if current_user.is_authenticated %}
+        <form method="post" action="{{ url_for('store.checkout') }}" style="width: 100%;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-accent btn-lg" style="width: 100%; font-size: 1rem;">
+            <i class="ri-flashlight-line"></i> Proceed to Checkout
+          </button>
+        </form>
+        {% else %}
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg" style="width: 100%; font-size: 1rem;">
+          <i class="ri-login-box-line"></i> Login to Checkout
+        </a>
+        {% endif %}
+
+        <a href="{{ url_for('store.listing') }}" class="btn btn-ghost btn-sm" style="width: 100%; margin-top: 0.75rem;">
+          <i class="ri-arrow-left-line"></i> Continue Shopping
+        </a>
+      </div>
+
+      <!-- Security Badge -->
+      <div class="summary-security">
+        <div class="security-badge">
+          <i class="ri-shield-check-line"></i>
+          <span>Secure Checkout</span>
+        </div>
+        <div class="payment-methods">
+          <span class="payment-icon" title="Razorpay">
+            <i class="ri-bank-card-line"></i>
+          </span>
+          <span class="payment-icon" title="UPI">
+            <i class="ri-wallet-line"></i>
+          </span>
+          <span class="payment-icon" title="Wallets">
+            <i class="ri-money-rupee-circle-line"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cart Tips -->
+    <div class="cart-tips-card">
+      <h4 class="tips-title">💡 Shopping Tips</h4>
+      <ul class="tips-list">
+        <li>Free shipping on orders above ₹499</li>
+        <li>Get cashback on first purchase</li>
+        <li>Secure payment with 256-bit SSL</li>
+        <li>Easy 30-day returns</li>
+      </ul>
+    </div>
+  </aside>
+</div>
+{% else %}
+<!-- Empty Cart State -->
+<div class="empty-cart-state reveal">
+  <div class="empty-state-container">
+    <div class="empty-state-icon large-icon">
+      <i class="ri-shopping-cart-line"></i>
+    </div>
+    <h2>Your cart is empty</h2>
+    <p class="muted">Looks like you haven't added anything to your cart yet.</p>
+    
+    <div class="empty-state-actions">
+      <a href="{{ url_for('store.listing') }}" class="btn btn-primary btn-lg">
+        <i class="ri-shopping-bag-line"></i> Start Shopping
+      </a>
+      <a href="{{ url_for('main.home') }}" class="btn btn-ghost btn-lg">
+        <i class="ri-home-line"></i> Back to Home
+      </a>
+    </div>
+
+    <!-- Suggestions -->
+    <div class="cart-suggestions">
+      <h3>Popular Items in Store</h3>
+      <p class="muted">Browse our curated collection of electronics and maker kits</p>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block extra_js %}
+<script>
+  // Cart item management (remove, update quantity)
+  (function() {
+    // Remove item from cart
+    document.addEventListener("click", function(e) {
+      if (e.target.closest(".item-remove-btn")) {
+        const btn = e.target.closest(".item-remove-btn");
+        const productId = btn.dataset.productId;
+        
+        if (confirm("Remove this item from your cart?")) {
+          // Show loading state
+          btn.disabled = true;
+          btn.innerHTML = '<i class="ri-loader-4-line" style="animation: spin 1s linear infinite;"></i>';
+          
+          // Send AJAX request to remove the item
+          fetch(`{{ url_for('store.remove_from_cart', product_id=0) }}`.replace('/0', `/${productId}`), {
+            method: "POST",
+            headers: {
+              "X-Requested-With": "XMLHttpRequest",
+              "X-CSRFToken": document.querySelector('[name="csrf_token"]')?.value || ""
+            }
+          })
+          .then(response => {
+            if (response.ok) {
+              // Fade out and remove the card
+              const card = btn.closest(".cart-item-card");
+              card.style.animation = "fadeOut 0.3s ease-out";
+              setTimeout(() => {
+                card.remove();
+                // Check if cart is now empty and reload
+                const items = document.querySelectorAll(".cart-item-card");
+                if (items.length === 0) {
+                  location.reload();
+                } else {
+                  updateCartTotals();
+                }
+              }, 300);
+            } else {
+              throw new Error("Failed to remove item");
+            }
+          })
+          .catch(error => {
+            console.error("Error:", error);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="ri-delete-bin-6-line"></i>';
+            alert("Failed to remove item. Please try again.");
+          });
+        }
+      }
+    });
+    
+    // Update quantity - Plus/Minus buttons
+    document.addEventListener("click", function(e) {
+      if (e.target.closest(".qty-plus-cart")) {
+        const btn = e.target.closest(".qty-plus-cart");
+        const productId = btn.dataset.productId;
+        const maxStock = parseInt(btn.dataset.maxStock, 10);
+        const qtyDisplay = document.querySelector(`.cart-qty[data-product-id="${productId}"]`);
+        const currentQty = parseInt(qtyDisplay.textContent, 10);
+        
+        if (currentQty < maxStock) {
+          const newQty = currentQty + 1;
+          updateCartItemQuantity(productId, newQty, btn);
+        } else {
+          alert(`Only ${maxStock} units available`);
+        }
+      }
+      
+      if (e.target.closest(".qty-minus-cart")) {
+        const btn = e.target.closest(".qty-minus-cart");
+        const productId = btn.dataset.productId;
+        const qtyDisplay = document.querySelector(`.cart-qty[data-product-id="${productId}"]`);
+        const currentQty = parseInt(qtyDisplay.textContent, 10);
+        
+        if (currentQty > 1) {
+          const newQty = currentQty - 1;
+          updateCartItemQuantity(productId, newQty, btn);
+        } else {
+          // If quantity becomes 0, remove the item
+          const removeBtn = document.querySelector(`.item-remove-btn[data-product-id="${productId}"]`);
+          if (removeBtn) {
+            removeBtn.click();
+          }
+        }
+      }
+      
+    });
+    
+    function updateCartItemQuantity(productId, newQty, triggerBtn) {
+      // Show loading state
+      triggerBtn.disabled = true;
+      
+      // Send AJAX request
+      const formData = new FormData();
+      formData.append("quantity", newQty);
+      
+      fetch(`{{ url_for('store.update_cart_quantity', product_id=0) }}`.replace('/0', `/${productId}`), {
+        method: "POST",
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+          "X-CSRFToken": document.querySelector('[name="csrf_token"]')?.value || ""
+        },
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        triggerBtn.disabled = false;
+        
+        if (data.success) {
+          // Update the quantity display
+          const qtyDisplay = document.querySelector(`.cart-qty[data-product-id="${productId}"]`);
+          qtyDisplay.textContent = newQty + "x";
+          
+          // Update the subtotal
+          const subtotalSpan = document.querySelector(`.cart-subtotal[data-product-id="${productId}"]`);
+          if (subtotalSpan) {
+            const unitPrice = parseInt(subtotalSpan.dataset.unitPrice, 10);
+            const newSubtotal = unitPrice * newQty;
+            subtotalSpan.textContent = "₹" + newSubtotal.toLocaleString("en-IN");
+          }
+          
+          // Recalculate and update cart totals
+          updateCartTotals();
+        } else if (data.warning) {
+          alert(data.warning);
+          // Update with the quantity returned by server
+          const qtyDisplay = document.querySelector(`.cart-qty[data-product-id="${productId}"]`);
+          qtyDisplay.textContent = data.quantity + "x";
+          updateCartTotals();
+        } else if (data.error) {
+          alert(data.error);
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        triggerBtn.disabled = false;
+        alert("Failed to update quantity. Please try again.");
+      });
+    }
+    
+    function updateCartTotals() {
+      // Recalculate totals from visible items
+      let cartTotal = 0;
+      document.querySelectorAll(".cart-item-card").forEach(card => {
+        const subtotalSpan = card.querySelector(".cart-subtotal");
+        if (subtotalSpan) {
+          const subtotalText = subtotalSpan.textContent.replace("₹", "").replace(/,/g, "");
+          cartTotal += parseInt(subtotalText, 10);
+        }
+      });
+      
+      // Update the order summary
+      const itemCount = document.querySelectorAll(".cart-item-card").length;
+      document.querySelector(".items-count").textContent = `${itemCount} item${itemCount !== 1 ? 's' : ''} in cart`;
+      
+      // Update subtotal in summary
+      const subtotalRow = document.querySelector(".summary-details .summary-row");
+      if (subtotalRow) {
+        subtotalRow.querySelector(".summary-value").textContent = "₹" + cartTotal.toLocaleString("en-IN");
+      }
+      
+      // Update total (assuming no discount for now)
+      const totalRow = document.querySelector(".summary-row.total-row");
+      if (totalRow) {
+        totalRow.querySelector(".summary-total").textContent = "₹" + cartTotal.toLocaleString("en-IN");
+      }
+    }
+  })();
+
+  // Quantity summary calculation
+  (function() {
+    const items = document.querySelectorAll(".cart-item-card");
+    const totalItems = items.length;
+    console.log(`Cart loaded with ${totalItems} items`);
+  })();
+</script>
 {% endblock %}

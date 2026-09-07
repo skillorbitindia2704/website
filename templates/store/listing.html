@@ -7,113 +7,313 @@
 </div>
 {% endblock %}
 {% block content %}
-<h1 class="reveal page-title">Electronics & maker kits</h1>
-<p class="muted reveal">Arduino, sensors, and components — curated for learners and builders.</p>
+<!-- Store Header Hero -->
+<div class="store-hero-section reveal">
+  <div class="store-hero-inner">
+    <h1 class="store-hero-title">Electronics & Maker Kits</h1>
+    <p class="store-hero-subtitle">Arduino, sensors, and components — curated for learners and builders</p>
+    <div class="store-hero-badges">
+      <span class="badge-pill">🚀 High Quality</span>
+      <span class="badge-pill">✓ Verified Products</span>
+      <span class="badge-pill">⚡ Fast Delivery</span>
+    </div>
+  </div>
+</div>
 
 <div class="store-layout section-gap">
-  <aside class="filters-panel reveal">
-    <h3>Filters</h3>
+  <!-- Filters Sidebar -->
+  <aside class="filters-panel card-premium reveal">
+    <div class="filters-header">
+      <h3>Filters</h3>
+      <a href="{{ url_for('store.listing') }}" class="filter-reset-link" title="Reset filters">
+        <i class="ri-refresh-line"></i>
+      </a>
+    </div>
+    
     <form method="get" class="form-modern" id="product-filter-form">
+      <!-- Category Filter -->
       <div class="filter-group">
-        <label for="category">Category</label>
-        <select name="category" id="category">
+        <label for="category" class="filter-label">
+          <i class="ri-layout-grid-line"></i> Category
+        </label>
+        <select name="category" id="category" class="filter-select">
           <option value="">All categories</option>
           {% for c in categories %}
           <option value="{{ c }}" {% if filter_category == c %}selected{% endif %}>{{ c }}</option>
           {% endfor %}
         </select>
       </div>
+
+      <!-- Price Range Filter -->
       <div class="filter-group">
-        <label for="min_price">Min price (₹)</label>
-        <input type="number" name="min_price" id="min_price" min="0" value="{{ filter_min if filter_min is not none else '' }}" placeholder="0">
+        <label for="min_price" class="filter-label">
+          <i class="ri-money-rupee-circle-line"></i> Price Range
+        </label>
+        <div class="price-inputs-row">
+          <input type="number" name="min_price" id="min_price" min="0" value="{{ filter_min if filter_min is not none else '' }}" placeholder="Min" class="filter-input-sm">
+          <span class="price-separator">—</span>
+          <input type="number" name="max_price" id="max_price" min="0" value="{{ filter_max if filter_max is not none else '' }}" placeholder="Max" class="filter-input-sm">
+        </div>
       </div>
-      <div class="filter-group">
-        <label for="max_price">Max price (₹)</label>
-        <input type="number" name="max_price" id="max_price" min="0" value="{{ filter_max if filter_max is not none else '' }}" placeholder="Any">
+
+      <!-- Filter Actions -->
+      <div class="filter-actions">
+        <button type="submit" class="btn btn-primary btn-sm" style="width: 100%; margin-bottom: 0.5rem;">
+          <i class="ri-search-line"></i> Apply Filters
+        </button>
+        <a href="{{ url_for('store.listing') }}" class="btn btn-ghost btn-sm" style="width: 100%;">
+          <i class="ri-refresh-line"></i> Reset All
+        </a>
       </div>
-      <p id="price-range-hint" class="muted" style="margin:0 0 0.75rem;font-size:0.85rem;display:none;" role="status" aria-live="polite"></p>
-      <button type="submit" class="btn btn-primary btn-sm">Apply</button>
-      <a href="{{ url_for('store.listing') }}" class="btn btn-ghost btn-sm">Reset</a>
+
+      <!-- Active Filters Display -->
+      {% if filter_category or filter_min is not none or filter_max is not none %}
+      <div class="active-filters">
+        <p class="filter-label" style="margin-bottom: 0.5rem;">Active Filters:</p>
+        <div class="filter-pills">
+          {% if filter_category %}
+          <span class="filter-pill">
+            <i class="ri-layout-grid-line"></i> {{ filter_category }}
+          </span>
+          {% endif %}
+          {% if filter_min is not none %}
+          <span class="filter-pill">
+            <i class="ri-money-rupee-circle-line"></i> Min ₹{{ filter_min }}
+          </span>
+          {% endif %}
+          {% if filter_max is not none %}
+          <span class="filter-pill">
+            <i class="ri-money-rupee-circle-line"></i> Max ₹{{ filter_max }}
+          </span>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <p id="price-range-hint" class="filter-hint" role="status" aria-live="polite"></p>
     </form>
-    {% if filter_category or filter_min is not none or filter_max is not none %}
-    <p class="muted" style="margin-top:0.75rem;">
-      Active:
-      {% if filter_category %}<span class="level-pill">{{ filter_category }}</span>{% endif %}
-      {% if filter_min is not none %}<span class="level-pill">Min ₹{{ filter_min }}</span>{% endif %}
-      {% if filter_max is not none %}<span class="level-pill">Max ₹{{ filter_max }}</span>{% endif %}
-    </p>
-    {% endif %}
   </aside>
-  <div>
-    <p class="muted" id="filter-loading" hidden>Loading products…</p>
-    <div class="grid-cards" id="products-grid">
+
+  <!-- Products Grid -->
+  <div class="store-products-section">
+    <p class="muted" id="filter-loading" hidden>
+      <i class="ri-loader-4-line" style="animation: spin 1s linear infinite;"></i> Loading products…
+    </p>
+
+    {% if products %}
+    <div class="store-products-stats reveal">
+      <span class="products-count">
+        <i class="ri-database-2-line"></i> {{ products|length }} product{{ "s" if products|length != 1 else "" }} found
+      </span>
+    </div>
+
+    <div class="grid-cards store-grid-enhanced" id="products-grid">
       {% for p in products %}
-      <article class="card-premium reveal">
-        <div class="card-img-wrap">
+      <article class="card-premium card-product reveal" data-product-id="{{ p.id }}">
+        <!-- Product Image Section -->
+        <div class="card-img-wrap product-image-container">
+          <!-- Wishlist Button -->
           <button type="button"
             class="wishlist-btn {% if current_user.is_authenticated and p.id in wishlist_ids %}active{% endif %}"
             data-product-id="{{ p.id }}"
-            aria-label="Wishlist"
-            aria-pressed="{% if current_user.is_authenticated and p.id in wishlist_ids %}true{% else %}false{% endif %}"><i class="ri-heart-line" aria-hidden="true"></i></button>
-          <img src="{{ p.image_url if (p.image_url and p.image_url.startswith('/static/')) else url_for('static', filename=(p.image_url or 'images/default_product.svg')) }}" alt="{{ p.name }}" loading="lazy" width="400" height="300">
+            data-action="toggle-wishlist"
+            aria-label="Add to wishlist"
+            aria-pressed="{% if current_user.is_authenticated and p.id in wishlist_ids %}true{% else %}false{% endif %}">
+            <i class="ri-heart-{% if current_user.is_authenticated and p.id in wishlist_ids %}fill{% else %}line{% endif %}" aria-hidden="true"></i>
+          </button>
+
+          <!-- Stock Status Badge -->
+          {% if p.stock > 0 and p.stock <= 5 %}
+          <div class="stock-badge low-stock">
+            <i class="ri-alert-line"></i> Low Stock
+          </div>
+          {% elif p.stock <= 0 %}
+          <div class="stock-badge out-of-stock">Out of Stock</div>
+          {% elif p.is_new_arrival %}
+          <div class="stock-badge new-arrival">
+            <i class="ri-star-line"></i> New
+          </div>
+          {% endif %}
+
+          <!-- Product Image -->
+          <img src="{{ p.image_url if (p.image_url and p.image_url.startswith('/static/')) else url_for('static', filename=(p.image_url or 'images/default_product.svg')) }}" 
+               alt="{{ p.name }}" 
+               loading="lazy" 
+               width="400" 
+               height="300"
+            onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/default_product.svg') }}';"
+               class="product-image">
+
+          <!-- Discount Badge -->
+          {% if p.discount_price_inr and p.discount_price_inr > 0 %}
+          <div class="discount-badge">
+            <span class="discount-percent">
+              {{ ((p.price_inr - p.discount_price_inr) / p.price_inr * 100)|int }}% OFF
+            </span>
+          </div>
+          {% endif %}
         </div>
-        <div class="card-body">
-          <div class="card-meta">
-            <span>{{ p.category }}</span>
-            <span>{{ '%.1f'|format((p.rating|default(4.5))|float) }} / 5</span>
+
+        <!-- Product Info Section -->
+        <div class="card-body product-info">
+          <!-- Category & Rating -->
+          <div class="card-meta product-meta">
+            <span class="category-badge">
+              <i class="ri-price-tag-3-line"></i> {{ p.category }}
+            </span>
+            <span class="rating-display">
+              <i class="ri-star-fill" style="color: #fbbf24;"></i> {{ '%.1f'|format((p.rating|default(4.5))|float) }}
+            </span>
           </div>
-          <div class="stars-bar" style="--p: {{ (((p.rating|default(4.5))|float / 5) * 100)|int }}%; margin-bottom:0.5rem;"></div>
-          <h3>{{ p.name }}</h3>
-          <p class="muted">{{ p.description[:90] }}{% if p.description|length > 90 %}…{% endif %}</p>
-          <div class="actions-inline">
-            <span class="price-tag">₹{{ p.price_inr }}</span>
-            <form method="post" action="{{ url_for('store.add_to_cart', product_id=p.id) }}" class="actions-inline">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <input type="number" name="quantity" value="1" min="1" class="qty-input">
-              <button type="submit" class="btn btn-primary btn-sm add-cart-btn">Add to cart</button>
-            </form>
+
+          <!-- Rating Bar -->
+          <div class="stars-bar" style="--p: {{ (((p.rating|default(4.5))|float / 5) * 100)|int }}%; margin-bottom: 0.75rem;"></div>
+
+          <!-- Product Name -->
+          <h3 class="product-title">{{ p.name }}</h3>
+
+          <!-- Product Description -->
+          <p class="product-description muted">
+            {{ p.short_description[:80] if p.short_description else p.description[:80] }}{% if (p.short_description or p.description)|length > 80 %}…{% endif %}
+          </p>
+
+          <!-- Brand & Stock Info -->
+          {% if p.brand %}
+          <div class="product-brand">
+            <span class="brand-label">{{ p.brand }}</span>
           </div>
+          {% endif %}
+
+          <!-- Stock Level -->
+          <div class="stock-info">
+            {% if p.stock > 0 %}
+            <span class="stock-available">
+              <i class="ri-check-double-line"></i> {{ p.stock }} in stock
+            </span>
+            {% else %}
+            <span class="stock-unavailable">
+              <i class="ri-close-line"></i> Out of stock
+            </span>
+            {% endif %}
+          </div>
+
+          <!-- Price Section -->
+          <div class="product-pricing">
+            {% if p.discount_price_inr and p.discount_price_inr > 0 %}
+            <div class="price-container">
+              <span class="price-original">₹{{ p.price_inr }}</span>
+              <span class="price-current price-tag">₹{{ p.discount_price_inr }}</span>
+            </div>
+            {% else %}
+            <span class="price-current price-tag">₹{{ p.price_inr }}</span>
+            {% endif %}
+            {% if p.gst_percent %}
+            <span class="price-gst">incl. {{ p.gst_percent|int }}% GST</span>
+            {% endif %}
+          </div>
+
+          <!-- Add to Cart Section -->
+          {% if p.stock > 0 %}
+          <form method="post" action="{{ url_for('store.add_to_cart', product_id=p.id) }}" class="product-actions">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="actions-container">
+              <div class="qty-control-wrapper">
+                <button type="button" class="qty-btn qty-minus" aria-label="Decrease quantity">−</button>
+                <input type="number" name="quantity" value="1" min="1" max="{{ p.stock }}" class="qty-input qty-display" aria-label="Quantity">
+                <button type="button" class="qty-btn qty-plus" aria-label="Increase quantity">+</button>
+              </div>
+              <button type="submit" class="btn btn-primary btn-sm add-cart-btn" style="flex: 1;">
+                <i class="ri-shopping-cart-add-line"></i> Add to Cart
+              </button>
+            </div>
+          </form>
+          {% else %}
+          <div class="product-actions" style="opacity: 0.6;">
+            <button type="button" class="btn btn-ghost btn-sm" disabled style="width: 100%; cursor: not-allowed;">
+              <i class="ri-lock-line"></i> Out of Stock
+            </button>
+          </div>
+          {% endif %}
         </div>
       </article>
-      {% else %}
-      <p class="muted">No products match your filters.</p>
       {% endfor %}
     </div>
+    {% else %}
+    <div class="empty-state reveal">
+      <div class="empty-state-icon">
+        <i class="ri-inbox-line"></i>
+      </div>
+      <h3>No products found</h3>
+      <p class="muted">Try adjusting your filters or browse all products</p>
+      <a href="{{ url_for('store.listing') }}" class="btn btn-primary btn-sm">
+        <i class="ri-refresh-line"></i> Browse All Products
+      </a>
+    </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}
 {% block extra_js %}
 <script>
-(function () {
-  var minEl = document.getElementById("min_price");
-  var maxEl = document.getElementById("max_price");
-  var hint = document.getElementById("price-range-hint");
-  if (!minEl || !maxEl || !hint) return;
+  // Price Range Validator
+  (function () {
+    var minEl = document.getElementById("min_price");
+    var maxEl = document.getElementById("max_price");
+    var hint = document.getElementById("price-range-hint");
+    if (!minEl || !maxEl || !hint) return;
 
-  function parseNum(el) {
-    var v = (el.value || "").trim();
-    if (v === "") return null;
-    var n = parseInt(v, 10);
-    return isNaN(n) ? null : n;
-  }
-
-  function updateHint() {
-    var lo = parseNum(minEl);
-    var hi = parseNum(maxEl);
-    if (lo !== null && hi !== null && lo > hi) {
-      hint.textContent = "Minimum is higher than maximum. Values will be swapped when you apply.";
-      hint.style.display = "block";
-    } else {
-      hint.textContent = "";
-      hint.style.display = "none";
+    function parseNum(el) {
+      var v = (el.value || "").trim();
+      if (v === "") return null;
+      var n = parseInt(v, 10);
+      return isNaN(n) ? null : n;
     }
-  }
 
-  minEl.addEventListener("input", updateHint);
-  maxEl.addEventListener("input", updateHint);
-  minEl.addEventListener("change", updateHint);
-  maxEl.addEventListener("change", updateHint);
-  updateHint();
-})();
+    function updateHint() {
+      var lo = parseNum(minEl);
+      var hi = parseNum(maxEl);
+      if (lo !== null && hi !== null && lo > hi) {
+        hint.textContent = "⚠️ Minimum is higher than maximum. Values will be swapped when you apply.";
+        hint.style.display = "block";
+      } else {
+        hint.textContent = "";
+        hint.style.display = "none";
+      }
+    }
+
+    minEl.addEventListener("input", updateHint);
+    maxEl.addEventListener("input", updateHint);
+    minEl.addEventListener("change", updateHint);
+    maxEl.addEventListener("change", updateHint);
+    updateHint();
+  })();
+
+  // Quantity Control Handler
+  (function () {
+    document.addEventListener("click", function(e) {
+      const target = e.target;
+      
+      // Handle quantity buttons
+      if (target.classList.contains("qty-btn")) {
+        const wrapper = target.closest(".qty-control-wrapper");
+        if (!wrapper) return;
+        
+        const input = wrapper.querySelector(".qty-input");
+        if (!input) return;
+        
+        let value = parseInt(input.value) || 1;
+        const max = parseInt(input.getAttribute("max")) || 999;
+        const min = parseInt(input.getAttribute("min")) || 1;
+        
+        if (target.classList.contains("qty-plus")) {
+          value = Math.min(value + 1, max);
+        } else if (target.classList.contains("qty-minus")) {
+          value = Math.max(value - 1, min);
+        }
+        
+        input.value = value;
+      }
+    });
+  })();
 </script>
 {% endblock %}
