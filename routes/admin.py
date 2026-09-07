@@ -3882,15 +3882,46 @@ def homepage_delete_image(image_field: str):
         
     row = HomeContent.query.filter_by(key=image_field).first()
     if row and row.value:
-        filepath = os.path.join(current_app.static_folder, row.value)
+    image_value = row.value
+
+    # Cloudinary image
+    if image_value.startswith(("http://", "https://")):
+        try:
+            import cloudinary.uploader
+
+            public_id = image_value.split("/upload/")[-1]
+
+            parts = public_id.split("/")
+            if parts and parts[0].startswith("v") and parts[0][1:].isdigit():
+                parts = parts[1:]
+
+            public_id = "/".join(parts)
+            public_id = os.path.splitext(public_id)[0]
+
+            cloudinary.uploader.destroy(
+                public_id,
+                resource_type="image",
+                invalidate=True,
+            )
+
+        except Exception as e:
+            current_app.logger.warning(
+                f"Could not remove Cloudinary image {image_value}: {e}"
+            )
+
+    # Old/local image
+    else:
+        filepath = os.path.join(current_app.static_folder, image_value)
+
         if os.path.exists(filepath):
             try:
                 os.remove(filepath)
             except Exception as e:
-                current_app.logger.warning(f"Could not remove file {filepath}: {e}")
-        
-        row.value = ""
-        
+                current_app.logger.warning(
+                    f"Could not remove local file {filepath}: {e}"
+                )
+
+    row.value = ""        
         # Legacy synchronization
         hero = HomePageHero.query.first()
         if hero:
