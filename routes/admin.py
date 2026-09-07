@@ -3870,45 +3870,114 @@ def homepage_restore_version(version_id: int):
 @admin_bp.post("/homepage/delete-image/<image_field>")
 @admin_required
 def homepage_delete_image(image_field: str):
-    """Deletes uploaded homepage images from disk and database."""
+    """Delete homepage image from Cloudinary or legacy local storage."""
     allowed_fields = {
-        "hero_image", "hero_ai_lab_image", "hero_robotics_image", "hero_workshop_image",
-        "hero_student_activity_image", "ai_lab_image", "footer_promo_image",
-        "seo_og_image", "seo_twitter_image"
+        "hero_image",
+        "hero_ai_lab_image",
+        "hero_robotics_image",
+        "hero_workshop_image",
+        "hero_student_activity_image",
+        "ai_lab_image",
+        "footer_promo_image",
+        "seo_og_image",
+        "seo_twitter_image",
     }
+
     if image_field not in allowed_fields:
         flash("Invalid operation.", "danger")
         return redirect(url_for("admin.homepage_manager"))
-        
+
     row = HomeContent.query.filter_by(key=image_field).first()
+
     if row and row.value:
-        filepath = os.path.join(current_app.static_folder, row.value)
-        if os.path.exists(filepath):
+        image_value = row.value
+
+        # =====================================================
+        # Cloudinary image
+        # =====================================================
+        if image_value.startswith(("http://", "https://")):
             try:
-                os.remove(filepath)
-            except Exception as e:
-                current_app.logger.warning(f"Could not remove file {filepath}: {e}")
-        
+                import cloudinary.uploader
+
+                # Extract Cloudinary public ID from URL
+                if "/upload/" in image_value:
+                    public_id = image_value.split("/upload/", 1)[1]
+
+                    # Remove transformation segments if present
+                    parts = public_id.split("/")
+
+                    # Remove version number such as v123456789
+                    if (
+                        parts
+                        and parts[0].startswith("v")
+                        and parts[0][1:].isdigit()
+                    ):
+                        parts = parts[1:]
+
+                    public_id = "/".join(parts)
+
+                    # Remove file extension
+                    public_id = os.path.splitext(public_id)[0]
+
+                    cloudinary.uploader.destroy(
+                        public_id,
+                        resource_type="image",
+                        invalidate=True,
+                    )
+
+            except Exception as exc:
+                current_app.logger.warning(
+                    f"Could not remove Cloudinary homepage image "
+                    f"{image_value}: {exc}"
+                )
+
+        # =====================================================
+        # Legacy local image
+        # =====================================================
+        else:
+            filepath = os.path.join(
+                current_app.static_folder,
+                image_value
+            )
+
+            if os.path.exists(filepath):
+                try:
+                    os.remove(filepath)
+                except Exception as exc:
+                    current_app.logger.warning(
+                        f"Could not remove legacy homepage image "
+                        f"{filepath}: {exc}"
+                    )
+
+        # Clear database value
         row.value = ""
-        
-        # Legacy synchronization
+
+        # =====================================================
+        # Legacy HomePageHero synchronization
+        # =====================================================
         hero = HomePageHero.query.first()
+
         if hero:
-            if image_field == "hero_image": hero.hero_image = ""
-            elif image_field == "hero_ai_lab_image": hero.ai_lab_image = ""
-            elif image_field == "hero_robotics_image": hero.robotics_image = ""
-            elif image_field == "hero_workshop_image": hero.workshop_image = ""
-            elif image_field == "hero_student_activity_image": hero.student_activity_image = ""
+            if image_field == "hero_image":
+                hero.hero_image = ""
+            elif image_field == "hero_ai_lab_image":
+                hero.ai_lab_image = ""
+            elif image_field == "hero_robotics_image":
+                hero.robotics_image = ""
+            elif image_field == "hero_workshop_image":
+                hero.workshop_image = ""
+            elif image_field == "hero_student_activity_image":
+                hero.student_activity_image = ""
 
         try:
             db.session.commit()
             flash("Image deleted successfully.", "info")
+
         except SQLAlchemyError:
             db.session.rollback()
             flash("Database update failed.", "danger")
-            
-    return redirect(url_for("admin.homepage_manager"))
 
+    return redirect(url_for("admin.homepage_manager"))
 
 # =========================
 # About Page CMS
