@@ -33,11 +33,11 @@
         {% else %}
             {% set gallery_image_url = url_for('static', filename=row.image_path) %}
         {% endif %}
-          <img src="{{ gallery_image_url }}"
-               alt=""
-               style="width:56px;height:40px;object-fit:cover;border-radius:8px;border:1px solid var(--border);"
-               loading="lazy" />
-        {% endif %}
+
+        <img src="{{ gallery_image_url }}"
+             alt=""
+             style="width:56px;height:40px;object-fit:cover;border-radius:8px;border:1px solid var(--border);"
+             loading="lazy" />
       </td>
       <td style="white-space:nowrap;">
         <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.about_gallery', edit=row.id) }}">Edit</a>
