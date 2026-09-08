@@ -328,7 +328,13 @@
                   <span class="text-xs text-slate-400">Slug: <code>{{ c.slug }}</code> | Order: {{ c.display_order }}</span>
                 </div>
                 <div class="flex gap-2">
-                  <button onclick="editCategory({{ categories_json[c.id]|tojson|safe }})" class="text-slate-600 hover:text-slate-800 text-xs font-semibold bg-white border border-slate-200 px-2.5 py-1 rounded">Edit</button>
+                  <button
+                    type="button"
+                    data-category-id="{{ c.id }}"
+                    onclick="editCategoryFromTable(this)"
+                    class="text-slate-600 hover:text-slate-800 text-xs font-semibold bg-white border border-slate-200 px-2.5 py-1 rounded">
+                    Edit
+                  </button>
                   <form method="post" action="{{ url_for('admin.store_category_delete', category_id=c.id) }}" class="inline" onsubmit="return confirm('Delete this category? This might fail if linked to subcategories.');">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="text-red-600 hover:text-red-800 text-xs font-semibold bg-white border border-slate-200 px-2.5 py-1 rounded cursor-pointer">Delete</button>
