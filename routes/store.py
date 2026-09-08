@@ -6,7 +6,15 @@ from sqlalchemy import or_
 from sqlalchemy.exc import SQLAlchemyError
 
 from models import db
-from models.store import Order, OrderItem, Product, StorePayment, StoreTransaction, PaymentAuditLog
+from models.store import (
+    Order,
+    OrderItem,
+    Product,
+    StoreCategory,
+    StorePayment,
+    StoreTransaction,
+    PaymentAuditLog,
+)
 from models.user import User
 from utils.decorators import login_required
 from models.wishlist import WishlistItem
