@@ -280,7 +280,11 @@
                     </span>
                   </td>
                   <td class="text-right space-x-1 whitespace-nowrap">
-                    <button onclick="openProductModal('edit', {{ product_jsons[p.id]|tojson|safe }}, {{ product_specs[p.id]|tojson|safe }}, {{ product_features[p.id]|tojson|safe }})" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-1.5 px-3 rounded transition-all border-none cursor-pointer">
+                    <button
+                      type="button"
+                      data-product-id="{{ p.id }}"
+                      onclick="editProductFromTable(this)"
+                      class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-1.5 px-3 rounded transition-all border-none cursor-pointer">
                       Edit
                     </button>
                     <form method="post" action="{{ url_for('admin.store_product_duplicate', product_id=p.id) }}" class="inline">
