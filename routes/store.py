@@ -47,15 +47,15 @@ def listing():
     if max_p is not None:
         q = q.filter(Product.price_inr <= max_p)
     products = q.order_by(Product.created_at.desc(), Product.id.desc()).all()
-    # Extract valid categories from products only, trim whitespace
+    
     # Load categories directly from Store CMS
-categories = [
-    category.name
-    for category in StoreCategory.query.order_by(
-        StoreCategory.display_order.asc(),
-        StoreCategory.name.asc()
-    ).all()
-]
+    categories = [
+        category.name
+        for category in StoreCategory.query.order_by(
+            storeCategory.display_order.asc(),
+            StoreCategory.name.asc()
+        ).all()
+    ]
     wishlist_ids = []
     if current_user.is_authenticated:
         wishlist_ids = [w.product_id for w in WishlistItem.query.filter_by(user_id=current_user.id).all()]
