@@ -1029,6 +1029,36 @@
   const storeProductData = {{ product_jsons|tojson|safe }};
   const storeProductSpecs = {{ product_specs|tojson|safe }};
   const storeProductFeatures = {{ product_features|tojson|safe }};
+  // ==========================================
+  // CATEGORY & SUBCATEGORY EDIT DATA
+  // ==========================================
+
+  const storeCategoryData = {{ categories_json|tojson|safe }};
+  const storeSubcategoryData = {{ subcategories_json|tojson|safe }};
+
+  function editCategoryFromTable(button) {
+    const categoryId = String(button.dataset.categoryId);
+    const category = storeCategoryData[categoryId];
+
+    if (!category) {
+      console.error("Category not found:", categoryId);
+      return;
+    }
+
+    editCategory(category);
+  }
+
+  function editSubcategoryFromTable(button) {
+    const subcategoryId = String(button.dataset.subcategoryId);
+    const subcategory = storeSubcategoryData[subcategoryId];
+
+    if (!subcategory) {
+      console.error("Subcategory not found:", subcategoryId);
+      return;
+    }
+
+    editSubcategory(subcategory);
+  }
 
   function editProductFromTable(button) {
     const productId = String(button.dataset.productId);
