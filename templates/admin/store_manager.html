@@ -1013,7 +1013,20 @@
 </div>
 
 <script>
-  // Simple Tab switching logic
+  // Product data for Edit modal
+  const storeProductData = {{ product_jsons|tojson|safe }};
+  const storeProductSpecs = {{ product_specs|tojson|safe }};
+  const storeProductFeatures = {{ product_features|tojson|safe }};
+
+  function editProductFromTable(button) {
+    const productId = String(button.dataset.productId);
+
+    const product = storeProductData[productId] || {};
+    const specs = storeProductSpecs[productId] || [];
+    const features = storeProductFeatures[productId] || [];
+
+    openProductModal('edit', product, specs, features);
+  }
   function switchTab(tabId) {
     document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.add('hidden'));
     document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('block'));
