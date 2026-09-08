@@ -52,7 +52,7 @@ def listing():
     categories = [
         category.name
         for category in StoreCategory.query.order_by(
-            storeCategory.display_order.asc(),
+            StoreCategory.display_order.asc(),
             StoreCategory.name.asc()
         ).all()
     ]
