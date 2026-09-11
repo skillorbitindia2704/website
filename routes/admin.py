@@ -569,6 +569,12 @@ def ai_lab_management():
 def business_management():
     features = [
         {
+             "title": "Service Manager",
+             "url": url_for("admin.services_manage"),
+             "description": "Create, edit, publish, disable, delete, and reorder services displayed on the public website.",
+             "icon": "🛠️",
+        },
+        {
             "title": "Service Enquiries",
             "url": url_for("admin.service_requests"),
             "description": "Review incoming service leads and update inquiry status.",
