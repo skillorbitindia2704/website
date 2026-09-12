@@ -473,48 +473,65 @@ def academic_management():
 @admin_bp.get("/dashboard/store-management")
 @admin_required
 def store_management():
+    from models.store import Product, StoreCategory, Order, Coupon, ProductReview
+    product_count = Product.query.filter(or_(Product.is_deleted.is_(False), Product.is_deleted.is_(None))).count()
+    category_count = StoreCategory.query.count()
+    order_count = Order.query.count()
+    coupon_count = Coupon.query.count()
+    review_count = ProductReview.query.count()
+    seo_configured_count = Product.query.filter(
+        or_(Product.is_deleted.is_(False), Product.is_deleted.is_(None)),
+        or_(Product.seo_title != "", Product.seo_description != "")
+    ).count()
+
     features = [
         {
             "title": "Store Manager CMS",
-            "url": url_for("admin.store_manager"),
+            "url": url_for("admin.store_manager", tab="dashboard") + "#dashboard",
             "description": "Unified ecommerce operations view with product, category, order, coupon, review, and SEO workflows.",
             "icon": "🏬",
         },
         {
             "title": "Products",
-            "url": url_for("admin.store_manager") + "#products",
+            "url": url_for("admin.store_manager", tab="products") + "#products",
             "description": "Manage product catalog, pricing, stock, and marketing metadata.",
             "icon": "📦",
+            "count": product_count,
         },
         {
             "title": "Categories",
-            "url": url_for("admin.store_manager") + "#categories",
+            "url": url_for("admin.store_manager", tab="categories") + "#categories",
             "description": "Organize product channels with categories, subcategories, and visual banners.",
             "icon": "📂",
+            "count": category_count,
         },
         {
             "title": "Orders",
-            "url": url_for("admin.store_manager") + "#orders",
+            "url": url_for("admin.store_manager", tab="orders") + "#orders",
             "description": "Review order history, update status, and track customer shipments.",
             "icon": "🚚",
+            "count": order_count,
         },
         {
             "title": "Coupons",
-            "url": url_for("admin.store_manager") + "#coupons",
+            "url": url_for("admin.store_manager", tab="coupons") + "#coupons",
             "description": "Launch and manage coupon campaigns for promotions and discounts.",
             "icon": "🎫",
+            "count": coupon_count,
         },
         {
             "title": "Reviews",
-            "url": url_for("admin.store_manager") + "#reviews",
+            "url": url_for("admin.store_manager", tab="reviews") + "#reviews",
             "description": "Moderate customer reviews and maintain product quality signals.",
             "icon": "⭐",
+            "count": review_count,
         },
         {
-            "title": "SEO",
-            "url": url_for("admin.store_manager") + "#products",
-            "description": "Maintain product SEO metadata for search and discovery.",
+            "title": "Store & Website SEO",
+            "url": url_for("admin.store_manager", tab="seo") + "#seo",
+            "description": "Store meta tags, search keywords, Google SERP preview, XML sitemap, and catalog SEO health.",
             "icon": "🔍",
+            "count": seo_configured_count,
         },
     ]
     return _render_admin_module_page("Store Management", "Handle product catalog, orders, coupons, reviews, categories and store SEO from a single store operations page.", features)
@@ -5856,7 +5873,12 @@ def homepage_hero_delete_image(image_field):
 @admin_required
 def store_manager():
     from models.store import StoreCategory, StoreSubcategory, Coupon, ProductReview, Order, Product, InventoryHistory
+    from models.site_setting import SiteSetting
     import json
+    
+    tab = request.args.get("tab", "").strip().lower()
+    valid_tabs = {"dashboard", "products", "categories", "orders", "coupons", "reviews", "seo"}
+    active_tab = tab if tab in valid_tabs else "dashboard"
     
     # Fetch lists
     products = Product.query.filter(or_(Product.is_deleted.is_(False), Product.is_deleted.is_(None))).order_by(Product.id.desc()).all()
@@ -5939,6 +5961,22 @@ def store_manager():
     subcategories_json = {s.id: s.to_dict() for s in subcategories}
     coupons_json = {c.id: c.to_dict() for c in coupons}
     orders_json = {o.id: o.to_dict() for o in orders}
+
+    # Load SEO settings and statistics
+    seo_keys = [
+        "store_seo_title",
+        "store_seo_description",
+        "store_seo_keywords",
+        "store_seo_canonical_url",
+        "google_site_verification",
+    ]
+    seo_rows = SiteSetting.query.filter(SiteSetting.key.in_(seo_keys)).all()
+    seo_settings = {row.key: row.value for row in seo_rows}
+    seo_configured_count = sum(1 for p in products if (p.seo_title or p.seo_description))
+    seo_stats = {
+        "indexed_products": len(products),
+        "seo_configured_count": seo_configured_count,
+    }
             
     return render_template(
         "admin/store_manager.html",
@@ -5960,8 +5998,43 @@ def store_manager():
         low_stock_items=low_stock_items,
         pending_reviews_count=pending_reviews_count,
         product_specs=product_specs_dict,
-        product_features=product_features_dict
+        product_features=product_features_dict,
+        active_tab=active_tab,
+        seo_settings=seo_settings,
+        seo_stats=seo_stats,
     )
+
+
+@admin_bp.post("/store/seo/save")
+@admin_required
+def store_seo_save():
+    from models.site_setting import SiteSetting
+    
+    seo_fields = [
+        "store_seo_title",
+        "store_seo_description",
+        "store_seo_keywords",
+        "store_seo_canonical_url",
+        "google_site_verification",
+    ]
+    
+    try:
+        for field in seo_fields:
+            val = request.form.get(field, "").strip()
+            row = SiteSetting.query.filter_by(key=field).first()
+            if row:
+                row.value = val
+            else:
+                row = SiteSetting(key=field, value=val)
+                db.session.add(row)
+        db.session.commit()
+        flash("Store & Website SEO settings updated successfully.", "success")
+    except Exception as exc:
+        db.session.rollback()
+        current_app.logger.error(f"Error saving store SEO settings: {exc}")
+        flash("Could not save SEO settings. Please try again.", "danger")
+        
+    return redirect(url_for("admin.store_manager", tab="seo") + "#seo")
 
 
 @admin_bp.post("/store/product/create")

@@ -11,6 +11,10 @@
   <meta name="keywords" content="{% block meta_keywords %}{{ seo_default_keywords }}{% endblock %}">
   <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}">
   <meta name="author" content="{{ seo_site_name }}">
+  {% set ss = site_settings or {} %}
+  {% if ss.get('google_site_verification') %}
+  <meta name="google-site-verification" content="{{ ss.get('google_site_verification') }}">
+  {% endif %}
   {% if seo_site_url %}
   <link rel="canonical" href="{% block canonical_href %}{{ seo_site_url }}{{ request.path }}{% endblock %}">
   {% endif %}
@@ -20,7 +24,6 @@
   <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
   <meta property="og:url" content="{% block og_url %}{% if seo_site_url %}{{ seo_site_url }}{{ request.path }}{% endif %}{% endblock %}">
   <meta property="og:locale" content="en_IN">
-  {% set ss = site_settings or {} %}
   {% set favicon_url = ss.get('favicon_url','') %}
   {% set logo_url = ss.get('logo_url','') %}
 

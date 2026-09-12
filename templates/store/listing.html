@@ -1,5 +1,7 @@
 {% extends "base.html" %}
-{% block title %}Electronics Store — Skill Orbit India{% endblock %}
+{% block title %}{{ (site_settings.get('store_seo_title') if site_settings else None) or 'Electronics Store — Skill Orbit India' }}{% endblock %}
+{% block meta_description %}{{ (site_settings.get('store_seo_description') if site_settings else None) or 'Skill Orbit India Store — Buy authentic Arduino boards, microcontrollers, IoT sensors, DIY robotics kits, and STEM learning hardware across India.' }}{% endblock %}
+{% block meta_keywords %}{{ (site_settings.get('store_seo_keywords') if site_settings else None) or seo_default_keywords }}{% endblock %}
 {% block breadcrumbs %}
 <div class="container breadcrumbs-wrap">
   {% set crumbs = [('Home', url_for('main.home')), ('Store', None)] %}
@@ -114,20 +116,21 @@
         <div class="card-img-wrap product-image-container">
           <!-- Wishlist Button -->
           <button type="button"
-            class="wishlist-btn {% if current_user.is_authenticated and p.id in wishlist_ids %}active{% endif %}"
+            class="wishlist-btn {% if current_user.is_authenticated and wishlist_ids and p.id in wishlist_ids %}active{% endif %}"
             data-product-id="{{ p.id }}"
             data-action="toggle-wishlist"
             aria-label="Add to wishlist"
-            aria-pressed="{% if current_user.is_authenticated and p.id in wishlist_ids %}true{% else %}false{% endif %}">
-            <i class="ri-heart-{% if current_user.is_authenticated and p.id in wishlist_ids %}fill{% else %}line{% endif %}" aria-hidden="true"></i>
+            aria-pressed="{% if current_user.is_authenticated and wishlist_ids and p.id in wishlist_ids %}true{% else %}false{% endif %}">
+            <i class="ri-heart-{% if current_user.is_authenticated and wishlist_ids and p.id in wishlist_ids %}fill{% else %}line{% endif %}" aria-hidden="true"></i>
           </button>
 
+          {% set p_stock = (p.stock or 0)|int %}
           <!-- Stock Status Badge -->
-          {% if p.stock > 0 and p.stock <= 5 %}
+          {% if p_stock > 0 and p_stock <= 5 %}
           <div class="stock-badge low-stock">
             <i class="ri-alert-line"></i> Low Stock
           </div>
-          {% elif p.stock <= 0 %}
+          {% elif p_stock <= 0 %}
           <div class="stock-badge out-of-stock">Out of Stock</div>
           {% elif p.is_new_arrival %}
           <div class="stock-badge new-arrival">
@@ -136,19 +139,21 @@
           {% endif %}
 
           <!-- Product Image -->
-          <img src="{{ p.image_url if (p.image_url and p.image_url.startswith('/static/')) else url_for('static', filename=(p.image_url or 'images/default_product.svg')) }}" 
-               alt="{{ p.name }}" 
-               loading="lazy" 
-               width="400" 
-               height="300"
-            onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/default_product.svg') }}';"
-               class="product-image">
+          <a href="{{ url_for('store.product_detail', slug=(p.slug or p.id)) }}" class="product-image-link" aria-label="View {{ p.name }}">
+            <img src="{{ p.image_url if (p.image_url and p.image_url.startswith('/static/')) else url_for('static', filename=(p.image_url or 'images/default_product.svg')) }}" 
+                 alt="{{ p.name }}" 
+                 loading="lazy" 
+                 width="400" 
+                 height="300"
+                 onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/default_product.svg') }}';"
+                 class="product-image">
+          </a>
 
           <!-- Discount Badge -->
-          {% if p.discount_price_inr and p.discount_price_inr > 0 %}
+          {% if p.discount_price_inr and p.price_inr and p.price_inr > p.discount_price_inr %}
           <div class="discount-badge">
             <span class="discount-percent">
-              {{ ((p.price_inr - p.discount_price_inr) / p.price_inr * 100)|int }}% OFF
+              {{ (((p.price_inr - p.discount_price_inr) / p.price_inr) * 100)|int }}% OFF
             </span>
           </div>
           {% endif %}
@@ -157,24 +162,30 @@
         <!-- Product Info Section -->
         <div class="card-body product-info">
           <!-- Category & Rating -->
+          {% set p_rating = (p.rating|default(4.5, true))|float %}
           <div class="card-meta product-meta">
             <span class="category-badge">
-              <i class="ri-price-tag-3-line"></i> {{ p.category }}
+              <i class="ri-price-tag-3-line"></i> {{ p.category or 'General' }}
             </span>
             <span class="rating-display">
-              <i class="ri-star-fill" style="color: #fbbf24;"></i> {{ '%.1f'|format((p.rating|default(4.5))|float) }}
+              <i class="ri-star-fill" style="color: #fbbf24;"></i> {{ '%.1f'|format(p_rating) }}
             </span>
           </div>
 
           <!-- Rating Bar -->
-          <div class="stars-bar" style="--p: {{ (((p.rating|default(4.5))|float / 5) * 100)|int }}%; margin-bottom: 0.75rem;"></div>
+          <div class="stars-bar" style="--p: {{ ((p_rating / 5) * 100)|int }}%; margin-bottom: 0.75rem;"></div>
 
           <!-- Product Name -->
-          <h3 class="product-title">{{ p.name }}</h3>
+          <h3 class="product-title">
+            <a href="{{ url_for('store.product_detail', slug=(p.slug or p.id)) }}" class="product-title-link">
+              {{ p.name }}
+            </a>
+          </h3>
 
           <!-- Product Description -->
+          {% set p_desc = (p.short_description or p.description or '') %}
           <p class="product-description muted">
-            {{ p.short_description[:80] if p.short_description else p.description[:80] }}{% if (p.short_description or p.description)|length > 80 %}…{% endif %}
+            {{ p_desc[:80] }}{% if p_desc|length > 80 %}…{% endif %}
           </p>
 
           <!-- Brand & Stock Info -->
@@ -186,9 +197,9 @@
 
           <!-- Stock Level -->
           <div class="stock-info">
-            {% if p.stock > 0 %}
+            {% if p_stock > 0 %}
             <span class="stock-available">
-              <i class="ri-check-double-line"></i> {{ p.stock }} in stock
+              <i class="ri-check-double-line"></i> {{ p_stock }} in stock
             </span>
             {% else %}
             <span class="stock-unavailable">
@@ -201,25 +212,25 @@
           <div class="product-pricing">
             {% if p.discount_price_inr and p.discount_price_inr > 0 %}
             <div class="price-container">
-              <span class="price-original">₹{{ p.price_inr }}</span>
+              <span class="price-original">₹{{ p.price_inr or 0 }}</span>
               <span class="price-current price-tag">₹{{ p.discount_price_inr }}</span>
             </div>
             {% else %}
-            <span class="price-current price-tag">₹{{ p.price_inr }}</span>
+            <span class="price-current price-tag">₹{{ p.price_inr or 0 }}</span>
             {% endif %}
             {% if p.gst_percent %}
-            <span class="price-gst">incl. {{ p.gst_percent|int }}% GST</span>
+            <span class="price-gst">incl. {{ (p.gst_percent or 0)|int }}% GST</span>
             {% endif %}
           </div>
 
           <!-- Add to Cart Section -->
-          {% if p.stock > 0 %}
+          {% if p_stock > 0 %}
           <form method="post" action="{{ url_for('store.add_to_cart', product_id=p.id) }}" class="product-actions">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="actions-container">
               <div class="qty-control-wrapper">
                 <button type="button" class="qty-btn qty-minus" aria-label="Decrease quantity">−</button>
-                <input type="number" name="quantity" value="1" min="1" max="{{ p.stock }}" class="qty-input qty-display" aria-label="Quantity">
+                <input type="number" name="quantity" value="1" min="1" max="{{ p_stock }}" class="qty-input qty-display" aria-label="Quantity">
                 <button type="button" class="qty-btn qty-plus" aria-label="Increase quantity">+</button>
               </div>
               <button type="submit" class="btn btn-primary btn-sm add-cart-btn" style="flex: 1;">

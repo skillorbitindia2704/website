@@ -31,7 +31,6 @@ def _get_cart():
 
 
 @store_bp.get("/")
-@login_required
 def listing():
     q = Product.query.filter(
         or_(Product.is_deleted.is_(False), Product.is_deleted.is_(None)),
@@ -724,7 +723,6 @@ def payment_failed(order_id):
 
 # Dynamic Centralized CMS Front-end Enhancements
 @store_bp.get("/product/<slug>")
-@login_required
 def product_detail(slug):
     # Retrieve product by slug, fallback to checking ID
     product = Product.query.filter(

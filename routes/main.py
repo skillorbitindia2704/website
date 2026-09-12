@@ -378,5 +378,22 @@ def sitemap_xml():
             )
     except Exception:
         pass
+    try:
+        from models.store import Product
+        from sqlalchemy import or_
+        for p in Product.query.filter(
+            or_(Product.is_deleted.is_(False), Product.is_deleted.is_(None)),
+            Product.status == "published"
+        ).order_by(Product.id.desc()).limit(300).all():
+            if p.slug:
+                urls.append(
+                    {
+                        "loc": url_for("store.product_detail", slug=p.slug, _external=True),
+                        "changefreq": "weekly",
+                        "priority": "0.8",
+                    }
+                )
+    except Exception:
+        pass
     xml = render_template("sitemap.xml", urls=urls)
     return Response(xml, mimetype="application/xml; charset=utf-8")

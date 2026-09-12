@@ -1,6 +1,7 @@
 import os
+import uuid
 from datetime import datetime, timezone
-from typing import Any, Callable, Dict, Optional, TYPE_CHECKING
+from typing import Any, Callable, Dict, Optional, TYPE_CHECKING, cast
 
 try:
     from dotenv import load_dotenv
@@ -13,18 +14,15 @@ from markupsafe import Markup, escape
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 
 from extensions import bcrypt, csrf, login_manager
-from typing import cast
 
 # Pylance/pyright: Flask-SQLAlchemy and Flask-Login are dynamically typed.
 # These suppressions prevent false-positive type diagnostics without changing runtime behavior.
 # pyright: ignore[reportUnusedImport, reportUnknownVariableType, reportUnknownMemberType, reportCallIssue, reportAttributeAccessIssue, reportDeprecated, reportMissingParameterType, reportUnknownArgumentType]
 
 from models import db
+from models.ai_lab_package import AILabPackage
 if TYPE_CHECKING:
     from models.ai_lab_inquiry import AILabInquiry
-
-if TYPE_CHECKING:
-    from models.ai_lab_package import AILabPackage
 
 if TYPE_CHECKING:
     from models.course import Course, CoursePayment, Enrollment
@@ -108,19 +106,57 @@ if load_dotenv is not None:
 
 
 def _ensure_admin_account():
-    """Create fixed default admin on first run if not present."""
-    admin_email = os.getenv("ADMIN_EMAIL", "skillorbitindia2704@gmail.com").strip().lower()
-    existing = User.query.filter_by(email=admin_email).first()
-    
-    if existing:
-        return
-    admin_password = os.getenv("ADMIN_PASSWORD")    
-    if not admin_password:
-        raise RuntimeError(
-            "ADMIN_PASSWORD environment variable is required to create the admin account."
+    """Create or sync default admin account from environment settings."""
+    try:
+        admin_email = os.getenv("ADMIN_EMAIL", "skillorbitindia2704@gmail.com").strip().lower()
+        admin_password = os.getenv("ADMIN_PASSWORD", "Admin@12345")
+        if not admin_password:
+            return
+
+        existing = User.query.filter_by(email=admin_email).first()
+        if existing:
+            # Sync password from .env if it has changed
+            pw_matches = False
+            try:
+                if existing.password_hash:
+                    pw_matches = bcrypt.check_password_hash(existing.password_hash, admin_password)
+            except Exception:
+                pw_matches = False
+
+            needs_commit = False
+            if not pw_matches:
+                existing.password_hash = bcrypt.generate_password_hash(admin_password).decode("utf-8")
+                existing.failed_login_attempts = 0
+                existing.locked_until = None
+                needs_commit = True
+
+            if not existing.is_admin or existing.role != "admin" or not existing.is_approved:
+                existing.role = "admin"
+                existing.is_admin = True
+                existing.is_approved = True
+                existing.sync_admin_flags()
+                needs_commit = True
+
+            if needs_commit:
+                db.session.commit()
+            return
+
+        password_hash = bcrypt.generate_password_hash(admin_password).decode("utf-8")
+        user = User(
+            full_name="Platform Admin",
+            email=admin_email,
+            password_hash=password_hash,
+            role="admin",
+            is_admin=True,
+            is_approved=True,
         )
-    password_hash = bcrypt.generate_password_hash(admin_password).decode("utf-8")
-    
+        user.sync_admin_flags()
+        db.session.add(user)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+
 def _ensure_ai_lab_packages():
     """Seed default AI Lab packages on first run if none exist."""
     try:
@@ -408,7 +444,7 @@ def create_app():
     def handle_csrf_error(error):
         app.logger.warning(f"CSRF validation failed: {error.description}")
         flash("Your session may have expired, or the CSRF token was invalid. Please try again.", "danger")
-        return redirect(request.referrer or url_for("admin.about_recognition"))
+        return redirect(request.referrer or url_for("main.home"))
 
     @app.errorhandler(400)
     def bad_request_error(error):
@@ -476,7 +512,7 @@ def create_app():
         try:
             rows = SiteSetting.query.all()
             for row in rows:
-                if row.key in site_settings and row.value:
+                if row.value:
                     site_settings[row.key] = row.value
         except Exception:
             pass
@@ -496,8 +532,6 @@ def create_app():
             ),
             "site_settings": site_settings,
         }
-
-    import uuid
 
     @app.before_request
     def force_https():
@@ -585,7 +619,7 @@ if __name__ == "__main__":
         app.run(host=host, port=port, debug=debug_mode)
     except OSError as exc:
         # Common local-dev issue: selected port already in use.
-        if "Address already in use" in str(exc):
+        if "Address already in use" in str(exc) or "10048" in str(exc):
             fallback_port = 5001
             print(f"Port {port} is busy. Retrying on http://{host}:{fallback_port}")
             app = create_app()

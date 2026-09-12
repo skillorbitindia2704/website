@@ -216,19 +216,19 @@ def add_products():
                 product = Product(**product_data)
                 db.session.add(product)
                 added += 1
-                print(f"✅ Added: {product.name}")
+                print(f"[OK] Added: {product.name}")
 
             db.session.commit()
             total = Product.query.count()
-            print(f"\n✨ Success! Added {added} new products. Total in database: {total}")
+            print(f"\n[SUCCESS] Added {added} new products. Total in database: {total}")
 
         except Exception as e:
             db.session.rollback()
-            print(f"❌ Error: {e}")
+            print(f"[ERROR] {e}")
             raise
 
 if __name__ == "__main__":
-    print("🚀 Adding sample products to database...")
+    print("[*] Adding sample products to database...")
     print("=" * 50)
     add_products()
     print("=" * 50)

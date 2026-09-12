@@ -153,19 +153,20 @@
     <div class="lg:col-span-1 flex flex-col gap-2">
       <div class="card-premium p-4 flex flex-col gap-1.5 bg-slate-50">
         <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">Navigation Panel</div>
-        <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="tab-btn active"><i class="ri-bar-chart-box-line"></i> Metrics Overview</button>
-        <button onclick="switchTab('products')" id="tab-btn-products" class="tab-btn"><i class="ri-shopping-bag-line"></i> Products Catalog</button>
-        <button onclick="switchTab('categories')" id="tab-btn-categories" class="tab-btn"><i class="ri-stack-line"></i> Categories & Channels</button>
-        <button onclick="switchTab('orders')" id="tab-btn-orders" class="tab-btn"><i class="ri-truck-line"></i> Orders Fulfillment</button>
-        <button onclick="switchTab('coupons')" id="tab-btn-coupons" class="tab-btn"><i class="ri-coupon-3-line"></i> Coupon Campaigns</button>
-        <button onclick="switchTab('reviews')" id="tab-btn-reviews" class="tab-btn"><i class="ri-star-line" aria-hidden="true"></i> Moderator Grid</button>
+        <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="tab-btn {% if (active_tab == 'dashboard') or (not active_tab) %}active{% endif %}"><i class="ri-bar-chart-box-line"></i> Metrics Overview</button>
+        <button onclick="switchTab('products')" id="tab-btn-products" class="tab-btn {% if active_tab == 'products' %}active{% endif %}"><i class="ri-shopping-bag-line"></i> Products Catalog</button>
+        <button onclick="switchTab('categories')" id="tab-btn-categories" class="tab-btn {% if active_tab == 'categories' %}active{% endif %}"><i class="ri-stack-line"></i> Categories & Channels</button>
+        <button onclick="switchTab('orders')" id="tab-btn-orders" class="tab-btn {% if active_tab == 'orders' %}active{% endif %}"><i class="ri-truck-line"></i> Orders Fulfillment</button>
+        <button onclick="switchTab('coupons')" id="tab-btn-coupons" class="tab-btn {% if active_tab == 'coupons' %}active{% endif %}"><i class="ri-coupon-3-line"></i> Coupon Campaigns</button>
+        <button onclick="switchTab('reviews')" id="tab-btn-reviews" class="tab-btn {% if active_tab == 'reviews' %}active{% endif %}"><i class="ri-star-line" aria-hidden="true"></i> Moderator Grid</button>
+        <button onclick="switchTab('seo')" id="tab-btn-seo" class="tab-btn {% if active_tab == 'seo' %}active{% endif %}"><i class="ri-search-eye-line"></i> Store & Site SEO</button>
       </div>
     </div>
 
     <!-- Right Pane: Active Form tabs -->
     <div class="lg:col-span-3">
       <!-- 1. DASHBOARD OVERVIEW -->
-      <div id="tab-panel-dashboard" class="tab-panel block space-y-6">
+      <div id="tab-panel-dashboard" class="tab-panel {% if (active_tab == 'dashboard') or (not active_tab) %}block{% else %}hidden{% endif %} space-y-6">
         <!-- Low Stock Banners -->
         {% if low_stock_items %}
         <div class="bg-amber-50 border border-amber-200 text-amber-900 rounded-lg p-5">
@@ -220,7 +221,7 @@
       </div>
 
       <!-- 2. PRODUCTS CATALOG -->
-      <div id="tab-panel-products" class="tab-panel hidden space-y-6">
+      <div id="tab-panel-products" class="tab-panel {% if active_tab == 'products' %}block{% else %}hidden{% endif %} space-y-6">
         <div class="card-premium p-6">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <h2 class="text-lg font-bold text-slate-800">Inventory Catalog</h2>
@@ -313,7 +314,7 @@
       </div>
 
       <!-- 3. CATEGORIES & SUB-CHANNELS -->
-      <div id="tab-panel-categories" class="tab-panel hidden space-y-6">
+      <div id="tab-panel-categories" class="tab-panel {% if active_tab == 'categories' %}block{% else %}hidden{% endif %} space-y-6">
         <!-- Categories CMS Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Categories list -->
@@ -482,7 +483,7 @@
       </div>
 
       <!-- 4. ORDERS & FULFILLMENT -->
-      <div id="tab-panel-orders" class="tab-panel hidden space-y-6">
+      <div id="tab-panel-orders" class="tab-panel {% if active_tab == 'orders' %}block{% else %}hidden{% endif %} space-y-6">
         <div class="card-premium p-6">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <h2 class="text-lg font-bold text-slate-800">Store Order Fulfillment Ledger</h2>
@@ -560,7 +561,7 @@
       </div>
 
       <!-- 5. COUPON CAMPAIGNS -->
-      <div id="tab-panel-coupons" class="tab-panel hidden space-y-6">
+      <div id="tab-panel-coupons" class="tab-panel {% if active_tab == 'coupons' %}block{% else %}hidden{% endif %} space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <!-- Form to create -->
           <div class="card-premium p-6 lg:col-span-1">
@@ -701,7 +702,7 @@
       </div>
 
       <!-- 6. REVIEWS MODERATION -->
-      <div id="tab-panel-reviews" class="tab-panel hidden space-y-6">
+      <div id="tab-panel-reviews" class="tab-panel {% if active_tab == 'reviews' %}block{% else %}hidden{% endif %} space-y-6">
         <div class="card-premium p-6">
           <h2 class="text-lg font-bold text-slate-800 mb-4">Reviews Moderation Panel</h2>
           
@@ -757,6 +758,276 @@
                 {% else %}
                 <tr>
                   <td colspan="5" class="text-center py-8 text-slate-400">No review ratings submitted yet.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. STORE & WEBSITE SEO -->
+      <div id="tab-panel-seo" class="tab-panel {% if active_tab == 'seo' %}block{% else %}hidden{% endif %} space-y-6">
+        <!-- SEO Header & Summary -->
+        <div class="card-premium p-6">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 border-b border-slate-100">
+            <div>
+              <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold mb-2">
+                <i class="ri-search-eye-line"></i> Search Engine Optimization
+              </div>
+              <h2 class="text-xl font-bold text-slate-800">Store & Website SEO Management Suite</h2>
+              <p class="text-sm text-slate-500 mt-1">Configure search meta tags, Google SERP appearance, indexing directives, and catalog keyword visibility for Skill Orbit India.</p>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <a href="{{ url_for('store.listing') }}" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-lg border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 transition-all text-decoration-none">
+                <i class="ri-external-link-line"></i> Public Store
+              </a>
+              <a href="{{ url_for('main.sitemap_xml') }}" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-lg border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 transition-all text-decoration-none">
+                <i class="ri-file-code-line"></i> XML Sitemap
+              </a>
+              <a href="{{ url_for('main.robots_txt') }}" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-lg border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 transition-all text-decoration-none">
+                <i class="ri-robot-line"></i> robots.txt
+              </a>
+            </div>
+          </div>
+
+          <!-- Quick Stats Cards -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/70">
+              <span class="text-xs font-medium text-slate-500 uppercase tracking-wider block">Indexed Products</span>
+              <span class="text-2xl font-black text-slate-800 mt-1 block">{{ seo_stats.indexed_products if seo_stats else products|length }}</span>
+              <span class="text-xs text-emerald-600 font-semibold mt-0.5 inline-flex items-center gap-1"><i class="ri-check-line"></i> In Catalog</span>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/70">
+              <span class="text-xs font-medium text-slate-500 uppercase tracking-wider block">SEO Configured</span>
+              <span class="text-2xl font-black text-slate-800 mt-1 block">{{ seo_stats.seo_configured_count if seo_stats else 0 }}</span>
+              <span class="text-xs text-blue-600 font-semibold mt-0.5 inline-flex items-center gap-1"><i class="ri-shield-check-line"></i> Custom Meta</span>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/70">
+              <span class="text-xs font-medium text-slate-500 uppercase tracking-wider block">Sitemap Status</span>
+              <span class="text-2xl font-black text-emerald-600 mt-1 block">Live</span>
+              <span class="text-xs text-slate-500 mt-0.5 block">/sitemap.xml</span>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/70">
+              <span class="text-xs font-medium text-slate-500 uppercase tracking-wider block">Robots Directives</span>
+              <span class="text-2xl font-black text-blue-600 mt-1 block">Active</span>
+              <span class="text-xs text-slate-500 mt-0.5 block">Allow: /store</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Google SERP Snippet Preview & Main SEO Configuration -->
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <!-- Left 3 cols: SEO Configuration Form -->
+          <div class="lg:col-span-3 card-premium p-6">
+            <h3 class="text-base font-bold text-slate-800 mb-1 flex items-center gap-2">
+              <i class="ri-settings-4-line text-rose-600"></i> Store Meta Tags Configuration
+            </h3>
+            <p class="text-xs text-slate-500 mb-6">These meta tags will be embedded into the header of the public Skill Orbit India Store.</p>
+
+            <form method="post" action="{{ url_for('admin.store_seo_save') }}" class="space-y-4">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <label for="store_seo_title" class="text-xs font-bold text-slate-700">Store Meta Title</label>
+                  <span id="title-char-count" class="text-[11px] font-mono text-slate-400">0 / 60</span>
+                </div>
+                <input type="text" id="store_seo_title" name="store_seo_title" class="form-control"
+                  placeholder="Electronics & Robotics Store — Skill Orbit India"
+                  value="{{ (seo_settings.store_seo_title if seo_settings else '') or 'Electronics & Robotics Store — Skill Orbit India' }}"
+                  oninput="updateSerpPreview()" maxlength="80" required>
+                <span class="text-[11px] text-slate-400 mt-0.5 block">Optimal length: 50–60 characters. Displayed as the primary clickable headline in search results.</span>
+              </div>
+
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <label for="store_seo_description" class="text-xs font-bold text-slate-700">Store Meta Description</label>
+                  <span id="desc-char-count" class="text-[11px] font-mono text-slate-400">0 / 160</span>
+                </div>
+                <textarea id="store_seo_description" name="store_seo_description" rows="3" class="form-textarea"
+                  placeholder="Buy genuine Arduino, Raspberry Pi, robotics components, IoT sensors, and DIY engineering kits with fast delivery across India. Skill Orbit India Store."
+                  oninput="updateSerpPreview()" maxlength="220" required>{{ (seo_settings.store_seo_description if seo_settings else '') or 'Skill Orbit India Store — Buy authentic Arduino boards, microcontrollers, IoT sensors, DIY robotics kits, and STEM learning hardware across India.' }}</textarea>
+                <span class="text-[11px] text-slate-400 mt-0.5 block">Optimal length: 140–160 characters. Summarizes page content for search engines and social shares.</span>
+              </div>
+
+              <div>
+                <label for="store_seo_keywords" class="text-xs font-bold text-slate-700 block mb-1">Target Keywords (Comma Separated)</label>
+                <input type="text" id="store_seo_keywords" name="store_seo_keywords" class="form-control"
+                  placeholder="arduino starter kit, buy robotics sensors india, stem kits for schools, iot components, skill orbit store"
+                  value="{{ (seo_settings.store_seo_keywords if seo_settings else '') or 'Skill Orbit Store, buy arduino india, robotics kits, IoT sensors, stem kits, electronics components, microcontrollers india' }}">
+                <span class="text-[11px] text-slate-400 mt-0.5 block">Target keyword phrases relevant to electronics, robotics, and STEM education learners in India.</span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="store_seo_canonical_url" class="text-xs font-bold text-slate-700 block mb-1">Canonical URL</label>
+                  <input type="url" id="store_seo_canonical_url" name="store_seo_canonical_url" class="form-control"
+                    placeholder="https://skillorbit.in/store"
+                    value="{{ (seo_settings.store_seo_canonical_url if seo_settings else '') or '' }}">
+                  <span class="text-[11px] text-slate-400 mt-0.5 block">Prevents duplicate content penalties. Leave blank for auto.</span>
+                </div>
+                <div>
+                  <label for="google_site_verification" class="text-xs font-bold text-slate-700 block mb-1">Google Search Console Verification Tag</label>
+                  <input type="text" id="google_site_verification" name="google_site_verification" class="form-control"
+                    placeholder="e.g. 1a2B3c4D_google_verification_code"
+                    value="{{ (seo_settings.google_site_verification if seo_settings else '') or '' }}">
+                  <span class="text-[11px] text-slate-400 mt-0.5 block">Inserts &lt;meta name="google-site-verification"&gt; into &lt;head&gt;.</span>
+                </div>
+              </div>
+
+              <div class="pt-3 flex justify-end">
+                <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm py-2.5 px-6 rounded-lg transition-all border-none cursor-pointer flex items-center gap-2">
+                  <i class="ri-save-line"></i> Save SEO Settings
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Right 2 cols: Live Google SERP Snippet Preview -->
+          <div class="lg:col-span-2 flex flex-col gap-6">
+            <div class="card-premium p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
+                  <i class="ri-google-fill text-blue-500"></i> Google SERP Preview
+                </h3>
+                <span class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">Live Snippet</span>
+              </div>
+
+              <!-- Realistic Google Search Result Card -->
+              <div class="p-4 rounded-xl border border-slate-200 bg-white shadow-sm font-sans">
+                <div class="flex items-center gap-2 mb-1">
+                  <div class="w-6 h-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-700">SO</div>
+                  <div class="text-[12px] leading-tight">
+                    <span class="text-slate-800 font-semibold block">Skill Orbit India</span>
+                    <span class="text-slate-400 text-[11px]">https://skillorbit.in › store</span>
+                  </div>
+                </div>
+                <h4 id="preview-serp-title" class="text-[17px] leading-snug font-medium text-[#1a0dab] hover:underline cursor-pointer mb-1">
+                  {{ (seo_settings.store_seo_title if seo_settings else '') or 'Electronics & Robotics Store — Skill Orbit India' }}
+                </h4>
+                <div class="flex items-center gap-1.5 text-[12px] text-amber-600 font-semibold mb-1">
+                  <span>★★★★★</span>
+                  <span class="text-slate-500 font-normal">Rating: 4.9 · ‎120+ reviews · ‎In stock</span>
+                </div>
+                <p id="preview-serp-desc" class="text-[13px] leading-relaxed text-[#4d5156]">
+                  {{ (seo_settings.store_seo_description if seo_settings else '') or 'Skill Orbit India Store — Buy authentic Arduino boards, microcontrollers, IoT sensors, DIY robotics kits, and STEM learning hardware across India.' }}
+                </p>
+              </div>
+
+              <!-- Keyword Highlights Tag Cloud for Skill Orbit India -->
+              <div class="mt-6 pt-4 border-t border-slate-100">
+                <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Recommended Store Keywords</h4>
+                <div class="flex flex-wrap gap-1.5">
+                  <span class="px-2 py-1 text-[11px] rounded bg-slate-100 text-slate-700 cursor-pointer hover:bg-rose-50 hover:text-rose-600 transition-colors" onclick="appendKeyword('Arduino kits India')">+ Arduino kits India</span>
+                  <span class="px-2 py-1 text-[11px] rounded bg-slate-100 text-slate-700 cursor-pointer hover:bg-rose-50 hover:text-rose-600 transition-colors" onclick="appendKeyword('STEM robotics hardware')">+ STEM robotics hardware</span>
+                  <span class="px-2 py-1 text-[11px] rounded bg-slate-100 text-slate-700 cursor-pointer hover:bg-rose-50 hover:text-rose-600 transition-colors" onclick="appendKeyword('buy IoT sensors')">+ buy IoT sensors</span>
+                  <span class="px-2 py-1 text-[11px] rounded bg-slate-100 text-slate-700 cursor-pointer hover:bg-rose-50 hover:text-rose-600 transition-colors" onclick="appendKeyword('microcontroller boards')">+ microcontroller boards</span>
+                  <span class="px-2 py-1 text-[11px] rounded bg-slate-100 text-slate-700 cursor-pointer hover:bg-rose-50 hover:text-rose-600 transition-colors" onclick="appendKeyword('DIY electronics store India')">+ DIY electronics store India</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Structured Data (JSON-LD) Card -->
+            <div class="card-premium p-6">
+              <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <i class="ri-braces-line text-emerald-600"></i> Automatic Schema.org Structured Data
+              </h4>
+              <p class="text-xs text-slate-500 mb-3">Public store and product pages automatically output valid JSON-LD rich snippets for Google search enhancements.</p>
+              <div class="p-3 bg-slate-900 rounded-lg text-emerald-400 font-mono text-[11px] overflow-x-auto leading-relaxed">
+{
+  "@context": "https://schema.org",
+  "@type": "Store",
+  "name": "Skill Orbit India Store",
+  "description": "Electronics, STEM Kits & Robotics Components",
+  "currenciesAccepted": "INR",
+  "paymentAccepted": "UPI, Credit Card, NetBanking (Razorpay)"
+}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Catalog SEO Health & Quick Optimizer Table -->
+        <div class="card-premium p-6">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+            <div>
+              <h3 class="text-base font-bold text-slate-800">Products Catalog SEO Health</h3>
+              <p class="text-xs text-slate-500">Audit search metadata across your product catalog and optimize titles, descriptions, and slugs.</p>
+            </div>
+            <button onclick="switchTab('products')" class="bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs py-2 px-4 rounded-lg transition-all border-none cursor-pointer">
+              Manage Products &rarr;
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse table-custom">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>SEO Title Meta</th>
+                  <th>SEO Description</th>
+                  <th>Keywords</th>
+                  <th style="width: 120px;" class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for p in products %}
+                <tr>
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <img src="{{ p.image_url if p.image_url.startswith('/static/') else url_for('static', filename=p.image_url) }}" alt="{{ p.name }}" class="w-9 h-9 object-contain rounded bg-slate-50 border border-slate-200 p-0.5">
+                      <div>
+                        <span class="font-bold text-slate-800 text-sm block leading-tight">{{ p.name }}</span>
+                        <span class="text-xs text-slate-400 font-mono">/product/{{ p.slug }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="px-2 py-0.5 text-xs font-semibold rounded bg-slate-100 text-slate-700">
+                      {{ p.category }}
+                    </span>
+                  </td>
+                  <td>
+                    {% if p.seo_title %}
+                    <span class="text-xs text-emerald-700 font-medium block truncate max-w-[200px]" title="{{ p.seo_title }}">
+                      {{ p.seo_title }}
+                    </span>
+                    {% else %}
+                    <span class="text-xs text-amber-600 italic">Fallback to Product Name</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if p.seo_description %}
+                    <span class="text-xs text-slate-600 block truncate max-w-[220px]" title="{{ p.seo_description }}">
+                      {{ p.seo_description }}
+                    </span>
+                    {% else %}
+                    <span class="text-xs text-amber-600 italic">Fallback to Short Description</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if p.seo_keywords %}
+                    <span class="text-xs text-blue-600 font-mono block truncate max-w-[150px]" title="{{ p.seo_keywords }}">
+                      {{ p.seo_keywords }}
+                    </span>
+                    {% else %}
+                    <span class="text-xs text-slate-400">None</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-right whitespace-nowrap">
+                    <button type="button"
+                      data-product-id="{{ p.id }}"
+                      onclick="editProductFromTable(this)"
+                      class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs py-1.5 px-3 rounded transition-all border-none cursor-pointer">
+                      Edit SEO
+                    </button>
+                  </td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="6" class="text-center py-6 text-slate-400">No products found in catalog.</td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -1069,16 +1340,47 @@
 
     openProductModal('edit', product, specs, features);
   }
-  function switchTab(tabId) {
-    document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.add('hidden'));
-    document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('block'));
+  function getRequestedTab() {
+    // 1. Check URL hash (e.g. #products, #coupons, #orders, #seo)
+    const rawHash = window.location.hash ? window.location.hash.replace('#', '').trim().toLowerCase() : '';
+    if (rawHash && document.getElementById('tab-panel-' + rawHash)) {
+      return rawHash;
+    }
+
+    // 2. Check URL query parameter ?tab=...
+    const urlParams = new URLSearchParams(window.location.search);
+    const rawParam = (urlParams.get('tab') || '').trim().toLowerCase();
+    if (rawParam && document.getElementById('tab-panel-' + rawParam)) {
+      return rawParam;
+    }
+
+    // 3. Server-provided initial active_tab
+    const serverTab = "{{ active_tab|default('dashboard') }}";
+    if (serverTab && document.getElementById('tab-panel-' + serverTab)) {
+      return serverTab;
+    }
+
+    // 4. LocalStorage saved tab
+    const savedTab = localStorage.getItem('storeCmsActiveTab');
+    if (savedTab && document.getElementById('tab-panel-' + savedTab)) {
+      return savedTab;
+    }
+
+    return 'dashboard';
+  }
+
+  function switchTab(tabId, syncUrl = true) {
+    const activePanel = document.getElementById('tab-panel-' + tabId);
+    if (!activePanel) return;
+
+    document.querySelectorAll('.tab-panel').forEach(panel => {
+      panel.classList.add('hidden');
+      panel.classList.remove('block');
+    });
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
 
-    const activePanel = document.getElementById('tab-panel-' + tabId);
-    if (activePanel) {
-      activePanel.classList.remove('hidden');
-      activePanel.classList.add('block');
-    }
+    activePanel.classList.remove('hidden');
+    activePanel.classList.add('block');
     
     const activeBtn = document.getElementById('tab-btn-' + tabId);
     if (activeBtn) {
@@ -1087,14 +1389,58 @@
     
     // Save tab selection state to localStorage
     localStorage.setItem('storeCmsActiveTab', tabId);
+
+    // Update URL hash without reload
+    if (syncUrl && window.location.hash !== '#' + tabId) {
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', '#' + tabId);
+      } else {
+        window.location.hash = tabId;
+      }
+    }
   }
 
-  // Restore tab selection
-  window.addEventListener('DOMContentLoaded', () => {
-    const savedTab = localStorage.getItem('storeCmsActiveTab');
-    if (savedTab && document.getElementById('tab-panel-' + savedTab)) {
-      switchTab(savedTab);
+  // Real-time Google SERP preview update
+  function updateSerpPreview() {
+    const titleInput = document.getElementById('store_seo_title');
+    const descInput = document.getElementById('store_seo_description');
+    const previewTitle = document.getElementById('preview-serp-title');
+    const previewDesc = document.getElementById('preview-serp-desc');
+    const titleCounter = document.getElementById('title-char-count');
+    const descCounter = document.getElementById('desc-char-count');
+
+    if (titleInput && previewTitle) {
+      const val = titleInput.value.trim() || "Electronics & Robotics Store — Skill Orbit India";
+      previewTitle.textContent = val;
+      if (titleCounter) titleCounter.textContent = `${titleInput.value.length} / 60`;
     }
+
+    if (descInput && previewDesc) {
+      const val = descInput.value.trim() || "Skill Orbit India Store — Buy authentic Arduino boards, microcontrollers, IoT sensors, DIY robotics kits, and STEM learning hardware across India.";
+      previewDesc.textContent = val;
+      if (descCounter) descCounter.textContent = `${descInput.value.length} / 160`;
+    }
+  }
+
+  function appendKeyword(kw) {
+    const kwInput = document.getElementById('store_seo_keywords');
+    if (!kwInput) return;
+    const current = kwInput.value.trim();
+    if (current.toLowerCase().includes(kw.toLowerCase())) return;
+    kwInput.value = current ? current + ', ' + kw : kw;
+  }
+
+  // Listen for hash changes so forward/back or link clicks switch tab dynamically
+  window.addEventListener('hashchange', () => {
+    const target = getRequestedTab();
+    switchTab(target, false);
+  });
+
+  // Activate tab on page load
+  window.addEventListener('DOMContentLoaded', () => {
+    const target = getRequestedTab();
+    switchTab(target, false);
+    updateSerpPreview();
   });
 
   // Category Editor helper

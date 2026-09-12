@@ -203,6 +203,10 @@
       if (!res.ok) throw new Error(data.error || "Request failed");
       btn.classList.toggle("active", data.in_wishlist);
       btn.setAttribute("aria-pressed", data.in_wishlist ? "true" : "false");
+      const heartIcon = btn.querySelector("i");
+      if (heartIcon) {
+        heartIcon.className = data.in_wishlist ? "ri-heart-fill" : "ri-heart-line";
+      }
       showToast(data.in_wishlist ? "Added to wishlist" : "Removed from wishlist", "success");
     } catch {
       showToast("Could not update wishlist.", "error");
