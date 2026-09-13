@@ -6085,10 +6085,9 @@ def store_product_create():
     flash(
         f"SKU '(sku) '{sku}' already exists for product "
         f"'{existing_sku.name}'. Please use a unique SKU.",
-            "danger"
-        )
-             )
-        return redirect(url_for("admin.store_manager", tab="products"))
+        "danger"
+    )
+    return redirect(url_for("admin.store_manager", tab="products"))
 
     # Process Specifications
     spec_keys = request.form.getlist("spec_key[]")
