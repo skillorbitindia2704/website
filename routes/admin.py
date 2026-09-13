@@ -6067,18 +6067,15 @@ def store_product_create():
         flash("Numerical values supplied are invalid.", "danger")
         return redirect(url_for("admin.store_manager"))
 
-    # Normalize SKU
+    # Normalize and validate SKU
     sku = request.form.get("sku", "").strip().upper()
 
-    # Keep existing SKU if field is left blank
+    # Auto-generate SKU if admin leaves it blank
     if not sku:
-        sku = product.sku
+        sku = f"SO-{uuid4().hex[:8].upper()}"
 
-    # Prevent duplicate SKU while excluding current product
-    existing_sku = Product.query.filter(
-        Product.sku == sku,
-        Product.id != product.id
-    ).first()
+    # Prevent duplicate SKU
+    existing_sku = Product.query.filter_by(sku=sku).first()
 
     if existing_sku:
         flash(
