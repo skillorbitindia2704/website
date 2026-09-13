@@ -6079,7 +6079,7 @@ def store_product_create():
     if not sku:
         sku = f"50-(uuid4().hex[:8].upper()}"
     # Prevent duplicate SKU
-    existing_sku = product.query.filter_by(sku=sku).first()
+    existing_sku = Product.query.filter_by(sku=sku).first()
     
     if existing_sku:
     flash(
