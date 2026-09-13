@@ -6058,15 +6058,36 @@ def store_product_create():
         slug = f"{slug}-{uuid4().hex[:6]}"
         
     try:
-        price_inr = max(1, int(request.form.get("price_inr", 1)))
-        discount_price_inr = int(request.form.get("discount_price_inr", 0) or 0)
-        stock = max(0, int(request.form.get("stock", 0)))
-        low_stock_threshold = max(0, int(request.form.get("low_stock_threshold", 5)))
-        gst_percent = float(request.form.get("gst_percent", 18.0) or 18.0)
+        price_inr = ...
+        discount_price_inr = ...
+        new_stock = ...
+        low_stock_threshold = ...
+        gst_percent = ...
     except (TypeError, ValueError):
         flash("Numerical values supplied are invalid.", "danger")
         return redirect(url_for("admin.store_manager"))
-        
+
+    # Normalize SKU
+    sku = request.form.get("sku", "").strip().upper()
+
+    # Keep existing SKU if field is left blank
+    if not sku:
+        sku = product.sku
+
+    # Prevent duplicate SKU while excluding current product
+    existing_sku = Product.query.filter(
+        Product.sku == sku,
+        Product.id != product.id
+    ).first()
+
+    if existing_sku:
+        flash(
+            f"SKU '{sku}' already exists for product "
+            f"'{existing_sku.name}'. Please use a unique SKU.",
+            "danger"
+        )
+        return redirect(url_for("admin.store_manager", tab="products"))
+
     category = request.form.get("category", "").strip()
     if not category:
         flash("Category is required.", "danger")
