@@ -6072,24 +6072,27 @@ def store_product_create():
         flash("Category is required.", "danger")
         return redirect(url_for("admin.store_manager"))
         
+    # Normalize and validate SKU
+    sku = request.form.get("sku", "").strip().upper()
+
+    #Auot-genrerate SKU only when blank
+    if not sku:
+        sku = f"50-(uuid4().hex[:8].upper().upper()}"
+    # Prevent duplicate SKU
+    existing_sku = product.query.filter_by(sku=sku).first()
+    
+    if existing_sku:
+    flash(
+        f"SKU '(sku) '{sku}' already exists for product "
+        f"'{existing_sku.name}'. Please use a unique SKU.",
+            "danger"
+        )
+             )
+        return redirect(url_for("admin.store_manager", tab="products"))
+
     # Process Specifications
     spec_keys = request.form.getlist("spec_key[]")
     spec_vals = request.form.getlist("spec_value[]")
-    specs = []
-    for k, v in zip(spec_keys, spec_vals):
-        if k.strip() or v.strip():
-            specs.append({"key": k.strip(), "value": v.strip()})
-            
-    # Process Features
-    feature_items = request.form.getlist("feature[]")
-    features = [f.strip() for f in feature_items if f.strip()]
-    
-    image_file = request.files.get("image")
-    try:
-        uploaded_path = _upload_product_image(image_file) if image_file else None
-    except ValueError as exc:
-        flash(str(exc), "danger")
-        return redirect(url_for("admin.store_manager"))
         
     product = Product(
         name=name,
@@ -6103,7 +6106,7 @@ def store_product_create():
         category=category,
         subcategory=request.form.get("subcategory", "").strip(),
         brand=request.form.get("brand", "").strip(),
-        sku=request.form.get("sku", "").strip() or f"SO-{uuid4().hex[:8].upper()}",
+        sku=sku,
         tags=request.form.get("tags", "").strip(),
         gst_percent=gst_percent,
         status=request.form.get("status", "published").strip(),
