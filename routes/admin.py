@@ -6071,24 +6071,24 @@ def store_product_create():
     if not category:
         flash("Category is required.", "danger")
         return redirect(url_for("admin.store_manager"))
-        
     # Normalize and validate SKU
     sku = request.form.get("sku", "").strip().upper()
 
-    #Auot-genrerate SKU only when blank
+    # Auto-generate SKU only when blank
     if not sku:
         sku = f"SO-{uuid4().hex[:8].upper()}"
+
     # Prevent duplicate SKU
     existing_sku = Product.query.filter_by(sku=sku).first()
-    
-    if existing_sku:
-    flash(
-        f"SKU '{sku}' already exists for product "
-        f"'{existing_sku.name}'. Please use a unique SKU.",
-        "danger"
-    )
-    return redirect(url_for("admin.store_manager", tab="products"))
 
+    if existing_sku:
+        flash(
+            f"SKU '{sku}' already exists for product "
+            f"'{existing_sku.name}'. Please use a unique SKU.",
+            "danger"
+        )
+        return redirect(url_for("admin.store_manager", tab="products"))
+        
     # Process Specifications
     spec_keys = request.form.getlist("spec_key[]")
     spec_vals = request.form.getlist("spec_value[]")
