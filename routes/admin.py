@@ -6188,27 +6188,26 @@ def store_product_edit(product_id):
     except (TypeError, ValueError):
         flash("Numerical values supplied are invalid.", "danger")
         return redirect(url_for("admin.store_manager"))
-        # Normalize SKU
-        sku = request.form.get("sku", "").strip().upper()
+    # Normalize SKU
+    sku = request.form.get("sku", "").strip().upper()
 
-        # Keep existing SKU if field is left blank
-        if not sku:
-            sku = product.sku
+    # Keep existing SKU if field is left blank
+    if not sku:
+        sku = product.sku
 
-        # Prevent duplicate SKU while excluding current product
-        existing_sku = Product.query.filter(
-            Product.sku == sku,
-            Product.id != product.id
-        ).first()
+    # Prevent duplicate SKU while excluding current product
+    existing_sku = Product.query.filter(
+        Product.sku == sku,
+        Product.id != product.id
+    ).first()
 
-        if existing_sku:
-            flash(
-                f"SKU '{sku}' already exists for product "
-                f"'{existing_sku.name}'. Please use a unique SKU.",
-                "danger"
+    if existing_sku:
+        flash(
+            f"SKU '{sku}' already exists for product "
+            f"'{existing_sku.name}'. Please use a unique SKU.",
+            "danger"
         )
         return redirect(url_for("admin.store_manager", tab="products"))
-        
     category = request.form.get("category", "").strip()
     if not category:
         flash("Category is required.", "danger")
