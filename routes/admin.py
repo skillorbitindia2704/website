@@ -6083,7 +6083,7 @@ def store_product_create():
     
     if existing_sku:
     flash(
-        f"SKU '(sku) '{sku}' already exists for product "
+        f"SKU '{sku}' already exists for product "
         f"'{existing_sku.name}'. Please use a unique SKU.",
         "danger"
     )
