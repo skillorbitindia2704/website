@@ -10,4 +10,4 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
-        value: sqlite:///skill_orbit_india.db
+        value: postgresql://skillorbitindiadb_aqyk_user:R2vb7eFCXYkOC7EKEDkTX5N136gtwOao@dpg-daa51htg1s2s73c5pb7g-a/skill_orbit_india

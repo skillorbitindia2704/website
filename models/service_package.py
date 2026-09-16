@@ -13,7 +13,7 @@ class ServicePackage(db.Model):
     full_description = db.Column(db.Text, nullable=False, default="")
     pricing_text = db.Column(db.String(120), nullable=False, default="")
     features = db.Column(db.Text, nullable=False, default="")
-    icon = db.Column(db.String(20), nullable=False, default="🔧")
+    icon = db.Column(db.String(100), nullable=False, default="🔧")
     image = db.Column(db.String(255), nullable=False, default="")
     button_text = db.Column(db.String(60), nullable=False, default="Request service")
     button_link = db.Column(db.String(255), nullable=False, default="#service-modal")

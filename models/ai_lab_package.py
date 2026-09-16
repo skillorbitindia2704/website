@@ -25,7 +25,7 @@ class AILabPackage(db.Model):
     button_text = db.Column(db.String(50), default="Get started")
     button_link = db.Column(db.String(100), default="#inquiry")
     badge_text = db.Column(db.String(50), default="")
-    icon = db.Column(db.String(10), default="🔧")
+    icon = db.Column(db.String(100), default="🔧")
     display_order = db.Column(db.Integer, default=0)
     is_active = db.Column(db.Integer, default=1)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
