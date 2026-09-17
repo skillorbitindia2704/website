@@ -32,16 +32,16 @@
           <img src="{{ product.image_url if (product.image_url and product.image_url.startswith('/static/')) else url_for('static', filename=(product.image_url or 'images/default_product.svg')) }}" alt="Main View">
         </div>
         {% for img in product.gallery_images %}
-    {% set gallery_src = img.image_url if (img.image_url and (img.image_url.startswith('/static/') or img.image_url.startswith('http://') or img.image_url.startswith('https://'))) else url_for('static', filename=(img.image_url or 'images/default_product.svg')) %}
+            {% set gallery_src = img.image_url if (img.image_url and (img.image_url.startswith('/static/') or img.image_url.startswith('http://') or img.image_url.startswith('https://'))) else url_for('static', filename=(img.image_url or 'images/default_product.svg')) %}
 
-    <div class="thumb-item" onclick="swapMainImage('{{ gallery_src }}', this)">
-        <img
-            src="{{ gallery_src }}"
-            alt="Gallery Image {{ loop.index }}"
-            loading="lazy"
-        >
-    </div>
-    {% endfor %}
+            <div class="thumb-item" onclick="swapMainImage('{{ gallery_src }}', this)">
+                <img
+                    src="{{ gallery_src }}"
+                    alt="Gallery Image {{ loop.index }}"
+                    loading="lazy"
+                >
+            </div>
+        {% endfor %}
       </div>
       {% endif %}
     </div>
