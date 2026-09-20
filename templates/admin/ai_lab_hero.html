@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}AI Lab Hero Manager — Admin{% endblock %}
+
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [
+    ('Home', url_for('main.home')),
+    ('Admin', url_for('admin.index')),
+    ('AI Lab Hero', None)
+  ] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+  <div class="card-premium surface-card-lg">
+    <h1 class="page-title">AI Lab Hero Manager</h1>
+
+    <p class="muted">
+      Manage the main hero image displayed on the AI & Robotics Lab page.
+    </p>
+  </div>
+
+  <div class="card-premium surface-card-lg" style="margin-top:1.5rem;">
+
+    <h2 class="page-title" style="font-size:1.25rem;">
+      Hero Image
+    </h2>
+
+    <p class="muted">
+      Upload the main image shown inside the AI Lab hero section.
+    </p>
+
+    <form
+      method="POST"
+      enctype="multipart/form-data"
+      class="form-modern"
+      style="margin-top:1.25rem;"
+    >
+
+      <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+      >
+
+      {% if hero_image %}
+
+      <div style="margin-bottom:1.5rem;">
+
+        <p class="muted" style="margin-bottom:0.6rem;">
+          Current Hero Image
+        </p>
+
+        <img
+          src="{{ url_for('static', filename=hero_image) }}"
+          alt="Current AI Lab Hero"
+          style="
+            width:100%;
+            max-width:620px;
+            aspect-ratio:16/9;
+            object-fit:cover;
+            border-radius:18px;
+            border:1px solid var(--border);
+            display:block;
+          "
+        >
+
+      </div>
+
+      {% endif %}
+
+      <div>
+
+        <label for="hero_image">
+          {% if hero_image %}
+            Replace Hero Image
+          {% else %}
+            Upload Hero Image
+          {% endif %}
+        </label>
+
+        <input
+          type="file"
+          id="hero_image"
+          name="hero_image"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+        >
+
+        <p class="muted" style="margin-top:0.5rem;font-size:0.85rem;">
+          Recommended: 1200×800px or 4:3 / 16:9 image.
+          Supported: PNG, JPG, JPEG, WebP, GIF.
+        </p>
+
+      </div>
+
+      <div class="form-actions-row" style="margin-top:1.5rem;">
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+        >
+          <i class="ri-save-line" aria-hidden="true"></i>
+          Update Hero Image
+        </button>
+
+        {% if hero_image %}
+
+        <button
+          type="submit"
+          name="remove_image"
+          value="1"
+          class="btn btn-ghost"
+          onclick="return confirm('Remove the current AI Lab hero image?');"
+        >
+          <i class="ri-delete-bin-6-line" aria-hidden="true"></i>
+          Remove Image
+        </button>
+
+        {% endif %}
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+{% endblock %}
