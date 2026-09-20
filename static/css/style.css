@@ -4905,6 +4905,11 @@ a:hover {
   align-items: center;
 }
 
+.page-ai-lab .ai-hero-grid.hero-inner {
+  width: 100%;
+  max-width: none;
+}
+
 .ai-hero-copy {
   max-width: 560px;
 }
