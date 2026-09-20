@@ -4922,10 +4922,9 @@ a:hover {
 
 .ai-hero-stats {
   margin-top: 1.5rem;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.9rem;
-  justify-content: space-between;
 }
 
 .ai-hero-stats .stat-card {
