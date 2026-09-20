@@ -76,48 +76,28 @@
 
     <div class="ai-hero-media" aria-hidden="true">
       <div class="ai-media-card">
-        <div class="ai-media-illustration">
-          <!-- Inline “realistic” illustration (no external assets required). -->
-          <svg viewBox="0 0 520 420" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="rgba(99,102,241,0.35)"/>
-                <stop offset="1" stop-color="rgba(249,115,22,0.22)"/>
-              </linearGradient>
-              <linearGradient id="g2" x1="0" y1="1" x2="1" y2="0">
-                <stop offset="0" stop-color="#2563eb"/>
-                <stop offset="1" stop-color="#ea580c"/>
-              </linearGradient>
-              <filter id="blur" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="10"/>
-              </filter>
-            </defs>
-            <rect x="22" y="28" width="476" height="360" rx="22" fill="url(#g1)" stroke="rgba(255,255,255,0.35)"/>
-            <circle cx="110" cy="120" r="42" fill="url(#g2)" opacity="0.25" filter="url(#blur)"/>
-            <circle cx="420" cy="140" r="58" fill="url(#g2)" opacity="0.18" filter="url(#blur)"/>
-            <!-- “Robot head” -->
-            <g transform="translate(160,120)">
-              <rect x="0" y="0" width="200" height="160" rx="24" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.35)"/>
-              <rect x="26" y="38" width="148" height="70" rx="16" fill="rgba(15,23,42,0.25)" stroke="rgba(255,255,255,0.3)"/>
-              <circle cx="62" cy="73" r="10" fill="rgba(249,115,22,0.9)"/>
-              <circle cx="138" cy="73" r="10" fill="rgba(37,99,235,0.9)"/>
-              <path d="M40 124 C 80 150, 120 150, 160 124" stroke="rgba(255,255,255,0.4)" stroke-width="6" fill="none" stroke-linecap="round"/>
-            </g>
-            <!-- Student silhouette -->
-            <g transform="translate(70,220)">
-              <path d="M100 140 C 70 120, 75 70, 120 60 C 165 50, 180 95, 150 120 C 138 130, 124 140, 100 140 Z" fill="rgba(255,255,255,0.16)"/>
-              <rect x="122" y="92" width="46" height="110" rx="18" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.25)"/>
-              <circle cx="145" cy="72" r="28" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.25)"/>
-            </g>
-            <!-- “Circuit traces” -->
-            <g stroke="rgba(255,255,255,0.35)" stroke-width="4" stroke-linecap="round" opacity="0.9">
-              <path d="M70 320 L150 270 L210 300 L260 260 L310 285 L350 250"/>
-              <path d="M170 310 L240 340 L300 300"/>
-              <path d="M410 310 L460 290"/>
-            </g>
-          </svg>
-        </div>
+<div class="ai-media-illustration">
 
+  {% set ai_lab_hero_image = site_settings.get('ai_lab_hero_image', '') %}
+
+  {% if ai_lab_hero_image %}
+
+    <img
+      src="{{ url_for('static', filename=ai_lab_hero_image) }}"
+      alt="AI & Robotics Lab Setup"
+      loading="eager"
+    >
+
+  {% else %}
+
+    <div class="ai-hero-image-placeholder">
+      <i class="ri-robot-2-line" aria-hidden="true"></i>
+      <span>AI & Robotics Lab</span>
+    </div>
+
+  {% endif %}
+
+</div>
         <div class="ai-media-caption">
           <span class="level-pill">Hands-on AI learning</span>
           <p class="muted" style="margin:0.5rem 0 0;">Robotics, Computer Vision, IoT & automation tracks.</p>
