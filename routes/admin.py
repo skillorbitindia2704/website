@@ -2288,6 +2288,63 @@ def toggle_ai_lab_package(pkg_id):
 # =========================
 # AI Lab CMS (Hardware, Curriculum, Projects, Testimonials, FAQs, Brochure, Gallery)
 # =========================
+@admin_bp.route("/ai-lab/hero", methods=["GET", "POST"])
+@admin_required
+def ai_lab_hero():
+    """Manage AI Lab hero image."""
+
+    setting_key = "ai_lab_hero_image"
+
+    setting = SiteSetting.query.filter_by(key=setting_key).first()
+
+    if request.method == "POST":
+        try:
+            remove_image = request.form.get("remove_image") == "1"
+
+            if remove_image:
+                if setting:
+                    setting.value = ""
+                flash("AI Lab hero image removed.", "success")
+
+            else:
+                image_file = request.files.get("hero_image")
+
+                if image_file and image_file.filename:
+                    image_path = _upload_ai_lab_asset(
+                        image_file,
+                        subdir="hero",
+                        allowed_exts=ALLOWED_AI_IMAGE_EXTENSIONS,
+                    )
+
+                    if not setting:
+                        setting = SiteSetting(
+                            key=setting_key,
+                            value=image_path,
+                        )
+                        db.session.add(setting)
+                    else:
+                        setting.value = image_path
+
+                    flash("AI Lab hero image updated successfully.", "success")
+                else:
+                    flash("Please select an image.", "warning")
+
+            db.session.commit()
+
+        except (ValueError, SQLAlchemyError) as exc:
+            db.session.rollback()
+
+            if isinstance(exc, ValueError):
+                flash(str(exc), "danger")
+            else:
+                flash("Could not update AI Lab hero image.", "danger")
+
+        return redirect(url_for("admin.ai_lab_hero"))
+
+    return render_template(
+        "admin/ai_lab_hero.html",
+        hero_image=setting.value if setting and setting.value else "",
+    )
 ALLOWED_AI_IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "gif"}
 ALLOWED_AI_MEDIA_EXTENSIONS = {
     "png",
