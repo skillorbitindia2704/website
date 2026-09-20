@@ -4928,8 +4928,8 @@ a:hover {
 }
 
 .ai-hero-stats .stat-card {
-  flex: 1 1 140px;
-  min-width: 150px;
+  min-width: 0;
+  width: 100%;
 }
 
 .ai-hero-stats .stat-card .num {
