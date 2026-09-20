@@ -542,6 +542,12 @@ def store_management():
 def ai_lab_management():
     features = [
         {
+    "title": "AI Lab Hero",
+    "url": url_for("admin.ai_lab_hero"),
+    "description": "Manage the main AI Lab hero image displayed on the public AI Lab page.",
+    "icon": "🖼️",
+        },
+        {
             "title": "AI Lab CMS",
             "url": url_for("admin.ai_lab_hardware"),
             "description": "Manage AI lab hardware, curriculum, projects, testimonials and gallery content.",
