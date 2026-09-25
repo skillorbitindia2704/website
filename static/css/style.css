@@ -299,31 +299,48 @@ a:hover {
 
 @media (max-width: 1200px) {
   .nav-links {
-    gap: 0.15rem 0.65rem;
-    flex-basis: 440px;
+    gap: 0 0.85rem;
+    flex-basis: auto;
+    flex-wrap: nowrap;
   }
 
   .nav-link {
-    padding: 0.4rem 0.55rem;
-    font-size: 0.92rem;
+    padding: 0.35rem 0.45rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
   }
 
   .glass-nav {
-    padding: 0.65rem 1rem;
-  }
-}
-
-@media (max-width: 992px) {
-  .nav-links {
-    flex-basis: 360px;
+    padding: 0.55rem 0.85rem;
+    gap: 0.5rem;
   }
 }
 
 @media (max-width: 1100px) and (min-width: 961px) {
   .nav-links {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
-    gap: 0.35rem 0.75rem;
+    gap: 0 0.45rem;
+    flex-basis: auto;
+  }
+
+  .nav-link {
+    font-size: 0.84rem;
+    padding: 0.3rem 0.35rem;
+    white-space: nowrap;
+  }
+
+  .nav-actions {
+    gap: 0.35rem;
+  }
+
+  .nav-actions .btn-sm {
+    padding: 0.42rem 0.65rem;
+    font-size: 0.82rem;
+  }
+
+  .nav-brand-text {
+    font-size: 0.98rem;
   }
 }
 
@@ -475,6 +492,7 @@ a:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
   padding: 0.72rem 1.35rem;
   border-radius: var(--radius-md);
   font-weight: 700;
@@ -534,13 +552,14 @@ a:hover {
 
 .btn-ghost {
   background: rgba(255, 255, 255, 0.72);
-  color: var(--text);
+  color: #0f172a;
   border: 1.4px solid var(--border);
 }
 
 [data-theme="dark"] .btn-ghost {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(148, 163, 184, 0.25);
+  color: #f8fafc;
 }
 
 .btn-ghost:hover {
@@ -712,12 +731,16 @@ a:hover {
 }
 
 .footer-columns h4,
-.footer-social h4 {
+.footer-contact h4,
+.footer-social h4,
+.footer-map h4 {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-muted);
   margin: 0 0 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .footer-columns a {
@@ -1714,6 +1737,20 @@ a:hover {
   margin-bottom: 1.25rem;
 }
 
+.filter-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.filter-actions .btn i {
+  font-size: 1.05rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+}
+
 .filter-hint {
   margin: 0;
   font-size: 0.8rem;
@@ -1819,6 +1856,14 @@ a:hover {
   gap: 0.35rem;
   backdrop-filter: blur(8px);
   z-index: 1;
+}
+
+.stock-status-container .stock-badge,
+.meta-column .stock-badge {
+  position: static;
+  top: auto;
+  left: auto;
+  display: inline-flex;
 }
 
 .stock-badge.low-stock {
@@ -2986,11 +3031,42 @@ a:hover {
 .cert-subtitle {
   font-family: var(--font-display);
   font-weight: 700;
-  color: var(--text);
+  color: #0f172a;
 }
 
 [data-theme="dark"] .cert-subtitle {
   color: #f8fafc;
+}
+
+.page-cert-verify .cert-subtitle {
+  color: #0f172a;
+}
+
+[data-theme="dark"] .page-cert-verify .cert-subtitle {
+  color: #f8fafc;
+}
+
+.page-cert-verify .btn-ghost {
+  color: #0f172a;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+}
+
+[data-theme="dark"] .page-cert-verify .btn-ghost {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(148, 163, 184, 0.3);
+}
+
+.page-cert-verify .btn-ghost:hover {
+  background: #f1f5f9;
+  color: var(--primary-from);
+  border-color: var(--primary-from);
+}
+
+[data-theme="dark"] .page-cert-verify .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
 }
 
 .verify-hero {
@@ -3285,7 +3361,7 @@ a:hover {
   inset: 0;
   background: rgba(15, 23, 42, 0.55);
   backdrop-filter: blur(4px);
-  z-index: 1500;
+  z-index: 3500;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4791,7 +4867,6 @@ a:hover {
   cursor: not-allowed;
   opacity: 0.5;
 }
-}
 
 .trust-strip .trust-item {
   min-width: 0;
@@ -5463,11 +5538,26 @@ a:hover {
 .ai-sticky-cta {
   position: fixed;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(120%);
   bottom: calc(16px + env(safe-area-inset-bottom));
-  z-index: 2500;
+  z-index: 1100;
   width: min(1140px, calc(100% - 2rem));
   pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.ai-sticky-cta.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+body.modal-open .ai-sticky-cta {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 .ai-sticky-inner {

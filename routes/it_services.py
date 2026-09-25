@@ -136,7 +136,6 @@ def ensure_default_service_packages():
 
 
 @it_services_bp.get("/")
-@login_required
 def index():
     return render_template("it_services/index.html", services=_public_services())
 

@@ -30,7 +30,6 @@ def _listing_open_filter():
 
 
 @internships_bp.get("/")
-@login_required
 def listing():
     internships = (
         Internship.query.filter(*_listing_open_filter())

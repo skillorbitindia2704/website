@@ -416,6 +416,36 @@ def create_app():
 
     app.jinja_env.filters["remix_icon"] = _render_remix_icon
 
+    def _format_duration(value):
+        if not value:
+            return ""
+        val = str(value).strip()
+        import re
+        def _pluralize_unit(match):
+            num_str = match.group(1)
+            unit_lower = match.group(2).lower().rstrip('s')
+            try:
+                num = float(num_str) if "." in num_str else int(num_str)
+            except ValueError:
+                return match.group(0)
+            known_units = {
+                "month": ("Month", "Months"),
+                "week": ("Week", "Weeks"),
+                "day": ("Day", "Days"),
+                "hour": ("Hour", "Hours"),
+                "year": ("Year", "Years"),
+            }
+            if unit_lower in known_units:
+                sing, plur = known_units[unit_lower]
+                correct = sing if num == 1 else plur
+                return f"{num_str} {correct}"
+            return match.group(0)
+
+        formatted = re.sub(r'(\d+(?:\.\d+)?)\s*([a-zA-Z]+)', _pluralize_unit, val)
+        return formatted or val
+
+    app.jinja_env.filters["format_duration"] = _format_duration
+
     @login_manager.unauthorized_handler
     def _unauthorized():
         flash("Please login to continue", "warning")
@@ -439,6 +469,11 @@ def create_app():
     app.register_blueprint(student_bp)
     app.register_blueprint(admin_bp, url_prefix="/admin")
     app.register_blueprint(api_bp)
+
+    @app.route("/uploads/<path:filename>")
+    def uploaded_files(filename):
+        from flask import send_from_directory
+        return send_from_directory(os.path.join(app.static_folder, "uploads"), filename)
 
     @app.errorhandler(CSRFError)
     def handle_csrf_error(error):
@@ -564,12 +599,16 @@ def create_app():
         if hasattr(request, "id"):
             response.headers["X-Request-ID"] = request.id
 
+        flask_env = os.getenv("FLASK_ENV", "production")
+
         # Static asset caching headers
         if request.path.startswith("/static/"):
-            response.headers["Cache-Control"] = "public, max-age=31536000"
+            if flask_env == "development":
+                response.headers["Cache-Control"] = "no-cache, must-revalidate"
+            else:
+                response.headers["Cache-Control"] = "public, max-age=31536000"
         
         # HSTS (Strict-Transport-Security) - only if not in development/debug mode
-        flask_env = os.getenv("FLASK_ENV", "production")
         if flask_env != "development" and not app.debug:
             response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
             

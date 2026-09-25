@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1225"/>
+      <stop offset="50%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#312e81"/>
+    </linearGradient>
+    <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#bgGrad)"/>
+  <rect width="800" height="500" fill="url(#grid)"/>
+
+  <!-- Glowing background orb -->
+  <circle cx="400" cy="220" r="160" fill="#4f46e5" opacity="0.15" filter="blur(40px)"/>
+
+  <!-- Icon Container -->
+  <g transform="translate(400, 210)">
+    <circle cx="0" cy="0" r="64" fill="rgba(255, 255, 255, 0.06)" stroke="rgba(255, 255, 255, 0.15)" stroke-width="2"/>
+    <!-- Book / Tech Icon -->
+    <path d="M-30 -16 C-20 -24, -5 -24, 0 -18 C5 -24, 20 -24, 30 -16 L30 20 C20 12, 5 12, 0 18 C-5 12, -20 12, -30 20 Z" fill="none" stroke="url(#iconGrad)" stroke-width="3.5" stroke-linejoin="round"/>
+    <line x1="0" y1="-18" x2="0" y2="18" stroke="url(#iconGrad)" stroke-width="3"/>
+  </g>
+
+  <!-- Title Pill -->
+  <rect x="300" y="320" width="200" height="34" rx="17" fill="rgba(255, 255, 255, 0.08)" stroke="rgba(255, 255, 255, 0.15)"/>
+  <text x="400" y="342" fill="#e0e7ff" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" letter-spacing="1.5" text-anchor="middle">SKILL ORBIT COURSE</text>
+</svg>

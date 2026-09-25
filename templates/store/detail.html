@@ -21,17 +21,28 @@
             data-product-id="{{ product.id }}"
             aria-label="Wishlist"
             aria-pressed="{% if current_user.is_authenticated and product.id in wishlist_ids %}true{% else %}false{% endif %}"><i class="ri-heart-line" aria-hidden="true"></i></button>
-          <img id="main-product-img" src="{{ product.image_url if (product.image_url and product.image_url.startswith('/static/')) else url_for('static', filename=(product.image_url or 'images/default_product.svg')) }}" alt="{{ product.name }}" class="main-image">
+          {% set p_img = (product.image_url or '') %}
+          {% if 'default_product.svg' in p_img or not p_img %}
+            {% set main_img_src = url_for('static', filename='images/product_placeholder.svg') %}
+          {% elif p_img.startswith('/static/') or p_img.startswith('http://') or p_img.startswith('https://') %}
+            {% set main_img_src = p_img %}
+          {% elif p_img.startswith('static/') %}
+            {% set main_img_src = '/' ~ p_img %}
+          {% else %}
+            {% set main_img_src = url_for('static', filename=p_img) %}
+          {% endif %}
+          <img id="main-product-img" src="{{ main_img_src }}" alt="{{ product.name }}" class="main-image" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/product_placeholder.svg') }}';">
         </div>
       </div>
       
       <!-- Gallery Thumbnails -->
       {% if product.gallery_images %}
       <div class="thumbnails-slider">
-        <div class="thumb-item active" onclick="swapMainImage('{{ product.image_url if (product.image_url and product.image_url.startswith("/static/")) else url_for("static", filename=(product.image_url or "images/default_product.svg")) }}', this)">
-          <img src="{{ product.image_url if (product.image_url and product.image_url.startswith('/static/')) else url_for('static', filename=(product.image_url or 'images/default_product.svg')) }}" alt="Main View">
+        <div class="thumb-item active" onclick="swapMainImage('{{ main_img_src }}', this)">
+          <img src="{{ main_img_src }}" alt="Main View" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/product_placeholder.svg') }}';">
         </div>
         {% for img in product.gallery_images %}
+
             {% set gallery_src = img.image_url if (img.image_url and (img.image_url.startswith('/static/') or img.image_url.startswith('http://') or img.image_url.startswith('https://'))) else url_for('static', filename=(img.image_url or 'images/default_product.svg')) %}
 
             <div class="thumb-item" onclick="swapMainImage('{{ gallery_src }}', this)">
@@ -41,6 +52,9 @@
                     loading="lazy"
                 >
             </div>
+        <div class="thumb-item" onclick="swapMainImage('{{ img.image_url }}', this)">
+          <img src="{{ img.image_url }}" alt="Gallery Image {{ loop.index }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/product_placeholder.svg') }}';">
+        </div>
         {% endfor %}
       </div>
       {% endif %}
@@ -221,7 +235,7 @@
       {% for p in related_products %}
       <article class="card-premium">
         <div class="card-img-wrap">
-          <img src="{{ p.image_url if (p.image_url and p.image_url.startswith('/static/')) else url_for('static', filename=(p.image_url or 'images/default_product.svg')) }}" alt="{{ p.name }}" loading="lazy">
+          <img src="{{ p.image_url if (p.image_url and p.image_url.startswith('/static/')) else url_for('static', filename=(p.image_url or 'images/default_product.svg')) }}" alt="{{ p.name }}" loading="lazy" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/default_product.svg') }}';">
         </div>
         <div class="card-body">
           <div class="card-meta">
@@ -489,11 +503,17 @@
 
 .stock-status-container {
   margin-bottom: 1.5rem;
+  margin-top: 0.5rem;
 }
 
+.stock-status-container .stock-badge,
 .stock-badge {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
   display: inline-flex;
   align-items: center;
+  gap: 0.35rem;
   padding: 0.4rem 0.8rem;
   border-radius: var(--radius-sm);
   font-size: 0.85rem;

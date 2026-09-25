@@ -60,11 +60,11 @@
 
       <!-- Filter Actions -->
       <div class="filter-actions">
-        <button type="submit" class="btn btn-primary btn-sm" style="width: 100%; margin-bottom: 0.5rem;">
-          <i class="ri-search-line"></i> Apply Filters
+        <button type="submit" class="btn btn-primary btn-sm" style="width: 100%; margin-bottom: 0.5rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;">
+          <i class="ri-search-line" aria-hidden="true"></i> <span>Apply Filters</span>
         </button>
-        <a href="{{ url_for('store.listing') }}" class="btn btn-ghost btn-sm" style="width: 100%;">
-          <i class="ri-refresh-line"></i> Reset All
+        <a href="{{ url_for('store.listing') }}" class="btn btn-ghost btn-sm" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;">
+          <i class="ri-refresh-line" aria-hidden="true"></i> <span>Reset All</span>
         </a>
       </div>
 
@@ -140,12 +140,22 @@
 
           <!-- Product Image -->
           <a href="{{ url_for('store.product_detail', slug=(p.slug or p.id)) }}" class="product-image-link" aria-label="View {{ p.name }}">
-            <img src="{{ p.image_url if (p.image_url and p.image_url.startswith('/static/')) else url_for('static', filename=(p.image_url or 'images/default_product.svg')) }}" 
+            {% set p_img = (p.image_url or '') %}
+            {% if 'default_product.svg' in p_img or not p_img %}
+              {% set img_src = url_for('static', filename='images/product_placeholder.svg') %}
+            {% elif p_img.startswith('/static/') or p_img.startswith('http://') or p_img.startswith('https://') %}
+              {% set img_src = p_img %}
+            {% elif p_img.startswith('static/') %}
+              {% set img_src = '/' ~ p_img %}
+            {% else %}
+              {% set img_src = url_for('static', filename=p_img) %}
+            {% endif %}
+            <img src="{{ img_src }}" 
                  alt="{{ p.name }}" 
                  loading="lazy" 
                  width="400" 
                  height="300"
-                 onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/default_product.svg') }}';"
+                 onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/product_placeholder.svg') }}';"
                  class="product-image">
           </a>
 

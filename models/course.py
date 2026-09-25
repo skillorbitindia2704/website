@@ -44,6 +44,35 @@ class Course(db.Model):
     enrollments = db.relationship("Enrollment", back_populates="course", lazy=True)
     certificates = db.relationship("Certificate", back_populates="course", lazy=True, cascade="all, delete-orphan")
 
+    @property
+    def formatted_duration(self) -> str:
+        val = (self.duration or "").strip()
+        if not val:
+            return ""
+        import re
+        def _pluralize_unit(match):
+            num_str = match.group(1)
+            unit_lower = match.group(2).lower().rstrip('s')
+            try:
+                num = float(num_str) if "." in num_str else int(num_str)
+            except ValueError:
+                return match.group(0)
+            known_units = {
+                "month": ("Month", "Months"),
+                "week": ("Week", "Weeks"),
+                "day": ("Day", "Days"),
+                "hour": ("Hour", "Hours"),
+                "year": ("Year", "Years"),
+            }
+            if unit_lower in known_units:
+                sing, plur = known_units[unit_lower]
+                correct = sing if num == 1 else plur
+                return f"{num_str} {correct}"
+            return match.group(0)
+
+        formatted = re.sub(r'(\d+(?:\.\d+)?)\s*([a-zA-Z]+)', _pluralize_unit, val)
+        return formatted or val
+
 
 class Enrollment(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -762,8 +762,24 @@
     {% for p in products %}
     <div class="carousel-item">
       <article class="card-premium">
+        {% set p_img = (p.image_url or '') %}
+        {% if 'default_product.svg' in p_img or not p_img %}
+          {% set img_src = url_for('static', filename='images/product_placeholder.svg') %}
+        {% elif p_img.startswith('/static/') or p_img.startswith('http://') or p_img.startswith('https://') %}
+          {% set img_src = p_img %}
+        {% elif p_img.startswith('static/') %}
+          {% set img_src = '/' ~ p_img %}
+        {% else %}
+          {% set img_src = url_for('static', filename=p_img) %}
+        {% endif %}
         <a href="{{ url_for('store.listing') }}" class="card-img-wrap">
-          <img src="{{ p.image_url }}" alt="{{ p.name }}" loading="lazy" decoding="async" width="400" height="300">
+          <img src="{{ img_src }}" 
+               alt="{{ p.name }}" 
+               loading="lazy" 
+               decoding="async" 
+               width="400" 
+               height="300"
+               onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/product_placeholder.svg') }}';">
         </a>
         <div class="card-body">
           <div class="card-meta"><span>{{ p.category }}</span><span class="stars">{{ '%.1f'|format((p.rating|default(4.5))|float) }} <i class="ri-star-s-fill" aria-hidden="true"></i></span></div>

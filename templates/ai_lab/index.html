@@ -803,7 +803,7 @@
 </div>
 
 <!-- Sticky CTA -->
-<div class="ai-sticky-cta" aria-hidden="false">
+<div class="ai-sticky-cta" aria-hidden="true">
   <div class="ai-sticky-inner">
     <p class="ai-sticky-text">Want a quick demo & pricing?</p>
     <button type="button" class="btn btn-primary btn-sm js-scroll-to-enquiry">Book Demo</button>
@@ -816,6 +816,30 @@
 {% block extra_js %}
 <script>
 (function () {
+  var stickyCta = document.querySelector(".ai-sticky-cta");
+  var heroSection = document.querySelector(".ai-hero");
+
+  if (stickyCta && heroSection) {
+    function updateCtaVisibility() {
+      if (document.body.classList.contains("modal-open")) {
+        stickyCta.classList.remove("visible");
+        stickyCta.setAttribute("aria-hidden", "true");
+        return;
+      }
+      var heroRect = heroSection.getBoundingClientRect();
+      if (heroRect.bottom <= 60) {
+        stickyCta.classList.add("visible");
+        stickyCta.setAttribute("aria-hidden", "false");
+      } else {
+        stickyCta.classList.remove("visible");
+        stickyCta.setAttribute("aria-hidden", "true");
+      }
+    }
+
+    window.addEventListener("scroll", updateCtaVisibility, { passive: true });
+    updateCtaVisibility();
+  }
+
   function scrollToEnquiry() {
     var el = document.querySelector("#enquiry");
     if (!el) return;
@@ -831,18 +855,21 @@
   var pkgField = document.getElementById("lab_package_field");
   function openModal(pkg) {
     if (pkgField) pkgField.value = pkg || "undecided";
-    modal.classList.add("open");
+    if (modal) modal.classList.add("open");
+    document.body.classList.add("modal-open");
+  }
+  function closeModal() {
+    if (modal) modal.classList.remove("open");
+    document.body.classList.remove("modal-open");
   }
   document.querySelectorAll(".js-open-lab-modal").forEach(function (btn) {
     btn.addEventListener("click", function () {
       openModal(btn.getAttribute("data-package"));
     });
   });
-  document.getElementById("lab-modal-close").addEventListener("click", function () {
-    modal.classList.remove("open");
-  });
-  modal.addEventListener("click", function (e) {
-    if (e.target === modal) modal.classList.remove("open");
+  document.getElementById("lab-modal-close")?.addEventListener("click", closeModal);
+  modal?.addEventListener("click", function (e) {
+    if (e.target === modal) closeModal();
   });
 
   // Gallery modal preview
@@ -856,10 +883,12 @@
     if (gImg) gImg.alt = title || "Gallery image";
     if (gTitle) gTitle.textContent = title || "Gallery preview";
     gModal.classList.add("open");
+    document.body.classList.add("modal-open");
   }
   function closeGalleryModal() {
-    gModal.classList.remove("open");
+    if (gModal) gModal.classList.remove("open");
     if (gImg) gImg.src = "";
+    document.body.classList.remove("modal-open");
   }
   gClose?.addEventListener("click", closeGalleryModal);
   gModal?.addEventListener("click", function (e) {
