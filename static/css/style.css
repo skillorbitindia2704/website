@@ -602,17 +602,17 @@ a:hover {
 }
 
 .footer-inner {
-  max-width: 1180px;
+  max-width: 1200px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.6fr) minmax(0, 1.45fr);
-  gap: 2rem 2.25rem;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.35fr) minmax(0, 1.05fr) minmax(0, 1.45fr);
+  gap: 2rem 1.75rem;
   align-items: start;
 }
 
 .footer-brand {
   display: flex;
-  gap: 0.85rem;
+  gap: 0.95rem;
   align-items: flex-start;
   min-width: 0;
   height: auto;
@@ -623,24 +623,32 @@ a:hover {
 }
 
 .footer-logo-img {
-  width: 52px;
-  height: 52px;
+  width: 64px;
+  height: 64px;
   object-fit: contain;
   flex-shrink: 0;
 }
 
+.footer-brand strong {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  display: block;
+}
+
 .footer-tagline {
-  margin: 0.2rem 0 0;
+  margin: 0.25rem 0 0;
   color: var(--text-muted);
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   max-width: 22rem;
   line-height: 1.35;
 }
 
 .footer-columns {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1.25rem 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem 1.25rem;
   min-width: 0;
   align-items: start;
   height: auto;
@@ -681,15 +689,6 @@ a:hover {
   transform: translateX(3px);
 }
 
-.footer-contact-and-map {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-  min-width: 0;
-  align-items: stretch;
-  height: auto;
-}
-
 .footer-contact {
   min-width: 0;
   height: auto;
@@ -710,6 +709,7 @@ a:hover {
   text-decoration: none;
   line-height: 1.35;
   transition: color var(--transition-fast);
+  word-break: break-word;
 }
 
 .footer-contact-link:hover {
@@ -731,6 +731,7 @@ a:hover {
 
 .footer-social-and-map {
   display: flex;
+  flex-direction: row;
   gap: 1.25rem;
   align-items: flex-start;
   min-width: 0;
@@ -745,6 +746,13 @@ a:hover {
 .social-icons {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
+}
+
+.social-icons-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
   align-items: center;
 }
 
@@ -787,12 +795,12 @@ a:hover {
 .footer-map-embed iframe {
   display: block;
   width: 100%;
-  height: 105px;
+  height: 125px;
   border: 0;
 }
 
 .footer-bottom {
-  max-width: 1180px;
+  max-width: 1200px;
   margin: 1.5rem auto 0;
   padding-top: 1.25rem;
   border-top: 1px solid var(--border);
@@ -809,18 +817,22 @@ a:hover {
   font-size: 0.86rem;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
   .footer-inner {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.6fr) minmax(0, 1.4fr);
-    gap: 1.75rem 1.5rem;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1.35fr);
+    gap: 1.75rem 1.25rem;
   }
 
   .footer-columns {
-    gap: 1rem 0.85rem;
+    gap: 1rem 0.65rem;
+  }
+
+  .footer-social-and-map {
+    gap: 0.85rem;
   }
 }
 
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .footer-inner {
     grid-template-columns: 1fr 1fr;
     gap: 1.75rem 1.5rem;
@@ -832,12 +844,16 @@ a:hover {
 
   .footer-columns {
     grid-column: 1;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.25rem 1rem;
   }
 
-  .footer-contact-and-map {
+  .footer-contact {
     grid-column: 2;
+  }
+
+  .footer-social-and-map {
+    grid-column: 1 / -1;
   }
 }
 
@@ -852,18 +868,23 @@ a:hover {
     gap: 1.5rem;
   }
 
+  .footer-brand {
+    grid-column: 1;
+  }
+
   .footer-columns {
     grid-column: 1;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .footer-contact-and-map {
+  .footer-contact {
     grid-column: 1;
   }
 
   .footer-social-and-map {
+    grid-column: 1;
     flex-direction: column;
-    gap: 0.9rem;
+    gap: 1rem;
   }
 
   .footer-map {
