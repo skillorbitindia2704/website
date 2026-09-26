@@ -68,46 +68,48 @@
 
     <div class="footer-contact-and-map">
       <div class="footer-contact">
-      <h4>Contact</h4>
-      <div class="footer-contact-items">
-        <a class="footer-contact-link" href="mailto:{{ contact_email }}" aria-label="Email Skill Orbit India">
-          <span class="footer-icon" aria-hidden="true"><i class="ri-mail-line"></i></span>
-          <span>{{ contact_email }}</span>
-        </a>
-        <a class="footer-contact-link" href="tel:{{ contact_phone|replace(' ', '') }}" aria-label="Call Skill Orbit India">
-          <span class="footer-icon" aria-hidden="true"><i class="ri-phone-line"></i></span>
-          <span>{{ contact_phone }}</span>
-        </a>
-        <a class="footer-contact-link" href="https://wa.me/{{ whatsapp_number }}" target="_blank" rel="noopener" aria-label="WhatsApp Skill Orbit India">
-          <span class="footer-icon" aria-hidden="true"><i class="ri-whatsapp-line"></i></span>
-          <span>WhatsApp support</span>
-        </a>
-        <div class="footer-contact-link" style="align-items:flex-start;">
-          <span class="footer-icon" aria-hidden="true"><i class="ri-map-pin-line"></i></span>
-          <span class="muted" style="margin:0;">{{ address_text }}</span>
+        <h4>Contact</h4>
+        <div class="footer-contact-items">
+          <a class="footer-contact-link" href="mailto:{{ contact_email }}" aria-label="Email Skill Orbit India">
+            <span class="footer-icon" aria-hidden="true"><i class="ri-mail-line"></i></span>
+            <span>{{ contact_email }}</span>
+          </a>
+          <a class="footer-contact-link" href="tel:{{ contact_phone|replace(' ', '') }}" aria-label="Call Skill Orbit India">
+            <span class="footer-icon" aria-hidden="true"><i class="ri-phone-line"></i></span>
+            <span>{{ contact_phone }}</span>
+          </a>
+          <a class="footer-contact-link" href="https://wa.me/{{ whatsapp_number }}" target="_blank" rel="noopener" aria-label="WhatsApp Skill Orbit India">
+            <span class="footer-icon" aria-hidden="true"><i class="ri-whatsapp-line"></i></span>
+            <span>WhatsApp support</span>
+          </a>
+          <div class="footer-contact-link" style="align-items:flex-start;">
+            <span class="footer-icon" aria-hidden="true"><i class="ri-map-pin-line"></i></span>
+            <span class="muted" style="margin:0;">{{ address_text }}</span>
+          </div>
         </div>
       </div>
 
-      <div class="footer-social" style="margin-top:1rem;">
-        <h4>Follow</h4>
-        <div class="social-icons">
-          <a href="{{ linkedin_url }}" class="social-link" aria-label="LinkedIn" rel="noopener" target="_blank"><i class="ri-linkedin-box-line" aria-hidden="true"></i></a>
-          <a href="{{ youtube_url }}" class="social-link" aria-label="YouTube" rel="noopener" target="_blank"><i class="ri-youtube-line" aria-hidden="true"></i></a>
-          <a href="{{ instagram_url }}" class="social-link" aria-label="Instagram" rel="noopener" target="_blank"><i class="ri-instagram-line" aria-hidden="true"></i></a>
+      <div class="footer-social-and-map">
+        <div class="footer-social">
+          <h4>Follow</h4>
+          <div class="social-icons">
+            <a href="{{ linkedin_url }}" class="social-link" aria-label="LinkedIn" rel="noopener" target="_blank"><i class="ri-linkedin-box-line" aria-hidden="true"></i></a>
+            <a href="{{ youtube_url }}" class="social-link" aria-label="YouTube" rel="noopener" target="_blank"><i class="ri-youtube-line" aria-hidden="true"></i></a>
+            <a href="{{ instagram_url }}" class="social-link" aria-label="Instagram" rel="noopener" target="_blank"><i class="ri-instagram-line" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <div class="footer-map" aria-label="Map">
+          <h4>Find us</h4>
+          <div class="footer-map-embed">
+            <iframe
+              title="Skill Orbit India on Google Maps"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              src="{{ map_embed_url }}"></iframe>
+          </div>
         </div>
       </div>
-    </div>
-
-    <div class="footer-map" aria-label="Map">
-      <h4>Find us</h4>
-      <div class="footer-map-embed">
-        <iframe
-          title="Skill Orbit India on Google Maps"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-          src="{{ map_embed_url }}"></iframe>
-      </div>
-    </div>
     </div>
 
   </div>
