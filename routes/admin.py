@@ -3028,6 +3028,8 @@ def home_testimonials():
             row.display_order = display_order
             row.is_active = is_active
 
+            img = request.files.get("image")
+            
             if img and img.filename:
                 row.image_path = _upload_about_hero_image(img)
                
