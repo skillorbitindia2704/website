@@ -51,7 +51,7 @@ def home():
         pass
 
     sections = [
-        "hero", "why_choose_us", "products", "courses", "internships", "services", " "ai_lab",
+        "hero", "why_choose_us", "products", "courses", "internships", "services", "ai_lab",
         "projects", "testimonials", "events", "certification", "cta_banner", "faq"
     ]
     for sec in sections:
