@@ -47,7 +47,7 @@ from models.about_version import AboutVersion
 from models.about_activity import AboutActivityLog
 from models.site_setting import SiteSetting
 from models.store import Order, OrderItem, Product
-from models.user import User
+from models.user import User, AdminActivityLog, UserPermission
 from models.wishlist import WishlistItem
 from models.hr import Employee, AttendanceRecord, LeaveRequest, AttendanceCorrectionRequest, AttendanceAuditLog
 from models.payroll import PayrollRun, PayrollAdjustment, PayrollPayslip
@@ -951,33 +951,39 @@ def hr_payroll():
 @admin_bp.get("/dashboard/user-management")
 @admin_required
 def user_management():
+    users_count = User.query.count()
+    admins_count = User.query.filter(or_(User.role == "admin", User.is_admin == True)).count()
+
     features = [
         {
             "title": "Users",
             "url": url_for("admin.users"),
-            "description": "Manage all platform accounts, learner records, and login access.",
+            "description": "Manage all registered learner and user accounts, review profile activity, and access statuses.",
             "icon": "👤",
+            "count": users_count,
         },
         {
             "title": "Roles",
-            "url": url_for("admin.users"),
-            "description": "Review and assign user roles with current admin-level controls.",
+            "url": url_for("admin.roles"),
+            "description": "Configure system roles (Admin, Teacher, Student), approve instructor applications, and assign user tiers.",
             "icon": "🛡️",
+            "count": 3,
         },
         {
             "title": "Permissions",
-            "url": url_for("admin.users"),
-            "description": "Use existing user management controls for permissions and access oversight.",
+            "url": url_for("admin.permissions"),
+            "description": "Inspect Role-Based Access Control (RBAC) permissions matrix across all academic, store, and administrative modules.",
             "icon": "🔐",
         },
         {
             "title": "Admin Accounts",
-            "url": url_for("admin.users"),
-            "description": "Review administrative accounts and ensure secure platform access.",
+            "url": url_for("admin.admin_accounts"),
+            "description": "Review administrative credentials, security health, and create new administrators securely.",
             "icon": "👥",
+            "count": admins_count,
         },
     ]
-    return _render_admin_module_page("User Management", "Control users, admin accounts and role-based access through the admin user cockpit.", features)
+    return _render_admin_module_page("User Management", "Control users, roles, system permissions, and administrative accounts from this central cockpit.", features)
 
 
 @admin_bp.route("/site-settings", methods=["GET", "POST"])
@@ -1566,8 +1572,486 @@ def update_application_status(app_id):
 @admin_bp.get("/users")
 @admin_required
 def users():
-    all_users = User.query.order_by(User.created_at.desc()).all()
-    return render_template("admin/users.html", users=all_users)
+    q = request.args.get("q", "").strip()
+    role_filter = request.args.get("role", "all").strip().lower()
+    status_filter = request.args.get("status", "all").strip().lower()
+
+    query = User.query
+    if q:
+        query = query.filter(
+            or_(
+                User.full_name.ilike(f"%{q}%"),
+                User.email.ilike(f"%{q}%"),
+            )
+        )
+    if role_filter in ("student", "teacher", "admin"):
+        query = query.filter(User.role == role_filter)
+    if status_filter == "active":
+        query = query.filter(User.is_active == True)
+    elif status_filter == "disabled":
+        query = query.filter(User.is_active == False)
+
+    all_users = query.order_by(User.created_at.desc()).all()
+
+    total_count = User.query.count()
+    students_count = User.query.filter(User.role == "student").count()
+    teachers_count = User.query.filter(User.role == "teacher").count()
+    admins_count = User.query.filter(or_(User.role == "admin", User.is_admin == True)).count()
+    disabled_count = User.query.filter(User.is_active == False).count()
+
+    stats = {
+        "total": total_count,
+        "students": students_count,
+        "teachers": teachers_count,
+        "admins": admins_count,
+        "disabled": disabled_count,
+    }
+
+    return render_template(
+        "admin/users.html",
+        users=all_users,
+        stats=stats,
+        q=q,
+        role_filter=role_filter,
+        status_filter=status_filter,
+    )
+
+
+@admin_bp.route("/roles", methods=["GET"])
+@admin_required
+def roles():
+    role_filter = request.args.get("role", "all").strip().lower()
+    q = request.args.get("q", "").strip()
+
+    query = User.query
+    if q:
+        query = query.filter(
+            or_(
+                User.full_name.ilike(f"%{q}%"),
+                User.email.ilike(f"%{q}%"),
+            )
+        )
+    if role_filter in ("student", "teacher", "admin"):
+        query = query.filter(User.role == role_filter)
+    elif role_filter == "pending":
+        query = query.filter(User.role == "teacher", User.is_approved == False)
+
+    users_list = query.order_by(User.created_at.desc()).all()
+
+    admins_count = User.query.filter(or_(User.role == "admin", User.is_admin == True)).count()
+    teachers_count = User.query.filter(User.role == "teacher").count()
+    pending_teachers = User.query.filter(User.role == "teacher", User.is_approved == False).all()
+    students_count = User.query.filter(User.role == "student").count()
+
+    role_stats = {
+        "admins": admins_count,
+        "teachers": teachers_count,
+        "pending_teachers_count": len(pending_teachers),
+        "students": students_count,
+        "total": User.query.count(),
+    }
+
+    return render_template(
+        "admin/roles.html",
+        users=users_list,
+        role_stats=role_stats,
+        pending_teachers=pending_teachers,
+        role_filter=role_filter,
+        q=q,
+    )
+
+
+@admin_bp.post("/roles/approve-teacher/<int:user_id>")
+@admin_required
+def approve_teacher_role(user_id):
+    user_obj = User.query.get_or_404(user_id)
+    if user_obj.role != "teacher":
+        flash("Selected user is not a teacher.", "warning")
+        return redirect(url_for("admin.roles"))
+    user_obj.is_approved = True
+    user_obj.is_active = True
+    try:
+        db.session.commit()
+        notify_user(user_obj.id, "Congratulations! Your instructor account has been approved by the admin.")
+        flash(f"Teacher '{user_obj.full_name}' approved successfully.", "success")
+    except SQLAlchemyError:
+        db.session.rollback()
+        flash("Could not approve teacher.", "danger")
+    nxt = _safe_admin_path(request.form.get("next"))
+    return redirect(nxt or url_for("admin.roles"))
+
+
+PLATFORM_MODULE_PERMISSIONS = [
+    {
+        "key": "manage_courses",
+        "name": "Courses & Academic LMS",
+        "desc": "Create, edit, and publish courses, curricula, quizzes, and live classes.",
+        "icon": "ri-book-open-line",
+        "color": "#3b82f6",
+        "category": "Academic LMS",
+    },
+    {
+        "key": "manage_store",
+        "name": "Store & Hardware Kits",
+        "desc": "Manage electronics inventory, store products, fulfillment, and discount coupons.",
+        "icon": "ri-shopping-bag-3-line",
+        "color": "#10b981",
+        "category": "E-Commerce",
+    },
+    {
+        "key": "manage_internships",
+        "name": "Internships & Career Hub",
+        "desc": "Post internship openings, evaluate applicants, and review candidate portfolios.",
+        "icon": "ri-briefcase-line",
+        "color": "#f59e0b",
+        "category": "Careers",
+    },
+    {
+        "key": "manage_ai_lab",
+        "name": "Institutional AI Lab",
+        "desc": "Configure AI lab packages, quotation requests, equipment specs, and FAQ.",
+        "icon": "ri-robot-2-line",
+        "color": "#8b5cf6",
+        "category": "Institutions",
+    },
+    {
+        "key": "manage_services",
+        "name": "IT Services & Client Leads",
+        "desc": "Manage IT service catalog offerings and incoming enterprise client inquiries.",
+        "icon": "ri-service-line",
+        "color": "#06b6d4",
+        "category": "Enterprise",
+    },
+    {
+        "key": "manage_hr",
+        "name": "HR, Attendance & Payroll",
+        "desc": "Oversee employee roster, instructor daily attendance, leaves, and payroll records.",
+        "icon": "ri-user-star-line",
+        "color": "#ec4899",
+        "category": "Operations",
+    },
+    {
+        "key": "manage_content",
+        "name": "CMS & Website Content",
+        "desc": "Update homepage hero sections, testimonials, about page, and site settings.",
+        "icon": "ri-layout-masonry-line",
+        "color": "#6366f1",
+        "category": "Content",
+    },
+    {
+        "key": "manage_users",
+        "name": "User Accounts & Security",
+        "desc": "View platform user roster, modify security roles, and approve instructors.",
+        "icon": "ri-shield-user-line",
+        "color": "#ef4444",
+        "category": "Security",
+    },
+]
+
+
+@admin_bp.get("/permissions")
+@admin_required
+def permissions():
+    active_tab = request.args.get("tab", "matrix").strip().lower()
+    role_filter = request.args.get("role", "all").strip().lower()
+    q = request.args.get("q", "").strip()
+
+    if q or request.args.get("role"):
+        active_tab = "members"
+
+    recent_logs = []
+    try:
+        recent_logs = AdminActivityLog.query.order_by(AdminActivityLog.created_at.desc()).limit(15).all()
+    except Exception:
+        recent_logs = []
+
+    # Member list for custom permissions assignment
+    query = User.query.options(selectinload(User.custom_permissions))
+    if q:
+        query = query.filter(
+            or_(
+                User.full_name.ilike(f"%{q}%"),
+                User.email.ilike(f"%{q}%"),
+            )
+        )
+    if role_filter in ("admin", "teacher", "student"):
+        query = query.filter(User.role == role_filter)
+
+    members_list = query.order_by(
+        (User.role == "teacher").desc(),
+        (User.role == "admin").desc(),
+        User.created_at.desc(),
+    ).all()
+
+    total_users_count = User.query.count()
+    admins_count = User.query.filter(or_(User.role == "admin", User.is_admin == True)).count()
+    teachers_count = User.query.filter(User.role == "teacher").count()
+    students_count = User.query.filter(User.role == "student").count()
+
+    try:
+        custom_perm_user_ids = {p.user_id for p in UserPermission.query.all()}
+    except Exception:
+        custom_perm_user_ids = set()
+
+    perm_stats = {
+        "total_users": total_users_count,
+        "admins": admins_count,
+        "teachers": teachers_count,
+        "students": students_count,
+        "custom_granted_count": len(custom_perm_user_ids),
+        "total_modules": len(PLATFORM_MODULE_PERMISSIONS),
+    }
+
+    modules_matrix = [
+        {
+            "category": "Public & Marketing",
+            "features": [
+                {"name": "View Homepage, About, Contact", "guest": True, "student": True, "teacher": True, "admin": True},
+                {"name": "Manage Homepage CMS (Hero, Stats, Testimonials)", "guest": False, "student": False, "teacher": False, "admin": True},
+                {"name": "Manage About Page CMS (Team, Timeline, Partners)", "guest": False, "student": False, "teacher": False, "admin": True},
+                {"name": "Site Settings, Logo, Dark Branding", "guest": False, "student": False, "teacher": False, "admin": True},
+            ],
+        },
+        {
+            "category": "Academic & LMS Operations",
+            "features": [
+                {"name": "Browse Course Catalog", "guest": True, "student": True, "teacher": True, "admin": True},
+                {"name": "Enroll in Courses & Track Progress", "guest": False, "student": True, "teacher": False, "admin": True},
+                {"name": "Create & Author Courses", "guest": False, "student": False, "teacher": True, "admin": True},
+                {"name": "Schedule & Host Live Sessions", "guest": False, "student": False, "teacher": True, "admin": True},
+                {"name": "Upload Lecture Recordings & Notes", "guest": False, "student": False, "teacher": True, "admin": True},
+                {"name": "Create Quizzes & Auto-Grading", "guest": False, "student": False, "teacher": True, "admin": True},
+                {"name": "Pass Quizzes & Earn Certificates", "guest": False, "student": True, "teacher": False, "admin": True},
+                {"name": "Public Certificate Verification (QR & UUID)", "guest": True, "student": True, "teacher": True, "admin": True},
+                {"name": "Manage Certificate Templates & Revocations", "guest": False, "student": False, "teacher": False, "admin": True},
+            ],
+        },
+        {
+            "category": "Store & Hardware Kits",
+            "features": [
+                {"name": "Browse Hardware Products & Tech Kits", "guest": True, "student": True, "teacher": True, "admin": True},
+                {"name": "Add to Cart & Checkout (Razorpay)", "guest": False, "student": True, "teacher": True, "admin": True},
+                {"name": "View Own Order History & Invoices", "guest": False, "student": True, "teacher": True, "admin": True},
+                {"name": "Manage Products, Inventory & Pricing", "guest": False, "student": False, "teacher": False, "admin": True},
+                {"name": "Manage Discount Coupons & Promotions", "guest": False, "student": False, "teacher": False, "admin": True},
+                {"name": "Fulfill Orders & Download Packing Slips", "guest": False, "student": False, "teacher": False, "admin": True},
+            ],
+        },
+        {
+            "category": "Internships & Career Hub",
+            "features": [
+                {"name": "View Open Internship Listings", "guest": True, "student": True, "teacher": True, "admin": True},
+                {"name": "Apply for Internships with Resume", "guest": False, "student": True, "teacher": False, "admin": True},
+                {"name": "Post & Edit Internship Openings", "guest": False, "student": False, "teacher": False, "admin": True},
+                {"name": "Review Applications & Select Candidates", "guest": False, "student": False, "teacher": False, "admin": True},
+            ],
+        },
+        {
+            "category": "Institutional AI Lab & IT Services",
+            "features": [
+                {"name": "Submit AI Lab Inquiries & Quote Requests", "guest": True, "student": True, "teacher": True, "admin": True},
+                {"name": "Manage AI Lab Packages, Hardware & FAQ", "guest": False, "student": False, "teacher": False, "admin": True},
+                {"name": "Manage IT Service Catalog & Client Leads", "guest": False, "student": False, "teacher": False, "admin": True},
+            ],
+        },
+        {
+            "category": "HR & Payroll Operations",
+            "features": [
+                {"name": "Instructor Daily Attendance Clock In / Out", "guest": False, "student": False, "teacher": True, "admin": True},
+                {"name": "Submit Leave & Correction Requests", "guest": False, "student": False, "teacher": True, "admin": True},
+                {"name": "View Personal Payslips & HR Profile", "guest": False, "student": False, "teacher": True, "admin": True},
+                {"name": "Approve Attendance, Corrections & Leaves", "guest": False, "student": False, "teacher": False, "admin": True},
+                {"name": "Run Monthly Payroll & Manage Compensation", "guest": False, "student": False, "teacher": False, "admin": True},
+            ],
+        },
+        {
+            "category": "User & Security Administration",
+            "features": [
+                {"name": "Self Sign-Up & Password Reset", "guest": True, "student": True, "teacher": False, "admin": True},
+                {"name": "View Platform User Roster", "guest": False, "student": False, "teacher": False, "admin": True},
+                {"name": "Change User Roles & Approve Teachers", "guest": False, "student": False, "teacher": False, "admin": True},
+                {"name": "Enable / Disable User Access", "guest": False, "student": False, "teacher": False, "admin": True},
+                {"name": "Manage Administrator Accounts", "guest": False, "student": False, "teacher": False, "admin": True},
+                {"name": "Execute Database Cleanup of Non-Admins", "guest": False, "student": False, "teacher": False, "admin": True},
+            ],
+        },
+    ]
+
+    return render_template(
+        "admin/permissions.html",
+        matrix=modules_matrix,
+        recent_logs=recent_logs,
+        members=members_list,
+        modules=PLATFORM_MODULE_PERMISSIONS,
+        active_tab=active_tab,
+        role_filter=role_filter,
+        q=q,
+        perm_stats=perm_stats,
+    )
+
+
+@admin_bp.post("/permissions/update/<int:user_id>")
+@admin_required
+def update_user_permissions(user_id):
+    user_obj = User.query.get_or_404(user_id)
+    
+    # Protect Primary Super Admin
+    if getattr(user_obj, "is_super_admin", False):
+        flash("The primary Super Administrator has permanent, unrestricted access and cannot be modified.", "warning")
+        return redirect(url_for("admin.permissions", tab="members") + "#members")
+
+    # Guard: Non-super admins cannot modify their own permissions
+    admin_session_id = session.get("user_id")
+    current_admin = db.session.get(User, admin_session_id) if admin_session_id else None
+    if user_obj.id == admin_session_id and not getattr(current_admin, "is_super_admin", False):
+        flash("You cannot modify your own administrative permissions.", "danger")
+        return redirect(url_for("admin.permissions", tab="members") + "#members")
+
+    raw_perms = request.form.getlist("permissions")
+    valid_keys = {m["key"] for m in PLATFORM_MODULE_PERMISSIONS}
+    selected_keys = {k.strip() for k in raw_perms if k.strip() in valid_keys}
+
+    try:
+        db.create_all()
+    except Exception:
+        pass
+
+    try:
+        existing_records = UserPermission.query.filter_by(user_id=user_obj.id).all()
+        
+        # Clear existing records
+        for rec in existing_records:
+            db.session.delete(rec)
+
+        # If user is an administrator and 0 modules were checked, store sentinel 'none'
+        # so the system recognizes they have been explicitly restricted rather than defaulting to full access.
+        if (user_obj.role == "admin" or user_obj.is_admin) and not selected_keys:
+            restricted_sentinel = UserPermission(
+                user_id=user_obj.id,
+                permission_key="none",
+                granted_by_id=admin_session_id,
+            )
+            db.session.add(restricted_sentinel)
+        else:
+            # Add granted module permissions
+            for key in selected_keys:
+                new_perm = UserPermission(
+                    user_id=user_obj.id,
+                    permission_key=key,
+                    granted_by_id=admin_session_id,
+                )
+                db.session.add(new_perm)
+
+        # Record in AdminActivityLog
+        if admin_session_id:
+            summary = ", ".join(sorted(selected_keys)) if selected_keys else "Revoked all module permissions (Restricted)"
+            log_entry = AdminActivityLog(
+                admin_id=admin_session_id,
+                action_type="update",
+                target_table="user_permission",
+                target_id=user_obj.id,
+                details=f"Updated permissions for '{user_obj.email}': {summary}",
+                ip_address=request.remote_addr or "",
+            )
+            db.session.add(log_entry)
+
+        db.session.commit()
+        notify_user(user_obj.id, "Your module access permissions have been updated by the administrator.")
+        flash(f"Permissions for '{user_obj.full_name}' updated successfully ({len(selected_keys)} module(s) granted).", "success")
+    except SQLAlchemyError as exc:
+        db.session.rollback()
+        current_app.logger.exception(f"Error updating user permissions: {exc}")
+        flash("Database error updating permissions.", "danger")
+
+    return redirect(url_for("admin.permissions", tab="members") + "#members")
+
+
+
+
+@admin_bp.route("/admin-accounts", methods=["GET", "POST"])
+@admin_required
+def admin_accounts():
+    if request.method == "POST":
+        action = request.form.get("action")
+        if action == "create_admin":
+            full_name = request.form.get("full_name", "").strip()
+            email_raw = request.form.get("email", "").strip().lower()
+            password = request.form.get("password", "")
+            confirm_pw = request.form.get("confirm_password", "")
+
+            if len(full_name) < 3 or len(password) < 8:
+                flash("Admin name must be 3+ characters and password 8+ characters.", "danger")
+                return redirect(url_for("admin.admin_accounts"))
+            if password != confirm_pw:
+                flash("Passwords do not match.", "warning")
+                return redirect(url_for("admin.admin_accounts"))
+            try:
+                email = validate_email(email_raw, check_deliverability=False).normalized
+            except EmailNotValidError:
+                flash("Invalid email address.", "danger")
+                return redirect(url_for("admin.admin_accounts"))
+            if User.query.filter_by(email=email).first():
+                flash("An account with this email already exists.", "warning")
+                return redirect(url_for("admin.admin_accounts"))
+
+            new_admin = User(
+                full_name=full_name,
+                email=email,
+                password_hash=bcrypt.generate_password_hash(password).decode("utf-8"),
+                role="admin",
+                is_admin=True,
+                is_approved=True,
+                is_active=True,
+            )
+            new_admin.sync_admin_flags()
+            db.session.add(new_admin)
+            try:
+                db.session.commit()
+                flash(f"New administrator '{email}' created successfully.", "success")
+            except SQLAlchemyError:
+                db.session.rollback()
+                flash("Database error creating administrator account.", "danger")
+            return redirect(url_for("admin.admin_accounts"))
+
+        elif action == "reset_password":
+            target_id = request.form.get("user_id")
+            new_pw = request.form.get("new_password", "")
+            if len(new_pw) < 8:
+                flash("Password must be at least 8 characters.", "danger")
+                return redirect(url_for("admin.admin_accounts"))
+            target_admin = User.query.get_or_404(int(target_id))
+            target_admin.password_hash = bcrypt.generate_password_hash(new_pw).decode("utf-8")
+            target_admin.failed_login_attempts = 0
+            target_admin.locked_until = None
+            try:
+                db.session.commit()
+                flash(f"Password reset successfully for admin '{target_admin.email}'.", "success")
+            except SQLAlchemyError:
+                db.session.rollback()
+                flash("Could not reset password. Please try again.", "danger")
+            return redirect(url_for("admin.admin_accounts"))
+
+    # GET
+    admin_users = (
+        User.query.filter(or_(User.role == "admin", User.is_admin == True))
+        .order_by(User.created_at.desc())
+        .all()
+    )
+
+    total_admins = len(admin_users)
+    active_admins = sum(1 for u in admin_users if u.is_active)
+    locked_admins = sum(
+        1 for u in admin_users if u.locked_until and u.locked_until > datetime.utcnow()
+    )
+
+    return render_template(
+        "admin/admin_accounts.html",
+        admins=admin_users,
+        total_admins=total_admins,
+        active_admins=active_admins,
+        locked_admins=locked_admins,
+        datetime=datetime,
+    )
 
 
 @admin_bp.route("/teachers", methods=["GET", "POST"])
@@ -1666,13 +2150,14 @@ def delete_teacher(user_id):
 def set_user_role(user_id):
     user_obj = User.query.get_or_404(user_id)
     new_role = request.form.get("role", "student")
+    nxt = _safe_admin_path(request.form.get("next"))
     if new_role not in ("student", "teacher", "admin"):
         flash("Invalid role.", "danger")
-        return redirect(url_for("admin.users"))
+        return redirect(nxt or url_for("admin.users"))
     # Prevent self-demotion by checking against current session user_id.
     if session.get("user_id") and int(session.get("user_id")) == user_obj.id and new_role != "admin":
         flash("You cannot remove your own admin access.", "warning")
-        return redirect(url_for("admin.users"))
+        return redirect(nxt or url_for("admin.users"))
     user_obj.role = new_role
     if new_role == "teacher":
         user_obj.is_approved = True
@@ -1685,7 +2170,7 @@ def set_user_role(user_id):
     except SQLAlchemyError:
         db.session.rollback()
         flash("Could not update user role. Please try again.", "danger")
-    return redirect(url_for("admin.users"))
+    return redirect(nxt or url_for("admin.users"))
 
 
 @admin_bp.post("/users/<int:user_id>/disable")
@@ -1694,9 +2179,10 @@ def toggle_user_active(user_id):
     from flask_login import current_user
 
     user_obj = User.query.get_or_404(user_id)
+    nxt = _safe_admin_path(request.form.get("next"))
     if session.get("user_id") and int(session.get("user_id")) == user_obj.id:
         flash("You cannot disable your own account while logged in.", "warning")
-        return redirect(url_for("admin.users"))
+        return redirect(nxt or url_for("admin.users"))
     user_obj.is_active = not bool(user_obj.is_active)
     state = "enabled" if user_obj.is_active else "disabled"
     try:
@@ -1705,16 +2191,22 @@ def toggle_user_active(user_id):
     except SQLAlchemyError:
         db.session.rollback()
         flash("Could not update user account status. Please try again.", "danger")
-    return redirect(url_for("admin.users"))
+    return redirect(nxt or url_for("admin.users"))
 
 
 @admin_bp.post("/users/<int:user_id>/delete")
 @admin_required
 def delete_user(user_id):
     user_obj = User.query.get_or_404(user_id)
+    nxt = _safe_admin_path(request.form.get("next"))
     if session.get("user_id") and int(session.get("user_id")) == user_obj.id:
         flash("You cannot delete your own account while logged in.", "warning")
-        return redirect(url_for("admin.users"))
+        return redirect(nxt or url_for("admin.users"))
+    if user_obj.role == "admin" or user_obj.is_admin:
+        admin_count = User.query.filter(or_(User.role == "admin", User.is_admin == True)).count()
+        if admin_count <= 1:
+            flash("Cannot delete the only administrator account on the system.", "danger")
+            return redirect(nxt or url_for("admin.users"))
     try:
         db.session.delete(user_obj)
         db.session.commit()
@@ -1722,7 +2214,7 @@ def delete_user(user_id):
     except SQLAlchemyError:
         db.session.rollback()
         flash("Could not delete user. Please try again.", "danger")
-    return redirect(url_for("admin.users"))
+    return redirect(nxt or url_for("admin.users"))
 
 
 @admin_bp.get("/service-requests")

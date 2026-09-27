@@ -1,67 +1,203 @@
 {% extends "base.html" %}
-{% block title %}Users — Admin{% endblock %}
+{% block title %}Users Roster — Admin{% endblock %}
 {% block breadcrumbs %}
 <div class="container breadcrumbs-wrap">
-  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('Users', None)] %}
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('User Management', url_for('admin.user_management')), ('Users', None)] %}
   {% include "partials/breadcrumbs.html" %}
 </div>
 {% endblock %}
 {% block content %}
-<h1 style="font-size:1.5rem;">Users & roles</h1>
-<p class="muted">Role <code>admin</code> unlocks the admin dashboard. Same login page for all accounts.</p>
-<div class="card-premium reveal" style="padding:0;margin-top:1rem;overflow-x:auto;">
-  <table class="table-modern">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Role</th>
-        <th>Status</th>
-        <th>Points</th>
-        <th>Badge</th>
-        <th>Change role</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for u in users %}
-      <tr>
-        <td>{{ u.full_name }}{% if u.id == current_user.id %} <span class="muted">(you)</span>{% endif %}</td>
-        <td>{{ u.email }}</td>
-        <td><span class="badge-pill" style="font-size:0.7rem;">{{ u.role or 'student' }}</span></td>
-        <td>
-          <span class="badge-pill" style="font-size:0.7rem;">{{ 'Active' if u.is_active else 'Disabled' }}</span>
-        </td>
-        <td>{{ u.points }}</td>
-        <td>{{ u.badge }}</td>
-        <td>
-          <form method="post" action="{{ url_for('admin.set_user_role', user_id=u.id) }}" style="display:flex;gap:0.35rem;align-items:center;margin:0;flex-wrap:wrap;">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <select name="role" style="width:auto;margin:0;padding:0.35rem;" {% if session.get('user_id') and u.id == session.get('user_id')|int %}disabled title="Use another admin to change your role"{% endif %}>
-              <option value="student" {% if (u.role or 'student') == 'student' %}selected{% endif %}>student</option>
-              <option value="teacher" {% if (u.role or 'student') == 'teacher' %}selected{% endif %}>teacher</option>
-              <option value="admin" {% if (u.role or 'student') == 'admin' %}selected{% endif %}>admin</option>
-            </select>
-            <button type="submit" class="btn btn-ghost btn-sm" {% if session.get('user_id') and u.id == session.get('user_id')|int %}disabled{% endif %}>Save</button>
-          </form>
-        </td>
-        <td>
-          <form method="post" action="{{ url_for('admin.toggle_user_active', user_id=u.id) }}" style="display:inline;margin-right:0.5rem;">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn btn-sm btn-ghost" {% if session.get('user_id') and u.id == session.get('user_id')|int %}disabled{% endif %}>
-              {{ 'Disable' if u.is_active else 'Enable' }}
-            </button>
-          </form>
-          <form method="post" action="{{ url_for('admin.delete_user', user_id=u.id) }}" style="display:inline;" onsubmit="return confirm('Delete this user? This cannot be undone.');">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn btn-sm btn-danger" {% if session.get('user_id') and u.id == session.get('user_id')|int %}disabled{% endif %}>
-              Delete
-            </button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="reveal">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+    <div>
+      <h1 class="page-title" style="margin:0 0 0.25rem;">Platform Users</h1>
+      <p class="muted" style="margin:0;">Overview and management of all registered student, teacher, and administrative accounts.</p>
+    </div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <a href="{{ url_for('admin.cleanup_users') }}" class="btn btn-ghost btn-sm" style="color:#ef4444;border-color:rgba(239,68,68,0.3);">
+        <i class="ri-delete-bin-2-line" aria-hidden="true"></i> Cleanup Non-Admins
+      </a>
+      <a href="{{ url_for('admin.roles') }}" class="btn btn-ghost btn-sm">
+        <i class="ri-shield-user-line" aria-hidden="true"></i> Role Manager
+      </a>
+      <a href="{{ url_for('admin.admin_accounts') }}" class="btn btn-primary btn-sm">
+        <i class="ri-admin-line" aria-hidden="true"></i> Admin Accounts
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI Summary Cards -->
+  {% if stats %}
+  <div class="stat-grid" style="margin-bottom:1.5rem;">
+    <div class="card-premium stat-card">
+      <span class="lbl">Total Registered</span>
+      <span class="num">{{ stats.total }}</span>
+    </div>
+    <div class="card-premium stat-card">
+      <span class="lbl">Students</span>
+      <span class="num" style="color:var(--brand-primary, #4f46e5);">{{ stats.students }}</span>
+    </div>
+    <div class="card-premium stat-card">
+      <span class="lbl">Teachers</span>
+      <span class="num" style="color:#d97706;">{{ stats.teachers }}</span>
+    </div>
+    <div class="card-premium stat-card">
+      <span class="lbl">Administrators</span>
+      <span class="num" style="color:#7c3aed;">{{ stats.admins }}</span>
+    </div>
+    <div class="card-premium stat-card">
+      <span class="lbl">Disabled Accounts</span>
+      <span class="num" style="color:#ef4444;">{{ stats.disabled }}</span>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Search & Filter Controls -->
+  <div class="card-premium surface-card" style="padding:1rem 1.25rem;margin-bottom:1.25rem;">
+    <form method="get" action="{{ url_for('admin.users') }}" style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;position:relative;">
+        <input type="text" name="q" value="{{ q }}" placeholder="Search by name or email…" 
+               style="width:100%;padding:0.5rem 0.75rem;font-size:0.9rem;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-elevated);color:var(--text);">
+      </div>
+      <div style="min-width:130px;">
+        <select name="role" style="width:100%;padding:0.5rem 0.75rem;font-size:0.9rem;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-elevated);color:var(--text);">
+          <option value="all" {% if role_filter == 'all' %}selected{% endif %}>All Roles</option>
+          <option value="student" {% if role_filter == 'student' %}selected{% endif %}>Students</option>
+          <option value="teacher" {% if role_filter == 'teacher' %}selected{% endif %}>Teachers</option>
+          <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>Admins</option>
+        </select>
+      </div>
+      <div style="min-width:130px;">
+        <select name="status" style="width:100%;padding:0.5rem 0.75rem;font-size:0.9rem;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-elevated);color:var(--text);">
+          <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Status</option>
+          <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active Only</option>
+          <option value="disabled" {% if status_filter == 'disabled' %}selected{% endif %}>Disabled Only</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm">
+        <i class="ri-filter-3-line" aria-hidden="true"></i> Apply Filters
+      </button>
+      {% if q or role_filter != 'all' or status_filter != 'all' %}
+      <a href="{{ url_for('admin.users') }}" class="btn btn-ghost btn-sm">Clear</a>
+      {% endif %}
+    </form>
+  </div>
+
+  <!-- Users Table -->
+  <div class="card-premium" style="padding:0;overflow:hidden;">
+    <div class="table-wrap">
+      <table class="table-modern">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Gamification</th>
+            <th>Joined</th>
+            <th>Assign Role</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:0.75rem;">
+                <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0;
+                            {% if u.role == 'admin' %}background:rgba(124,58,237,0.15);color:#7c3aed;border:1px solid rgba(124,58,237,0.3);
+                            {% elif u.role == 'teacher' %}background:rgba(217,119,6,0.15);color:#d97706;border:1px solid rgba(217,119,6,0.3);
+                            {% else %}background:rgba(79,70,229,0.15);color:#4f46e5;border:1px solid rgba(79,70,229,0.3);{% endif %}">
+                  {{ (u.full_name[:1] or 'U')|upper }}
+                </div>
+                <div>
+                  <div style="font-weight:600;display:flex;align-items:center;gap:0.35rem;">
+                    {{ u.full_name }}
+                    {% if session.get('user_id') and u.id == session.get('user_id')|int %}
+                    <span class="badge-pill" style="font-size:0.65rem;background:rgba(16,185,129,0.15);color:#059669;">You</span>
+                    {% endif %}
+                  </div>
+                  <div class="muted" style="font-size:0.82rem;">{{ u.email }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              {% if u.role == 'admin' or u.is_admin %}
+              <span class="badge-pill" style="font-size:0.72rem;background:rgba(124,58,237,0.15);color:#7c3aed;font-weight:600;">Admin</span>
+              {% elif u.role == 'teacher' %}
+              <span class="badge-pill" style="font-size:0.72rem;background:rgba(217,119,6,0.15);color:#d97706;font-weight:600;">
+                Teacher {% if not u.is_approved %}<span style="color:#ef4444;">(Pending)</span>{% endif %}
+              </span>
+              {% else %}
+              <span class="badge-pill" style="font-size:0.72rem;background:rgba(79,70,229,0.15);color:#4f46e5;font-weight:600;">Student</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if u.is_active %}
+              <span class="badge-pill" style="font-size:0.72rem;background:rgba(16,185,129,0.15);color:#059669;display:inline-flex;align-items:center;gap:0.3rem;">
+                <span style="width:6px;height:6px;border-radius:50%;background:#10b981;"></span> Active
+              </span>
+              {% else %}
+              <span class="badge-pill" style="font-size:0.72rem;background:rgba(239,68,68,0.15);color:#dc2626;display:inline-flex;align-items:center;gap:0.3rem;">
+                <span style="width:6px;height:6px;border-radius:50%;background:#ef4444;"></span> Disabled
+              </span>
+              {% endif %}
+            </td>
+            <td>
+              <div style="font-size:0.85rem;">
+                <span style="font-weight:600;">{{ u.points }}</span> <span class="muted" style="font-size:0.75rem;">pts</span>
+              </div>
+              <span class="muted" style="font-size:0.75rem;">{{ u.badge or 'Starter' }}</span>
+            </td>
+            <td class="muted" style="font-size:0.85rem;white-space:nowrap;">
+              {{ u.created_at.strftime('%d %b %Y') if u.created_at else '—' }}
+            </td>
+            <td>
+              <form method="post" action="{{ url_for('admin.set_user_role', user_id=u.id) }}" style="display:flex;gap:0.35rem;align-items:center;margin:0;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="next" value="{{ request.full_path }}">
+                <select name="role" style="padding:0.3rem 0.5rem;font-size:0.82rem;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-elevated);color:var(--text);" 
+                        {% if session.get('user_id') and u.id == session.get('user_id')|int %}disabled title="Cannot change your own role"{% endif %}>
+                  <option value="student" {% if (u.role or 'student') == 'student' %}selected{% endif %}>Student</option>
+                  <option value="teacher" {% if (u.role or 'student') == 'teacher' %}selected{% endif %}>Teacher</option>
+                  <option value="admin" {% if (u.role or 'student') == 'admin' %}selected{% endif %}>Admin</option>
+                </select>
+                <button type="submit" class="btn btn-ghost btn-sm" style="padding:0.3rem 0.6rem;font-size:0.8rem;" 
+                        {% if session.get('user_id') and u.id == session.get('user_id')|int %}disabled{% endif %}>
+                  Save
+                </button>
+              </form>
+            </td>
+            <td style="text-align:right;white-space:nowrap;">
+              <form method="post" action="{{ url_for('admin.toggle_user_active', user_id=u.id) }}" style="display:inline-block;margin:0 0.2rem;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="next" value="{{ request.full_path }}">
+                <button type="submit" class="btn btn-sm btn-ghost" style="font-size:0.8rem;" 
+                        {% if session.get('user_id') and u.id == session.get('user_id')|int %}disabled title="Cannot disable your own logged-in account"{% endif %}>
+                  {{ 'Disable' if u.is_active else 'Enable' }}
+                </button>
+              </form>
+              <form method="post" action="{{ url_for('admin.delete_user', user_id=u.id) }}" style="display:inline-block;margin:0;" 
+                    onsubmit="return confirm('Permanently delete {{ u.full_name }}? This will cascade remove their enrollments and orders.');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="next" value="{{ request.full_path }}">
+                <button type="submit" class="btn btn-sm btn-ghost" style="color:#ef4444;font-size:0.8rem;" 
+                        {% if session.get('user_id') and u.id == session.get('user_id')|int %}disabled title="Cannot delete yourself"{% endif %}>
+                  <i class="ri-delete-bin-line" aria-hidden="true"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" style="text-align:center;padding:3rem 1rem;" class="muted">
+              <i class="ri-user-search-line" style="font-size:2.5rem;display:block;margin-bottom:0.5rem;color:var(--text-muted);" aria-hidden="true"></i>
+              No users found matching your search and filter criteria.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 {% endblock %}

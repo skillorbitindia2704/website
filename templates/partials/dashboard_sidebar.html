@@ -2,15 +2,29 @@
   {% set role = session.get('role') or (current_user.role if current_user.is_authenticated else None) %}
   <p class="dash-sidebar-title">{{ role|capitalize if role else 'My' }} workspace</p>
   <nav class="dash-nav">
-    {% if role == 'admin' %}
+    {% if role == 'admin' or (current_user.is_authenticated and current_user.can_access_admin_panel and request.path.startswith('/admin')) %}
     <a href="{{ url_for('admin.index') }}" class="dash-nav-link {% if request.endpoint == 'admin.index' %}active{% endif %}">Admin overview</a>
+    {% if admin_can('manage_content') %}
     <a href="{{ url_for('admin.content_management') }}" class="dash-nav-link">Content management</a>
+    {% endif %}
+    {% if admin_can('manage_courses') %}
     <a href="{{ url_for('admin.academic_management') }}" class="dash-nav-link">Academic management</a>
+    {% endif %}
+    {% if admin_can('manage_store') %}
     <a href="{{ url_for('admin.store_management') }}" class="dash-nav-link">Store management</a>
+    {% endif %}
+    {% if admin_can('manage_hr') %}
     <a href="{{ url_for('admin.hr_management') }}" class="dash-nav-link">HR & Payroll</a>
+    {% endif %}
+    {% if admin_can('manage_ai_lab') %}
     <a href="{{ url_for('admin.ai_lab_management') }}" class="dash-nav-link">AI lab management</a>
+    {% endif %}
+    {% if admin_can('manage_internships') or admin_can('manage_services') %}
     <a href="{{ url_for('admin.business_management') }}" class="dash-nav-link">Business operations</a>
+    {% endif %}
+    {% if admin_can('manage_users') %}
     <a href="{{ url_for('admin.user_management') }}" class="dash-nav-link">User management</a>
+    {% endif %}
     {% elif role == 'teacher' %}
     <a href="{{ url_for('teacher.dashboard') }}" class="dash-nav-link {% if request.endpoint == 'teacher.dashboard' %}active{% endif %}">Overview</a>
     <a href="{{ url_for('teacher.create_course') }}" class="dash-nav-link">Create course</a>
@@ -20,6 +34,13 @@
     <a href="{{ url_for('teacher.teacher_notes') }}" class="dash-nav-link">Notes</a>
     <a href="{{ url_for('teacher.teacher_quizzes') }}" class="dash-nav-link">Quizzes</a>
     <a href="{{ url_for('teacher.teacher_hr_dashboard') }}" class="dash-nav-link">My HR</a>
+    {% if current_user.is_authenticated and current_user.can_access_admin_panel %}
+    <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);">
+      <a href="{{ url_for('admin.index') }}" class="dash-nav-link" style="color:var(--accent);font-weight:600;">
+        <i class="ri-shield-star-line"></i> Admin Console
+      </a>
+    </div>
+    {% endif %}
     {% elif role == 'student' %}
     <a href="{{ url_for('student.dashboard') }}" class="dash-nav-link {% if request.endpoint == 'student.dashboard' %}active{% endif %}">Overview</a>
     <a href="{{ url_for('dashboard.orders') }}" class="dash-nav-link">Orders</a>
@@ -28,6 +49,13 @@
     <a href="{{ url_for('student.student_live_sessions') }}" class="dash-nav-link">Live sessions</a>
     <a href="{{ url_for('student.student_recorded_sessions') }}" class="dash-nav-link">Recorded sessions</a>
     <a href="{{ url_for('student.student_notes') }}" class="dash-nav-link">Notes</a>
+    {% if current_user.is_authenticated and current_user.can_access_admin_panel %}
+    <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);">
+      <a href="{{ url_for('admin.index') }}" class="dash-nav-link" style="color:var(--accent);font-weight:600;">
+        <i class="ri-shield-star-line"></i> Admin Console
+      </a>
+    </div>
+    {% endif %}
     {% else %}
     <a href="{{ url_for('main.home') }}" class="dash-nav-link">Home</a>
     <a href="{{ url_for('auth.login') }}" class="dash-nav-link">Login</a>

@@ -160,7 +160,7 @@
 <div class="section-head reveal"><h2 id="course-catalog-heading">All courses</h2>
   <p class="muted">{{ courses|length }} course{% if courses|length != 1 %}s{% endif %} match your filters. Save favourites on this device.</p>
 </div>
-<section class="grid-cards reveal" id="course-catalog" aria-labelledby="course-catalog-heading" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr));">
+<section class="grid-cards reveal" id="course-catalog" aria-labelledby="course-catalog-heading" style="grid-template-columns:repeat(auto-fill,minmax(min(100%, 280px),1fr));">
   {% for c in courses %}
   {% set en = enrollment_by_course.get(c.id) %}
   {% set paid_n = paid_enrollment_by_course.get(c.id, 0) %}

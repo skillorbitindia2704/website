@@ -1,0 +1,721 @@
+{% extends "base.html" %}
+{% block title %}Permissions & RBAC Matrix — Admin{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('User Management', url_for('admin.user_management')), ('Permissions', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="reveal">
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+    <div>
+      <h1 class="page-title" style="margin:0 0 0.25rem;">Permissions &amp; Access Control</h1>
+      <p class="muted" style="margin:0;">System-wide access control policies, privilege boundaries, and granular module permissions for team members.</p>
+    </div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <a href="{{ url_for('admin.users') }}" class="btn btn-ghost btn-sm">
+        <i class="ri-user-line" aria-hidden="true"></i> All Users
+      </a>
+      <a href="{{ url_for('admin.roles') }}" class="btn btn-ghost btn-sm">
+        <i class="ri-shield-user-line" aria-hidden="true"></i> Roles
+      </a>
+      <a href="{{ url_for('admin.admin_accounts') }}" class="btn btn-primary btn-sm">
+        <i class="ri-admin-line" aria-hidden="true"></i> Admin Accounts
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI Stats Bar -->
+  <div class="grid-cards" style="grid-template-columns:repeat(auto-fit, minmax(min(100%, 220px), 1fr));gap:1rem;margin-bottom:1.75rem;">
+    <div class="card-premium surface-card" style="padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;">
+      <span style="width:42px;height:42px;border-radius:10px;background:rgba(79,70,229,0.12);color:#4f46e5;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">
+        <i class="ri-user-3-line"></i>
+      </span>
+      <div>
+        <div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">Platform Users</div>
+        <div style="font-size:1.4rem;font-weight:700;line-height:1.2;">{{ perm_stats.total_users }}</div>
+      </div>
+    </div>
+
+    <div class="card-premium surface-card" style="padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;">
+      <span style="width:42px;height:42px;border-radius:10px;background:rgba(217,119,6,0.12);color:#d97706;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">
+        <i class="ri-user-star-line"></i>
+      </span>
+      <div>
+        <div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">Instructors</div>
+        <div style="font-size:1.4rem;font-weight:700;line-height:1.2;">{{ perm_stats.teachers }}</div>
+      </div>
+    </div>
+
+    <div class="card-premium surface-card" style="padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;">
+      <span style="width:42px;height:42px;border-radius:10px;background:rgba(16,185,129,0.12);color:#10b981;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">
+        <i class="ri-key-2-line"></i>
+      </span>
+      <div>
+        <div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">Custom Module Grants</div>
+        <div style="font-size:1.4rem;font-weight:700;line-height:1.2;">{{ perm_stats.custom_granted_count }} <span style="font-size:0.8rem;font-weight:400;color:var(--text-muted);">Users</span></div>
+      </div>
+    </div>
+
+    <div class="card-premium surface-card" style="padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;">
+      <span style="width:42px;height:42px;border-radius:10px;background:rgba(124,58,237,0.12);color:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">
+        <i class="ri-apps-2-line"></i>
+      </span>
+      <div>
+        <div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">Platform Modules</div>
+        <div style="font-size:1.4rem;font-weight:700;line-height:1.2;">{{ perm_stats.total_modules }} <span style="font-size:0.8rem;font-weight:400;color:var(--text-muted);">Modules</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Tab Switcher Navigation -->
+  <div style="display:flex;gap:0.75rem;border-bottom:2px solid var(--border);margin-bottom:1.75rem;padding-bottom:0.25rem;">
+    <button type="button" id="tab-btn-members" class="btn btn-sm js-tab-nav {% if active_tab == 'members' %}btn-primary{% else %}btn-ghost{% endif %}" 
+            data-target="tab-pane-members" style="font-weight:600;font-size:0.92rem;border-radius:var(--radius-sm) var(--radius-sm) 0 0;">
+      <i class="ri-shield-user-line" aria-hidden="true"></i> Member Custom Permissions
+    </button>
+    <button type="button" id="tab-btn-matrix" class="btn btn-sm js-tab-nav {% if active_tab != 'members' %}btn-primary{% else %}btn-ghost{% endif %}" 
+            data-target="tab-pane-matrix" style="font-weight:600;font-size:0.92rem;border-radius:var(--radius-sm) var(--radius-sm) 0 0;">
+      <i class="ri-table-line" aria-hidden="true"></i> System RBAC &amp; Security Specification Matrix
+    </button>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- TAB 1: MEMBER CUSTOM PERMISSIONS MANAGER -->
+  <!-- ========================================== -->
+  <div id="tab-pane-members" class="js-tab-pane" style="{% if active_tab != 'members' %}display:none;{% endif %}">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem;">
+      <div>
+        <h2 style="margin:0 0 0.25rem;font-size:1.25rem;">Member Permissions Manager</h2>
+        <p class="muted" style="margin:0;font-size:0.88rem;">Grant or revoke granular module access (e.g. Courses, Store, HR, AI Lab) to specific instructors or team members.</p>
+      </div>
+
+      <!-- Search in members -->
+      <form method="get" action="{{ url_for('admin.permissions') }}" style="display:flex;gap:0.5rem;align-items:center;">
+        <input type="hidden" name="tab" value="members">
+        {% if role_filter != 'all' %}<input type="hidden" name="role" value="{{ role_filter }}">{% endif %}
+        <input type="text" name="q" value="{{ q }}" placeholder="Search by name or email…" 
+               style="padding:0.4rem 0.75rem;font-size:0.85rem;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-elevated);color:var(--text);width:210px;">
+        <button type="submit" class="btn btn-ghost btn-sm">Search</button>
+        {% if q %}<a href="{{ url_for('admin.permissions', tab='members', role=role_filter) }}" class="btn btn-ghost btn-sm">Clear</a>{% endif %}
+      </form>
+    </div>
+
+    <!-- Role Filter Pills -->
+    <div class="filter-row" style="margin-bottom:1.25rem;">
+      <a href="{{ url_for('admin.permissions', tab='members', q=q) }}" 
+         class="btn btn-sm {% if role_filter == 'all' %}btn-primary{% else %}btn-ghost{% endif %}">
+        All Members ({{ perm_stats.total_users }})
+      </a>
+      <a href="{{ url_for('admin.permissions', tab='members', role='teacher', q=q) }}" 
+         class="btn btn-sm {% if role_filter == 'teacher' %}btn-primary{% else %}btn-ghost{% endif %}">
+        Instructors ({{ perm_stats.teachers }})
+      </a>
+      <a href="{{ url_for('admin.permissions', tab='members', role='student', q=q) }}" 
+         class="btn btn-sm {% if role_filter == 'student' %}btn-primary{% else %}btn-ghost{% endif %}">
+        Students ({{ perm_stats.students }})
+      </a>
+      <a href="{{ url_for('admin.permissions', tab='members', role='admin', q=q) }}" 
+         class="btn btn-sm {% if role_filter == 'admin' %}btn-primary{% else %}btn-ghost{% endif %}">
+        Admins ({{ perm_stats.admins }})
+      </a>
+    </div>
+
+    <!-- Members Permissions Roster Table -->
+    <div class="card-premium" style="padding:0;overflow:hidden;margin-bottom:2rem;">
+      <div class="table-wrap">
+        <table class="table-modern">
+          <thead>
+            <tr>
+              <th style="min-width:220px;">Member</th>
+              <th style="min-width:120px;">System Role</th>
+              <th style="min-width:100px;">Status</th>
+              <th style="min-width:320px;">Granted Module Permissions</th>
+              <th style="text-align:right;min-width:170px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in members %}
+            {% set user_perms = u.get_permission_keys() %}
+            <tr>
+              <td>
+                <div style="font-weight:600;font-size:0.92rem;color:var(--text);">{{ u.full_name or u.username }}</div>
+                <div class="muted" style="font-size:0.8rem;">{{ u.email }}</div>
+              </td>
+              <td>
+                {% if u.is_super_admin %}
+                <span class="badge-pill" style="background:rgba(124,58,237,0.18);color:#7c3aed;font-size:0.75rem;font-weight:700;">
+                  <i class="ri-shield-star-fill"></i> Super Admin
+                </span>
+                {% elif u.role == 'admin' or u.is_admin %}
+                <span class="badge-pill" style="background:rgba(124,58,237,0.12);color:#7c3aed;font-size:0.75rem;font-weight:700;">
+                  <i class="ri-shield-user-line"></i> Admin
+                </span>
+                {% elif u.role == 'teacher' %}
+                <span class="badge-pill" style="background:rgba(217,119,6,0.15);color:#d97706;font-size:0.75rem;font-weight:700;">
+                  <i class="ri-user-star-line"></i> Teacher
+                </span>
+                {% else %}
+                <span class="badge-pill" style="background:rgba(79,70,229,0.12);color:#4f46e5;font-size:0.75rem;">
+                  <i class="ri-user-line"></i> Student
+                </span>
+                {% endif %}
+              </td>
+              <td>
+                {% if u.is_active %}
+                <span class="badge-pill" style="font-size:0.72rem;background:rgba(16,185,129,0.15);color:#059669;">
+                  Active
+                </span>
+                {% else %}
+                <span class="badge-pill" style="font-size:0.72rem;background:rgba(239,68,68,0.15);color:#dc2626;">
+                  Disabled
+                </span>
+                {% endif %}
+              </td>
+              <td>
+                {% if u.is_super_admin %}
+                <span class="badge-pill" style="background:linear-gradient(135deg, rgba(124,58,237,0.18), rgba(99,102,241,0.18));color:#7c3aed;font-weight:700;font-size:0.78rem;border:1px solid rgba(124,58,237,0.3);">
+                  <i class="ri-shield-star-fill" style="margin-right:0.25rem;color:#7c3aed;"></i> Primary Super Admin (Master Access)
+                </span>
+                {% elif u.role == 'admin' or u.is_admin %}
+                  {% if u.has_custom_permissions %}
+                    {% if user_perms and user_perms|length > 0 %}
+                    <div style="display:flex;flex-direction:column;gap:0.35rem;">
+                      <div style="display:flex;align-items:center;gap:0.35rem;">
+                        <span class="badge-pill" style="background:rgba(245,158,11,0.15);color:#b45309;font-size:0.7rem;font-weight:700;">
+                          <i class="ri-shield-keyhole-line"></i> Scoped Admin ({{ user_perms|length }}/8 modules)
+                        </span>
+                      </div>
+                      <div style="display:flex;flex-wrap:wrap;gap:0.35rem;">
+                        {% for mod in modules %}
+                          {% if mod.key in user_perms %}
+                          <span class="badge-pill" style="background:rgba(79,70,229,0.1);color:var(--text);font-size:0.72rem;display:inline-flex;align-items:center;gap:0.25rem;border:1px solid rgba(79,70,229,0.2);">
+                            <i class="{{ mod.icon }}" style="color:{{ mod.color }};"></i> {{ mod.name }}
+                          </span>
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                    </div>
+                    {% else %}
+                    <span class="badge-pill" style="background:rgba(239,68,68,0.12);color:#dc2626;font-size:0.75rem;font-weight:600;">
+                      <i class="ri-forbid-line"></i> Restricted Admin (No modules granted)
+                    </span>
+                    {% endif %}
+                  {% else %}
+                  <span class="badge-pill" style="background:rgba(59,130,246,0.12);color:#2563eb;font-weight:600;font-size:0.78rem;">
+                    <i class="ri-shield-check-line" style="margin-right:0.25rem;"></i> Default Administrator (All Modules)
+                  </span>
+                  {% endif %}
+                {% elif user_perms and user_perms|length > 0 %}
+                <div style="display:flex;flex-direction:column;gap:0.35rem;">
+                  <div style="display:flex;align-items:center;gap:0.35rem;">
+                    <span class="badge-pill" style="background:rgba(16,185,129,0.15);color:#047857;font-size:0.7rem;font-weight:700;">
+                      <i class="ri-award-line"></i> Elevated Team Access ({{ user_perms|length }} module{{ 's' if user_perms|length > 1 else '' }})
+                    </span>
+                  </div>
+                  <div style="display:flex;flex-wrap:wrap;gap:0.35rem;">
+                    {% for mod in modules %}
+                      {% if mod.key in user_perms %}
+                      <span class="badge-pill" style="background:rgba(79,70,229,0.1);color:var(--text);font-size:0.72rem;display:inline-flex;align-items:center;gap:0.25rem;border:1px solid rgba(79,70,229,0.2);">
+                        <i class="{{ mod.icon }}" style="color:{{ mod.color }};"></i> {{ mod.name }}
+                      </span>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                </div>
+                {% else %}
+                <span class="muted" style="font-size:0.82rem;font-style:italic;">
+                  Default Baseline (No custom elevated modules)
+                </span>
+                {% endif %}
+              </td>
+              <td style="text-align:right;white-space:nowrap;">
+                {% if u.is_super_admin %}
+                <button type="button" class="btn btn-sm btn-ghost js-open-perm-modal"
+                        data-user-id="{{ u.id }}"
+                        data-user-name="{{ u.full_name or u.username }}"
+                        data-user-email="{{ u.email }}"
+                        data-user-role="super_admin"
+                        data-is-super="1"
+                        data-is-admin="1"
+                        data-has-custom="0"
+                        data-user-perms="{{ user_perms|join(',') }}"
+                        style="font-size:0.82rem;opacity:0.85;">
+                  <i class="ri-shield-star-line" aria-hidden="true"></i> View Privileges
+                </button>
+                {% else %}
+                <button type="button" class="btn btn-sm btn-ghost js-open-perm-modal"
+                        data-user-id="{{ u.id }}"
+                        data-user-name="{{ u.full_name or u.username }}"
+                        data-user-email="{{ u.email }}"
+                        data-user-role="{{ u.role }}"
+                        data-is-super="0"
+                        data-is-admin="{{ '1' if (u.role == 'admin' or u.is_admin) else '0' }}"
+                        data-has-custom="{{ '1' if u.has_custom_permissions else '0' }}"
+                        data-user-perms="{{ user_perms|join(',') }}"
+                        style="font-size:0.82rem;">
+                  <i class="ri-equalizer-line" aria-hidden="true"></i> Configure Permissions
+                </button>
+                {% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="5" style="text-align:center;padding:2.5rem 1rem;color:var(--text-muted);">
+                <i class="ri-search-line" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.5;"></i>
+                No members found matching your search criteria.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- TAB 2: OFFICIAL SYSTEM RBAC & SECURITY SPECIFICATION MATRIX -->
+  <!-- ============================================================== -->
+  <div id="tab-pane-matrix" class="js-tab-pane" style="{% if active_tab == 'members' %}display:none;{% endif %}">
+    <!-- Security Pillars Cards -->
+    <div class="grid-cards" style="grid-template-columns:repeat(auto-fit, minmax(min(100%, 260px), 1fr));gap:1rem;margin-bottom:2rem;">
+      <div class="card-premium surface-card" style="border-top:3px solid #10b981;">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;color:#10b981;font-weight:700;">
+          <i class="ri-shield-check-line" style="font-size:1.3rem;"></i> Guard Decorators
+        </div>
+        <p class="muted" style="margin:0;font-size:0.85rem;line-height:1.5;">
+          Protected routes enforce <code>@admin_required</code>, <code>@teacher_required</code>, or <code>@student_required</code>, querying live database records rather than stale cookie caches.
+        </p>
+      </div>
+
+      <div class="card-premium surface-card" style="border-top:3px solid #3b82f6;">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;color:#3b82f6;font-weight:700;">
+          <i class="ri-lock-password-line" style="font-size:1.3rem;"></i> Rate Limiting &amp; Lockout
+        </div>
+        <p class="muted" style="margin:0;font-size:0.85rem;line-height:1.5;">
+          Accounts automatically lock for 15 minutes after 5 consecutive failed login attempts via <code>failed_login_attempts</code> and <code>locked_until</code> timestamps.
+        </p>
+      </div>
+
+      <div class="card-premium surface-card" style="border-top:3px solid #f59e0b;">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;color:#f59e0b;font-weight:700;">
+          <i class="ri-key-2-line" style="font-size:1.3rem;"></i> CSRF &amp; Integrity
+        </div>
+        <p class="muted" style="margin:0;font-size:0.85rem;line-height:1.5;">
+          Every state-modifying POST request validates cryptographic CSRF tokens, preventing cross-site tampering and unauthorized privilege escalations.
+        </p>
+      </div>
+
+      <div class="card-premium surface-card" style="border-top:3px solid #8b5cf6;">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;color:#8b5cf6;font-weight:700;">
+          <i class="ri-user-unfollow-line" style="font-size:1.3rem;"></i> Self-Protection Safe
+        </div>
+        <p class="muted" style="margin:0;font-size:0.85rem;line-height:1.5;">
+          Logged-in administrators are programmatically protected from deleting, locking, or demoting their own accounts, ensuring uninterrupted management access.
+        </p>
+      </div>
+    </div>
+
+    <!-- Permissions Matrix Table -->
+    <div class="section-head" style="margin-bottom:1rem;">
+      <h2>Role-Based Access Control (RBAC) Matrix</h2>
+      <p class="muted">Detailed breakdown of platform capabilities assigned to each role tier across all SkillOrbit systems.</p>
+    </div>
+
+    <div class="card-premium" style="padding:0;overflow:hidden;margin-bottom:2rem;">
+      <div class="table-wrap">
+        <table class="table-modern">
+          <thead>
+            <tr>
+              <th style="min-width:260px;">Module &amp; Feature</th>
+              <th style="text-align:center;min-width:110px;">
+                <span class="badge-pill" style="background:rgba(156,163,175,0.15);color:#4b5563;font-size:0.75rem;">Public / Guest</span>
+              </th>
+              <th style="text-align:center;min-width:110px;">
+                <span class="badge-pill" style="background:rgba(79,70,229,0.15);color:#4f46e5;font-size:0.75rem;">Student</span>
+              </th>
+              <th style="text-align:center;min-width:110px;">
+                <span class="badge-pill" style="background:rgba(217,119,6,0.15);color:#d97706;font-size:0.75rem;">Teacher</span>
+              </th>
+              <th style="text-align:center;min-width:110px;">
+                <span class="badge-pill" style="background:rgba(124,58,237,0.15);color:#7c3aed;font-size:0.75rem;">Admin</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for group in matrix %}
+            <tr style="background:var(--bg-surface, rgba(0,0,0,0.03));font-weight:700;">
+              <td colspan="5" style="padding:0.75rem 1rem;font-size:0.9rem;color:var(--text);letter-spacing:0.02em;">
+                <i class="ri-folder-shield-2-line" style="color:var(--accent, #4f46e5);margin-right:0.4rem;"></i> {{ group.category }}
+              </td>
+            </tr>
+            {% for item in (group.features or group['items']) %}
+            <tr>
+              <td style="padding-left:1.75rem;font-size:0.88rem;">{{ item.name }}</td>
+              
+              <!-- Guest -->
+              <td style="text-align:center;">
+                {% if item.guest %}
+                <span style="color:#10b981;font-size:1.1rem;" title="Allowed"><i class="ri-checkbox-circle-fill"></i></span>
+                {% else %}
+                <span style="color:var(--text-muted);opacity:0.4;font-size:1rem;" title="Denied"><i class="ri-close-circle-line"></i></span>
+                {% endif %}
+              </td>
+
+              <!-- Student -->
+              <td style="text-align:center;">
+                {% if item.student %}
+                <span style="color:#10b981;font-size:1.1rem;" title="Allowed"><i class="ri-checkbox-circle-fill"></i></span>
+                {% else %}
+                <span style="color:var(--text-muted);opacity:0.4;font-size:1rem;" title="Denied"><i class="ri-close-circle-line"></i></span>
+                {% endif %}
+              </td>
+
+              <!-- Teacher -->
+              <td style="text-align:center;">
+                {% if item.teacher %}
+                <span style="color:#10b981;font-size:1.1rem;" title="Allowed"><i class="ri-checkbox-circle-fill"></i></span>
+                {% else %}
+                <span style="color:var(--text-muted);opacity:0.4;font-size:1rem;" title="Denied"><i class="ri-close-circle-line"></i></span>
+                {% endif %}
+              </td>
+
+              <!-- Admin -->
+              <td style="text-align:center;">
+                {% if item.admin %}
+                <span style="color:#10b981;font-size:1.1rem;" title="Full Control"><i class="ri-checkbox-circle-fill"></i></span>
+                {% else %}
+                <span style="color:var(--text-muted);opacity:0.4;font-size:1rem;" title="Denied"><i class="ri-close-circle-line"></i></span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recent Admin Security Activity Logs -->
+    {% if recent_logs %}
+    <div class="section-head" style="margin-bottom:1rem;">
+      <h2>Security &amp; Management Activity Log</h2>
+      <p class="muted">Audit trail of recent state-changing administrative actions recorded by the system.</p>
+    </div>
+    <div class="card-premium" style="padding:0;overflow:hidden;margin-bottom:2rem;">
+      <div class="table-wrap">
+        <table class="table-modern">
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>Target Module</th>
+              <th>Admin</th>
+              <th>Details</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in recent_logs %}
+            <tr>
+              <td>
+                <span class="badge-pill" style="font-size:0.7rem;text-transform:uppercase;
+                  {% if log.action_type == 'delete' %}background:rgba(239,68,68,0.15);color:#ef4444;
+                  {% elif log.action_type in ('create', 'insert') %}background:rgba(16,185,129,0.15);color:#10b981;
+                  {% else %}background:rgba(59,130,246,0.15);color:#3b82f6;{% endif %}">
+                  {{ log.action_type }}
+                </span>
+              </td>
+              <td style="font-weight:600;font-size:0.88rem;">{{ log.target_table }}</td>
+              <td class="muted" style="font-size:0.85rem;">{{ log.admin.full_name if log.admin else 'System' }}</td>
+              <td class="muted" style="font-size:0.82rem;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                {{ log.details or '—' }}
+              </td>
+              <td class="muted" style="font-size:0.82rem;white-space:nowrap;">
+                {{ log.created_at.strftime('%d %b %Y, %H:%M') if log.created_at else '—' }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- MODAL: CONFIGURE MEMBER MODULE PERMISSIONS -->
+<!-- ============================================================== -->
+<style>
+#perm-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 99999;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease-in-out;
+}
+#perm-modal.open {
+  display: flex !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+#perm-modal .perm-dialog-panel {
+  width: 100%;
+  max-width: 680px;
+  background: var(--bg-elevated, #ffffff);
+  color: var(--text, #1e293b);
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  border-radius: var(--radius-lg, 14px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border, rgba(0,0,0,0.1));
+  padding: 1.5rem 1.75rem;
+  transform: scale(0.96) translateY(12px);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+#perm-modal.open .perm-dialog-panel {
+  transform: scale(1) translateY(0) !important;
+}
+.perm-module-card:hover {
+  border-color: var(--accent, #4f46e5) !important;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08);
+}
+</style>
+
+<div id="perm-modal" role="dialog" aria-modal="true" aria-labelledby="modal-member-title">
+  <div class="card-premium perm-dialog-panel">
+    <!-- Modal Header -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;border-bottom:1px solid var(--border);padding-bottom:0.75rem;">
+      <div>
+        <h3 id="modal-member-title" style="margin:0 0 0.25rem;font-size:1.25rem;">Configure Module Permissions</h3>
+        <p id="modal-member-subtitle" class="muted" style="margin:0;font-size:0.85rem;">Grant elevated module capabilities for this user.</p>
+      </div>
+      <button type="button" id="perm-modal-close" class="btn btn-ghost btn-sm" style="font-size:1.3rem;line-height:1;padding:0.25rem 0.5rem;border-radius:50%;" aria-label="Close modal">
+        &times;
+      </button>
+    </div>
+
+    <!-- Super Admin Advisory Alert -->
+    <div id="modal-super-notice" style="display:none;margin-bottom:1rem;padding:0.75rem 1rem;border-radius:var(--radius-sm);background:rgba(124,58,237,0.12);border-left:4px solid #7c3aed;font-size:0.85rem;color:var(--text);">
+      <strong>Primary Super Administrator:</strong> This account holds the root master keys for the entire platform. Master administrator privileges cannot be revoked or restricted.
+    </div>
+
+    <!-- Scoped Admin Advisory Alert -->
+    <div id="modal-admin-notice" style="display:none;margin-bottom:1rem;padding:0.75rem 1rem;border-radius:var(--radius-sm);background:rgba(59,130,246,0.1);border-left:4px solid #3b82f6;font-size:0.85rem;color:var(--text);">
+      <strong>Admin Scoping:</strong> Select only the modules this administrator is authorized to access. Unchecking all modules will restrict them from administrative operations.
+    </div>
+
+    <!-- Elevated Member Advisory Alert -->
+    <div id="modal-member-notice" style="display:none;margin-bottom:1rem;padding:0.75rem 1rem;border-radius:var(--radius-sm);background:rgba(16,185,129,0.1);border-left:4px solid #10b981;font-size:0.85rem;color:var(--text);">
+      <strong>Elevated Team Member:</strong> Granting modules here gives this instructor or student administrative management access to those specific sections in the Admin Console.
+    </div>
+
+    <!-- Preset Shortcuts -->
+    <div style="display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;margin-bottom:1.25rem;padding:0.5rem 0.75rem;background:var(--bg-surface, rgba(0,0,0,0.03));border-radius:var(--radius-sm);">
+      <span class="muted" style="font-size:0.78rem;font-weight:600;margin-right:0.25rem;">Quick Presets:</span>
+      <button type="button" class="btn btn-ghost btn-sm js-preset-btn" data-preset="all" style="font-size:0.75rem;padding:0.2rem 0.5rem;">Select All</button>
+      <button type="button" class="btn btn-ghost btn-sm js-preset-btn" data-preset="clear" style="font-size:0.75rem;padding:0.2rem 0.5rem;">Clear All</button>
+      <button type="button" class="btn btn-ghost btn-sm js-preset-btn" data-preset="courses" style="font-size:0.75rem;padding:0.2rem 0.5rem;">LMS Author</button>
+      <button type="button" class="btn btn-ghost btn-sm js-preset-btn" data-preset="store" style="font-size:0.75rem;padding:0.2rem 0.5rem;">Store Manager</button>
+      <button type="button" class="btn btn-ghost btn-sm js-preset-btn" data-preset="hr" style="font-size:0.75rem;padding:0.2rem 0.5rem;">HR Staff</button>
+      <button type="button" class="btn btn-ghost btn-sm js-preset-btn" data-preset="ops" style="font-size:0.75rem;padding:0.2rem 0.5rem;">Ops (Course + Store + Intern)</button>
+    </div>
+
+    <!-- Permission Form -->
+    <form id="perm-update-form" method="post" action="">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <!-- Modules Checkbox Grid -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 280px), 1fr));gap:0.85rem;margin-bottom:1.5rem;">
+        {% for mod in modules %}
+        <label class="card-premium surface-card perm-module-card" 
+               style="cursor:pointer;padding:0.85rem 1rem;display:flex;align-items:flex-start;gap:0.75rem;transition:all 0.2s ease;border:1px solid var(--border);border-radius:var(--radius-sm);margin:0;">
+          <input type="checkbox" name="permissions" value="{{ mod.key }}" class="js-mod-checkbox" 
+                 style="margin-top:0.25rem;cursor:pointer;width:17px;height:17px;accent-color:var(--accent, #4f46e5);">
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:0.4rem;font-weight:600;font-size:0.9rem;margin-bottom:0.2rem;color:var(--text);">
+              <i class="{{ mod.icon }}" style="color:{{ mod.color }};font-size:1.05rem;"></i>
+              <span>{{ mod.name }}</span>
+            </div>
+            <p class="muted" style="margin:0;font-size:0.78rem;line-height:1.4;">{{ mod.desc }}</p>
+          </div>
+        </label>
+        {% endfor %}
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display:flex;justify-content:flex-end;gap:0.75rem;border-top:1px solid var(--border);padding-top:1rem;">
+        <button type="button" id="perm-modal-cancel" class="btn btn-ghost btn-sm">Cancel</button>
+        <button type="submit" id="perm-modal-save" class="btn btn-primary btn-sm" style="font-weight:600;">
+          <i class="ri-check-line" aria-hidden="true"></i> Save Permissions
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  // Tab Switching Logic
+  const tabBtns = document.querySelectorAll(".js-tab-nav");
+  const tabPanes = document.querySelectorAll(".js-tab-pane");
+
+  function switchTab(targetPaneId) {
+    tabPanes.forEach(pane => {
+      pane.style.display = (pane.id === targetPaneId) ? "block" : "none";
+    });
+    tabBtns.forEach(btn => {
+      if (btn.getAttribute("data-target") === targetPaneId) {
+        btn.classList.remove("btn-ghost");
+        btn.classList.add("btn-primary");
+      } else {
+        btn.classList.remove("btn-primary");
+        btn.classList.add("btn-ghost");
+      }
+    });
+  }
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const target = btn.getAttribute("data-target");
+      switchTab(target);
+      if (history.replaceState) {
+        const hash = (target === "tab-pane-members") ? "#members" : "#matrix";
+        history.replaceState(null, null, hash);
+      }
+    });
+  });
+
+  // URL Hash routing on load
+  if (window.location.hash === "#members") {
+    switchTab("tab-pane-members");
+  } else if (window.location.hash === "#matrix") {
+    switchTab("tab-pane-matrix");
+  }
+
+  // Modal Logic
+  const modal = document.getElementById("perm-modal");
+  const closeModalBtn = document.getElementById("perm-modal-close");
+  const cancelModalBtn = document.getElementById("perm-modal-cancel");
+  const form = document.getElementById("perm-update-form");
+  const modalTitle = document.getElementById("modal-member-title");
+  const modalSubtitle = document.getElementById("modal-member-subtitle");
+  const superNotice = document.getElementById("modal-super-notice");
+  const adminNotice = document.getElementById("modal-admin-notice");
+  const memberNotice = document.getElementById("modal-member-notice");
+  const saveBtn = document.getElementById("perm-modal-save");
+  const checkboxes = document.querySelectorAll(".js-mod-checkbox");
+  const presetBtns = document.querySelectorAll(".js-preset-btn");
+
+  function openModal() {
+    if (!modal) return;
+    modal.style.display = "flex";
+    void modal.offsetWidth; // Force CSS reflow
+    modal.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal() {
+    if (!modal) return;
+    modal.classList.remove("open");
+    setTimeout(() => {
+      if (!modal.classList.contains("open")) {
+        modal.style.display = "none";
+      }
+    }, 220);
+    document.body.style.overflow = "";
+  }
+
+  closeModalBtn?.addEventListener("click", closeModal);
+  cancelModalBtn?.addEventListener("click", closeModal);
+  modal?.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal && modal.classList.contains("open")) {
+      closeModal();
+    }
+  });
+
+  document.querySelectorAll(".js-open-perm-modal").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const uid = btn.getAttribute("data-user-id");
+      const name = btn.getAttribute("data-user-name") || "Member";
+      const email = btn.getAttribute("data-user-email") || "";
+      const role = btn.getAttribute("data-user-role") || "user";
+      const isSuper = btn.getAttribute("data-is-super") === "1";
+      const isAdmin = btn.getAttribute("data-is-admin") === "1";
+      
+      const rawPerms = btn.getAttribute("data-user-perms") || "";
+      const perms = rawPerms ? rawPerms.split(",").map(s => s.trim()).filter(Boolean) : [];
+
+      if (form) {
+        form.action = `/admin/permissions/update/${uid}`;
+      }
+      if (modalTitle) {
+        modalTitle.textContent = isSuper ? `Privileges: ${name}` : `Permissions: ${name}`;
+      }
+      if (modalSubtitle) {
+        const roleLabel = isSuper ? "PRIMARY SUPER ADMIN" : (role ? role.toUpperCase() : 'USER');
+        modalSubtitle.textContent = `${email} (${roleLabel})`;
+      }
+
+      if (superNotice) superNotice.style.display = isSuper ? "block" : "none";
+      if (adminNotice) adminNotice.style.display = (!isSuper && isAdmin) ? "block" : "none";
+      if (memberNotice) memberNotice.style.display = (!isSuper && !isAdmin) ? "block" : "none";
+
+      if (saveBtn) {
+        saveBtn.disabled = isSuper;
+        saveBtn.style.display = isSuper ? "none" : "inline-flex";
+      }
+
+      presetBtns.forEach(pbtn => {
+        pbtn.disabled = isSuper;
+        pbtn.style.opacity = isSuper ? "0.4" : "1";
+      });
+
+      // Check boxes according to user's permissions
+      checkboxes.forEach(cb => {
+        cb.disabled = isSuper;
+        cb.checked = perms.includes(cb.value);
+      });
+
+      openModal();
+    });
+  });
+
+  // Quick Preset Actions
+  presetBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const preset = btn.getAttribute("data-preset");
+      if (preset === "all") {
+        checkboxes.forEach(cb => cb.checked = true);
+      } else if (preset === "clear") {
+        checkboxes.forEach(cb => cb.checked = false);
+      } else if (preset === "courses") {
+        checkboxes.forEach(cb => cb.checked = (cb.value === "manage_courses"));
+      } else if (preset === "store") {
+        checkboxes.forEach(cb => cb.checked = (cb.value === "manage_store"));
+      } else if (preset === "hr") {
+        checkboxes.forEach(cb => cb.checked = (cb.value === "manage_hr"));
+      } else if (preset === "ops") {
+        checkboxes.forEach(cb => cb.checked = ["manage_courses", "manage_store", "manage_internships"].includes(cb.value));
+      }
+    });
+  });
+})();
+</script>
+{% endblock %}

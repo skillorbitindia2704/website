@@ -67,19 +67,64 @@
   /* Mobile nav */
   const navToggle = $("#nav-toggle");
   const navLinks = $("#nav-links");
+
+  function closeMobileNav() {
+    if (!navLinks || !navToggle) return;
+    navLinks.classList.remove("open");
+    navToggle.setAttribute("aria-expanded", "false");
+    navToggle.classList.remove("is-open");
+    document.body.classList.remove("nav-open");
+  }
+
   navToggle?.addEventListener("click", () => {
     const open = navLinks.classList.toggle("open");
     navToggle.setAttribute("aria-expanded", open ? "true" : "false");
     navToggle.classList.toggle("is-open", open);
+    document.body.classList.toggle("nav-open", open);
   });
+
+  // Close when clicking outside
   document.addEventListener("click", (e) => {
     if (!navLinks || !navToggle) return;
     if (!navLinks.classList.contains("open")) return;
     if (navLinks.contains(e.target) || navToggle.contains(e.target)) return;
-    navLinks.classList.remove("open");
-    navToggle.setAttribute("aria-expanded", "false");
-    navToggle.classList.remove("is-open");
+    closeMobileNav();
   });
+
+  // Close when clicking links in drawer on mobile
+  $$("#nav-links a").forEach((a) => {
+    a.addEventListener("click", () => {
+      if (window.innerWidth <= 1024) {
+        closeMobileNav();
+      }
+    });
+  });
+
+  // Close on screen resize above breakpoint
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 1024 && navLinks?.classList.contains("open")) {
+      closeMobileNav();
+    }
+  });
+
+  /* Auto-wrap unwrapped tables for responsive horizontal scrolling */
+  function ensureResponsiveTables() {
+    $$("table").forEach((table) => {
+      const parent = table.parentElement;
+      if (!parent) return;
+      if (!parent.classList.contains("table-wrap") && !parent.classList.contains("table-responsive")) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "table-wrap";
+        parent.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+      }
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", ensureResponsiveTables);
+  } else {
+    ensureResponsiveTables();
+  }
 
   /* Flask flash → toasts */
   const flashEl = $("#flash-data");
@@ -302,9 +347,7 @@
       notifBtn?.setAttribute("aria-expanded", "false");
     }
     if (navLinks?.classList.contains("open")) {
-      navLinks.classList.remove("open");
-      navToggle?.setAttribute("aria-expanded", "false");
-      navToggle?.classList.remove("is-open");
+      closeMobileNav();
     }
   });
 })();

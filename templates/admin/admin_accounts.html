@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+{% block title %}Admin Accounts — Security Management{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('User Management', url_for('admin.user_management')), ('Admin Accounts', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="reveal">
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+    <div>
+      <h1 class="page-title" style="margin:0 0 0.25rem;">Administrator Accounts</h1>
+      <p class="muted" style="margin:0;">Manage administrative accounts, create new staff credentials, and inspect security statuses.</p>
+    </div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <a href="{{ url_for('admin.users') }}" class="btn btn-ghost btn-sm">
+        <i class="ri-user-line" aria-hidden="true"></i> All Users
+      </a>
+      <a href="{{ url_for('admin.roles') }}" class="btn btn-ghost btn-sm">
+        <i class="ri-shield-user-line" aria-hidden="true"></i> Roles
+      </a>
+      <button type="button" class="btn btn-primary btn-sm" id="btn-open-create-admin">
+        <i class="ri-user-add-line" aria-hidden="true"></i> Create New Admin
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI Summary Cards -->
+  <div class="stat-grid" style="margin-bottom:1.5rem;">
+    <div class="card-premium stat-card">
+      <span class="lbl">Total Administrators</span>
+      <span class="num" style="color:#7c3aed;">{{ total_admins }}</span>
+    </div>
+    <div class="card-premium stat-card">
+      <span class="lbl">Active Admins</span>
+      <span class="num" style="color:#10b981;">{{ active_admins }}</span>
+    </div>
+    <div class="card-premium stat-card">
+      <span class="lbl">Locked / Flagged</span>
+      <span class="num" style="color:{% if locked_admins > 0 %}#ef4444{% else %}var(--text-muted){% endif %};">{{ locked_admins }}</span>
+    </div>
+    <div class="card-premium stat-card">
+      <span class="lbl">Your Current Session</span>
+      <span class="num" style="font-size:1.05rem;color:var(--text);font-weight:600;display:flex;align-items:center;gap:0.4rem;">
+        <span style="width:8px;height:8px;border-radius:50%;background:#10b981;"></span>
+        {{ current_user.email.split('@')[0] if current_user.email else 'Admin' }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Create Admin Card (Collapsible) -->
+  <section id="create-admin-section" class="card-premium surface-card" style="margin-bottom:1.75rem;padding:1.5rem;display:none;border-left:4px solid #7c3aed;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <h3 style="margin:0;font-size:1.15rem;display:flex;align-items:center;gap:0.5rem;">
+        <i class="ri-shield-keyhole-line" style="color:#7c3aed;"></i> Create New Administrator Account
+      </h3>
+      <button type="button" class="btn btn-ghost btn-sm" id="btn-close-create-admin"><i class="ri-close-line"></i> Cancel</button>
+    </div>
+    <form method="post" action="{{ url_for('admin.admin_accounts') }}" class="form-modern">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="create_admin">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:1rem;">
+        <label>
+          Full Name
+          <input type="text" name="full_name" required minlength="3" placeholder="e.g. Ramesh Kumar">
+        </label>
+        <label>
+          Admin Work Email
+          <input type="email" name="email" required placeholder="admin@skillorbit.in">
+        </label>
+        <label>
+          Password (8+ chars)
+          <input type="password" name="password" required minlength="8" placeholder="••••••••">
+        </label>
+        <label>
+          Confirm Password
+          <input type="password" name="confirm_password" required minlength="8" placeholder="••••••••">
+        </label>
+      </div>
+      <div style="margin-top:1rem;display:flex;justify-content:flex-end;">
+        <button type="submit" class="btn btn-primary">
+          <i class="ri-check-line" aria-hidden="true"></i> Create Administrator Account
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Admin Accounts Table -->
+  <div class="card-premium" style="padding:0;overflow:hidden;margin-bottom:2rem;">
+    <div class="table-wrap">
+      <table class="table-modern">
+        <thead>
+          <tr>
+            <th>Administrator</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Security Health</th>
+            <th>Created Date</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in admins %}
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:0.75rem;">
+                <div style="width:38px;height:38px;border-radius:50%;background:rgba(124,58,237,0.15);color:#7c3aed;border:1px solid rgba(124,58,237,0.3);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.95rem;flex-shrink:0;">
+                  {{ (a.full_name[:1] or 'A')|upper }}
+                </div>
+                <div>
+                  <div style="font-weight:600;display:flex;align-items:center;gap:0.4rem;">
+                    {{ a.full_name }}
+                    {% if session.get('user_id') and a.id == session.get('user_id')|int %}
+                    <span class="badge-pill" style="font-size:0.65rem;background:rgba(16,185,129,0.15);color:#059669;font-weight:700;">You</span>
+                    {% endif %}
+                  </div>
+                  <div class="muted" style="font-size:0.75rem;">ID #{{ a.id }} · Superuser</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <code style="font-size:0.85rem;background:var(--bg-secondary);padding:0.2rem 0.4rem;border-radius:4px;">{{ a.email }}</code>
+            </td>
+            <td>
+              {% if a.is_active %}
+              <span class="badge-pill" style="font-size:0.72rem;background:rgba(16,185,129,0.15);color:#059669;display:inline-flex;align-items:center;gap:0.3rem;">
+                <span style="width:6px;height:6px;border-radius:50%;background:#10b981;"></span> Active
+              </span>
+              {% else %}
+              <span class="badge-pill" style="font-size:0.72rem;background:rgba(239,68,68,0.15);color:#dc2626;display:inline-flex;align-items:center;gap:0.3rem;">
+                <span style="width:6px;height:6px;border-radius:50%;background:#ef4444;"></span> Disabled
+              </span>
+              {% endif %}
+            </td>
+            <td>
+              {% if a.locked_until and a.locked_until > datetime.utcnow() %}
+              <span style="color:#ef4444;font-size:0.82rem;font-weight:600;">
+                <i class="ri-lock-line"></i> Locked until {{ a.locked_until.strftime('%H:%M') }}
+              </span>
+              {% elif a.failed_login_attempts > 0 %}
+              <span style="color:#f59e0b;font-size:0.82rem;">
+                <i class="ri-alert-line"></i> {{ a.failed_login_attempts }} failed attempt(s)
+              </span>
+              {% else %}
+              <span style="color:#10b981;font-size:0.82rem;">
+                <i class="ri-shield-check-line"></i> Normal (0 failures)
+              </span>
+              {% endif %}
+            </td>
+            <td class="muted" style="font-size:0.85rem;white-space:nowrap;">
+              {{ a.created_at.strftime('%d %b %Y') if a.created_at else '—' }}
+            </td>
+            <td style="text-align:right;white-space:nowrap;">
+              {% if session.get('user_id') and a.id == session.get('user_id')|int %}
+              <span class="muted" style="font-size:0.8rem;font-style:italic;">Current Session (Protected)</span>
+              {% else %}
+              <!-- Reset Password Trigger -->
+              <button type="button" class="btn btn-sm btn-ghost js-reset-pw-btn" 
+                      data-user-id="{{ a.id }}" data-user-email="{{ a.email }}" style="font-size:0.8rem;" title="Reset admin password">
+                <i class="ri-key-line" aria-hidden="true"></i> Reset PW
+              </button>
+
+              <!-- Enable/Disable -->
+              <form method="post" action="{{ url_for('admin.toggle_user_active', user_id=a.id) }}" style="display:inline-block;margin:0 0.2rem;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="next" value="{{ request.full_path }}">
+                <button type="submit" class="btn btn-sm btn-ghost" style="font-size:0.8rem;">
+                  {{ 'Disable' if a.is_active else 'Enable' }}
+                </button>
+              </form>
+
+              <!-- Demote to Student -->
+              <form method="post" action="{{ url_for('admin.set_user_role', user_id=a.id) }}" style="display:inline-block;margin:0 0.2rem;" 
+                    onsubmit="return confirm('Demote admin {{ a.email }} to regular Student? They will lose all admin dashboard access.');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="role" value="student">
+                <input type="hidden" name="next" value="{{ request.full_path }}">
+                <button type="submit" class="btn btn-sm btn-ghost" style="color:#d97706;font-size:0.8rem;" title="Demote to Student">
+                  Demote
+                </button>
+              </form>
+
+              <!-- Delete Admin -->
+              <form method="post" action="{{ url_for('admin.delete_user', user_id=a.id) }}" style="display:inline-block;margin:0;" 
+                    onsubmit="return confirm('PERMANENTLY delete administrator account {{ a.email }}? This cannot be undone.');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="next" value="{{ request.full_path }}">
+                <button type="submit" class="btn btn-sm btn-ghost" style="color:#ef4444;font-size:0.8rem;" title="Delete Admin">
+                  <i class="ri-delete-bin-line" aria-hidden="true"></i>
+                </button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Password Reset Modal -->
+  <div id="reset-pw-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="reset-pw-title">
+    <div class="modal-panel">
+      <button type="button" class="modal-close" id="reset-pw-close" aria-label="Close"><i class="ri-close-line" aria-hidden="true"></i></button>
+      <h3 id="reset-pw-title" style="margin-top:0;display:flex;align-items:center;gap:0.4rem;">
+        <i class="ri-key-line" style="color:var(--accent);"></i> Reset Admin Password
+      </h3>
+      <p class="muted" style="font-size:0.85rem;" id="reset-pw-desc">Assign a new temporary or permanent password for this administrator.</p>
+      <form method="post" action="{{ url_for('admin.admin_accounts') }}" class="form-modern" style="margin-top:1rem;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="reset_password">
+        <input type="hidden" name="user_id" id="reset-modal-user-id" value="">
+        <label>
+          New Password (8+ characters)
+          <input type="password" name="new_password" required minlength="8" placeholder="Enter new password">
+        </label>
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.5rem;">Update Password</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Security Recommendations -->
+  <div class="card-premium surface-card" style="padding:1.25rem 1.5rem;border-left:4px solid #10b981;">
+    <h3 style="margin:0 0 0.5rem;font-size:1.05rem;display:flex;align-items:center;gap:0.4rem;color:#10b981;">
+      <i class="ri-shield-check-line"></i> Administrator Security Best Practices
+    </h3>
+    <ul style="margin:0;padding-left:1.25rem;font-size:0.85rem;color:var(--text-muted);line-height:1.6;">
+      <li>Always use strong unique passwords with at least 8 characters including letters, numbers, and symbols.</li>
+      <li>Never share administrator login credentials among multiple staff members; create separate accounts for audit trails.</li>
+      <li>Promptly demote or disable admin accounts for team members who no longer require platform access.</li>
+      <li>The system requires at least one active administrator account at all times to prevent administrative lockout.</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  const createSection = document.getElementById("create-admin-section");
+  const openBtn = document.getElementById("btn-open-create-admin");
+  const closeBtn = document.getElementById("btn-close-create-admin");
+  
+  openBtn?.addEventListener("click", () => {
+    if (createSection) {
+      createSection.style.display = "block";
+      createSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
+
+  closeBtn?.addEventListener("click", () => {
+    if (createSection) createSection.style.display = "none";
+  });
+
+  // Reset password modal
+  const modal = document.getElementById("reset-pw-modal");
+  const modalUserId = document.getElementById("reset-modal-user-id");
+  const modalDesc = document.getElementById("reset-pw-desc");
+  const closeModal = document.getElementById("reset-pw-close");
+
+  document.querySelectorAll(".js-reset-pw-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const uid = btn.getAttribute("data-user-id");
+      const email = btn.getAttribute("data-user-email");
+      if (modalUserId) modalUserId.value = uid;
+      if (modalDesc) modalDesc.textContent = `Assign a new password for administrator: ${email}`;
+      modal?.classList.add("open");
+    });
+  });
+
+  closeModal?.addEventListener("click", () => modal?.classList.remove("open"));
+  modal?.addEventListener("click", (e) => {
+    if (e.target === modal) modal.classList.remove("open");
+  });
+})();
+</script>
+{% endblock %}

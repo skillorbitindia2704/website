@@ -18,25 +18,33 @@
       />
       <span class="nav-brand-text">Skill Orbit <em>India</em></span>
     </a>
-    <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
-      <span></span><span></span><span></span>
-    </button>
     <nav class="nav-links" id="nav-links" role="navigation" aria-label="Primary">
-      <a href="{{ url_for('courses.list_courses') }}" class="nav-link">Courses</a>
+      <a href="{{ url_for('courses.list_courses') }}" class="nav-link {% if request.endpoint and 'courses' in request.endpoint %}is-active{% endif %}">Courses</a>
       <a href="{{ url_for('certificates.verify_lookup') }}" class="nav-link {% if request.endpoint in ('certificates.verify_lookup', 'certificates.verify') %}is-active{% endif %}">Certificates</a>
-      <a href="{{ url_for('internships.listing') }}" class="nav-link">Internships</a>
-      <a href="{{ url_for('store.listing') }}" class="nav-link">Store</a>
-      <a href="{{ url_for('it_services.index') }}" class="nav-link">Service</a>
-      <a href="{{ url_for('ai_lab.index') }}" class="nav-link">AI Lab</a>
-      <a href="{{ url_for('main.about') }}" class="nav-link">About</a>
+      <a href="{{ url_for('internships.listing') }}" class="nav-link {% if request.endpoint and 'internship' in request.endpoint %}is-active{% endif %}">Internships</a>
+      <a href="{{ url_for('store.listing') }}" class="nav-link {% if request.endpoint and 'store' in request.endpoint and request.endpoint != 'store.view_cart' %}is-active{% endif %}">Store</a>
+      <a href="{{ url_for('it_services.index') }}" class="nav-link {% if request.endpoint and 'it_services' in request.endpoint %}is-active{% endif %}">Services</a>
+      <a href="{{ url_for('ai_lab.index') }}" class="nav-link {% if request.endpoint and 'ai_lab' in request.endpoint %}is-active{% endif %}">AI Lab</a>
+      <a href="{{ url_for('main.about') }}" class="nav-link {% if request.endpoint == 'main.about' %}is-active{% endif %}">About</a>
       {% set nav_role = session.get('role') or (current_user.role if current_user.is_authenticated else None) %}
-      {% if nav_role == 'admin' %}
+      {% if nav_role == 'admin' or (current_user.is_authenticated and current_user.can_access_admin_panel) %}
       <a href="{{ url_for('admin.index') }}" class="nav-link nav-accent">Admin</a>
-      {% elif nav_role == 'teacher' %}
+      {% endif %}
+      {% if nav_role == 'teacher' %}
       <a href="{{ url_for('teacher.dashboard') }}" class="nav-link">Teacher</a>
       {% elif nav_role == 'student' %}
       <a href="{{ url_for('student.dashboard') }}" class="nav-link">Dashboard</a>
       {% endif %}
+
+      <div class="nav-mobile-auth">
+        {% if current_user.is_authenticated or session.get('user_id') %}
+        <a href="{{ url_for('auth.profile') }}" class="btn btn-ghost btn-sm">Profile</a>
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-primary btn-sm">Logout</a>
+        {% else %}
+        <a href="{{ url_for('auth.login') }}" class="btn btn-ghost btn-sm">Login</a>
+        <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-sm">Sign up</a>
+        {% endif %}
+      </div>
     </nav>
     <div class="nav-actions">
       <button type="button" class="icon-btn theme-toggle" id="theme-toggle" title="Toggle theme" aria-label="Toggle dark mode">
@@ -60,12 +68,15 @@
         <i class="ri-shopping-cart-line" aria-hidden="true"></i>
       </a>
       {% if current_user.is_authenticated or session.get('user_id') %}
-      <a href="{{ url_for('auth.profile') }}" class="btn btn-ghost btn-sm hide-mobile">Profile</a>
-      <a href="{{ url_for('auth.logout') }}" class="btn btn-primary btn-sm">Logout</a>
+      <a href="{{ url_for('auth.profile') }}" class="btn btn-ghost btn-sm nav-auth-desktop">Profile</a>
+      <a href="{{ url_for('auth.logout') }}" class="btn btn-primary btn-sm nav-auth-desktop">Logout</a>
       {% else %}
-      <a href="{{ url_for('auth.login') }}" class="btn btn-ghost btn-sm">Login</a>
-      <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-sm">Sign up</a>
+      <a href="{{ url_for('auth.login') }}" class="btn btn-ghost btn-sm nav-auth-desktop">Login</a>
+      <a href="{{ url_for('auth.signup') }}" class="btn btn-primary btn-sm nav-auth-desktop">Sign up</a>
       {% endif %}
+      <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
 </header>

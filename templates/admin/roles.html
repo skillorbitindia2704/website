@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% block title %}Roles Management — Admin{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Admin', url_for('admin.index')), ('User Management', url_for('admin.user_management')), ('Roles', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="reveal">
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+    <div>
+      <h1 class="page-title" style="margin:0 0 0.25rem;">Role Management</h1>
+      <p class="muted" style="margin:0;">Configure access levels, approve instructor requests, and reassign user capabilities.</p>
+    </div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <a href="{{ url_for('admin.users') }}" class="btn btn-ghost btn-sm">
+        <i class="ri-user-line" aria-hidden="true"></i> All Users
+      </a>
+      <a href="{{ url_for('admin.permissions') }}" class="btn btn-ghost btn-sm">
+        <i class="ri-lock-2-line" aria-hidden="true"></i> Permissions Matrix
+      </a>
+      <a href="{{ url_for('admin.admin_accounts') }}" class="btn btn-primary btn-sm">
+        <i class="ri-admin-line" aria-hidden="true"></i> Admin Accounts
+      </a>
+    </div>
+  </div>
+
+  <!-- Role Cards Grid -->
+  <div class="grid-cards" style="grid-template-columns:repeat(auto-fit, minmax(min(100%, 320px), 1fr));gap:1.25rem;margin-bottom:2rem;">
+    <!-- Admin Role Card -->
+    <article class="card-premium surface-card" style="border-top:4px solid #7c3aed;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
+        <span style="width:40px;height:40px;border-radius:10px;background:rgba(124,58,237,0.12);color:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">
+          <i class="ri-shield-star-line" aria-hidden="true"></i>
+        </span>
+        <span class="badge-pill" style="background:rgba(124,58,237,0.12);color:#7c3aed;font-weight:700;font-size:0.75rem;">Superuser Tier</span>
+      </div>
+      <h3 style="margin:0 0 0.25rem;font-size:1.2rem;">Administrator</h3>
+      <p class="muted" style="font-size:0.88rem;line-height:1.5;margin-bottom:1rem;">
+        Unrestricted master access. Oversees course approvals, store inventory, order fulfillment, AI lab packages, HR payroll, and database operations.
+      </p>
+      <div style="border-top:1px solid var(--border);padding-top:0.75rem;display:flex;justify-content:space-between;align-items:center;">
+        <span class="muted" style="font-size:0.85rem;">Assigned Users:</span>
+        <strong style="color:#7c3aed;font-size:1.1rem;">{{ role_stats.admins }}</strong>
+      </div>
+    </article>
+
+    <!-- Teacher Role Card -->
+    <article class="card-premium surface-card" style="border-top:4px solid #d97706;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
+        <span style="width:40px;height:40px;border-radius:10px;background:rgba(217,119,6,0.12);color:#d97706;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">
+          <i class="ri-user-star-line" aria-hidden="true"></i>
+        </span>
+        <span class="badge-pill" style="background:rgba(217,119,6,0.12);color:#d97706;font-weight:700;font-size:0.75rem;">Instructor Tier</span>
+      </div>
+      <h3 style="margin:0 0 0.25rem;font-size:1.2rem;">Teacher / Instructor</h3>
+      <p class="muted" style="font-size:0.88rem;line-height:1.5;margin-bottom:1rem;">
+        Course authoring privileges in Teacher Workspace. Can publish lectures, schedule live streaming classes, create quizzes, and clock HR attendance.
+      </p>
+      <div style="border-top:1px solid var(--border);padding-top:0.75rem;display:flex;justify-content:space-between;align-items:center;">
+        <span class="muted" style="font-size:0.85rem;">Active Instructors:</span>
+        <strong style="color:#d97706;font-size:1.1rem;">{{ role_stats.teachers }}</strong>
+      </div>
+      {% if role_stats.pending_teachers_count > 0 %}
+      <div style="margin-top:0.5rem;font-size:0.82rem;color:#ef4444;font-weight:600;">
+        ⚠️ {{ role_stats.pending_teachers_count }} instructor application(s) awaiting approval
+      </div>
+      {% endif %}
+    </article>
+
+    <!-- Student Role Card -->
+    <article class="card-premium surface-card" style="border-top:4px solid #4f46e5;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
+        <span style="width:40px;height:40px;border-radius:10px;background:rgba(79,70,229,0.12);color:#4f46e5;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">
+          <i class="ri-graduation-cap-line" aria-hidden="true"></i>
+        </span>
+        <span class="badge-pill" style="background:rgba(79,70,229,0.12);color:#4f46e5;font-weight:700;font-size:0.75rem;">Learner Tier</span>
+      </div>
+      <h3 style="margin:0 0 0.25rem;font-size:1.2rem;">Student / Learner</h3>
+      <p class="muted" style="font-size:0.88rem;line-height:1.5;margin-bottom:1rem;">
+        Standard platform account. Can enroll in courses, study lesson content, attempt quizzes, download verified certificates, and purchase store products.
+      </p>
+      <div style="border-top:1px solid var(--border);padding-top:0.75rem;display:flex;justify-content:space-between;align-items:center;">
+        <span class="muted" style="font-size:0.85rem;">Enrolled Students:</span>
+        <strong style="color:#4f46e5;font-size:1.1rem;">{{ role_stats.students }}</strong>
+      </div>
+    </article>
+  </div>
+
+  <!-- Pending Teacher Approvals Queue -->
+  {% if pending_teachers %}
+  <section class="card-premium surface-card" style="border-left:4px solid #f59e0b;margin-bottom:2rem;padding:1.25rem 1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
+      <span style="font-size:1.4rem;color:#f59e0b;"><i class="ri-notification-badge-line" aria-hidden="true"></i></span>
+      <div>
+        <h3 style="margin:0;font-size:1.1rem;">Pending Instructor Approvals ({{ pending_teachers|length }})</h3>
+        <p class="muted" style="margin:0;font-size:0.85rem;">These users registered or were assigned as teachers and require administrative verification before unlocking teacher features.</p>
+      </div>
+    </div>
+    <div class="table-wrap" style="margin-top:1rem;">
+      <table class="table-modern">
+        <thead>
+          <tr>
+            <th>Instructor Name</th>
+            <th>Email</th>
+            <th>Registered</th>
+            <th style="text-align:right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in pending_teachers %}
+          <tr>
+            <td style="font-weight:600;">{{ t.full_name }}</td>
+            <td class="muted">{{ t.email }}</td>
+            <td class="muted" style="font-size:0.85rem;">{{ t.created_at.strftime('%d %b %Y') if t.created_at else '—' }}</td>
+            <td style="text-align:right;">
+              <form method="post" action="{{ url_for('admin.approve_teacher_role', user_id=t.id) }}" style="display:inline-block;margin:0;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-primary btn-sm">
+                  <i class="ri-check-line" aria-hidden="true"></i> Approve Instructor
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Role Directory & Assignment Section -->
+  <div class="section-head" style="margin-bottom:1rem;">
+    <h2>Role Directory &amp; Assignments</h2>
+    <p class="muted">Reassign any user's role on the fly. Changes take effect immediately on their next request.</p>
+  </div>
+
+  <!-- Filter tabs -->
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem;">
+    <div class="filter-row" style="margin:0;">
+      <a href="{{ url_for('admin.roles') }}" class="btn btn-sm {% if role_filter == 'all' %}btn-primary{% else %}btn-ghost{% endif %}">
+        All ({{ role_stats.total }})
+      </a>
+      <a href="{{ url_for('admin.roles', role='admin') }}" class="btn btn-sm {% if role_filter == 'admin' %}btn-primary{% else %}btn-ghost{% endif %}">
+        Admins ({{ role_stats.admins }})
+      </a>
+      <a href="{{ url_for('admin.roles', role='teacher') }}" class="btn btn-sm {% if role_filter == 'teacher' %}btn-primary{% else %}btn-ghost{% endif %}">
+        Teachers ({{ role_stats.teachers }})
+      </a>
+      <a href="{{ url_for('admin.roles', role='student') }}" class="btn btn-sm {% if role_filter == 'student' %}btn-primary{% else %}btn-ghost{% endif %}">
+        Students ({{ role_stats.students }})
+      </a>
+      {% if role_stats.pending_teachers_count > 0 %}
+      <a href="{{ url_for('admin.roles', role='pending') }}" class="btn btn-sm {% if role_filter == 'pending' %}btn-primary{% else %}btn-ghost{% endif %}" style="color:#d97706;">
+        Pending ({{ role_stats.pending_teachers_count }})
+      </a>
+      {% endif %}
+    </div>
+
+    <!-- Search in roles -->
+    <form method="get" action="{{ url_for('admin.roles') }}" style="display:flex;gap:0.5rem;align-items:center;">
+      {% if role_filter != 'all' %}<input type="hidden" name="role" value="{{ role_filter }}">{% endif %}
+      <input type="text" name="q" value="{{ q }}" placeholder="Search user…" 
+             style="padding:0.4rem 0.75rem;font-size:0.85rem;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-elevated);color:var(--text);width:180px;">
+      <button type="submit" class="btn btn-ghost btn-sm">Search</button>
+      {% if q %}<a href="{{ url_for('admin.roles', role=role_filter) }}" class="btn btn-ghost btn-sm">Clear</a>{% endif %}
+    </form>
+  </div>
+
+  <!-- Users Role Table -->
+  <div class="card-premium" style="padding:0;overflow:hidden;">
+    <div class="table-wrap">
+      <table class="table-modern">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Current Role</th>
+            <th>Approval</th>
+            <th>Status</th>
+            <th>Promote / Reassign Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td>
+              <div style="font-weight:600;">
+                {{ u.full_name }}
+                {% if session.get('user_id') and u.id == session.get('user_id')|int %}
+                <span class="badge-pill" style="font-size:0.65rem;background:rgba(16,185,129,0.15);color:#059669;">You</span>
+                {% endif %}
+              </div>
+              <div class="muted" style="font-size:0.82rem;">{{ u.email }}</div>
+            </td>
+            <td>
+              {% if u.role == 'admin' or u.is_admin %}
+              <span class="badge-pill" style="font-size:0.75rem;background:rgba(124,58,237,0.15);color:#7c3aed;font-weight:600;">Administrator</span>
+              {% elif u.role == 'teacher' %}
+              <span class="badge-pill" style="font-size:0.75rem;background:rgba(217,119,6,0.15);color:#d97706;font-weight:600;">Teacher</span>
+              {% else %}
+              <span class="badge-pill" style="font-size:0.75rem;background:rgba(79,70,229,0.15);color:#4f46e5;font-weight:600;">Student</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if u.role == 'teacher' %}
+                {% if u.is_approved %}
+                <span style="color:#10b981;font-size:0.85rem;font-weight:600;"><i class="ri-checkbox-circle-fill"></i> Approved</span>
+                {% else %}
+                <span style="color:#f59e0b;font-size:0.85rem;font-weight:600;"><i class="ri-time-line"></i> Pending Approval</span>
+                {% endif %}
+              {% else %}
+              <span class="muted" style="font-size:0.82rem;">N/A (Standard)</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if u.is_active %}
+              <span style="color:#10b981;font-size:0.82rem;font-weight:600;">Active</span>
+              {% else %}
+              <span style="color:#ef4444;font-size:0.82rem;font-weight:600;">Disabled</span>
+              {% endif %}
+            </td>
+            <td>
+              <form method="post" action="{{ url_for('admin.set_user_role', user_id=u.id) }}" style="display:flex;gap:0.5rem;align-items:center;margin:0;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="next" value="{{ request.full_path }}">
+                <select name="role" style="padding:0.35rem 0.6rem;font-size:0.85rem;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-elevated);color:var(--text);"
+                        {% if session.get('user_id') and u.id == session.get('user_id')|int %}disabled title="Cannot change your own role"{% endif %}>
+                  <option value="student" {% if (u.role or 'student') == 'student' %}selected{% endif %}>Student</option>
+                  <option value="teacher" {% if (u.role or 'student') == 'teacher' %}selected{% endif %}>Teacher</option>
+                  <option value="admin" {% if (u.role or 'student') == 'admin' %}selected{% endif %}>Admin</option>
+                </select>
+                <button type="submit" class="btn btn-ghost btn-sm"
+                        {% if session.get('user_id') and u.id == session.get('user_id')|int %}disabled{% endif %}>
+                  Update
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5" style="text-align:center;padding:2.5rem 1rem;" class="muted">
+              No users found matching this role filter.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

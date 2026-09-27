@@ -9,7 +9,6 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
   <div class="product-detail-grid section-gap">
     
     <!-- Left Column: Gallery -->
@@ -312,7 +311,6 @@
       </div>
     </div>
   </div>
-</div>
 
 <style>
 /* Encapsulated styling for Premium Product Detail CMS View */
@@ -617,6 +615,7 @@
   color: var(--text);
   font-size: 1rem;
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .qty-field::-webkit-outer-spin-button,
@@ -794,6 +793,45 @@
   .reviews-layout {
     grid-template-columns: 1fr;
     gap: 2rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .product-detail-grid {
+    gap: 1.5rem;
+  }
+  .main-image-card {
+    padding: 1rem;
+  }
+  .detail-img-wrap {
+    aspect-ratio: 1 / 1;
+    max-height: 320px;
+  }
+  .purchase-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .add-to-cart-large-btn {
+    max-width: 100%;
+    width: 100%;
+    justify-content: center;
+  }
+  .tabs-container {
+    padding: 1.25rem 1rem;
+  }
+  .specs-table th,
+  .specs-table td {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.88rem;
+  }
+  .specs-table th {
+    width: 38%;
+  }
+  .features-list {
+    grid-template-columns: 1fr;
+  }
+  .review-form-card {
+    padding: 1.25rem 1rem;
   }
 }
 

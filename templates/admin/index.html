@@ -42,6 +42,7 @@
       </div>
 
       <div class="grid-cards section-gap-lg admin-module-grid">
+        {% if admin_can('manage_content') %}
         <a href="{{ url_for('admin.content_management') }}" class="card-premium admin-module-card card-link-wrap">
           <div class="admin-module-card-meta">
             <span class="admin-module-icon" aria-hidden="true"><i class="ri-stack-line"></i></span>
@@ -55,7 +56,9 @@
             <span>Open module <i class="ri-arrow-right-line" aria-hidden="true"></i></span>
           </div>
         </a>
+        {% endif %}
 
+        {% if admin_can('manage_courses') %}
         <a href="{{ url_for('admin.academic_management') }}" class="card-premium admin-module-card card-link-wrap">
           <div class="admin-module-card-meta">
             <span class="admin-module-icon" aria-hidden="true"><i class="ri-book-open-line"></i></span>
@@ -69,7 +72,9 @@
             <span>Open module <i class="ri-arrow-right-line" aria-hidden="true"></i></span>
           </div>
         </a>
+        {% endif %}
 
+        {% if admin_can('manage_store') %}
         <a href="{{ url_for('admin.store_management') }}" class="card-premium admin-module-card card-link-wrap">
           <div class="admin-module-card-meta">
             <span class="admin-module-icon" aria-hidden="true"><i class="ri-shopping-bag-line"></i></span>
@@ -83,7 +88,9 @@
             <span>Open module <i class="ri-arrow-right-line" aria-hidden="true"></i></span>
           </div>
         </a>
+        {% endif %}
 
+        {% if admin_can('manage_hr') %}
         <a href="{{ url_for('admin.hr_management') }}" class="card-premium admin-module-card card-link-wrap">
           <div class="admin-module-card-meta">
             <span class="admin-module-icon" aria-hidden="true"><i class="ri-file-list-3-line"></i></span>
@@ -97,7 +104,9 @@
             <span>Open module <i class="ri-arrow-right-line" aria-hidden="true"></i></span>
           </div>
         </a>
+        {% endif %}
 
+        {% if admin_can('manage_ai_lab') %}
         <a href="{{ url_for('admin.ai_lab_management') }}" class="card-premium admin-module-card card-link-wrap">
           <div class="admin-module-card-meta">
             <span class="admin-module-icon" aria-hidden="true"><i class="ri-robot-2-line"></i></span>
@@ -111,7 +120,9 @@
             <span>Open module <i class="ri-arrow-right-line" aria-hidden="true"></i></span>
           </div>
         </a>
+        {% endif %}
 
+        {% if admin_can('manage_internships') or admin_can('manage_services') %}
         <a href="{{ url_for('admin.business_management') }}" class="card-premium admin-module-card card-link-wrap">
           <div class="admin-module-card-meta">
             <span class="admin-module-icon" aria-hidden="true"><i class="ri-briefcase-4-line"></i></span>
@@ -125,7 +136,9 @@
             <span>Open module <i class="ri-arrow-right-line" aria-hidden="true"></i></span>
           </div>
         </a>
+        {% endif %}
 
+        {% if admin_can('manage_users') %}
         <a href="{{ url_for('admin.user_management') }}" class="card-premium admin-module-card card-link-wrap">
           <div class="admin-module-card-meta">
             <span class="admin-module-icon" aria-hidden="true"><i class="ri-team-line"></i></span>
@@ -139,6 +152,7 @@
             <span>Open module <i class="ri-arrow-right-line" aria-hidden="true"></i></span>
           </div>
         </a>
+        {% endif %}
       </div>
     </section>
   </div>
