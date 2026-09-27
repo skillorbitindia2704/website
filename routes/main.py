@@ -148,6 +148,11 @@ def home():
         "anim_speed": get_content("anim_speed", "normal"),
     }
 
+    services_list = get_json_content(
+    "services_list",
+    "[]"
+    )
+    
     return render_template(
         "home.html",
         services_list=services_list,
