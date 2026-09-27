@@ -37,7 +37,6 @@ def home():
                 return json.loads(default_str)
             except Exception:
                 return []
-        )
 
     # Parse visibilities (default all to True)
     visibilities = {}
