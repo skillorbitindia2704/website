@@ -153,6 +153,7 @@ def home():
 
     return render_template(
         "home.html",
+        services_list=services_list,
         products=products,
         courses=courses,
         internships=internships,
