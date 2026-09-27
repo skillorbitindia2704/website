@@ -37,9 +37,6 @@ def home():
                 return json.loads(default_str)
             except Exception:
                 return []
-        services_list = get_json_content(
-            "services_list",
-            "[]"
         )
 
     # Parse visibilities (default all to True)
