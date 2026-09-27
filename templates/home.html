@@ -855,6 +855,65 @@
 </div>
 {% endif %}
 
+<!-- SERVICES -->
+{% if visibilities.services and services_list %}
+<div class="section-head reveal">
+  <h2>Our Services</h2>
+  <p class="muted">
+    Practical technology solutions and skill development programs
+    for students, institutions and businesses.
+  </p>
+</div>
+
+<section class="grid-cards reveal" aria-label="Skill Orbit India services">
+  {% for service in services_list %}
+  <a
+    href="{{ service.link or '#' }}"
+    class="card-premium surface-card"
+    style="text-decoration:none;"
+  >
+    <div
+      style="
+        width:48px;
+        height:48px;
+        border-radius:14px;
+        background:rgba(79,70,229,.10);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        margin-bottom:16px;
+      "
+    >
+      <i
+        class="{{ service.icon or 'ri-tools-line' }}"
+        style="font-size:24px;color:var(--primary-from);"
+        aria-hidden="true"
+      ></i>
+    </div>
+
+    <h3 class="card-title-sm">
+      {{ service.title }}
+    </h3>
+
+    <p class="muted" style="margin:0;">
+      {{ service.description }}
+    </p>
+
+    <div
+      style="
+        margin-top:16px;
+        font-weight:700;
+        color:var(--primary-from);
+        font-size:.9rem;
+      "
+    >
+      Explore →
+    </div>
+  </a>
+  {% endfor %}
+</section>
+{% endif %}
+
 <!-- AI LAB SETUP -->
 {% if visibilities.ai_lab %}
 <div class="section-head reveal">
