@@ -612,7 +612,7 @@ a:hover {
 /* —— Footer —— */
 .site-footer {
   margin-top: 3.5rem;
-  padding: 2.75rem 1.5rem 1.5rem;
+  padding: 2.75rem 0 1.5rem;
   background: var(--bg-elevated);
   border-top: 1px solid var(--border);
   transition: background-color var(--transition-fast), border-color var(--transition-fast);
@@ -623,9 +623,14 @@ a:hover {
   border-top-color: var(--border);
 }
 
+.footer-container {
+  width: 100%;
+}
+
 .footer-inner {
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.35fr) minmax(0, 1.05fr) minmax(0, 1.45fr);
   gap: 2rem 1.75rem;
@@ -822,8 +827,9 @@ a:hover {
 }
 
 .footer-bottom {
-  max-width: 1200px;
-  margin: 1.5rem auto 0;
+  width: 100%;
+  max-width: 100%;
+  margin: 1.5rem 0 0;
   padding-top: 1.25rem;
   border-top: 1px solid var(--border);
   display: flex;
@@ -882,7 +888,7 @@ a:hover {
 @media (max-width: 580px) {
   .site-footer {
     margin-top: 2.5rem;
-    padding: 2rem 1rem 1.25rem;
+    padding: 2rem 0 1.25rem;
   }
 
   .footer-inner {
@@ -6754,7 +6760,7 @@ p, li, a, span, code, pre {
 @media (max-width: 640px) {
   .site-footer {
     margin-top: 2.5rem;
-    padding: 2rem 1rem 1.25rem;
+    padding: 2rem 0 1.25rem;
   }
 
   .footer-inner {

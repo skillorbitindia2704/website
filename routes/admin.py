@@ -1170,6 +1170,9 @@ def delete_product(product_id):
     except SQLAlchemyError:
         db.session.rollback()
         flash("Could not delete product because it is referenced by other records.", "danger")
+    referer = request.referrer or ""
+    if "store/manager" in referer or "tab=products" in referer:
+        return redirect(url_for("admin.store_manager", tab="products") + "#products")
     return redirect(url_for("admin.products"))
 
 
@@ -6631,30 +6634,39 @@ def store_seo_save():
 def store_product_create():
     from models.store import Product, ProductGalleryImage, InventoryHistory
     import json
-    
+
     name = request.form.get("name", "").strip()
     if len(name) < 2:
         flash("Product name must be at least 2 characters.", "danger")
-        return redirect(url_for("admin.store_manager"))
-        
+        return redirect(url_for("admin.store_manager", tab="products") + "#products")
+
     slug = request.form.get("slug", "").strip()
     if not slug:
         slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
-        
+
     # Check for slug uniqueness
     existing = Product.query.filter_by(slug=slug).first()
     if existing:
         slug = f"{slug}-{uuid4().hex[:6]}"
-        
+
     try:
-        price_inr = ...
-        discount_price_inr = ...
-        new_stock = ...
-        low_stock_threshold = ...
-        gst_percent = ...
+        raw_price = request.form.get("price_inr", "1").strip()
+        price_inr = max(1, int(raw_price or 1))
+
+        raw_disc = request.form.get("discount_price_inr", "0").strip()
+        discount_price_inr = max(0, int(raw_disc or 0))
+
+        raw_stock = request.form.get("stock", "0").strip()
+        stock = max(0, int(raw_stock or 0))
+
+        raw_low = request.form.get("low_stock_threshold", "5").strip()
+        low_stock_threshold = max(0, int(raw_low or 5))
+
+        raw_gst = request.form.get("gst_percent", "18.0").strip()
+        gst_percent = float(raw_gst or 18.0)
     except (TypeError, ValueError):
         flash("Numerical values supplied are invalid.", "danger")
-        return redirect(url_for("admin.store_manager"))
+        return redirect(url_for("admin.store_manager", tab="products") + "#products")
 
     # Normalize and validate SKU
     sku = request.form.get("sku", "").strip().upper()
@@ -6665,41 +6677,41 @@ def store_product_create():
 
     # Prevent duplicate SKU
     existing_sku = Product.query.filter_by(sku=sku).first()
-
     if existing_sku:
         flash(
             f"SKU '{sku}' already exists for product "
             f"'{existing_sku.name}'. Please use a unique SKU.",
-            "danger"
+            "danger",
         )
-        return redirect(url_for("admin.store_manager", tab="products"))
+        return redirect(url_for("admin.store_manager", tab="products") + "#products")
 
     category = request.form.get("category", "").strip()
     if not category:
         flash("Category is required.", "danger")
-        return redirect(url_for("admin.store_manager"))
-    # Normalize and validate SKU
-    sku = request.form.get("sku", "").strip().upper()
+        return redirect(url_for("admin.store_manager", tab="products") + "#products")
 
-    # Auto-generate SKU only when blank
-    if not sku:
-        sku = f"SO-{uuid4().hex[:8].upper()}"
-
-    # Prevent duplicate SKU
-    existing_sku = Product.query.filter_by(sku=sku).first()
-
-    if existing_sku:
-        flash(
-            f"SKU '{sku}' already exists for product "
-            f"'{existing_sku.name}'. Please use a unique SKU.",
-            "danger"
-        )
-        return redirect(url_for("admin.store_manager", tab="products"))
-        
     # Process Specifications
     spec_keys = request.form.getlist("spec_key[]")
     spec_vals = request.form.getlist("spec_value[]")
-        
+    specs = []
+    for k, v in zip(spec_keys, spec_vals):
+        if k.strip() or v.strip():
+            specs.append({"key": k.strip(), "value": v.strip()})
+
+    # Process Features
+    feature_items = request.form.getlist("feature[]")
+    features = [f.strip() for f in feature_items if f.strip()]
+
+    # Main Cover Image upload
+    image_file = request.files.get("image")
+    uploaded_path = None
+    if image_file and image_file.filename:
+        try:
+            uploaded_path = _upload_product_image(image_file)
+        except ValueError as exc:
+            flash(str(exc), "danger")
+            return redirect(url_for("admin.store_manager", tab="products") + "#products")
+
     product = Product(
         name=name,
         slug=slug,
@@ -6729,40 +6741,44 @@ def store_product_create():
         seo_canonical_url=request.form.get("seo_canonical_url", "").strip(),
         seo_og_image=request.form.get("seo_og_image", "").strip(),
         seo_schema=request.form.get("seo_schema", "").strip(),
-        image_url=uploaded_path or "/static/images/default_product.svg"
+        image_url=uploaded_path or "/static/images/default_product.svg",
     )
-    
+
     try:
         db.session.add(product)
         db.session.flush()
-        
+
         # Log stock creation history
-        db.session.add(InventoryHistory(
-            product_id=product.id,
-            quantity_changed=stock,
-            reason="Product registered in CMS"
-        ))
-        
+        db.session.add(
+            InventoryHistory(
+                product_id=product.id,
+                quantity_changed=stock,
+                reason="Product registered in CMS",
+            )
+        )
+
         # Handle multiple gallery uploads
         gallery_files = request.files.getlist("gallery_images[]")
         for idx, f in enumerate(gallery_files):
             if f and f.filename:
                 g_path = _upload_product_image(f)
                 if g_path:
-                    db.session.add(ProductGalleryImage(
-                        product_id=product.id,
-                        image_url=g_path,
-                        display_order=idx
-                    ))
-                    
+                    db.session.add(
+                        ProductGalleryImage(
+                            product_id=product.id,
+                            image_url=g_path,
+                            display_order=idx,
+                        )
+                    )
+
         db.session.commit()
         flash("Product registered successfully inside Unified Store CMS.", "success")
     except Exception as exc:
         db.session.rollback()
         current_app.logger.error(f"Error creating product: {exc}")
         flash(f"Could not register product. Error: {exc}", "danger")
-        
-    return redirect(url_for("admin.store_manager"))
+
+    return redirect(url_for("admin.store_manager", tab="products") + "#products")
 
 
 @admin_bp.post("/store/product/<int:product_id>/edit")
@@ -6775,26 +6791,36 @@ def store_product_edit(product_id):
     name = request.form.get("name", "").strip()
     if len(name) < 2:
         flash("Product name must be at least 2 characters.", "danger")
-        return redirect(url_for("admin.store_manager"))
-        
+        return redirect(url_for("admin.store_manager", tab="products") + "#products")
+
     slug = request.form.get("slug", "").strip()
     if not slug:
         slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
-        
+
     # Check for slug uniqueness (excluding self)
     existing = Product.query.filter(Product.slug == slug, Product.id != product.id).first()
     if existing:
         slug = f"{slug}-{uuid4().hex[:6]}"
-        
+
     try:
-        price_inr = max(1, int(request.form.get("price_inr", 1)))
-        discount_price_inr = int(request.form.get("discount_price_inr", 0) or 0)
-        new_stock = max(0, int(request.form.get("stock", 0)))
-        low_stock_threshold = max(0, int(request.form.get("low_stock_threshold", 5)))
-        gst_percent = float(request.form.get("gst_percent", 18.0) or 18.0)
+        raw_price = request.form.get("price_inr", str(product.price_inr)).strip()
+        price_inr = max(1, int(raw_price or product.price_inr))
+
+        raw_disc = request.form.get("discount_price_inr", str(product.discount_price_inr or 0)).strip()
+        discount_price_inr = max(0, int(raw_disc or 0))
+
+        raw_stock = request.form.get("stock", str(product.stock)).strip()
+        new_stock = max(0, int(raw_stock or 0))
+
+        raw_low = request.form.get("low_stock_threshold", str(product.low_stock_threshold or 5)).strip()
+        low_stock_threshold = max(0, int(raw_low or 5))
+
+        raw_gst = request.form.get("gst_percent", str(product.gst_percent or 18.0)).strip()
+        gst_percent = float(raw_gst or 18.0)
     except (TypeError, ValueError):
         flash("Numerical values supplied are invalid.", "danger")
-        return redirect(url_for("admin.store_manager"))
+        return redirect(url_for("admin.store_manager", tab="products") + "#products")
+
     # Normalize SKU
     sku = request.form.get("sku", "").strip().upper()
 
@@ -6814,12 +6840,13 @@ def store_product_edit(product_id):
             f"'{existing_sku.name}'. Please use a unique SKU.",
             "danger"
         )
-        return redirect(url_for("admin.store_manager", tab="products"))
+        return redirect(url_for("admin.store_manager", tab="products") + "#products")
+
     category = request.form.get("category", "").strip()
     if not category:
         flash("Category is required.", "danger")
-        return redirect(url_for("admin.store_manager"))
-        
+        return redirect(url_for("admin.store_manager", tab="products") + "#products")
+
     # Process Specifications
     spec_keys = request.form.getlist("spec_key[]")
     spec_vals = request.form.getlist("spec_value[]")
@@ -6827,11 +6854,11 @@ def store_product_edit(product_id):
     for k, v in zip(spec_keys, spec_vals):
         if k.strip() or v.strip():
             specs.append({"key": k.strip(), "value": v.strip()})
-            
+
     # Process Features
     feature_items = request.form.getlist("feature[]")
     features = [f.strip() for f in feature_items if f.strip()]
-    
+
     # Image management
     image_file = request.files.get("image")
     if image_file and image_file.filename:
@@ -6839,8 +6866,8 @@ def store_product_edit(product_id):
             product.image_url = _upload_product_image(image_file)
         except ValueError as exc:
             flash(str(exc), "danger")
-            return redirect(url_for("admin.store_manager"))
-            
+            return redirect(url_for("admin.store_manager", tab="products") + "#products")
+
     # Check stock change for logs
     stock_difference = new_stock - product.stock
     if stock_difference != 0:
@@ -6849,7 +6876,7 @@ def store_product_edit(product_id):
             quantity_changed=stock_difference,
             reason="Admin manual stock correction via CMS Editor"
         ))
-        
+
     # Update properties
     product.name = name
     product.slug = slug
@@ -6879,7 +6906,7 @@ def store_product_edit(product_id):
     product.seo_canonical_url = request.form.get("seo_canonical_url", "").strip()
     product.seo_og_image = request.form.get("seo_og_image", "").strip()
     product.seo_schema = request.form.get("seo_schema", "").strip()
-    
+
     try:
         # Check gallery additions
         gallery_files = request.files.getlist("gallery_images[]")
@@ -6892,7 +6919,7 @@ def store_product_edit(product_id):
                         image_url=g_path,
                         display_order=10 + idx
                     ))
-                    
+
         # Check thumbnail deletion requests
         deleted_thumb_ids = request.form.getlist("delete_gallery_image_ids[]")
         for thumb_id in deleted_thumb_ids:
@@ -6902,24 +6929,24 @@ def store_product_edit(product_id):
                     db.session.delete(t_row)
             except Exception:
                 pass
-                
+
         db.session.commit()
         flash("Product changes saved successfully.", "success")
     except Exception as exc:
         db.session.rollback()
         current_app.logger.error(f"Error editing product: {exc}")
         flash(f"Could not update product: {exc}", "danger")
-        
-    return redirect(url_for("admin.store_manager"))
+
+    return redirect(url_for("admin.store_manager", tab="products") + "#products")
 
 
 @admin_bp.post("/store/product/<int:product_id>/duplicate")
 @admin_required
 def store_product_duplicate(product_id):
     from models.store import Product, ProductGalleryImage, InventoryHistory
-    
+
     original = Product.query.get_or_404(product_id)
-    
+
     # Create duplicate
     duplicate = Product(
         name=f"{original.name} (Copy)",
@@ -6949,18 +6976,18 @@ def store_product_duplicate(product_id):
         seo_description=original.seo_description,
         seo_keywords=original.seo_keywords
     )
-    
+
     try:
         db.session.add(duplicate)
         db.session.flush()
-        
+
         # Log stock creation
         db.session.add(InventoryHistory(
             product_id=duplicate.id,
             quantity_changed=0,
             reason="Duplicated from product ID #" + str(original.id)
         ))
-        
+
         # Clone gallery images
         for g_img in original.gallery_images:
             db.session.add(ProductGalleryImage(
@@ -6968,15 +6995,15 @@ def store_product_duplicate(product_id):
                 image_url=g_img.image_url,
                 display_order=g_img.display_order
             ))
-            
+
         db.session.commit()
         flash(f"Duplicated '{original.name}' successfully. Adjust duplicate stock and status.", "success")
     except Exception as exc:
         db.session.rollback()
         current_app.logger.error(f"Error duplicating product: {exc}")
         flash(f"Failed to duplicate product: {exc}", "danger")
-        
-    return redirect(url_for("admin.store_manager"))
+
+    return redirect(url_for("admin.store_manager", tab="products") + "#products")
 
 
 # ==========================================
