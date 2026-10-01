@@ -1,5 +1,10 @@
 import os
 import uuid
+import warnings
+
+# Suppress urllib3/requests version mismatch warning on newer Python/urllib3 environments
+warnings.filterwarnings("ignore", message=".*urllib3.*or chardet.*")
+
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, Optional, TYPE_CHECKING, cast
 

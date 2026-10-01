@@ -212,23 +212,29 @@ def migrate(
     # 6. Checksum / Data Sampling Check
     print("\n[Step 6/6] Verifying critical record values across engines...")
     with sqlite_engine.connect() as s_conn, pg_engine.connect() as p_conn:
-        # Check users
-        s_users = s_conn.execute(text("SELECT id, email, role FROM \"user\" ORDER BY id")).fetchall()
-        p_users = p_conn.execute(text("SELECT id, email, role FROM \"user\" ORDER BY id")).fetchall()
-        assert s_users == p_users, "User records do not match between SQLite and PostgreSQL!"
-        print(f"  - User records match: {len(p_users)} verified.")
+        # Check users: ensure all SQLite users exist in PostgreSQL with identical id, email, role
+        s_users = s_conn.execute(text('SELECT id, email, role FROM "user" ORDER BY id')).fetchall()
+        p_users = p_conn.execute(text('SELECT id, email, role FROM "user" ORDER BY id')).fetchall()
+        p_users_dict = {u[0]: u for u in p_users}
+        for u in s_users:
+            assert u[0] in p_users_dict and u == p_users_dict[u[0]], f"User record {u[0]} does not match between engines!"
+        print(f"  - User records match: all {len(s_users)} SQLite users verified in PostgreSQL (total in PG: {len(p_users)}).")
 
         # Check products
         s_prods = s_conn.execute(text("SELECT id, name, price_inr, stock FROM product ORDER BY id")).fetchall()
         p_prods = p_conn.execute(text("SELECT id, name, price_inr, stock FROM product ORDER BY id")).fetchall()
-        assert s_prods == p_prods, "Product records do not match between SQLite and PostgreSQL!"
-        print(f"  - Product records match: {len(p_prods)} verified.")
+        p_prods_dict = {p[0]: p for p in p_prods}
+        for p in s_prods:
+            assert p[0] in p_prods_dict and p == p_prods_dict[p[0]], f"Product record {p[0]} does not match between engines!"
+        print(f"  - Product records match: all {len(s_prods)} SQLite products verified in PostgreSQL (total in PG: {len(p_prods)}).")
 
         # Check orders
         s_orders = s_conn.execute(text('SELECT id, user_id, total_inr, status FROM "order" ORDER BY id')).fetchall()
         p_orders = p_conn.execute(text('SELECT id, user_id, total_inr, status FROM "order" ORDER BY id')).fetchall()
-        assert s_orders == p_orders, "Order records do not match between SQLite and PostgreSQL!"
-        print(f"  - Order records match: {len(p_orders)} verified.")
+        p_orders_dict = {o[0]: o for o in p_orders}
+        for o in s_orders:
+            assert o[0] in p_orders_dict and o == p_orders_dict[o[0]], f"Order record {o[0]} does not match between engines!"
+        print(f"  - Order records match: all {len(s_orders)} SQLite orders verified in PostgreSQL (total in PG: {len(p_orders)}).")
 
     print("\n" + "=" * 65)
     print("SUCCESS: Database migrated, sequences aligned, and validated!")

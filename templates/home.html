@@ -620,6 +620,17 @@
         {% endif %}
     {% endfor %}
 
+    {% if slide_index.value == 0 %}
+        <div class="hero-carousel-slide is-active" data-slide="0" style="display:flex;align-items:center;justify-content:center;min-height:340px;background:radial-gradient(circle at 50% 40%, rgba(99,102,241,0.25) 0%, rgba(15,23,42,0.6) 100%);border-radius:1rem;border:1px solid rgba(255,255,255,0.1);padding:2rem;text-align:center;">
+            <div>
+                <div style="font-size:3.75rem;margin-bottom:0.75rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3));">🤖 ⚡ 🎓</div>
+                <h3 style="color:#fff;font-weight:800;font-size:1.35rem;letter-spacing:-0.01em;margin-bottom:0.5rem;">AI & Robotics Innovation Center</h3>
+                <p style="color:rgba(255,255,255,0.75);font-size:0.875rem;line-height:1.6;max-width:320px;margin:0 auto 1.25rem;">Next-gen hardware, hands-on lab kits, and industry-standard projects.</p>
+                <a href="{{ url_for('ai_lab.index') }}" class="btn btn-primary btn-sm" style="display:inline-block;padding:0.4rem 1rem;font-size:0.8rem;border-radius:9999px;">Explore AI Labs →</a>
+            </div>
+        </div>
+    {% endif %}
+
     {% if slide_index.value > 1 %}
         <button
             type="button"
