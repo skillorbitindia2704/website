@@ -3938,18 +3938,21 @@ a:hover {
   flex: 1 1 0%;
 }
 
+.grid-cards.grid-cards--lg,
 .grid-cards--lg {
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: stretch;
 }
 
+.grid-cards.grid-cards--lg > article,
 .grid-cards--lg > article {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 860px) {
+  .grid-cards.grid-cards--lg,
   .grid-cards--lg {
     grid-template-columns: 1fr;
   }
@@ -6285,6 +6288,19 @@ p, li, a, span, code, pre {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr));
   gap: 1.5rem;
+}
+
+.grid-cards.grid-cards--lg,
+.grid-cards--lg {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+@media (max-width: 860px) {
+  .grid-cards.grid-cards--lg,
+  .grid-cards--lg {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {

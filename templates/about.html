@@ -45,8 +45,14 @@
 {% endblock %}
 
 {% block structured_data %}
-{% if content and content.seo_schema_markup %}
+{% if content and content.seo_schema_markup and content.seo_schema_markup.strip() %}
+  {% if '<script' in content.seo_schema_markup %}
+    {{ content.seo_schema_markup | safe }}
+  {% else %}
+    <script type="application/ld+json">
 {{ content.seo_schema_markup | safe }}
+    </script>
+  {% endif %}
 {% endif %}
 {% endblock %}
 
@@ -130,13 +136,13 @@
           </div>
           <div class="lg:col-span-5">
             <div class="card-premium glass-hero-card">
-              <div class="relative" style="aspect-ratio:4/3;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,rgba(79,70,229,.22),rgba(6,182,212,.18),rgba(249,115,22,.14));display:flex;align-items:center;justify-content:center;">
+              <div class="relative" style="border-radius:18px;overflow:hidden;background:linear-gradient(135deg,rgba(79,70,229,.22),rgba(6,182,212,.18),rgba(249,115,22,.14));display:flex;align-items:center;justify-content:center;">
                 {% if content.hero_image %}
                     <img src="{{ content.hero_image }}"
                          alt="About Skill Orbit India"
-                         style="width:100%;height:100%;object-fit:cover;display:block;">
+                         style="width:100%;height:auto;object-fit:contain;display:block;border-radius:14px;">
                 {% else %}
-                  <div style="text-align:center;max-width:24ch;">
+                  <div style="text-align:center;max-width:24ch;padding:3.5rem 1rem;">
                     <div style="font-size:2.3rem;" aria-hidden="true"><i class="ri-robot-2-line"></i></div>
                     <p class="text-white font-bold" style="margin:0.6rem 0 0;">AI & Robotics learning</p>
                     <p class="text-white/70" style="margin:0.35rem 0 0;font-size:0.9rem;">Add real visuals via admin gallery.</p>
@@ -168,45 +174,67 @@
   <h2>{{ content.who_we_are_title if content else 'Who we are' }}</h2>
   <p class="muted">Pioneering practical technology education and future-ready engineering in India.</p>
 </div>
-<section class="grid-cards grid-cards--lg reveal">
-  <article class="card-premium surface-card-lg">
-    <h3 class="card-title-sm">A mission-driven EdTech startup</h3>
-    <p class="muted" style="margin-top:0.75rem;line-height:1.75;">{{ content.who_we_are_body if content else '' }}</p>
-    <p class="muted" style="line-height:1.75;">We combine curriculum, projects, kits, and verified certificates — designed for outcomes.</p>
-    
-    {% if content.who_we_are_feature1 or content.who_we_are_feature2 or content.who_we_are_feature3 %}
-    <ul style="margin:1.25rem 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:0.6rem;">
-      {% if content.who_we_are_feature1 %}
-      <li style="display:flex;align-items:center;gap:0.6rem;font-weight:500;" class="muted">
-        <span style="color:var(--primary-from);font-size:1.1rem;"><i class="ri-checkbox-circle-line" aria-hidden="true"></i></span> {{ content.who_we_are_feature1 }}
-      </li>
+<section class="grid-cards grid-cards--lg reveal" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); align-items: stretch;">
+  <article class="card-premium surface-card-lg" style="display:flex;flex-direction:column;justify-content:space-between;padding:2rem;">
+    <div>
+      <div style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.2);border-radius:20px;font-size:0.78rem;font-weight:600;color:var(--primary-from);margin-bottom:1rem;">
+        <i class="ri-sparkling-2-line"></i> Empowering Innovators
+      </div>
+      <h3 class="card-title-sm" style="font-size:1.45rem;font-weight:700;margin-bottom:0.85rem;color:var(--text-main);">A mission-driven EdTech startup</h3>
+      <p class="muted" style="margin-top:0.75rem;line-height:1.75;font-size:0.95rem;">{{ content.who_we_are_body if content else '' }}</p>
+      <p class="muted" style="line-height:1.75;font-size:0.95rem;">We combine curriculum, projects, kits, and verified certificates — designed for outcomes.</p>
+      
+      {% if content.who_we_are_feature1 or content.who_we_are_feature2 or content.who_we_are_feature3 %}
+      <ul style="margin:1.25rem 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:0.65rem;">
+        {% if content.who_we_are_feature1 %}
+        <li style="display:flex;align-items:flex-start;gap:0.65rem;font-weight:500;font-size:0.92rem;" class="muted">
+          <span style="color:var(--primary-from);font-size:1.15rem;line-height:1.2;"><i class="ri-checkbox-circle-fill" aria-hidden="true"></i></span>
+          <span>{{ content.who_we_are_feature1 }}</span>
+        </li>
+        {% endif %}
+        {% if content.who_we_are_feature2 %}
+        <li style="display:flex;align-items:flex-start;gap:0.65rem;font-weight:500;font-size:0.92rem;" class="muted">
+          <span style="color:var(--primary-from);font-size:1.15rem;line-height:1.2;"><i class="ri-checkbox-circle-fill" aria-hidden="true"></i></span>
+          <span>{{ content.who_we_are_feature2 }}</span>
+        </li>
+        {% endif %}
+        {% if content.who_we_are_feature3 %}
+        <li style="display:flex;align-items:flex-start;gap:0.65rem;font-weight:500;font-size:0.92rem;" class="muted">
+          <span style="color:var(--primary-from);font-size:1.15rem;line-height:1.2;"><i class="ri-checkbox-circle-fill" aria-hidden="true"></i></span>
+          <span>{{ content.who_we_are_feature3 }}</span>
+        </li>
+        {% endif %}
+      </ul>
       {% endif %}
-      {% if content.who_we_are_feature2 %}
-      <li style="display:flex;align-items:center;gap:0.6rem;font-weight:500;" class="muted">
-        <span style="color:var(--primary-from);font-size:1.1rem;"><i class="ri-checkbox-circle-line" aria-hidden="true"></i></span> {{ content.who_we_are_feature2 }}
-      </li>
-      {% endif %}
-      {% if content.who_we_are_feature3 %}
-      <li style="display:flex;align-items:center;gap:0.6rem;font-weight:500;" class="muted">
-        <span style="color:var(--primary-from);font-size:1.1rem;"><i class="ri-checkbox-circle-line" aria-hidden="true"></i></span> {{ content.who_we_are_feature3 }}
-      </li>
-      {% endif %}
-    </ul>
-    {% endif %}
+    </div>
 
-    <div class="form-actions-row" style="margin-top:auto;">
+    <div class="form-actions-row" style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border-soft);display:flex;gap:0.75rem;flex-wrap:wrap;">
       <a href="{{ content.who_we_are_btn_link or url_for('courses.list_courses') }}" class="btn btn-primary btn-sm">{{ content.who_we_are_btn_text or 'Explore Programs' }}</a>
       <a href="{{ url_for('ai_lab.index') }}" class="btn btn-ghost btn-sm">Visit AI Lab</a>
     </div>
   </article>
 
    {% if content.who_we_are_side_image %}
-   <article class="card-premium card-img-full">
-     <img src="{{ content.who_we_are_side_image }}" alt="Skill Orbit India Story" style="width:100%;height:100%;object-fit:cover;display:block;">
+   <article class="card-premium card-img-full" style="position:relative;overflow:hidden;border-radius:var(--radius-lg);display:flex;min-height:420px;">
+     <img src="{{ content.who_we_are_side_image }}"
+          alt="Skill Orbit India Story"
+          style="width:100%;height:100%;min-height:400px;object-fit:cover;object-position:center;display:block;">
+     <div style="position:absolute;bottom:1.25rem;left:1.25rem;right:1.25rem;background:rgba(15,23,42,0.8);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.18);padding:0.75rem 1.15rem;border-radius:14px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;box-shadow:0 10px 25px -5px rgba(0,0,0,0.3);">
+       <div style="display:flex;align-items:center;gap:0.6rem;">
+         <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--primary-from),var(--accent-from));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;">
+           <i class="ri-user-star-line"></i>
+         </div>
+         <div>
+           <p style="margin:0;font-weight:700;font-size:0.88rem;color:#fff;">Hands-on Tech Mentorship</p>
+           <p style="margin:0;font-size:0.75rem;color:rgba(255,255,255,0.75);">AI • Robotics • Embedded Systems</p>
+         </div>
+       </div>
+       <span style="font-size:0.75rem;font-weight:600;padding:0.25rem 0.65rem;background:rgba(255,255,255,0.15);border-radius:20px;white-space:nowrap;color:#fff;">Learn • Build • Lead</span>
+     </div>
    </article>
    {% else %}
-   <article class="card-premium card-img-full">
-     <div class="about-gallery-grid">
+   <article class="card-premium card-img-full" style="display:flex;flex-direction:column;justify-content:space-between;padding:1.5rem;min-height:420px;">
+     <div class="about-gallery-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
        {% set imgs = (gallery[:3] if gallery else []) %}
        {% if imgs %}
          {% for g in imgs %}

@@ -484,8 +484,14 @@
 {% endblock %}
 
 {% block structured_data %}
-{% if content.seo_schema_markup %}
+{% if content.seo_schema_markup and content.seo_schema_markup.strip() %}
+  {% if '<script' in content.seo_schema_markup %}
+    {{ content.seo_schema_markup | safe }}
+  {% else %}
+    <script type="application/ld+json">
 {{ content.seo_schema_markup | safe }}
+    </script>
+  {% endif %}
 {% elif seo_site_url %}
 <script type="application/ld+json">
 {{ {
