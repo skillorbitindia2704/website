@@ -346,7 +346,37 @@ def _upload_hero_image(file_storage):
         raise ValueError(
             "Could not upload homepage image. Please try again."
         )
+        
+def _upload_hero_video(file_storage):
+    """Upload homepage hero video to Cloudinary."""
+    import os
+    from uuid import uuid4
+    from werkzeug.utils import secure_filename
+    import cloudinary.uploader
 
+    if not file_storage or not file_storage.filename:
+        return None
+
+    filename = secure_filename(file_storage.filename)
+    ext = os.path.splitext(filename)[1].lower()
+
+    if ext not in {".mp4", ".webm"}:
+        raise ValueError("Only MP4 and WebM videos are allowed.")
+
+    result = cloudinary.uploader.upload(
+        file_storage,
+        folder="skill-orbit-india/homepage/videos",
+        public_id=f"hero_{uuid4().hex}",
+        resource_type="video",
+        overwrite=False,
+    )
+
+    video_url = result.get("secure_url")
+
+    if not video_url:
+        raise ValueError("Video upload failed.")
+
+    return video_url
 @admin_bp.get("/")
 @admin_bp.get("/dashboard")
 @admin_required
