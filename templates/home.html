@@ -1003,33 +1003,33 @@
 <section class="grid-cards reveal">
   {% for p in projects_list %}
   <article class="card-premium card-img-full">
-    <div class="card-img-wrap" style="aspect-ratio:16/10;">
-      {% set project_img = (p.img or '') %}
-      {% if project_img %}
-        {% if project_img_startswith('http://' or project_img.startswith('httos://) or project_img.startswith('/' %}
-          {% set project_img_src = project_img %}
-        {% elif project_img.startswith('static/') %}
-          {% set project_img_src = '/' ~ project_img %}
-        {% else %}
-          {% set project_img_src = url_for('static', filename=project_img) %}
-        {% endif %}
-        <img
-          src="{{ project_img_src }}"
-          alt="{{ p.title }}"
-          loading="lazy"
-          decoding="async"
-          style="display:block;width:100%;height:100%;object-fit:cover;"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
-        >
-        <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(29,78,216,.12),rgba(109,40,217,.10),rgba(249,115,22,.08));">
-          <i class="ri-flashlight-line" aria-hidden="true" style="font-size:2rem;"></i>
-        </div>
-      {% else %}
-        <div style="display:flex;width:100%;height:100%;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(29,78,216,.12),rgba(109,40,217,.10),rgba(249,115,22,.08));">
-          <i class="ri-flashlight-line" aria-hidden="true" style="font-size:2rem;"></i>
-        </div>
-      {% endif %}
+
+<div class="card-img-wrap" style="aspect-ratio:16/10;">
+  {% set project_img = p.image|default('', true) %}
+
+  {% if project_img %}
+    {% if project_img[0:4] == 'http' or project_img[0:1] == '/' %}
+      {% set project_img_src = project_img %}
+    {% elif project_img[0:7] == 'static/' %}
+      {% set project_img_src = '/' ~ project_img %}
+    {% else %}
+      {% set project_img_src = url_for('static', filename=project_img) %}
+    {% endif %}
+
+    <img
+      src="{{ project_img_src }}"
+      alt="{{ p.title }}"
+      loading="lazy"
+      decoding="async"
+      style="display:block;width:100%;height:100%;object-fit:cover;"
+      onerror="this.style.display='none';"
+    >
+  {% else %}
+    <div style="display:flex;width:100%;height:100%;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(29,78,216,.12),rgba(109,40,217,.10),rgba(249,115,22,.08));">
+      <i class="ri-flashlight-line" aria-hidden="true" style="font-size:2rem;"></i>
     </div>
+  {% endif %}
+</div>
     </div>
     <div class="card-body">
       <h3 class="card-title-sm">{{ p.title }}</h3>
