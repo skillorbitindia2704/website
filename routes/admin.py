@@ -4236,7 +4236,6 @@ def homepage_manager():
             hero.ai_lab_card_description = get_content("hero_ai_lab_description", "Experience cutting-edge...")
             
             # Pull first 4 KPIs/stats if available to sync with legacy
-            import json
             try:
                 stats_list = json.loads(get_content("stats_kpis", "[]"))
                 if len(stats_list) >= 1:
