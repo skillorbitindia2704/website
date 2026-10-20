@@ -1044,9 +1044,20 @@
           <div class="testimonial-meta">
             <div class="testimonial-avatar">
               {% if t.image_path %}
-              <img src="{{ url_for('static', filename=t.image_path) }}" alt="{{ t.name }}" loading="lazy" decoding="async">
+              <img
+                src="{{ t.image_path if t.image_path.startswith('http://') or t.image_path.startswith('https://') else url_for('static', filename=t.image_path) }}"
+                alt="{{ t.name }}"
+                loading="lazy"
+                decoding="async"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';"
+              >
+              <span aria-hidden="true" style="display:none;">
+                <i class="ri-user-3-line"></i>
+              </span>
               {% else %}
-              <span aria-hidden="true"><i class="ri-user-3-line"></i></span>
+              <span aria-hidden="true">
+                <i class="ri-user-3-line"></i>
+              </span>
               {% endif %}
             </div>
             <div>
