@@ -246,9 +246,28 @@
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 border-t pt-4">
             <div class="form-group">
-              <label for="hero_tertiary_btn_text">Video/Tertiary Link Text</label>
-              <input type="text" id="hero_tertiary_btn_text" name="hero_tertiary_btn_text" class="form-control" value="{{ content.hero_tertiary_btn_text }}">
-            </div>
+  <label for="hero_video_file">Upload Hero Video</label>
+  <input
+    type="file"
+    id="hero_video_file"
+    name="hero_video_file"
+    class="form-control"
+    accept=".mp4,.webm,video/mp4,video/webm"
+  >
+  <small>
+    Upload MP4 or WebM video. Leave empty to keep the current video.
+  </small>
+
+  {% if content.hero_tertiary_btn_link %}
+    <p>
+      <a href="{{ content.hero_tertiary_btn_link }}"
+         target="_blank"
+         rel="noopener noreferrer">
+        Preview Current Video
+      </a>
+    </p>
+  {% endif %}
+</div>
             <div class="form-group">
               <label for="hero_tertiary_btn_link">Video/Tertiary Link URL</label>
               <input type="text" id="hero_tertiary_btn_link" name="hero_tertiary_btn_link" class="form-control" value="{{ content.hero_tertiary_btn_link }}">
