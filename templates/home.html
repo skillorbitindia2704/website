@@ -480,6 +480,48 @@
         transition: none !important;
     }
 }
+
+/* =========================================
+   PROJECT SHOWCASE LAYOUT FIX
+   ========================================= */
+
+.project-showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, 280px), 1fr)
+  );
+  gap: 24px;
+  align-items: start;
+}
+
+.project-showcase-grid > .card-premium {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.project-showcase-grid .card-img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+
+.project-showcase-grid .card-img-wrap img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 640px) {
+  .project-showcase-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+}
+
 </style>
 {% endblock %}
 
@@ -1000,7 +1042,7 @@
   <h2>Project showcase</h2>
   <p class="muted">Build real projects across robotics and AI.</p>
 </div>
-<section class="grid-cards reveal">
+<section class="grid-cards reveal projects-showcase-grid">
   {% for p in projects_list %}
   <article class="card-premium card-img-full">
 
