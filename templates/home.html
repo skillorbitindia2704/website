@@ -1202,7 +1202,7 @@
 {% if visibilities.cta_banner %}
 <section class="cta-banner reveal" style="background: linear-gradient(135deg, var(--primary-from, #4F46E5) 0%, var(--primary-to, #06B6D4) 100%); position: relative; overflow: hidden; border-radius: var(--radius-lg, 22px);">
   {% if content.footer_promo_image %}
-  <div class="absolute inset-0 opacity-20" style="background-image: url('{{ url_for('static', filename=content.footer_promo_image) }}'); background-size: cover; background-position: center; pointer-events: none;"></div>
+  <div class="absolute inset-0 opacity-20" style="background-image: url('{{ content.footer_promo_image if content.footer_promo_image.startswith("http") else url_for("static", filename=content.footer_promo_image) }}'); background-size: cover; background-position: center; pointer-events: none;"></div>
   {% endif %}
   <div class="relative z-10">
     <h3>{{ content.footer_promo_text }}</h3>
