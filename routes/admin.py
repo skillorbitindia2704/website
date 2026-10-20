@@ -4018,19 +4018,25 @@ def homepage_manager():
             set_content("hero_primary_btn_text", request.form.get("hero_primary_btn_text", "").strip())
             set_content("hero_primary_btn_link", request.form.get("hero_primary_btn_link", "").strip())
             set_content("hero_secondary_btn_text", request.form.get("hero_secondary_btn_text", "").strip())
-            set_content("hero_secondary_btn_link", request.form.get("hero_secondary_btn_link", "").strip())
+            set_content("hero_secondary_btn_link", request.form.get("hero_secondary_btn_link", "").strip())            set_content(
+                "hero_tertiary_btn_text",
+                request.form.get("hero_tertiary_btn_text", "").strip()
+            )
+
+            # Preserve existing video unless a new video is uploaded.
+            current_video_url = get_content(
+                "hero_tertiary_btn_link", ""
+            )
+            uploaded_video = request.files.get("hero_video_file")
+
+            if uploaded_video and uploaded_video.filename:
+                current_video_url = _upload_hero_video(uploaded_video)
+
+            set_content("hero_tertiary_btn_link", current_video_url)
             set_content(
-    "hero_tertiary_btn_text",
-    request.form.get("hero_tertiary_btn_text", "").strip()
-)
-
-current_video_url = get_content("hero_tertiary_btn_link", "")
-uploaded_video = request.files.get("hero_video_file")
-
-if uploaded_video and uploaded_video.filename:
-    current_video_url = _upload_hero_video(uploaded_video)
-
-set_content("hero_tertiary_btn_link", current_video_url)            set_content("hero_layout", request.form.get("hero_layout", "default").strip())
+                "hero_layout",
+                request.form.get("hero_layout", "default").strip()
+            )
             set_content("hero_ai_lab_title", request.form.get("hero_ai_lab_title", "").strip())
             set_content("hero_ai_lab_description", request.form.get("hero_ai_lab_description", "").strip())
             # Hero Carousel Configuration
