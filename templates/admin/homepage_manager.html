@@ -1186,7 +1186,7 @@ function addProjectRow(title = "", desc = "", tech = "", demo = "", git = "") {
     
     const row = document.createElement('div');
     row.className = "bg-slate-50 p-3.5 border rounded-lg flex flex-col gap-2";
-    row.id = project-row-${idx};
+    row.id = 'project-row-${idx}';
     row.innerHTML = `
       <div class="flex gap-2">
         <input type="text" class="form-control py-1 font-bold flex-1" value="${title}" placeholder="Project Title" oninput="updateProjects()">
@@ -1204,7 +1204,7 @@ function addProjectRow(title = "", desc = "", tech = "", demo = "", git = "") {
   }
 
   function removeProjectRow(idx) {
-    document.getElementById(project-row-${idx}).remove();
+    document.getElementById('project-row-${idx}').remove();
     updateProjects();
   }
 
