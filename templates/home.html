@@ -1139,6 +1139,30 @@
 </section>
 {% endif %}
 
+
+<!-- CMS Promotional Banners -->
+{% if visibilities.cta_banner and cta_banners %}
+<section class="max-w-6xl mx-auto px-4 py-8" aria-label="Promotional banners">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {% for banner in cta_banners %}
+      {% if banner.title %}
+      <div class="rounded-2xl border border-indigo-100 bg-white p-6 shadow-sm">
+        <h2 class="text-lg md:text-xl font-bold text-slate-900">
+          {{ banner.title }}
+        </h2>
+        {% if banner.link %}
+          <a href="{{ banner.link }}"
+             class="inline-flex mt-4 items-center rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white hover:bg-indigo-700">
+            Explore Now →
+          </a>
+        {% endif %}
+      </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
 <!-- FAQ Accordion Section -->
 {% if visibilities.faq and faqs_list %}
 <div class="section-head reveal">
