@@ -1140,9 +1140,18 @@
 {% endif %}
 
 
+
 <!-- CMS Promotional Banners -->
 {% if visibilities.cta_banner and cta_banners %}
 <section class="max-w-6xl mx-auto px-4 py-8" aria-label="Promotional banners">
+
+  <div class="section-head reveal">
+    <h2>Explore More with Skill Orbit India</h2>
+    <p class="muted">
+      Discover practical workshops, industry-aligned courses, internships and AI &amp; Robotics lab solutions.
+    </p>
+  </div>
+
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     {% for banner in cta_banners %}
       {% if banner.title %}
@@ -1162,6 +1171,7 @@
   </div>
 </section>
 {% endif %}
+
 
 <!-- FAQ Accordion Section -->
 {% if visibilities.faq and faqs_list %}
