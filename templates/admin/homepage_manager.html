@@ -1179,121 +1179,60 @@
   } catch (e) {
     projectsData = [];
   }
-
   
-function addProjectRow(title = "", desc = "", tech = "", demo = "", git = "", image = "") {
+function addProjectRow(title = "", desc = "", tech = "", demo = "", git = "") {
     const container = document.getElementById('projects-wrapper');
-    const idx = Date.now() + Math.floor(Math.random() * 1000);
-    const imageKey = `project_${idx}`;
-
+    const idx = container.children.length;
+    
     const row = document.createElement('div');
-    row.className = "bg-slate-50 p-3.5 border rounded-lg flex flex-col gap-3";
-    row.id = `project-row-${idx}`;
-    row.dataset.imageKey = imageKey;
-    row.dataset.imageUrl = image || "";
-
+    row.className = "bg-slate-50 p-3.5 border rounded-lg flex flex-col gap-2";
+    row.id = project-row-${idx};
     row.innerHTML = `
       <div class="flex gap-2">
-        <input type="text" class="form-control py-1 font-bold flex-1"
-          placeholder="Project Title" oninput="updateProjects()">
-        <button type="button" onclick="removeProjectRow('${idx}')"
-          class="bg-red-50 text-red-600 rounded px-2.5 py-1 text-xs font-semibold border border-red-200">
-          Remove
-        </button>
+        <input type="text" class="form-control py-1 font-bold flex-1" value="${title}" placeholder="Project Title" oninput="updateProjects()">
+        <button type="button" onclick="removeProjectRow(${idx})" class="bg-red-50 text-red-600 rounded px-2.5 py-1 text-xs font-semibold cursor-pointer border border-red-200">Remove</button>
       </div>
-
-      <div class="flex flex-col gap-2">
-        <label class="text-xs font-semibold">Project Image</label>
-        <input type="file" name="project_image_${imageKey}"
-          accept="image/*" class="form-control py-1 text-xs"
-          onchange="previewProjectImage(this, '${idx}')">
-
-        <img class="project-image-preview rounded-lg border object-cover"
-          style="display:none;max-height:180px;max-width:100%;"
-          alt="Project image preview">
-
-        <span class="text-xs text-slate-500">
-          Upload a JPG, PNG or WebP image for this project.
-        </span>
+      <div class="grid grid-cols-3 gap-2">
+        <input type="text" class="form-control py-1 text-xs col-span-1" value="${tech}" placeholder="Tech stack (e.g. OpenCV)" oninput="updateProjects()">
+        <input type="text" class="form-control py-1 text-xs col-span-1" value="${demo}" placeholder="Demo Link" oninput="updateProjects()">
+        <input type="text" class="form-control py-1 text-xs col-span-1" value="${git}" placeholder="GitHub Link" oninput="updateProjects()">
       </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-        <input type="text" class="form-control py-1 text-xs"
-          placeholder="Tech stack (e.g. OpenCV)" oninput="updateProjects()">
-        <input type="text" class="form-control py-1 text-xs"
-          placeholder="Demo Link" oninput="updateProjects()">
-        <input type="text" class="form-control py-1 text-xs"
-          placeholder="GitHub Link" oninput="updateProjects()">
-      </div>
-
-      <textarea class="form-control py-1 text-xs h-12"
-        placeholder="Brief project details..." oninput="updateProjects()"></textarea>
+      <textarea class="form-control py-1 text-xs h-12" placeholder="Brief project details..." oninput="updateProjects()">${desc}</textarea>
     `;
-
-    const textInputs = row.querySelectorAll('input[type="text"]');
-    textInputs[0].value = title;
-    textInputs[1].value = tech;
-    textInputs[2].value = demo;
-    textInputs[3].value = git;
-    row.querySelector('textarea').value = desc;
-
     container.appendChild(row);
-
-    if (image) {
-      const preview = row.querySelector('.project-image-preview');
-      preview.src = image;
-      preview.style.display = 'block';
-    }
-
     updateProjects();
-}
+  }
 
-function previewProjectImage(input, idx) {
-    const row = document.getElementById(`project-row-${idx}`);
-    if (!row || !input.files || !input.files[0]) return;
-
-    const file = input.files[0];
-    if (!file.type.startsWith('image/')) {
-        alert('Please select an image file.');
-        input.value = '';
-        return;
-    }
-
-    const preview = row.querySelector('.project-image-preview');
-    preview.src = URL.createObjectURL(file);
-    preview.style.display = 'block';
-
+  function removeProjectRow(idx) {
+    document.getElementById(project-row-${idx}).remove();
     updateProjects();
-}
+  }
 
-function removeProjectRow(idx) {
-    const row = document.getElementById(`project-row-${idx}`);
-    if (row) row.remove();
-    updateProjects();
-}
-
-function updateProjects() {
+  function updateProjects() {
     const container = document.getElementById('projects-wrapper');
     const items = [];
-
-    container.querySelectorAll('[id^="project-row-"]').forEach(row => {
-        const inputs = row.querySelectorAll('input[type="text"]');
-        const text = row.querySelector('textarea');
-
-        if (inputs.length >= 4 && text) {
-            items.push({
-                title: inputs[0].value.trim(),
-                tech_stack: inputs[1].value.trim(),
-                demo_link: inputs[2].value.trim(),
-                github_link: inputs[3].value.trim(),
-                description: text.value.trim(),
-                image: row.dataset.imageUrl || "",
-                _image_key: row.dataset.imageKey
-            });
-        }
+    container.querySelectorAll('.bg-slate-50').forEach(row => {
+      const inputs = row.querySelectorAll('input');
+      const text = row.querySelector('textarea');
+      if (inputs.length >= 4 && text) {
+        items.push({
+          title: inputs[0].value.trim(),
+          tech_stack: inputs[1].value.trim(),
+          demo_link: inputs[2].value.trim(),
+          github_link: inputs[3].value.trim(),
+          description: text.value.trim()
+        });
+      }
     });
-
     document.getElementById('projects_list').value = JSON.stringify(items);
+  }
+
+  if (projectsData.length === 0) {
+    addProjectRow("Line Follower Robot", "Robotics foundations with sensors.", "Arduino, IR Sensors", "", "");
+    addProjectRow("AI Face Detection", "Computer vision demo pipeline.", "Python, OpenCV", "", "");
+  } else {
+    projectsData.forEach(p => addProjectRow(p.title, p.description, p.tech_stack, p.demo_link, p.github_link));
+  }    document.getElementById('projects_list').value = JSON.stringify(items);
 }
 
 if (projectsData.length === 0) {
