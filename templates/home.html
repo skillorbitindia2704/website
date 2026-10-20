@@ -553,9 +553,17 @@
               {% if content.hero_secondary_btn_text %}
               <a href="{{ content.hero_secondary_btn_link or url_for('ai_lab.index') ~ '#enquiry' }}" class="btn btn-accent">{{ content.hero_secondary_btn_text }}</a>
               {% endif %}
-              {% if content.hero_tertiary_btn_text %}
-              <a href="{{ content.hero_tertiary_btn_link or url_for('courses.list_courses') }}" class="btn btn-ghost hero-ghost-btn">{{ content.hero_tertiary_btn_text }}</a>
-              {% endif %}
+              {% if content.hero_tertiary_btn_text
+      and content.hero_tertiary_btn_link %}
+  <a
+    href="{{ content.hero_tertiary_btn_link }}"
+    class="btn btn-ghost hero-ghost-btn"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    {{ content.hero_tertiary_btn_text }}
+  </a>
+{% endif %}
             </div>
 
             <!-- Stats & Counters Inside Hero -->
