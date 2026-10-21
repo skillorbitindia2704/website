@@ -9,36 +9,56 @@
 </div>
 {% endblock %}
 {% block content %}
-<!-- Store Header Hero -->
+<!-- PREMIUM STORE HERO (ABOUT THEME - SLEEK & COMPACT) -->
 <div class="store-hero-section reveal">
   <div class="store-hero-inner">
-    <h1 class="store-hero-title">Electronics & Maker Kits</h1>
-    <p class="store-hero-subtitle">Arduino, sensors, and components — curated for learners and builders</p>
-    <div class="store-hero-badges">
-      <span class="badge-pill">🚀 High Quality</span>
-      <span class="badge-pill">✓ Verified Products</span>
-      <span class="badge-pill">⚡ Fast Delivery</span>
+    <div class="hero-compact-main">
+      <span class="hero-compact-badge">
+        <i class="ri-store-2-fill" style="color:#38bdf8;"></i> Official Hardware Store
+      </span>
+      <h1 class="store-hero-title">
+        Electronics &amp; Maker Kits
+      </h1>
+      <p class="store-hero-subtitle">
+        Arduino, sensors, and components — curated for learners and builders
+      </p>
+      <div class="store-hero-badges">
+        <span class="badge-pill">🚀 High Quality</span>
+        <span class="badge-pill">✓ Verified Products</span>
+        <span class="badge-pill">⚡ Fast Delivery</span>
+      </div>
+    </div>
+    
+    <div class="hide-mobile">
+      <div class="hero-compact-showcase">
+        <div style="width:46px;height:46px;margin:0 auto 0.5rem;border-radius:14px;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#38bdf8;">
+          <i class="ri-cpu-line"></i>
+        </div>
+        <p style="margin:0;color:#ffffff;font-weight:700;font-size:0.9rem;">Pre-Tested Hardware</p>
+        <p style="margin:0.2rem 0 0;color:rgba(255,255,255,0.75);font-size:0.76rem;">Zero-Defect Guaranteed</p>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="store-layout section-gap">
+
+<div class="store-layout section-gap" style="align-items: flex-start;">
   <!-- Filters Sidebar -->
-  <aside class="filters-panel card-premium reveal">
-    <div class="filters-header">
-      <h3>Filters</h3>
-      <a href="{{ url_for('store.listing') }}" class="filter-reset-link" title="Reset filters">
+  <aside class="filters-panel card-premium reveal" style="border-radius:22px;padding:1.5rem;border:1px solid var(--border-soft);background:var(--bg-surface);box-shadow:0 8px 30px rgba(0,0,0,0.04);">
+    <div class="filters-header" style="padding-bottom:0.85rem;margin-bottom:1.25rem;">
+      <h3 style="font-family:var(--font-display);font-size:1.15rem;font-weight:700;">Filters</h3>
+      <a href="{{ url_for('store.listing') }}" class="filter-reset-link" title="Reset filters" style="border-radius:10px;">
         <i class="ri-refresh-line"></i>
       </a>
     </div>
     
     <form method="get" class="form-modern" id="product-filter-form">
       <!-- Category Filter -->
-      <div class="filter-group">
+      <div class="filter-group" style="margin-bottom:1.25rem;">
         <label for="category" class="filter-label">
           <i class="ri-layout-grid-line"></i> Category
         </label>
-        <select name="category" id="category" class="filter-select">
+        <select name="category" id="category" class="filter-select" style="border-radius:12px;">
           <option value="">All categories</option>
           {% for c in categories %}
           <option value="{{ c }}" {% if filter_category == c %}selected{% endif %}>{{ c }}</option>
@@ -47,44 +67,44 @@
       </div>
 
       <!-- Price Range Filter -->
-      <div class="filter-group">
+      <div class="filter-group" style="margin-bottom:1.25rem;">
         <label for="min_price" class="filter-label">
           <i class="ri-money-rupee-circle-line"></i> Price Range
         </label>
         <div class="price-inputs-row">
-          <input type="number" name="min_price" id="min_price" min="0" value="{{ filter_min if filter_min is not none else '' }}" placeholder="Min" class="filter-input-sm">
+          <input type="number" name="min_price" id="min_price" min="0" value="{{ filter_min if filter_min is not none else '' }}" placeholder="Min" class="filter-input-sm" style="border-radius:12px;">
           <span class="price-separator">—</span>
-          <input type="number" name="max_price" id="max_price" min="0" value="{{ filter_max if filter_max is not none else '' }}" placeholder="Max" class="filter-input-sm">
+          <input type="number" name="max_price" id="max_price" min="0" value="{{ filter_max if filter_max is not none else '' }}" placeholder="Max" class="filter-input-sm" style="border-radius:12px;">
         </div>
       </div>
 
       <!-- Filter Actions -->
-      <div class="filter-actions">
-        <button type="submit" class="btn btn-primary btn-sm" style="width: 100%; margin-bottom: 0.5rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;">
+      <div class="filter-actions" style="gap:0.6rem;">
+        <button type="submit" class="btn btn-primary btn-sm" style="width: 100%; padding:0.65rem; border-radius:12px; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; font-weight:600;">
           <i class="ri-search-line" aria-hidden="true"></i> <span>Apply Filters</span>
         </button>
-        <a href="{{ url_for('store.listing') }}" class="btn btn-ghost btn-sm" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;">
+        <a href="{{ url_for('store.listing') }}" class="btn btn-ghost btn-sm" style="width: 100%; padding:0.6rem; border-radius:12px; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; font-weight:600;">
           <i class="ri-refresh-line" aria-hidden="true"></i> <span>Reset All</span>
         </a>
       </div>
 
       <!-- Active Filters Display -->
       {% if filter_category or filter_min is not none or filter_max is not none %}
-      <div class="active-filters">
-        <p class="filter-label" style="margin-bottom: 0.5rem;">Active Filters:</p>
+      <div class="active-filters" style="border-radius:14px;margin-top:1rem;background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.2);">
+        <p class="filter-label" style="margin-bottom: 0.5rem;font-size:0.82rem;">Active Filters:</p>
         <div class="filter-pills">
           {% if filter_category %}
-          <span class="filter-pill">
+          <span class="filter-pill" style="border-radius:99px;">
             <i class="ri-layout-grid-line"></i> {{ filter_category }}
           </span>
           {% endif %}
           {% if filter_min is not none %}
-          <span class="filter-pill">
+          <span class="filter-pill" style="border-radius:99px;">
             <i class="ri-money-rupee-circle-line"></i> Min ₹{{ filter_min }}
           </span>
           {% endif %}
           {% if filter_max is not none %}
-          <span class="filter-pill">
+          <span class="filter-pill" style="border-radius:99px;">
             <i class="ri-money-rupee-circle-line"></i> Max ₹{{ filter_max }}
           </span>
           {% endif %}
@@ -103,37 +123,41 @@
     </p>
 
     {% if products %}
-    <div class="store-products-stats reveal">
-      <span class="products-count">
-        <i class="ri-database-2-line"></i> {{ products|length }} product{{ "s" if products|length != 1 else "" }} found
+    <div class="store-products-stats card-premium reveal" style="padding:0.85rem 1.25rem;border-radius:18px;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;background:var(--bg-surface);border:1px solid var(--border-soft);box-shadow:0 4px 15px rgba(0,0,0,0.03);">
+      <span class="products-count" style="display:inline-flex;align-items:center;gap:0.5rem;font-weight:700;font-size:0.95rem;color:var(--text);">
+        <i class="ri-database-2-line" style="color:var(--primary-from);font-size:1.15rem;"></i> {{ products|length }} product{{ "s" if products|length != 1 else "" }} found
+      </span>
+      <span style="font-size:0.82rem;font-weight:500;color:var(--text-muted);display:inline-flex;align-items:center;gap:0.4rem;">
+        <i class="ri-checkbox-circle-fill" style="color:#10b981;"></i> Genuine &amp; tested hardware
       </span>
     </div>
 
-    <div class="grid-cards store-grid-enhanced" id="products-grid">
+    <div class="grid-cards store-grid-enhanced" id="products-grid" style="gap:1.5rem;">
       {% for p in products %}
-      <article class="card-premium card-product reveal" data-product-id="{{ p.id }}">
+      <article class="card-premium card-product reveal" data-product-id="{{ p.id }}" style="border-radius:24px;overflow:hidden;border:1px solid var(--border-soft);background:var(--bg-surface);transition:all 0.3s cubic-bezier(0.16, 1, 0.3, 1);display:flex;flex-direction:column;justify-content:space-between;">
         <!-- Product Image Section -->
-        <div class="card-img-wrap product-image-container">
+        <div class="card-img-wrap product-image-container" style="position:relative;aspect-ratio:4/3.2;background:linear-gradient(145deg, rgba(79,70,229,0.08), rgba(6,182,212,0.06));overflow:hidden;">
           <!-- Wishlist Button -->
           <button type="button"
             class="wishlist-btn {% if current_user.is_authenticated and wishlist_ids and p.id in wishlist_ids %}active{% endif %}"
             data-product-id="{{ p.id }}"
             data-action="toggle-wishlist"
             aria-label="Add to wishlist"
-            aria-pressed="{% if current_user.is_authenticated and wishlist_ids and p.id in wishlist_ids %}true{% else %}false{% endif %}">
+            aria-pressed="{% if current_user.is_authenticated and wishlist_ids and p.id in wishlist_ids %}true{% else %}false{% endif %}"
+            style="border-radius:99px;box-shadow:0 4px 12px rgba(0,0,0,0.12);">
             <i class="ri-heart-{% if current_user.is_authenticated and wishlist_ids and p.id in wishlist_ids %}fill{% else %}line{% endif %}" aria-hidden="true"></i>
           </button>
 
           {% set p_stock = (p.stock or 0)|int %}
           <!-- Stock Status Badge -->
           {% if p_stock > 0 and p_stock <= 5 %}
-          <div class="stock-badge low-stock">
+          <div class="stock-badge low-stock" style="border-radius:8px;font-weight:700;">
             <i class="ri-alert-line"></i> Low Stock
           </div>
           {% elif p_stock <= 0 %}
-          <div class="stock-badge out-of-stock">Out of Stock</div>
+          <div class="stock-badge out-of-stock" style="border-radius:8px;font-weight:700;">Out of Stock</div>
           {% elif p.is_new_arrival %}
-          <div class="stock-badge new-arrival">
+          <div class="stock-badge new-arrival" style="border-radius:8px;font-weight:700;">
             <i class="ri-star-line"></i> New
           </div>
           {% endif %}
@@ -150,18 +174,20 @@
             {% else %}
               {% set img_src = url_for('static', filename=p_img) %}
             {% endif %}
+            {% set placeholder_img = url_for('static', filename='images/product_placeholder.svg') %}
             <img src="{{ img_src }}" 
                  alt="{{ p.name }}" 
                  loading="lazy" 
                  width="400" 
                  height="300"
-                 onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/product_placeholder.svg') }}';"
-                 class="product-image">
+                 onerror="this.onerror=null;this.src='{{ placeholder_img }}';"
+                 class="product-image"
+                 style="transition:transform 0.35s ease;">
           </a>
 
           <!-- Discount Badge -->
           {% if p.discount_price_inr and p.price_inr and p.price_inr > p.discount_price_inr %}
-          <div class="discount-badge">
+          <div class="discount-badge" style="background:linear-gradient(135deg, #f97316 0%, #ea580c 100%);color:#fff;border-radius:8px;font-weight:700;box-shadow:0 4px 12px rgba(234,88,12,0.35);padding:0.3rem 0.65rem;">
             <span class="discount-percent">
               {{ (((p.price_inr - p.discount_price_inr) / p.price_inr) * 100)|int }}% OFF
             </span>
@@ -170,103 +196,107 @@
         </div>
 
         <!-- Product Info Section -->
-        <div class="card-body product-info">
-          <!-- Category & Rating -->
-          {% set p_rating = (p.rating|default(4.5, true))|float %}
-          <div class="card-meta product-meta">
-            <span class="category-badge">
-              <i class="ri-price-tag-3-line"></i> {{ p.category or 'General' }}
-            </span>
-            <span class="rating-display">
-              <i class="ri-star-fill" style="color: #fbbf24;"></i> {{ '%.1f'|format(p_rating) }}
-            </span>
-          </div>
-
-          <!-- Rating Bar -->
-          <div class="stars-bar" style="--p: {{ ((p_rating / 5) * 100)|int }}%; margin-bottom: 0.75rem;"></div>
-
-          <!-- Product Name -->
-          <h3 class="product-title">
-            <a href="{{ url_for('store.product_detail', slug=(p.slug or p.id)) }}" class="product-title-link">
-              {{ p.name }}
-            </a>
-          </h3>
-
-          <!-- Product Description -->
-          {% set p_desc = (p.short_description or p.description or '') %}
-          <p class="product-description muted">
-            {{ p_desc[:80] }}{% if p_desc|length > 80 %}…{% endif %}
-          </p>
-
-          <!-- Brand & Stock Info -->
-          {% if p.brand %}
-          <div class="product-brand">
-            <span class="brand-label">{{ p.brand }}</span>
-          </div>
-          {% endif %}
-
-          <!-- Stock Level -->
-          <div class="stock-info">
-            {% if p_stock > 0 %}
-            <span class="stock-available">
-              <i class="ri-check-double-line"></i> {{ p_stock }} in stock
-            </span>
-            {% else %}
-            <span class="stock-unavailable">
-              <i class="ri-close-line"></i> Out of stock
-            </span>
-            {% endif %}
-          </div>
-
-          <!-- Price Section -->
-          <div class="product-pricing">
-            {% if p.discount_price_inr and p.discount_price_inr > 0 %}
-            <div class="price-container">
-              <span class="price-original">₹{{ p.price_inr or 0 }}</span>
-              <span class="price-current price-tag">₹{{ p.discount_price_inr }}</span>
+        <div class="card-body product-info" style="padding:1.4rem;display:flex;flex-direction:column;flex:1;justify-content:space-between;">
+          <div>
+            <!-- Category & Rating -->
+            {% set p_rating = (p.rating|default(4.5, true))|float %}
+            <div class="card-meta product-meta" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;">
+              <span class="category-badge" style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.25rem 0.65rem;border-radius:99px;background:rgba(79,70,229,0.08);color:var(--primary-from);font-size:0.75rem;font-weight:600;">
+                <i class="ri-price-tag-3-line"></i> {{ p.category or 'General' }}
+              </span>
+              <span class="rating-display" style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.85rem;font-weight:700;color:var(--text);">
+                <i class="ri-star-fill" style="color: #fbbf24;"></i> {{ '%.1f'|format(p_rating) }}
+              </span>
             </div>
-            {% else %}
-            <span class="price-current price-tag">₹{{ p.price_inr or 0 }}</span>
+
+            <!-- Rating Bar -->
+            <div class="stars-bar" style="--p: {{ ((p_rating / 5) * 100)|int }}%; margin-bottom: 0.75rem;"></div>
+
+            <!-- Product Name -->
+            <h3 class="product-title" style="font-family:var(--font-display);font-size:1.15rem;font-weight:700;margin:0 0 0.45rem;line-height:1.35;">
+              <a href="{{ url_for('store.product_detail', slug=(p.slug or p.id)) }}" class="product-title-link" style="color:var(--text);text-decoration:none;">
+                {{ p.name }}
+              </a>
+            </h3>
+
+            <!-- Product Description -->
+            {% set p_desc = (p.short_description or p.description or '') %}
+            <p class="product-description muted" style="font-size:0.88rem;line-height:1.55;margin:0 0 0.75rem;color:var(--text-muted);">
+              {{ p_desc[:80] }}{% if p_desc|length > 80 %}…{% endif %}
+            </p>
+
+            <!-- Brand & Stock Info -->
+            {% if p.brand %}
+            <div class="product-brand" style="margin-bottom:0.5rem;">
+              <span class="brand-label" style="font-size:0.75rem;padding:0.2rem 0.5rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-weight:600;">{{ p.brand }}</span>
+            </div>
             {% endif %}
-            {% if p.gst_percent %}
-            <span class="price-gst">incl. {{ (p.gst_percent or 0)|int }}% GST</span>
-            {% endif %}
+
+            <!-- Stock Level -->
+            <div class="stock-info" style="margin-bottom:0.85rem;">
+              {% if p_stock > 0 %}
+              <span class="stock-available" style="font-size:0.82rem;font-weight:600;color:#10b981;display:inline-flex;align-items:center;gap:0.35rem;">
+                <i class="ri-check-double-line"></i> {{ p_stock }} in stock
+              </span>
+              {% else %}
+              <span class="stock-unavailable" style="font-size:0.82rem;font-weight:600;color:#ef4444;display:inline-flex;align-items:center;gap:0.35rem;">
+                <i class="ri-close-line"></i> Out of stock
+              </span>
+              {% endif %}
+            </div>
           </div>
 
-          <!-- Add to Cart Section -->
-          {% if p_stock > 0 %}
-          <form method="post" action="{{ url_for('store.add_to_cart', product_id=p.id) }}" class="product-actions">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <div class="actions-container">
-              <div class="qty-control-wrapper">
-                <button type="button" class="qty-btn qty-minus" aria-label="Decrease quantity">−</button>
-                <input type="number" name="quantity" value="1" min="1" max="{{ p_stock }}" class="qty-input qty-display" aria-label="Quantity">
-                <button type="button" class="qty-btn qty-plus" aria-label="Increase quantity">+</button>
+          <div>
+            <!-- Price Section -->
+            <div class="product-pricing" style="margin-bottom:1rem;padding-top:0.75rem;border-top:1px solid var(--border-soft);display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">
+              {% if p.discount_price_inr and p.discount_price_inr > 0 %}
+              <div class="price-container" style="display:flex;align-items:baseline;gap:0.5rem;">
+                <span class="price-original" style="font-size:0.9rem;text-decoration:line-through;color:var(--text-muted);">₹{{ p.price_inr or 0 }}</span>
+                <span class="price-current price-tag" style="font-size:1.35rem;font-weight:800;color:var(--primary-from);font-family:var(--font-display);">₹{{ p.discount_price_inr }}</span>
               </div>
-              <button type="submit" class="btn btn-primary btn-sm add-cart-btn" style="flex: 1;">
-                <i class="ri-shopping-cart-add-line"></i> Add to Cart
+              {% else %}
+              <span class="price-current price-tag" style="font-size:1.35rem;font-weight:800;color:var(--primary-from);font-family:var(--font-display);">₹{{ p.price_inr or 0 }}</span>
+              {% endif %}
+              {% if p.gst_percent %}
+              <span class="price-gst" style="font-size:0.75rem;color:var(--text-muted);font-weight:500;">incl. {{ (p.gst_percent or 0)|int }}% GST</span>
+              {% endif %}
+            </div>
+
+            <!-- Add to Cart Section -->
+            {% if p_stock > 0 %}
+            <form method="post" action="{{ url_for('store.add_to_cart', product_id=p.id) }}" class="product-actions">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <div class="actions-container" style="display:flex;gap:0.5rem;align-items:center;">
+                <div class="qty-control-wrapper" style="border-radius:12px;border:1px solid var(--border);background:var(--bg-secondary);overflow:hidden;display:inline-flex;align-items:center;">
+                  <button type="button" class="qty-btn qty-minus" aria-label="Decrease quantity" style="width:28px;height:34px;background:none;border:none;cursor:pointer;font-weight:bold;color:var(--text);">−</button>
+                  <input type="number" name="quantity" value="1" min="1" max="{{ p_stock }}" class="qty-input qty-display" aria-label="Quantity" style="width:36px;height:34px;border:none;background:transparent;text-align:center;font-size:0.9rem;font-weight:600;color:var(--text);">
+                  <button type="button" class="qty-btn qty-plus" aria-label="Increase quantity" style="width:28px;height:34px;background:none;border:none;cursor:pointer;font-weight:bold;color:var(--text);">+</button>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm add-cart-btn" style="flex: 1; padding:0.6rem 0.85rem; border-radius:12px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; gap:0.4rem;">
+                  <i class="ri-shopping-cart-add-line"></i> <span>Add to Cart</span>
+                </button>
+              </div>
+            </form>
+            {% else %}
+            <div class="product-actions" style="opacity: 0.6;">
+              <button type="button" class="btn btn-ghost btn-sm" disabled style="width: 100%; border-radius:12px; cursor: not-allowed; padding:0.6rem;">
+                <i class="ri-lock-line"></i> Out of Stock
               </button>
             </div>
-          </form>
-          {% else %}
-          <div class="product-actions" style="opacity: 0.6;">
-            <button type="button" class="btn btn-ghost btn-sm" disabled style="width: 100%; cursor: not-allowed;">
-              <i class="ri-lock-line"></i> Out of Stock
-            </button>
+            {% endif %}
           </div>
-          {% endif %}
         </div>
       </article>
       {% endfor %}
     </div>
     {% else %}
-    <div class="empty-state reveal">
-      <div class="empty-state-icon">
+    <div class="empty-state card-premium reveal" style="border-radius:24px;padding:3rem 1.5rem;text-align:center;border:1px solid var(--border-soft);background:var(--bg-surface);">
+      <div class="empty-state-icon" style="width:64px;height:64px;border-radius:18px;background:rgba(79,70,229,0.1);display:inline-flex;align-items:center;justify-content:center;font-size:2rem;color:var(--primary-from);margin-bottom:1rem;">
         <i class="ri-inbox-line"></i>
       </div>
-      <h3>No products found</h3>
-      <p class="muted">Try adjusting your filters or browse all products</p>
-      <a href="{{ url_for('store.listing') }}" class="btn btn-primary btn-sm">
+      <h3 style="font-family:var(--font-display);font-size:1.35rem;font-weight:700;margin:0 0 0.5rem;">No products found</h3>
+      <p class="muted" style="margin:0 0 1.25rem;">Try adjusting your filters or browse all products</p>
+      <a href="{{ url_for('store.listing') }}" class="btn btn-primary btn-sm" style="border-radius:12px;padding:0.6rem 1.25rem;font-weight:600;">
         <i class="ri-refresh-line"></i> Browse All Products
       </a>
     </div>

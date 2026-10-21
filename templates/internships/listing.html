@@ -7,53 +7,207 @@
 </div>
 {% endblock %}
 {% block content %}
-<h1 class="reveal page-title">Internships & early-career roles</h1>
-<p class="muted reveal">Work with hardware, edtech, and community programs. Apply with your resume in one click.</p>
-<div class="section-gap">
-  {% for i in internships %}
-  <article class="card-premium job-card reveal">
-    <div class="meta-row" style="align-items:flex-start;">
-      <div>
-        <h3>{{ i.title }}</h3>
-        <div class="internship-public-tags" style="margin:0.35rem 0 0.5rem;display:flex;flex-wrap:wrap;gap:0.35rem;">
-          {% if i.is_featured %}<span class="internship-tag tag-featured">Featured</span>{% endif %}
-          {% if i.is_urgent %}<span class="internship-tag tag-urgent">Urgent</span>{% endif %}
-          {% if i.is_remote %}<span class="internship-tag tag-remote">Remote</span>{% endif %}
-          {% if i.internship_type %}<span class="internship-tag tag-neutral">{{ i.internship_type }}</span>{% endif %}
-          {% if i.duration %}<span class="internship-tag tag-neutral">{{ i.duration }}</span>{% endif %}
-          {% if i.location %}<span class="internship-tag tag-neutral">{{ i.location }}</span>{% endif %}
-        </div>
-        <p class="muted">{{ i.description }}</p>
-        {% if i.requirements %}<p class="muted" style="font-size:0.9rem;"><strong>Requirements:</strong> {{ i.requirements }}</p>{% endif %}
-        {% if i.skills_needed %}<p class="muted" style="font-size:0.9rem;"><strong>Skills:</strong> {{ i.skills_needed }}</p>{% endif %}
-        <p class="price-tag">{{ i.stipend or 'Stipend discussed on selection' }}</p>
+<!-- PREMIUM INTERNSHIPS HERO (ABOUT THEME - SLEEK & COMPACT) -->
+<section class="hero-compact-about reveal" aria-labelledby="internships-hero-title">
+  <div class="hero-compact-inner">
+    <div class="hero-compact-main">
+      <span class="hero-compact-badge">
+        <i class="ri-briefcase-4-fill" style="color:#38bdf8;"></i> Career Acceleration
+      </span>
+      <h1 id="internships-hero-title" class="hero-compact-title">
+        Internships &amp; Early-Career Roles
+      </h1>
+      <p class="hero-compact-subtitle">
+        Work with hardware, edtech, AI, and community programs. Build real-world portfolio projects with structured mentorship and verified credentials.
+      </p>
+      <div class="store-hero-badges">
+        <span class="badge-pill">🚀 Live Industry Projects</span>
+        <span class="badge-pill">📜 Verified Certificate</span>
+        <span class="badge-pill">⚡ Direct Mentorship</span>
       </div>
+    </div>
+
+    <!-- Right side decorative showcase card (desktop) -->
+    <div class="hide-mobile">
+      <div class="hero-compact-showcase">
+        <div style="width:48px;height:48px;margin:0 auto 0.5rem;border-radius:14px;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:#38bdf8;">
+          <i class="ri-award-fill"></i>
+        </div>
+        <p style="margin:0;color:#ffffff;font-weight:700;font-size:0.92rem;">Outcome Driven</p>
+        <p style="margin:0.2rem 0 0;color:rgba(255,255,255,0.75);font-size:0.76rem;">Portfolio-Ready Code</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROLES STATS BAR -->
+<div class="card-premium reveal" style="padding:0.85rem 1.25rem;border-radius:18px;margin-bottom:1.75rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;background:var(--bg-surface);border:1px solid var(--border-soft);box-shadow:0 4px 15px rgba(0,0,0,0.03);">
+  <span style="display:inline-flex;align-items:center;gap:0.5rem;font-weight:700;font-size:0.95rem;color:var(--text);">
+    <i class="ri-briefcase-4-line" style="color:var(--primary-from);font-size:1.15rem;"></i> {{ internships|length }} open role{{ "s" if internships|length != 1 else "" }} available
+  </span>
+  <span style="font-size:0.82rem;font-weight:500;color:var(--text-muted);display:inline-flex;align-items:center;gap:0.4rem;">
+    <i class="ri-checkbox-circle-fill" style="color:#10b981;"></i> Fast evaluation • Direct resume review
+  </span>
+</div>
+
+<!-- INTERNSHIP CARDS GRID -->
+<div class="internship-grid section-gap">
+  {% for i in internships %}
+  {% set t_lower = i.title|lower %}
+  {% if 'drone' in t_lower or 'uav' in t_lower %}
+    {% set cat_name = 'Aerospace & UAV Systems' %}
+    {% set cat_icon = 'ri-flight-takeoff-line' %}
+    {% set cat_bg = 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' %}
+  {% elif 'full stack' in t_lower or 'web' in t_lower or 'software' in t_lower %}
+    {% set cat_name = 'Full Stack & Web Engineering' %}
+    {% set cat_icon = 'ri-code-s-slash-line' %}
+    {% set cat_bg = 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)' %}
+  {% elif 'robotics' in t_lower or 'automation' in t_lower %}
+    {% set cat_name = 'Robotics & Embedded Systems' %}
+    {% set cat_icon = 'ri-robot-2-line' %}
+    {% set cat_bg = 'linear-gradient(135deg, #d97706 0%, #b45309 100%)' %}
+  {% elif 'ai' in t_lower or 'machine learning' in t_lower or 'data' in t_lower %}
+    {% set cat_name = 'AI & Machine Learning' %}
+    {% set cat_icon = 'ri-brain-line' %}
+    {% set cat_bg = 'linear-gradient(135deg, #059669 0%, #0d9488 100%)' %}
+  {% else %}
+    {% set cat_name = 'Engineering & Innovation' %}
+    {% set cat_icon = 'ri-cpu-line' %}
+    {% set cat_bg = 'linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)' %}
+  {% endif %}
+
+  <article class="card-premium internship-card reveal">
+    <!-- Visual Themed Header Graphic -->
+    <div class="internship-card-banner" style="background: {{ cat_bg }};">
+      <div style="display:flex;align-items:center;gap:0.75rem;z-index:1;">
+        <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:rgba(255,255,255,0.95);background:rgba(255,255,255,0.18);padding:0.3rem 0.75rem;border-radius:99px;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.25);">
+          {{ cat_name }}
+        </span>
+      </div>
+      <div class="internship-banner-icon" style="background:rgba(255,255,255,0.2);color:#ffffff;z-index:1;">
+        <i class="{{ cat_icon }}" aria-hidden="true"></i>
+      </div>
+    </div>
+
+    <div class="internship-body">
       <div>
-        {% if current_user.is_authenticated %}
-        <button type="button" class="btn btn-primary" data-open-internship-modal data-internship-id="{{ i.id }}" data-internship-title="Apply — {{ i.title }}">Apply</button>
-        {% else %}
-        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login to apply</a>
+        <!-- Tags Row -->
+        <div class="internship-public-tags" style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:0.75rem;">
+          {% if i.is_featured %}
+          <span class="internship-badge-pill badge-featured"><i class="ri-star-fill"></i> Featured</span>
+          {% endif %}
+          {% if i.is_urgent %}
+          <span class="internship-badge-pill badge-urgent"><i class="ri-flashlight-fill"></i> Urgent</span>
+          {% endif %}
+          {% if i.is_remote %}
+          <span class="internship-badge-pill badge-remote"><i class="ri-global-line"></i> Remote</span>
+          {% endif %}
+          {% if i.internship_type %}
+          <span class="internship-badge-pill badge-neutral"><i class="ri-briefcase-line"></i> {{ i.internship_type }}</span>
+          {% endif %}
+          {% if i.duration %}
+          <span class="internship-badge-pill badge-neutral"><i class="ri-time-line"></i> {{ i.duration }}</span>
+          {% endif %}
+          {% if i.location %}
+          <span class="internship-badge-pill badge-neutral"><i class="ri-map-pin-line"></i> {{ i.location }}</span>
+          {% endif %}
+        </div>
+
+        <!-- Title -->
+        <h2 class="internship-title">
+          {{ i.title }}
+        </h2>
+
+        <!-- Description -->
+        <p class="internship-desc">
+          {{ i.description }}
+        </p>
+
+        <!-- Requirements Box -->
+        {% if i.requirements %}
+        <div class="internship-req-box">
+          <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);display:flex;align-items:center;gap:0.35rem;margin-bottom:0.25rem;">
+            <i class="ri-user-star-line" style="color:var(--primary-from);"></i> Eligibility &amp; Background
+          </span>
+          <p style="margin:0;font-size:0.86rem;line-height:1.55;color:var(--text-muted);">
+            {{ i.requirements.replace('\r\n', ' • ').replace('\n', ' • ') }}
+          </p>
+        </div>
         {% endif %}
+
+        <!-- Skills Chips -->
+        {% if i.skills_needed %}
+        <div style="margin: 0.85rem 0;">
+          <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);display:flex;align-items:center;gap:0.35rem;margin-bottom:0.45rem;">
+            <i class="ri-tools-fill" style="color:var(--primary-from);"></i> Core Technologies &amp; Tools
+          </span>
+          <div style="display:flex;flex-wrap:wrap;gap:0.35rem;">
+            {% for line in i.skills_needed.replace('\r\n', '\n').split('\n') %}
+              {% for s in line.split(',') %}
+                {% set s_clean = s|trim %}
+                {% if s_clean %}
+                <span class="internship-skill-chip">{{ s_clean }}</span>
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="internship-footer">
+        <div>
+          <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);display:block;">Stipend / Program</span>
+          <span class="internship-stipend" style="display:inline-block;margin-top:0.15rem;">{{ i.stipend or 'Stipend discussed on selection' }}</span>
+        </div>
+        <div>
+          {% if current_user.is_authenticated %}
+          <button type="button" class="btn btn-primary btn-sm" data-open-internship-modal data-internship-id="{{ i.id }}" data-internship-title="Apply — {{ i.title }}" style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.6rem 1.25rem;border-radius:12px;font-weight:700;">
+            <span>Apply Now</span> <i class="ri-arrow-right-line" aria-hidden="true"></i>
+          </button>
+          {% else %}
+          <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-sm" style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.6rem 1.25rem;border-radius:12px;font-weight:700;">
+            <span>Login to Apply</span> <i class="ri-arrow-right-line" aria-hidden="true"></i>
+          </a>
+          {% endif %}
+        </div>
       </div>
     </div>
   </article>
   {% else %}
-  <p class="muted reveal">No active internships. Check back soon.</p>
+  <div class="empty-state card-premium reveal" style="border-radius:24px;padding:3rem 1.5rem;text-align:center;grid-column: 1 / -1;">
+    <div class="empty-state-icon" style="width:64px;height:64px;border-radius:18px;background:rgba(79,70,229,0.1);display:inline-flex;align-items:center;justify-content:center;font-size:2rem;color:var(--primary-from);margin-bottom:1rem;">
+      <i class="ri-briefcase-line"></i>
+    </div>
+    <h3 style="font-family:var(--font-display);font-size:1.35rem;font-weight:700;margin:0 0 0.5rem;">No active internships currently</h3>
+    <p class="muted" style="margin:0 0 1.25rem;">New roles are posted regularly. Check back soon or explore our courses.</p>
+    <a href="{{ url_for('courses.list_courses') }}" class="btn btn-primary btn-sm" style="border-radius:12px;padding:0.6rem 1.25rem;font-weight:600;">
+      Explore Courses
+    </a>
+  </div>
   {% endfor %}
 </div>
 
+<!-- INTERNSHIP APPLICATION MODAL -->
 {% if current_user.is_authenticated and internships %}
 <div id="internship-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="internship-modal-title">
-  <div class="modal-panel">
-    <button type="button" class="modal-close" id="internship-modal-close" aria-label="Close"><i class="ri-close-line" aria-hidden="true"></i></button>
-    <h3 id="internship-modal-title">Apply</h3>
+  <div class="modal-panel" style="border-radius:24px;border:1px solid var(--border-soft);box-shadow:0 25px 60px rgba(0,0,0,0.3);max-width:520px;padding:2rem;">
+    <button type="button" class="modal-close" id="internship-modal-close" aria-label="Close" style="border-radius:99px;"><i class="ri-close-line" aria-hidden="true"></i></button>
+    <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.35rem;">
+      <span style="width:34px;height:34px;border-radius:10px;background:rgba(79,70,229,0.12);display:inline-flex;align-items:center;justify-content:center;color:var(--primary-from);font-size:1.15rem;"><i class="ri-briefcase-line"></i></span>
+      <h3 id="internship-modal-title" style="margin:0;font-family:var(--font-display);font-size:1.35rem;font-weight:700;">Apply</h3>
+    </div>
+    <p class="muted" style="margin:0 0 1.5rem;font-size:0.88rem;">Upload your resume and optionally include a brief note for the evaluation team.</p>
     <form id="internship-modal-form" method="post" action="{{ url_for('internships.apply', internship_id=internships[0].id) }}" enctype="multipart/form-data" class="form-modern">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <label for="modal_cover">Cover letter</label>
-      <textarea name="cover_letter" id="modal_cover" rows="4" placeholder="Why this role?"></textarea>
+      <label for="modal_cover">Cover letter / Brief intro</label>
+      <textarea name="cover_letter" id="modal_cover" rows="4" placeholder="Briefly describe your interest, projects, and relevant coursework…" style="border-radius:12px;"></textarea>
       <label for="modal_resume">Resume (PDF / DOC / DOCX)</label>
-      <input type="file" name="resume" id="modal_resume" accept=".pdf,.doc,.docx" required>
-      <button type="submit" class="btn btn-primary">Submit application</button>
+      <input type="file" name="resume" id="modal_resume" accept=".pdf,.doc,.docx" required style="border-radius:12px;">
+      <button type="submit" class="btn btn-primary" style="width:100%;padding:0.75rem;border-radius:12px;margin-top:0.75rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;">
+        <i class="ri-send-plane-fill"></i> Submit Application
+      </button>
     </form>
   </div>
 </div>

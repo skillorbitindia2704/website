@@ -250,6 +250,8 @@ def create_app():
     app.logger.setLevel(logging.INFO)
 
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key-change")
+    app.config["TEMPLATES_AUTO_RELOAD"] = True
+    app.jinja_env.auto_reload = True
 
     # Database configuration
     #

@@ -52,17 +52,26 @@
 {% endblock %}
 {% block content %}
 <div class="cert-page-root text-slate-800 dark:text-slate-100">
-  <section class="border-b border-slate-200 bg-gradient-to-r from-brand-600 to-violet-700 py-10 text-white dark:border-slate-800">
-    <div class="container flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+  <section class="cert-hero-banner relative overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-brand-600 via-indigo-700 to-violet-800 p-8 sm:p-10 text-white shadow-xl shadow-indigo-950/20 mb-8 mt-2">
+    <div class="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-cyan-400/20 blur-3xl"></div>
+    <div class="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-violet-400/20 blur-3xl"></div>
+    
+    <div class="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <p class="text-xs font-semibold uppercase tracking-widest text-white/80">Public verification</p>
-        <h1 class="font-display mt-1 text-2xl font-bold">Credential verified</h1>
-        <p class="mt-2 max-w-xl text-sm text-white/90">This URL matches our issuance database. Share it with employers and institutions.</p>
+        <div class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-200 backdrop-blur-md mb-2">
+          <span class="inline-block h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>
+          Public Verification
+        </div>
+        <h1 class="font-display mt-1 text-2xl sm:text-3xl font-extrabold text-white">Credential verified</h1>
+        <p class="mt-2 max-w-xl text-sm sm:text-base text-white/90 leading-relaxed">This URL matches our issuance database. Share it with employers and institutions.</p>
       </div>
-      <a href="{{ url_for('certificates.verify_lookup') }}" class="inline-flex items-center justify-center rounded-xl border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur hover:bg-white/20">Verify another ID</a>
+      <a href="{{ url_for('certificates.verify_lookup') }}" class="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/15 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/25 shadow-sm">
+        <i class="ri-search-line"></i>
+        <span>Verify another ID</span>
+      </a>
     </div>
   </section>
-  <section class="container py-10">
+  <section class="mb-12">
     {% include "certificates/_verify_success.html" %}
   </section>
 </div>

@@ -7,53 +7,110 @@
 </div>
 {% endblock %}
 {% block content %}
-<section class="hero-premium reveal" style="margin-bottom:2rem;padding:2rem 1.75rem;">
-  <div class="hero-inner" style="max-width:720px;">
-    <span class="hero-eyebrow">Learn & Innovate</span>
-    <h1 style="color:#fff;">Enterprise-grade EdTech Programs</h1>
-    <p style="color:rgba(255,255,255,.92);">Coding, AI, robotics, and drone training programs for schools, colleges, and future innovators.</p>
+<!-- PREMIUM SERVICES HERO (ABOUT THEME - SLEEK & COMPACT) -->
+<section class="hero-compact-about reveal" aria-labelledby="services-hero-title">
+  <div class="hero-compact-inner">
+    <div class="hero-compact-main">
+      <span class="hero-compact-badge">
+        <i class="ri-sparkling-fill" style="color:#38bdf8;"></i> Learn &amp; Innovate
+      </span>
+      <h1 id="services-hero-title" class="hero-compact-title">
+        Enterprise-grade EdTech Programs
+      </h1>
+      <p class="hero-compact-subtitle">
+        Coding, AI, robotics, and drone training programs for schools, colleges, and future innovators.
+      </p>
+    </div>
+
+    <!-- Right side decorative subtle glass chip (hidden on mobile, compact on desktop) -->
+    <div class="hide-mobile">
+      <div class="hero-compact-showcase">
+        <div style="width:46px;height:46px;margin:0 auto 0.5rem;border-radius:14px;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#38bdf8;">
+          <i class="ri-rocket-2-fill"></i>
+        </div>
+        <p style="margin:0;color:#ffffff;font-weight:700;font-size:0.9rem;">Turnkey Solutions</p>
+        <p style="margin:0.2rem 0 0;color:rgba(255,255,255,0.75);font-size:0.76rem;">Syllabus + Lab Hardware</p>
+      </div>
+    </div>
   </div>
 </section>
 
-<div class="grid-cards">
+
+<!-- SERVICES GRID -->
+<div class="grid-cards" style="grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 1.5rem; align-items: stretch;">
   {% for s in services %}
-  <article class="card-premium reveal service-card">
-    <div class="card-body">
-      {% if s.badge_text or s.category %}
-      <p class="muted" style="font-size:0.8rem;margin-bottom:0.35rem;">{{ s.badge_text or s.category }}</p>
-      {% endif %}
-      <div style="font-size:2rem;margin-bottom:0.5rem;" aria-hidden="true">{{ s.icon|remix_icon }}</div>
-      <h2 style="font-size:1.15rem;margin-bottom:0.35rem;">{{ s.title }}</h2>
-      <p class="muted" style="font-size:0.92rem;margin-bottom:0.75rem;">{{ s.description }}</p>
+  <article class="card-premium reveal service-card" style="border-radius:24px;display:flex;flex-direction:column;justify-content:space-between;padding:1.65rem;border:1px solid var(--border-soft);background:var(--bg-surface);transition:all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+    <div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:1.25rem;">
+        {% if s.badge_text or s.category %}
+        <span style="display:inline-flex;align-items:center;gap:0.35rem;padding:0.35rem 0.8rem;background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.22);border-radius:99px;font-size:0.78rem;font-weight:700;color:var(--primary-from);letter-spacing:0.02em;">
+          <i class="ri-sparkling-2-line"></i> {{ s.badge_text or s.category }}
+        </span>
+        {% else %}
+        <span></span>
+        {% endif %}
+      </div>
+
+      <div class="service-icon-box" style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg, rgba(79,70,229,0.12), rgba(6,182,212,0.12));border:1px solid rgba(79,70,229,0.22);display:inline-flex;align-items:center;justify-content:center;font-size:1.75rem;color:var(--primary-from);margin-bottom:1.15rem;transition:transform 0.3s ease;" aria-hidden="true">
+        {{ s.icon|remix_icon }}
+      </div>
+
+      <h2 style="font-family:var(--font-display);font-size:1.25rem;font-weight:700;margin:0 0 0.6rem;color:var(--text);letter-spacing:-0.01em;">
+        {{ s.title }}
+      </h2>
+      <p class="muted" style="font-size:0.92rem;line-height:1.65;margin:0 0 1.25rem;">
+        {{ s.description }}
+      </p>
+
       {% if s.features %}
-      <ul style="font-size:0.85rem;padding-left:1.1rem;margin:0 0 0.75rem;color:var(--text-muted);">
-        {% for f in s.features %}<li style="margin-bottom:0.2rem;">{{ f }}</li>{% endfor %}
+      <ul style="margin:0 0 1.25rem;padding:0;list-style:none;display:flex;flex-direction:column;gap:0.55rem;">
+        {% for f in s.features %}
+        <li style="display:flex;align-items:flex-start;gap:0.55rem;font-size:0.88rem;color:var(--text-muted);line-height:1.45;">
+          <span style="color:var(--primary-from);font-size:1.05rem;line-height:1.2;flex-shrink:0;"><i class="ri-checkbox-circle-fill"></i></span>
+          <span>{{ f }}</span>
+        </li>
+        {% endfor %}
       </ul>
       {% endif %}
-      <p class="price-tag" style="font-size:0.95rem;color:var(--accent);">{{ s.price_note }}</p>
-      <button type="button" class="btn btn-primary btn-sm js-open-service-modal" style="margin-top:0.9rem;"
-        data-slug="{{ s.slug }}" data-title="{{ s.title }}">{{ s.button_text or 'Request service' }}</button>
+    </div>
+
+    <div style="margin-top:auto;padding-top:1.15rem;border-top:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
+      <div>
+        <span style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);display:block;font-weight:600;">Pricing</span>
+        <span class="price-tag" style="font-size:0.98rem;font-weight:700;color:var(--primary-from);display:inline-block;margin-top:0.15rem;">{{ s.price_note }}</span>
+      </div>
+      <button type="button" class="btn btn-primary btn-sm js-open-service-modal" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.55rem 1rem;border-radius:12px;font-weight:600;"
+        data-slug="{{ s.slug }}" data-title="{{ s.title }}">
+        <span>{{ s.button_text or 'Request service' }}</span> <i class="ri-arrow-right-line" aria-hidden="true"></i>
+      </button>
     </div>
   </article>
   {% endfor %}
 </div>
 
+<!-- SERVICE MODAL -->
 <div id="service-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="service-modal-title">
-  <div class="modal-panel">
-    <button type="button" class="modal-close" id="service-modal-close" aria-label="Close"><i class="ri-close-line" aria-hidden="true"></i></button>
-    <h3 id="service-modal-title" style="margin-top:0;">Request service</h3>
+  <div class="modal-panel" style="border-radius:24px;border:1px solid var(--border-soft);box-shadow:0 25px 60px rgba(0,0,0,0.3);max-width:520px;padding:2rem;">
+    <button type="button" class="modal-close" id="service-modal-close" aria-label="Close" style="border-radius:99px;"><i class="ri-close-line" aria-hidden="true"></i></button>
+    <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.35rem;">
+      <span style="width:32px;height:32px;border-radius:10px;background:rgba(79,70,229,0.12);display:inline-flex;align-items:center;justify-content:center;color:var(--primary-from);font-size:1.1rem;"><i class="ri-service-line"></i></span>
+      <h3 id="service-modal-title" style="margin:0;font-family:var(--font-display);font-size:1.35rem;font-weight:700;">Request service</h3>
+    </div>
+    <p class="muted" style="margin:0 0 1.5rem;font-size:0.88rem;">Share your requirements and our team will get in touch within 24 hours.</p>
     <form method="post" action="{{ url_for('it_services.submit_request') }}" class="form-modern">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="service_slug" id="modal_service_slug" value="">
       <label for="sr_name">Full name</label>
-      <input type="text" name="full_name" id="sr_name" required minlength="2" autocomplete="name">
+      <input type="text" name="full_name" id="sr_name" required minlength="2" autocomplete="name" placeholder="e.g. Rahul Sharma" style="border-radius:12px;">
       <label for="sr_email">Work email</label>
-      <input type="email" name="email" id="sr_email" required autocomplete="email">
+      <input type="email" name="email" id="sr_email" required autocomplete="email" placeholder="name@institution.org" style="border-radius:12px;">
       <label for="sr_phone">Phone</label>
-      <input type="tel" name="phone" id="sr_phone" required autocomplete="tel" placeholder="10+ digits">
+      <input type="tel" name="phone" id="sr_phone" required autocomplete="tel" placeholder="10-digit mobile number" style="border-radius:12px;">
       <label for="sr_req">Requirement</label>
-      <textarea name="requirement" id="sr_req" rows="4" required minlength="20" placeholder="Goals, timeline, budget band…"></textarea>
-      <button type="submit" class="btn btn-primary">Submit request</button>
+      <textarea name="requirement" id="sr_req" rows="4" required minlength="20" placeholder="Describe your students/batch size, timeline, goals, and preferred mode…" style="border-radius:12px;"></textarea>
+      <button type="submit" class="btn btn-primary" style="width:100%;padding:0.75rem;border-radius:12px;margin-top:0.5rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;">
+        <i class="ri-send-plane-fill"></i> Submit Request
+      </button>
     </form>
   </div>
 </div>
