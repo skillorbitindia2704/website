@@ -780,7 +780,9 @@
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary ai-enquiry-submit">Submit enquiry</button>
+      <button type="submit" class="btn btn-primary ai-enquiry-submit">
+        <i class="ri-send-plane-fill" aria-hidden="true"></i> Submit enquiry
+      </button>
     </form>
   </div>
 </section>
@@ -788,10 +790,12 @@
 <!-- DOWNLOAD BROCHURE -->
 {% if brochure %}
 <section class="section-gap-lg reveal" aria-labelledby="brochure-heading">
-  <div class="cta-banner" style="animation:none;">
-    <h3 id="brochure-heading">Download the AI & Robotics Lab Brochure</h3>
-    <p>Premium PDF overview for management and STEM committees.</p>
-    <a href="{{ url_for('static', filename=brochure.file_path) }}" class="btn btn-primary" download>Download PDF</a>
+  <div class="cta-banner" style="animation:none;background:linear-gradient(135deg, #0B1225 0%, #111827 30%, #1D4ED8 60%, #7C3AED 100%);border-radius:24px;border:1px solid rgba(255,255,255,0.18);box-shadow:0 20px 50px rgba(11,18,37,0.35);padding:2.5rem 2rem;">
+    <h3 id="brochure-heading" style="color:#ffffff;">Download the AI &amp; Robotics Lab Brochure</h3>
+    <p style="color:rgba(255,255,255,0.85);">Premium PDF overview for management and STEM committees.</p>
+    <a href="{{ url_for('static', filename=brochure.file_path) }}" class="btn btn-primary" download style="background:#ffffff;color:#1e1b4b;font-weight:700;border-radius:999px;">
+      <i class="ri-download-2-line" aria-hidden="true"></i> Download PDF
+    </a>
   </div>
 </section>
 {% endif %}
@@ -841,7 +845,9 @@
       <label for="lab_message">Message</label>
       <textarea name="message" id="lab_message" rows="4" required minlength="15"></textarea>
 
-      <button type="submit" class="btn btn-primary">Send inquiry</button>
+      <button type="submit" class="btn btn-primary">
+        <i class="ri-send-plane-fill" aria-hidden="true"></i> Send inquiry
+      </button>
     </form>
   </div>
 </div>
@@ -849,9 +855,15 @@
 <!-- Sticky CTA -->
 <div class="ai-sticky-cta" aria-hidden="true">
   <div class="ai-sticky-inner">
-    <p class="ai-sticky-text">Want a quick demo & pricing?</p>
-    <button type="button" class="btn btn-primary btn-sm js-scroll-to-enquiry">Book Demo</button>
-    <button type="button" class="btn btn-accent btn-sm js-open-lab-modal" data-package="undecided">Get Quotation</button>
+    <p class="ai-sticky-text">Want a quick demo &amp; pricing?</p>
+    <div style="display:flex;align-items:center;gap:0.65rem;">
+      <button type="button" class="btn btn-primary btn-sm js-scroll-to-enquiry">
+        <i class="ri-calendar-check-line" aria-hidden="true"></i> Book Demo
+      </button>
+      <button type="button" class="btn btn-accent btn-sm js-open-lab-modal" data-package="undecided">
+        <i class="ri-file-list-3-line" aria-hidden="true"></i> Get Quotation
+      </button>
+    </div>
   </div>
 </div>
 
