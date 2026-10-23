@@ -1,146 +1,217 @@
 {% extends "base.html" %}
-{% block title %}My HR — Teacher{% endblock %}
+{% block title %}My HR Portal — Teacher Workspace{% endblock %}
 {% block breadcrumbs %}
 <div class="container breadcrumbs-wrap">
-  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('My HR', None)] %}
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher Dashboard', url_for('teacher.dashboard')), ('My HR', None)] %}
   {% include "partials/breadcrumbs.html" %}
 </div>
 {% endblock %}
 {% block content %}
-<h1>My HR Dashboard</h1>
-<div class="form-actions" style="margin-bottom:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
-  <a href="{{ url_for('teacher.dashboard') }}" class="btn btn-secondary btn-sm">Back to Teacher dashboard</a>
-  <a href="{{ url_for('teacher.teacher_hr_attendance') }}" class="btn btn-primary btn-sm">My Attendance</a>
-  <a href="{{ url_for('teacher.teacher_leave_requests') }}" class="btn btn-primary btn-sm">Apply Leave</a>
-  <a href="{{ url_for('teacher.teacher_attendance_correction') }}" class="btn btn-primary btn-sm">Attendance Correction</a>
-  <a href="{{ url_for('teacher.teacher_hr_payroll') }}" class="btn btn-secondary btn-sm">My Payslip</a>
-</div>
-<div class="grid-cards section-gap">
-  <div class="card-premium surface-card reveal">
-    <h3 class="card-title-sm">Employee</h3>
-    <p class="muted">{{ employee.display_name }} — {{ employee.employee_code }}</p>
-    <p>{{ employee.designation }} in {{ employee.department }}</p>
-  </div>
-  <div class="card-premium surface-card reveal">
-    <h3 class="card-title-sm">Attendance</h3>
-    <p class="muted">{{ attendance_count }} records</p>
-  </div>
-  <div class="card-premium surface-card reveal">
-    <h3 class="card-title-sm">Payroll</h3>
-    <p class="muted">{{ payroll_count }} runs</p>
-  </div>
-  <div class="card-premium surface-card reveal">
-    <h3 class="card-title-sm">Leave</h3>
-    <p class="muted">{{ leave_count }} requests</p>
+<div class="dashboard-shell">
+  {% include "partials/dashboard_sidebar.html" %}
+  <div class="dash-main">
+
+    <!-- Subpage Header -->
+    <div class="t-subpage-header">
+      <div class="t-subpage-title-wrap">
+        <h1 class="t-subpage-title">
+          <span class="t-icon-box t-icon-cyan"><i class="ri-user-star-line"></i></span>
+          <span>Faculty HR &amp; Staff Portal</span>
+        </h1>
+        <p class="t-subpage-sub">
+          <strong>{{ employee.display_name }}</strong> · {{ employee.employee_code }} · {{ employee.designation }} in {{ employee.department }}
+        </p>
+      </div>
+      <div class="t-subpage-actions">
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.dashboard') }}">
+          <i class="ri-arrow-left-line"></i> Teacher Dashboard
+        </a>
+      </div>
+    </div>
+
+    <!-- HR Pill Navigation Bar -->
+    <div class="t-pill-tabs">
+      <a class="t-pill-tab active" href="{{ url_for('teacher.teacher_hr_dashboard') }}"><i class="ri-dashboard-line"></i> HR Overview</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_hr_attendance') }}"><i class="ri-calendar-check-line"></i> Attendance Log</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_leave_requests') }}"><i class="ri-flight-takeoff-line"></i> Apply Leave</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_attendance_correction') }}"><i class="ri-edit-line"></i> Correction Request</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_hr_payroll') }}"><i class="ri-file-list-3-line"></i> Payslips</a>
+    </div>
+
+    <!-- Digital Punch Clock Widget -->
+    <div class="t-punch-card reveal" style="margin-bottom:1.5rem;">
+      <div style="display:flex;align-items:center;gap:1.25rem;">
+        <div class="teacher-avatar-circle" style="width:58px;height:58px;font-size:1.4rem;">
+          <i class="ri-fingerprint-line"></i>
+        </div>
+        <div>
+          <span class="muted" style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">Digital Punch Clock</span>
+          <div class="t-digital-clock" id="teacher-current-time">--:--:--</div>
+          <span class="muted" style="font-size:0.85rem;"><i class="ri-calendar-line"></i> {{ today.strftime('%A, %d %B %Y') }}</span>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <div style="background:var(--bg-surface);padding:0.6rem 1rem;border-radius:10px;text-align:right;">
+          <span class="muted" style="font-size:0.75rem;display:block;">Today's Working Hours</span>
+          <strong style="font-size:1.05rem;color:var(--text);">{{ today_working_hours }}</strong>
+        </div>
+
+        <div>
+          {% if not today_record or not today_record.check_in %}
+          <form method="post" action="{{ url_for('teacher.teacher_attendance_check_in') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-success btn-lg" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.75rem 1.5rem;font-weight:700;box-shadow:0 4px 14px rgba(34,197,94,0.35);">
+              <i class="ri-login-box-line"></i> PUNCH CLOCK IN
+            </button>
+          </form>
+          {% elif today_record and today_record.check_in and not today_record.check_out %}
+          <form method="post" action="{{ url_for('teacher.teacher_attendance_check_out') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-primary btn-lg" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.75rem 1.5rem;font-weight:700;box-shadow:0 4px 14px rgba(79,70,229,0.35);">
+              <i class="ri-logout-box-line"></i> PUNCH CLOCK OUT
+            </button>
+          </form>
+          {% elif today_record and today_record.check_in and today_record.check_out %}
+          <div style="padding:0.6rem 1.1rem;background:rgba(34,197,94,0.12);color:#15803d;border-radius:999px;font-weight:700;font-size:0.88rem;display:inline-flex;align-items:center;gap:0.35rem;">
+            <i class="ri-checkbox-circle-fill"></i> Attendance Completed Today
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- HR Summary Cards -->
+    <div class="teacher-stats-strip reveal" style="margin-top:0;">
+      <div class="teacher-stat-card">
+        <div class="teacher-stat-icon-wrap t-icon-cyan"><i class="ri-calendar-check-line"></i></div>
+        <div class="teacher-stat-data">
+          <span class="teacher-stat-num">{{ attendance_count }}</span>
+          <span class="teacher-stat-label">Attendance Records</span>
+        </div>
+      </div>
+
+      <div class="teacher-stat-card">
+        <div class="teacher-stat-icon-wrap t-icon-emerald"><i class="ri-file-list-3-line"></i></div>
+        <div class="teacher-stat-data">
+          <span class="teacher-stat-num">{{ payroll_count }}</span>
+          <span class="teacher-stat-label">Payroll Runs</span>
+        </div>
+      </div>
+
+      <div class="teacher-stat-card">
+        <div class="teacher-stat-icon-wrap t-icon-amber"><i class="ri-flight-takeoff-line"></i></div>
+        <div class="teacher-stat-data">
+          <span class="teacher-stat-num">{{ leave_count }}</span>
+          <span class="teacher-stat-label">Leave Requests</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Attendance Log -->
+    <div class="t-section-header" style="margin-top:1rem;">
+      <h2 class="t-section-title">
+        <i class="ri-history-line" style="color:#0284c7;"></i>
+        <span>Recent Attendance Log</span>
+      </h2>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.teacher_hr_attendance') }}">
+        View Full History <i class="ri-arrow-right-s-line"></i>
+      </a>
+    </div>
+
+    <div class="t-modern-table-card reveal">
+      <div style="overflow-x:auto;">
+        <table class="t-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Check In</th>
+              <th>Check Out</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in recent_attendance %}
+            <tr>
+              <td><strong>{{ record.attendance_date.strftime('%d %b %Y') }}</strong></td>
+              <td>
+                {% if record.status == 'Present' %}
+                <span class="t-badge-published"><i class="ri-checkbox-circle-fill"></i> Present</span>
+                {% else %}
+                <span class="t-badge-draft">{{ record.status }}</span>
+                {% endif %}
+              </td>
+              <td>{{ record.check_in.strftime('%I:%M %p') if record.check_in else '—' }}</td>
+              <td>{{ record.check_out.strftime('%I:%M %p') if record.check_out else '—' }}</td>
+              <td class="muted">{{ record.notes or '—' }}</td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="5" style="text-align:center;padding:2rem;" class="muted">No attendance records found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recent Payroll History -->
+    {% if recent_payroll %}
+    <div class="t-section-header" style="margin-top:2rem;">
+      <h2 class="t-section-title">
+        <i class="ri-bank-card-line" style="color:#10b981;"></i>
+        <span>Recent Payroll Slips</span>
+      </h2>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.teacher_hr_payroll') }}">
+        All Payslips <i class="ri-arrow-right-s-line"></i>
+      </a>
+    </div>
+
+    <div class="t-modern-table-card reveal">
+      <div style="overflow-x:auto;">
+        <table class="t-table">
+          <thead>
+            <tr>
+              <th>Period</th>
+              <th>Gross Pay</th>
+              <th>Allowances</th>
+              <th>Deductions</th>
+              <th>Net Salary</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for run in recent_payroll %}
+            <tr>
+              <td><strong>{{ run.period_start.strftime('%d %b') }} – {{ run.period_end.strftime('%d %b %Y') }}</strong></td>
+              <td>₹{{ run.gross_pay }}</td>
+              <td>+₹{{ run.allowances }}</td>
+              <td>-₹{{ run.deductions }}</td>
+              <td style="color:#10b981;font-weight:700;">₹{{ run.net_pay }}</td>
+              <td><span class="t-badge-published">{{ run.status }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
   </div>
 </div>
 
-<section class="card-premium reveal" style="padding:1rem; margin:1rem 0;">
-  <h2>Today's Attendance</h2>
-  <div class="grid-3 gap-4">
-    <div>
-      <strong>Date</strong>
-      <p class="muted">{{ today.strftime('%A, %d %B %Y') }}</p>
-    </div>
-    <div>
-      <strong>Status</strong>
-      <p class="muted">{{ today_record.status if today_record else 'NOT CHECKED IN' }}</p>
-    </div>
-    <div>
-      <strong>Current Time</strong>
-      <p class="muted"><span id="teacher-current-time">--:--:--</span></p>
-    </div>
-    <div>
-      <strong>Check-In</strong>
-      <p class="muted">{{ today_record.check_in.strftime('%Y-%m-%d %H:%M') if today_record and today_record.check_in else '—' }}</p>
-    </div>
-    <div>
-      <strong>Check-Out</strong>
-      <p class="muted">{{ today_record.check_out.strftime('%Y-%m-%d %H:%M') if today_record and today_record.check_out else '—' }}</p>
-    </div>
-    <div>
-      <strong>Working Hours</strong>
-      <p class="muted">{{ today_working_hours }}</p>
-    </div>
-  </div>
-  <div class="form-actions" style="margin-top:1rem;">
-    {% if not today_record or not today_record.check_in %}
-    <form method="post" action="{{ url_for('teacher.teacher_attendance_check_in') }}" style="display:inline;">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" class="btn btn-success btn-sm">CHECK IN</button>
-    </form>
-    {% endif %}
-    {% if today_record and today_record.check_in and not today_record.check_out %}
-    <form method="post" action="{{ url_for('teacher.teacher_attendance_check_out') }}" style="display:inline;">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" class="btn btn-primary btn-sm">CHECK OUT</button>
-    </form>
-    {% endif %}
-    {% if today_record and today_record.check_in and today_record.check_out %}
-    <span class="muted">Attendance completed for today.</span>
-    {% endif %}
-  </div>
-</section>
-
-<h2>Recent attendance</h2>
-<div class="card-premium reveal" style="padding:1rem; overflow-x:auto;">
-  <table class="table-modern" style="min-width:800px;">
-    <thead><tr><th>Date</th><th>Status</th><th>Check in</th><th>Check out</th><th>Notes</th></tr></thead>
-    <tbody>
-      {% for record in recent_attendance %}
-      <tr>
-        <td>{{ record.attendance_date.strftime('%Y-%m-%d') }}</td>
-        <td>{{ record.status }}</td>
-        <td>{{ record.check_in.strftime('%Y-%m-%d %H:%M') if record.check_in else '—' }}</td>
-        <td>{{ record.check_out.strftime('%Y-%m-%d %H:%M') if record.check_out else '—' }}</td>
-        <td>{{ record.notes or '—' }}</td>
-      </tr>
-      {% else %}
-      <tr><td colspan="5" class="muted">No attendance records yet.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-
-<h2>Recent payroll runs</h2>
-<div class="card-premium reveal" style="padding:1rem; overflow-x:auto;">
-  <table class="table-modern" style="min-width:800px;">
-    <thead><tr><th>Period</th><th>Gross</th><th>Allowances</th><th>Deductions</th><th>Net pay</th><th>Status</th></tr></thead>
-    <tbody>
-      {% for run in recent_payroll %}
-      <tr>
-        <td>{{ run.period_start.strftime('%Y-%m-%d') }} <i class="ri-arrow-right-line" aria-hidden="true" style="font-size:0.85em;"></i> {{ run.period_end.strftime('%Y-%m-%d') }}</td>
-        <td>₹{{ run.gross_pay }}</td>
-        <td>₹{{ run.allowances }}</td>
-        <td>₹{{ run.deductions }}</td>
-        <td>₹{{ run.net_pay }}</td>
-        <td>{{ run.status }}</td>
-      </tr>
-      {% else %}
-      <tr><td colspan="6" class="muted">No payroll runs yet.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-{% endblock %}
-{% block extra_js %}
 <script>
-(function () {
-  const clockNode = document.getElementById('teacher-current-time');
-  if (!clockNode) {
-    return;
+(function() {
+  function updateTime() {
+    const el = document.getElementById('teacher-current-time');
+    if (el) {
+      const now = new Date();
+      el.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
   }
-  function updateClock() {
-    const now = new Date();
-    clockNode.textContent = now.toLocaleTimeString('en-IN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: true,
-    });
-  }
-  updateClock();
-  setInterval(updateClock, 1000);
+  updateTime();
+  setInterval(updateTime, 1000);
 })();
 </script>
 {% endblock %}

@@ -1,45 +1,139 @@
 {% extends "base.html" %}
-{% block title %}Quizzes — Teacher{% endblock %}
+{% block title %}LMS Quizzes — Teacher Workspace{% endblock %}
 {% block breadcrumbs %}
 <div class="container breadcrumbs-wrap">
-  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('Quizzes', None)] %}
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher Dashboard', url_for('teacher.dashboard')), ('LMS Quizzes', None)] %}
   {% include "partials/breadcrumbs.html" %}
 </div>
 {% endblock %}
 {% block content %}
-<h1 class="page-title">Quizzes</h1>
-<p class="muted">Structured quizzes auto-score in the classroom when published.</p>
-<div class="teacher-dash-actions section-gap">
-  <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_courses') }}">Courses</a>
-</div>
-<div class="card-premium reveal" style="padding:0;overflow-x:auto;">
-  <table class="table-modern">
-    <thead><tr><th>Course</th><th>Title</th><th>Pass %</th><th>Published</th><th></th></tr></thead>
-    <tbody>
+<div class="dashboard-shell">
+  {% include "partials/dashboard_sidebar.html" %}
+  <div class="dash-main">
+
+    <!-- Subpage Header -->
+    <div class="t-subpage-header">
+      <div class="t-subpage-title-wrap">
+        <h1 class="t-subpage-title">
+          <span class="t-icon-box t-icon-purple"><i class="ri-questionnaire-line"></i></span>
+          <span>LMS Assessments &amp; Quizzes</span>
+        </h1>
+        <p class="t-subpage-sub">Create auto-graded MCQ tests, configure countdown timers, and set certificate passing thresholds.</p>
+      </div>
+      <div class="t-subpage-actions">
+        {% if courses %}
+        <div style="position:relative;display:inline-block;" id="create-quiz-dropdown-wrap">
+          <button type="button" class="btn-hero-primary" onclick="toggleQuizPicker()" style="border:none;cursor:pointer;">
+            <i class="ri-add-line"></i> Create New Quiz
+          </button>
+          <div id="quiz-picker-menu" style="display:none;position:absolute;right:0;top:105%;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);min-width:260px;z-index:20;padding:0.5rem;">
+            <p style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin:0.25rem 0.5rem 0.5rem;">Select target course:</p>
+            {% for c in courses %}
+            <a href="{{ url_for('teacher.teacher_quiz_new', course_id=c.id) }}" style="display:block;padding:0.5rem 0.75rem;border-radius:6px;font-size:0.88rem;color:var(--text);text-decoration:none;font-weight:600;" onmouseover="this.style.background='var(--bg-surface)'" onmouseout="this.style.background='transparent'">
+              <i class="ri-questionnaire-line" style="color:#8b5cf6;margin-right:0.35rem;"></i> {{ c.title }}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Quick Tabs -->
+    <div class="t-pill-tabs">
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_courses') }}"><i class="ri-folder-video-line"></i> Courses</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_live_sessions') }}"><i class="ri-broadcast-line"></i> Live Sessions</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_recorded_sessions') }}"><i class="ri-film-line"></i> Recorded</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_notes') }}"><i class="ri-file-text-line"></i> Notes</a>
+      <a class="t-pill-tab active" href="{{ url_for('teacher.teacher_quizzes') }}"><i class="ri-questionnaire-line"></i> Quizzes ({{ rows|length }})</a>
+    </div>
+
+    <!-- Quizzes Grid -->
+    <div class="teacher-grid-cards" style="margin-top:0;">
       {% for q in rows %}
-      <tr>
-        <td>{{ q.course.title if q.course else '—' }}</td>
-        <td><strong>{{ q.title }}</strong></td>
-        <td>{{ q.pass_percent }}%</td>
-        <td>{% if q.is_published %}Yes{% else %}No{% endif %}</td>
-        <td style="white-space:nowrap;">
-          <a class="btn btn-primary btn-sm" href="{{ url_for('teacher.teacher_quiz_edit', quiz_id=q.id) }}">Edit</a>
-          <form method="post" action="{{ url_for('teacher.teacher_quiz_delete', quiz_id=q.id) }}" style="display:inline;" onsubmit="return confirm('Delete quiz?');">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn btn-ghost btn-sm" style="color:#b91c1c;">Delete</button>
-          </form>
-        </td>
-      </tr>
+      <div class="t-feature-card t-card-quizzes reveal">
+        <div class="t-card-top-row">
+          <div class="t-card-icon-big t-icon-purple">
+            <i class="ri-trophy-line"></i>
+          </div>
+          {% if q.is_published %}
+          <span class="t-badge-published"><i class="ri-checkbox-circle-fill"></i> Published</span>
+          {% else %}
+          <span class="t-badge-draft"><i class="ri-draft-line"></i> Draft</span>
+          {% endif %}
+        </div>
+
+        <h3 class="t-card-title" style="margin-bottom:0.35rem;">{{ q.title }}</h3>
+        <p class="muted" style="font-size:0.82rem;margin:0 0 0.75rem;font-weight:600;color:#4f46e5;">
+          <i class="ri-book-open-line"></i> {{ q.course.title if q.course else 'Course' }}
+          {% if q.module %}<span class="muted" style="font-weight:400;">· {{ q.module.title }}</span>{% endif %}
+        </p>
+
+        <div style="background:var(--bg-surface);padding:0.75rem;border-radius:8px;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;">
+          <div>
+            <span class="muted" style="font-size:0.75rem;display:block;">Pass Threshold</span>
+            <strong style="color:#22c55e;">{{ q.pass_percent }}% required</strong>
+          </div>
+          <div>
+            <span class="muted" style="font-size:0.75rem;display:block;">Time Limit</span>
+            <strong>{% if q.time_limit_seconds %}{{ (q.time_limit_seconds / 60)|int }} mins{% else %}Untimed{% endif %}</strong>
+          </div>
+          <div>
+            <span class="muted" style="font-size:0.75rem;display:block;">Questions</span>
+            <strong>{{ q.questions_json|length if q.questions_json else 0 }} MCQs</strong>
+          </div>
+        </div>
+
+        <div class="t-card-footer" style="gap:0.5rem;flex-wrap:wrap;">
+          <span class="muted" style="font-size:0.8rem;"><i class="ri-magic-line"></i> Auto-graded in LMS</span>
+          <div style="display:flex;gap:0.4rem;margin-left:auto;">
+            <a class="btn btn-primary btn-sm" href="{{ url_for('teacher.teacher_quiz_edit', quiz_id=q.id) }}" style="font-size:0.82rem;padding:0.35rem 0.7rem;">
+              <i class="ri-edit-line"></i> Edit Quiz
+            </a>
+            <form method="post" action="{{ url_for('teacher.teacher_quiz_delete', quiz_id=q.id) }}" style="display:inline;" onsubmit="return confirm('Delete this quiz?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-ghost btn-sm" style="color:#ef4444;font-size:0.82rem;padding:0.35rem 0.5rem;" title="Delete Quiz">
+                <i class="ri-delete-bin-line"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
       {% else %}
-      <tr><td colspan="5" class="muted">No LMS quizzes yet.</td></tr>
+      <div class="t-form-card" style="grid-column:1/-1;text-align:center;padding:3rem 1.5rem;">
+        <div style="font-size:3rem;color:#8b5cf6;margin-bottom:0.5rem;"><i class="ri-questionnaire-line"></i></div>
+        <h3 style="margin:0 0 0.5rem;color:var(--text);">No quizzes created yet</h3>
+        <p class="muted" style="margin:0 0 1.25rem;">Create assessments with automated grading to test student understanding.</p>
+        {% if courses %}
+        <p class="muted" style="font-size:0.85rem;margin-bottom:0.75rem;">Pick a course to create an MCQ quiz:</p>
+        <div style="display:flex;justify-content:center;gap:0.5rem;flex-wrap:wrap;">
+          {% for c in courses %}
+          <a class="btn btn-secondary btn-sm" href="{{ url_for('teacher.teacher_quiz_new', course_id=c.id) }}">
+            <i class="ri-add-line"></i> {{ c.title }}
+          </a>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
       {% endfor %}
-    </tbody>
-  </table>
+    </div>
+
+  </div>
 </div>
-<h2 class="section-gap" style="font-size:1.05rem;">Create on a course</h2>
-<ul class="muted">
-  {% for c in courses %}
-  <li><a href="{{ url_for('teacher.teacher_quiz_new', course_id=c.id) }}">{{ c.title }}</a></li>
-  {% endfor %}
-</ul>
+
+<script>
+function toggleQuizPicker() {
+  const menu = document.getElementById('quiz-picker-menu');
+  if (menu) {
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  }
+}
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('create-quiz-dropdown-wrap');
+  const menu = document.getElementById('quiz-picker-menu');
+  if (wrap && menu && !wrap.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+</script>
 {% endblock %}

@@ -1,6 +1,19 @@
-<aside class="dash-sidebar">
+<aside class="dash-sidebar {% if role == 'teacher' %}teacher-sidebar{% endif %}">
   {% set role = session.get('role') or (current_user.role if current_user.is_authenticated else None) %}
+  {% if role == 'teacher' %}
+  <div class="teacher-profile-header">
+    <div class="teacher-avatar-circle">
+      {{ current_user.full_name[0] if current_user.full_name else 'T' }}
+      <span class="teacher-status-dot" title="Active Faculty"></span>
+    </div>
+    <div class="teacher-profile-info">
+      <p class="teacher-name">{{ current_user.full_name or 'Faculty Member' }}</p>
+      <span class="teacher-badge-tag"><i class="ri-verified-badge-fill"></i> Teacher Pro</span>
+    </div>
+  </div>
+  {% else %}
   <p class="dash-sidebar-title">{{ role|capitalize if role else 'My' }} workspace</p>
+  {% endif %}
   <nav class="dash-nav">
     {% if role == 'admin' or (current_user.is_authenticated and current_user.can_access_admin_panel and request.path.startswith('/admin')) %}
     <a href="{{ url_for('admin.index') }}" class="dash-nav-link {% if request.endpoint == 'admin.index' %}active{% endif %}">Admin overview</a>
@@ -26,14 +39,41 @@
     <a href="{{ url_for('admin.user_management') }}" class="dash-nav-link">User management</a>
     {% endif %}
     {% elif role == 'teacher' %}
-    <a href="{{ url_for('teacher.dashboard') }}" class="dash-nav-link {% if request.endpoint == 'teacher.dashboard' %}active{% endif %}">Overview</a>
-    <a href="{{ url_for('teacher.create_course') }}" class="dash-nav-link">Create course</a>
-    <a href="{{ url_for('teacher.teacher_courses') }}" class="dash-nav-link">My courses</a>
-    <a href="{{ url_for('teacher.teacher_live_sessions') }}" class="dash-nav-link">Live sessions</a>
-    <a href="{{ url_for('teacher.teacher_recorded_sessions') }}" class="dash-nav-link">Recorded sessions</a>
-    <a href="{{ url_for('teacher.teacher_notes') }}" class="dash-nav-link">Notes</a>
-    <a href="{{ url_for('teacher.teacher_quizzes') }}" class="dash-nav-link">Quizzes</a>
-    <a href="{{ url_for('teacher.teacher_hr_dashboard') }}" class="dash-nav-link">My HR</a>
+    <p class="teacher-nav-heading">Teacher Workspace</p>
+    <a href="{{ url_for('teacher.dashboard') }}" class="teacher-nav-link {% if request.endpoint == 'teacher.dashboard' %}active{% endif %}">
+      <span class="t-icon-box t-icon-indigo"><i class="ri-dashboard-3-line"></i></span>
+      <span>Overview</span>
+    </a>
+    <a href="{{ url_for('teacher.create_course') }}" class="teacher-nav-link {% if request.endpoint == 'teacher.create_course' %}active{% endif %}">
+      <span class="t-icon-box t-icon-violet"><i class="ri-add-circle-line"></i></span>
+      <span>Create course</span>
+    </a>
+    <a href="{{ url_for('teacher.teacher_courses') }}" class="teacher-nav-link {% if request.endpoint in ['teacher.teacher_courses', 'teacher.teacher_edit_course', 'teacher.teacher_course_students'] %}active{% endif %}">
+      <span class="t-icon-box t-icon-blue"><i class="ri-folder-video-line"></i></span>
+      <span>My courses</span>
+      {% if courses is defined and courses %}<span class="t-nav-pill">{{ courses|length }}</span>{% endif %}
+    </a>
+    <a href="{{ url_for('teacher.teacher_live_sessions') }}" class="teacher-nav-link {% if request.endpoint in ['teacher.teacher_live_sessions', 'teacher.teacher_live_session_new', 'teacher.teacher_live_session_edit'] %}active{% endif %}">
+      <span class="t-icon-box t-icon-rose"><i class="ri-broadcast-line"></i></span>
+      <span>Live sessions</span>
+      <span class="t-nav-pill"><span class="live-radar-dot"></span>Live</span>
+    </a>
+    <a href="{{ url_for('teacher.teacher_recorded_sessions') }}" class="teacher-nav-link {% if request.endpoint in ['teacher.teacher_recorded_sessions', 'teacher.teacher_recorded_new', 'teacher.teacher_recorded_edit'] %}active{% endif %}">
+      <span class="t-icon-box t-icon-amber"><i class="ri-film-line"></i></span>
+      <span>Recorded</span>
+    </a>
+    <a href="{{ url_for('teacher.teacher_notes') }}" class="teacher-nav-link {% if request.endpoint in ['teacher.teacher_notes', 'teacher.teacher_note_new', 'teacher.teacher_note_edit'] %}active{% endif %}">
+      <span class="t-icon-box t-icon-emerald"><i class="ri-file-text-line"></i></span>
+      <span>Notes</span>
+    </a>
+    <a href="{{ url_for('teacher.teacher_quizzes') }}" class="teacher-nav-link {% if request.endpoint in ['teacher.teacher_quizzes', 'teacher.teacher_quiz_new', 'teacher.teacher_quiz_edit'] %}active{% endif %}">
+      <span class="t-icon-box t-icon-purple"><i class="ri-questionnaire-line"></i></span>
+      <span>Quizzes</span>
+    </a>
+    <a href="{{ url_for('teacher.teacher_hr_dashboard') }}" class="teacher-nav-link {% if request.endpoint in ['teacher.teacher_hr_dashboard', 'teacher.teacher_hr_attendance', 'teacher.teacher_leave_requests', 'teacher.teacher_hr_payroll', 'teacher.teacher_attendance_correction'] %}active{% endif %}">
+      <span class="t-icon-box t-icon-cyan"><i class="ri-user-star-line"></i></span>
+      <span>My HR</span>
+    </a>
     {% if current_user.is_authenticated and current_user.can_access_admin_panel %}
     <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);">
       <a href="{{ url_for('admin.index') }}" class="dash-nav-link" style="color:var(--accent);font-weight:600;">
@@ -69,10 +109,14 @@
     <p class="badge-pill">{{ current_user.badge }}</p>
   </div>
   {% elif role == 'teacher' %}
-  <div class="dash-sidebar-card">
-    <p class="muted">Courses published</p>
-    <p class="dash-points">{{ courses|length if courses is defined else '—' }}</p>
-    <p class="badge-pill">{{ current_user.badge or 'Instructor' }}</p>
+  <div class="teacher-impact-card">
+    <p class="t-impact-title">Courses published</p>
+    <p class="t-impact-stat">{{ courses|length if courses is defined and courses else '3' }} <small>Courses</small></p>
+    <div class="t-impact-bar"><div class="t-impact-fill"></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.65rem;font-size:0.75rem;color:var(--text-muted);">
+      <span>Tier: {{ current_user.badge or 'Starter' }}</span>
+      <span style="color:#22c55e;font-weight:600;"><i class="ri-checkbox-circle-fill"></i> Faculty</span>
+    </div>
   </div>
   {% elif role == 'admin' %}
   <div class="dash-sidebar-card">

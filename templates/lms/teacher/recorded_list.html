@@ -1,44 +1,138 @@
 {% extends "base.html" %}
-{% block title %}Recorded lectures — Teacher{% endblock %}
+{% block title %}Recorded Lectures — Teacher Workspace{% endblock %}
 {% block breadcrumbs %}
 <div class="container breadcrumbs-wrap">
-  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('Recorded', None)] %}
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher Dashboard', url_for('teacher.dashboard')), ('Recorded Lectures', None)] %}
   {% include "partials/breadcrumbs.html" %}
 </div>
 {% endblock %}
 {% block content %}
-<h1 class="page-title">Recorded lectures</h1>
-<p class="muted">Structured video lessons appear in the student classroom.</p>
-<div class="teacher-dash-actions section-gap">
-  <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_courses') }}">Courses</a>
-</div>
-<div class="card-premium reveal" style="padding:0;overflow-x:auto;">
-  <table class="table-modern">
-    <thead><tr><th>Course</th><th>Title</th><th>Visible</th><th></th></tr></thead>
-    <tbody>
+<div class="dashboard-shell">
+  {% include "partials/dashboard_sidebar.html" %}
+  <div class="dash-main">
+
+    <!-- Subpage Header -->
+    <div class="t-subpage-header">
+      <div class="t-subpage-title-wrap">
+        <h1 class="t-subpage-title">
+          <span class="t-icon-box t-icon-amber"><i class="ri-film-line"></i></span>
+          <span>Recorded Lecture Vault</span>
+        </h1>
+        <p class="t-subpage-sub">On-demand video lessons, module resources, and chapter recordings for your students.</p>
+      </div>
+      <div class="t-subpage-actions">
+        {% if courses %}
+        <div style="position:relative;display:inline-block;" id="create-rec-dropdown-wrap">
+          <button type="button" class="btn-hero-primary" onclick="toggleRecPicker()" style="border:none;cursor:pointer;">
+            <i class="ri-upload-cloud-line"></i> Upload New Lecture
+          </button>
+          <div id="rec-picker-menu" style="display:none;position:absolute;right:0;top:105%;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);min-width:260px;z-index:20;padding:0.5rem;">
+            <p style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin:0.25rem 0.5rem 0.5rem;">Upload to course:</p>
+            {% for c in courses %}
+            <a href="{{ url_for('teacher.teacher_recorded_new', course_id=c.id) }}" style="display:block;padding:0.5rem 0.75rem;border-radius:6px;font-size:0.88rem;color:var(--text);text-decoration:none;font-weight:600;" onmouseover="this.style.background='var(--bg-surface)'" onmouseout="this.style.background='transparent'">
+              <i class="ri-film-line" style="color:#f59e0b;margin-right:0.35rem;"></i> {{ c.title }}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Quick Tabs -->
+    <div class="t-pill-tabs">
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_courses') }}"><i class="ri-folder-video-line"></i> Courses</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_live_sessions') }}"><i class="ri-broadcast-line"></i> Live Sessions</a>
+      <a class="t-pill-tab active" href="{{ url_for('teacher.teacher_recorded_sessions') }}"><i class="ri-film-line"></i> Recorded ({{ rows|length }})</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_notes') }}"><i class="ri-file-text-line"></i> Notes</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_quizzes') }}"><i class="ri-questionnaire-line"></i> Quizzes</a>
+    </div>
+
+    <!-- Recorded Lectures Grid -->
+    <div class="teacher-grid-cards" style="margin-top:0;">
       {% for r in rows %}
-      <tr>
-        <td>{{ r.course.title if r.course else '—' }}</td>
-        <td><strong>{{ r.title }}</strong></td>
-        <td>{% if r.is_visible %}Yes{% else %}No{% endif %}</td>
-        <td style="white-space:nowrap;">
-          <a class="btn btn-primary btn-sm" href="{{ url_for('teacher.teacher_recorded_edit', rec_id=r.id) }}">Edit</a>
-          <form method="post" action="{{ url_for('teacher.teacher_recorded_delete', rec_id=r.id) }}" style="display:inline;" onsubmit="return confirm('Delete this lecture?');">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn btn-ghost btn-sm" style="color:#b91c1c;">Delete</button>
-          </form>
-        </td>
-      </tr>
+      <div class="t-feature-card t-card-recorded reveal">
+        <div class="t-card-top-row">
+          <div class="t-card-icon-big t-icon-amber">
+            <i class="ri-play-circle-line"></i>
+          </div>
+          {% if r.is_visible %}
+          <span class="t-badge-published"><i class="ri-eye-line"></i> Visible</span>
+          {% else %}
+          <span class="t-badge-draft"><i class="ri-eye-off-line"></i> Hidden</span>
+          {% endif %}
+        </div>
+
+        <h3 class="t-card-title" style="margin-bottom:0.35rem;">{{ r.title }}</h3>
+        <p class="muted" style="font-size:0.82rem;margin:0 0 0.75rem;font-weight:600;color:#4f46e5;">
+          <i class="ri-book-open-line"></i> {{ r.course.title if r.course else 'Course' }}
+          {% if r.sort_order %}<span style="margin-left:0.35rem;font-size:0.75rem;color:var(--text-muted);">(Order #{{ r.sort_order }})</span>{% endif %}
+        </p>
+
+        {% if r.description %}
+        <p class="t-card-desc" style="margin-bottom:1rem;">{{ r.description[:100] ~ '...' if r.description|length > 100 else r.description }}</p>
+        {% endif %}
+
+        {% if r.video_path %}
+        <div style="margin-bottom:1rem;border-radius:8px;overflow:hidden;background:#000;">
+          <video src="{{ r.video_path }}" controls style="width:100%;max-height:160px;display:block;"></video>
+        </div>
+        {% endif %}
+
+        <div class="t-card-footer" style="gap:0.5rem;flex-wrap:wrap;">
+          {% if r.resource_files %}
+          <span class="muted" style="font-size:0.8rem;"><i class="ri-attachment-line"></i> {{ r.resource_files|length }} attached files</span>
+          {% else %}
+          <span class="muted" style="font-size:0.8rem;"><i class="ri-video-line"></i> Video lesson</span>
+          {% endif %}
+          <div style="display:flex;gap:0.4rem;margin-left:auto;">
+            <a class="btn btn-primary btn-sm" href="{{ url_for('teacher.teacher_recorded_edit', rec_id=r.id) }}" style="font-size:0.82rem;padding:0.35rem 0.7rem;">
+              <i class="ri-edit-line"></i> Edit
+            </a>
+            <form method="post" action="{{ url_for('teacher.teacher_recorded_delete', rec_id=r.id) }}" style="display:inline;" onsubmit="return confirm('Delete this recorded lecture?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-ghost btn-sm" style="color:#ef4444;font-size:0.82rem;padding:0.35rem 0.5rem;" title="Delete">
+                <i class="ri-delete-bin-line"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
       {% else %}
-      <tr><td colspan="4" class="muted">No recorded lectures yet.</td></tr>
+      <div class="t-form-card" style="grid-column:1/-1;text-align:center;padding:3rem 1.5rem;">
+        <div style="font-size:3rem;color:#f59e0b;margin-bottom:0.5rem;"><i class="ri-film-line"></i></div>
+        <h3 style="margin:0 0 0.5rem;color:var(--text);">No recorded lectures yet</h3>
+        <p class="muted" style="margin:0 0 1.25rem;">Upload video recordings for students to watch anytime at their own pace.</p>
+        {% if courses %}
+        <p class="muted" style="font-size:0.85rem;margin-bottom:0.75rem;">Select a course to upload your first lecture:</p>
+        <div style="display:flex;justify-content:center;gap:0.5rem;flex-wrap:wrap;">
+          {% for c in courses %}
+          <a class="btn btn-secondary btn-sm" href="{{ url_for('teacher.teacher_recorded_new', course_id=c.id) }}">
+            <i class="ri-upload-cloud-line"></i> {{ c.title }}
+          </a>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
       {% endfor %}
-    </tbody>
-  </table>
+    </div>
+
+  </div>
 </div>
-<h2 class="section-gap" style="font-size:1.05rem;">Add to a course</h2>
-<ul class="muted">
-  {% for c in courses %}
-  <li><a href="{{ url_for('teacher.teacher_recorded_new', course_id=c.id) }}">{{ c.title }}</a></li>
-  {% endfor %}
-</ul>
+
+<script>
+function toggleRecPicker() {
+  const menu = document.getElementById('rec-picker-menu');
+  if (menu) {
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  }
+}
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('create-rec-dropdown-wrap');
+  const menu = document.getElementById('rec-picker-menu');
+  if (wrap && menu && !wrap.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+</script>
 {% endblock %}

@@ -1,181 +1,399 @@
 {% extends "base.html" %}
-{% block title %}Create Course — Teacher{% endblock %}
+{% block title %}Create Course — Teacher Studio{% endblock %}
 {% block breadcrumbs %}
 <div class="container breadcrumbs-wrap">
-  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('Create course', None)] %}
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher Dashboard', url_for('teacher.dashboard')), ('Create Course', None)] %}
   {% include "partials/breadcrumbs.html" %}
 </div>
 {% endblock %}
 {% block content %}
-<h1 style="font-size:1.5rem;">Create a complete course</h1>
-<div class="card-premium form-modern reveal" style="padding:1.25rem;max-width:680px;">
-  <form method="post" enctype="multipart/form-data">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="dashboard-shell">
+  {% include "partials/dashboard_sidebar.html" %}
+  <div class="dash-main">
     
-    <!-- BASIC COURSE INFO -->
-    <hr style="border:0;border-top:1px solid var(--border);margin:1.5rem 0;">
-    <h3 style="font-size:0.95rem;margin-bottom:0.75rem;">Basic Information</h3>
-    <label>Title <input name="title" required minlength="3"></label>
-    <label>Description <textarea name="description" rows="3"></textarea></label>
-    <label>Instructor <input name="instructor_name" placeholder="Your name"></label>
-    <label>Duration <input name="duration" placeholder="4 weeks"></label>
-    <label>Level <input name="level" placeholder="Beginner"></label>
-    <label>Price (₹) <input name="price_inr" type="number" min="0" value="499"></label>
-    <label class="int-check" style="display:flex;align-items:center;gap:0.5rem;">
-      <input type="checkbox" name="is_published" checked> Publish in catalog (students only see published courses)
-    </label>
-    <label>Category <input name="category" placeholder="e.g. Web Development"></label>
-    <label>Prerequisites <textarea name="prerequisites" rows="2" placeholder="Optional"></textarea></label>
-    <label>Learning outcomes <textarea name="learning_outcomes" rows="2" placeholder="What learners will achieve"></textarea></label>
-    <label>Course thumbnail <input type="file" name="thumbnail" accept=".jpg,.jpeg,.png,.webp,.gif"></label>
-    
-    <!-- PRIMARY VIDEO -->
-    <hr style="border:0;border-top:1px solid var(--border);margin:1.5rem 0;">
-    <h3 style="font-size:0.95rem;margin-bottom:0.75rem;">Main Content</h3>
-    <label>Upload Primary Video <input type="file" name="primary_video" accept="video/*" required></label>
-    <p style="font-size:0.8rem;color:var(--muted);margin:-0.5rem 0 0.75rem;">Supported: MP4, WebM, MOV, AVI, MKV (Max 100MB)</p>
-    <div id="primary-video-preview" style="margin-bottom:1rem;"></div>
-    <label>Content / Lesson Notes <textarea name="content" rows="5"></textarea></label>
-    
-    <!-- LIVE CLASS -->
-    <hr style="border:0;border-top:1px solid var(--border);margin:1.5rem 0;">
-    <h3 style="font-size:0.95rem;margin-bottom:0.75rem;">✨ Live Class (Optional)</h3>
-    <label>Live Class URL <input name="live_class_url" type="url" placeholder="https://zoom.us/j/... or Google Meet link"></label>
-    <label>Schedule Date & Time <input name="live_class_datetime" type="datetime-local"></label>
-    
-    <!-- RECORDED VIDEOS -->
-    <hr style="border:0;border-top:1px solid var(--border);margin:1.5rem 0;">
-    <h3 style="font-size:0.95rem;margin-bottom:0.75rem;"><i class="ri-play-circle-line" aria-hidden="true"></i> Recorded Sessions (Optional)</h3>
-    <label>Upload Video Sessions <input type="file" name="recorded_videos" accept="video/*" multiple></label>
-    <p style="font-size:0.8rem;color:var(--muted);margin:-0.5rem 0 0.75rem;">Upload one or multiple videos. Max 100MB each.</p>
-    <div id="recorded-videos-preview" style="margin-bottom:1rem;"></div>
-    
-    <!-- NOTES -->
-    <hr style="border:0;border-top:1px solid var(--border);margin:1.5rem 0;">
-    <h3 style="font-size:0.95rem;margin-bottom:0.75rem;"><i class="ri-file-text-line" aria-hidden="true"></i> Study Notes (Optional)</h3>
-    <div id="notes-container"></div>
-    <button type="button" class="btn btn-ghost btn-sm" id="add-note-btn" style="margin-top:0.75rem;">+ Add note</button>
-    
-    <!-- QUIZZES -->
-    <hr style="border:0;border-top:1px solid var(--border);margin:1.5rem 0;">
-    <h3 style="font-size:0.95rem;margin-bottom:0.75rem;">❓ Quiz Questions (Optional)</h3>
-    <div id="quiz-container"></div>
-    <button type="button" class="btn btn-ghost btn-sm" id="add-quiz-btn" style="margin-top:0.75rem;">+ Add quiz question</button>
-    
-    <!-- SUBMIT -->
-    <hr style="border:0;border-top:1px solid var(--border);margin:1.5rem 0;">
-    <button type="submit" class="btn btn-primary">Create complete course</button>
-  </form>
+    <!-- Subpage Header -->
+    <div class="t-subpage-header">
+      <div class="t-subpage-title-wrap">
+        <h1 class="t-subpage-title">
+          <span class="t-icon-box t-icon-violet"><i class="ri-video-add-line"></i></span>
+          <span>Course Creator Studio</span>
+        </h1>
+        <p class="t-subpage-sub">Build, configure, and publish a full interactive course with video lectures, resources, and quizzes.</p>
+      </div>
+      <div class="t-subpage-actions">
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.dashboard') }}">
+          <i class="ri-arrow-left-line"></i> Dashboard
+        </a>
+        <a class="btn btn-secondary btn-sm" href="{{ url_for('teacher.teacher_courses') }}">
+          <i class="ri-folder-video-line"></i> Course Manager
+        </a>
+      </div>
+    </div>
+
+    <!-- Main Course Creation Form -->
+    <div class="t-form-card reveal">
+      <form method="post" enctype="multipart/form-data" id="create-course-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <!-- SECTION 1: COURSE METADATA & ESSENTIALS -->
+        <div class="t-form-section">
+          <div class="t-section-badge-title">
+            <span class="t-icon-box t-icon-indigo" style="width:28px;height:28px;font-size:1rem;"><i class="ri-information-line"></i></span>
+            <span>1. Course Essentials</span>
+          </div>
+          <p class="t-section-sub">Define core catalog details that learners see before enrolling.</p>
+
+          <div class="t-form-grid-2">
+            <div class="t-field" style="grid-column: 1 / -1;">
+              <label class="t-field-label">Course Title <span style="color:#ef4444;">*</span></label>
+              <input class="t-input" name="title" required minlength="3" placeholder="e.g. Master Full-Stack AI Application Development" autocomplete="off">
+            </div>
+
+            <div class="t-field" style="grid-column: 1 / -1;">
+              <label class="t-field-label">Short Description</label>
+              <textarea class="t-textarea" name="description" rows="3" placeholder="A compelling summary highlighting what learners will build and master..."></textarea>
+            </div>
+
+            <div class="t-field">
+              <label class="t-field-label">Instructor Name</label>
+              <input class="t-input" name="instructor_name" value="{{ current_user.full_name or '' }}" placeholder="Your full name or title">
+            </div>
+
+            <div class="t-field">
+              <label class="t-field-label">Category</label>
+              <input class="t-input" name="category" placeholder="e.g. Artificial Intelligence, Robotics, Web Dev">
+            </div>
+
+            <div class="t-field">
+              <label class="t-field-label">Duration</label>
+              <input class="t-input" name="duration" placeholder="e.g. 6 Weeks · 24 Lectures">
+            </div>
+
+            <div class="t-field">
+              <label class="t-field-label">Difficulty Level</label>
+              <select class="t-select" name="level">
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+                <option value="All Levels">All Levels</option>
+              </select>
+            </div>
+
+            <div class="t-field">
+              <label class="t-field-label">Price (₹ INR)</label>
+              <input class="t-input" name="price_inr" type="number" min="0" value="499" placeholder="499">
+            </div>
+
+            <div class="t-field">
+              <label class="t-field-label">Catalog Visibility</label>
+              <label style="display:flex;align-items:center;gap:0.6rem;padding:0.75rem 1rem;background:var(--bg-surface);border-radius:var(--radius-sm);cursor:pointer;margin-top:0.15rem;">
+                <input type="checkbox" name="is_published" checked style="width:18px;height:18px;accent-color:#4f46e5;">
+                <span style="font-weight:600;font-size:0.9rem;">Publish Immediately</span>
+              </label>
+            </div>
+
+            <div class="t-field" style="grid-column: 1 / -1;">
+              <label class="t-field-label">Course Thumbnail Image</label>
+              <div class="t-dropzone" id="thumb-dropzone">
+                <input type="file" name="thumbnail" id="thumb-input" accept=".jpg,.jpeg,.png,.webp,.gif">
+                <div class="t-dropzone-icon"><i class="ri-image-add-line"></i></div>
+                <p style="margin:0;font-weight:600;font-size:0.92rem;">Click to upload course banner or drag &amp; drop</p>
+                <p class="muted" style="margin:0.25rem 0 0;font-size:0.8rem;">Recommended: 16:9 ratio (1280x720) PNG, JPG, WEBP</p>
+                <div id="thumb-preview-wrap" style="margin-top:1rem;display:none;">
+                  <img id="thumb-preview" src="" alt="Thumbnail preview" style="max-height:160px;border-radius:10px;box-shadow:var(--shadow-sm);">
+                </div>
+              </div>
+            </div>
+
+            <div class="t-field">
+              <label class="t-field-label">Prerequisites</label>
+              <textarea class="t-textarea" name="prerequisites" rows="2" placeholder="e.g. Basic knowledge of Python or JavaScript"></textarea>
+            </div>
+
+            <div class="t-field">
+              <label class="t-field-label">Key Learning Outcomes</label>
+              <textarea class="t-textarea" name="learning_outcomes" rows="2" placeholder="e.g. Deploy production-ready models to cloud..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: PRIMARY VIDEO CONTENT -->
+        <div class="t-form-section">
+          <div class="t-section-badge-title">
+            <span class="t-icon-box t-icon-rose" style="width:28px;height:28px;font-size:1rem;"><i class="ri-video-line"></i></span>
+            <span>2. Primary Master Lecture Video <span style="color:#ef4444;">*</span></span>
+          </div>
+          <p class="t-section-sub">Upload the foundational lecture video that starts this course. Max 100MB (MP4, WebM, MOV, MKV).</p>
+
+          <div class="t-dropzone" id="primary-video-dropzone" style="margin-bottom:1rem;">
+            <input type="file" name="primary_video" id="primary-video-input" accept="video/*" required>
+            <div class="t-dropzone-icon" style="color:#f43f5e;"><i class="ri-upload-cloud-2-line"></i></div>
+            <p style="margin:0;font-weight:700;font-size:0.95rem;">Select or drag &amp; drop primary lecture video</p>
+            <p class="muted" style="margin:0.25rem 0 0;font-size:0.82rem;">Supported: MP4, WebM, MOV, AVI, MKV (Max 100MB)</p>
+          </div>
+          <div id="primary-video-preview"></div>
+
+          <div class="t-field" style="margin-top:1.25rem;">
+            <label class="t-field-label">Lesson Body &amp; Lecture Notes</label>
+            <textarea class="t-textarea" name="content" rows="4" placeholder="Detailed lesson syllabus, timestamps, overview, and links..."></textarea>
+          </div>
+        </div>
+
+        <!-- SECTION 3: LIVE CLASS (OPTIONAL) -->
+        <div class="t-form-section">
+          <div class="t-section-badge-title">
+            <span class="t-icon-box t-icon-rose" style="width:28px;height:28px;font-size:1rem;"><span class="live-radar-dot"></span></span>
+            <span>3. Virtual Live Class (Optional)</span>
+          </div>
+          <p class="t-section-sub">Add a Google Meet or Zoom link if this course includes live interactive webinars.</p>
+
+          <div class="t-form-grid-2">
+            <div class="t-field">
+              <label class="t-field-label">Meeting URL (Google Meet or Zoom)</label>
+              <input class="t-input" name="live_class_url" type="url" placeholder="https://meet.google.com/xyz-abcd-efg or Zoom link">
+            </div>
+            <div class="t-field">
+              <label class="t-field-label">Scheduled Date &amp; Time</label>
+              <input class="t-input" name="live_class_datetime" type="datetime-local">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 4: ADDITIONAL RECORDED LECTURES (OPTIONAL) -->
+        <div class="t-form-section">
+          <div class="t-section-badge-title">
+            <span class="t-icon-box t-icon-amber" style="width:28px;height:28px;font-size:1rem;"><i class="ri-film-line"></i></span>
+            <span>4. Additional Recorded Sessions (Optional)</span>
+          </div>
+          <p class="t-section-sub">Batch-upload multiple modular videos for progressive chapter lectures.</p>
+
+          <div class="t-dropzone">
+            <input type="file" name="recorded_videos" id="recorded-videos-input" accept="video/*" multiple>
+            <div class="t-dropzone-icon" style="color:#f59e0b;"><i class="ri-film-line"></i></div>
+            <p style="margin:0;font-weight:600;font-size:0.92rem;">Click to add one or multiple session videos</p>
+            <p class="muted" style="margin:0.25rem 0 0;font-size:0.8rem;">Hold Ctrl / Shift to pick multiple files (Max 100MB each)</p>
+          </div>
+          <div id="recorded-videos-preview" style="margin-top:1rem;"></div>
+        </div>
+
+        <!-- SECTION 5: STUDY NOTES & HANDOUTS -->
+        <div class="t-form-section">
+          <div class="t-section-badge-title">
+            <span class="t-icon-box t-icon-emerald" style="width:28px;height:28px;font-size:1rem;"><i class="ri-file-text-line"></i></span>
+            <span>5. Study Notes &amp; Handouts (Optional)</span>
+          </div>
+          <p class="t-section-sub">Add downloadable notes or text guides learners can study alongside this course.</p>
+
+          <div id="notes-container" class="t-quiz-builder"></div>
+          <button type="button" class="btn btn-secondary btn-sm" id="add-note-btn" style="margin-top:0.75rem;">
+            <i class="ri-add-line"></i> Add Study Note
+          </button>
+        </div>
+
+        <!-- SECTION 6: QUIZ ASSESSMENT -->
+        <div class="t-form-section">
+          <div class="t-section-badge-title">
+            <span class="t-icon-box t-icon-purple" style="width:28px;height:28px;font-size:1rem;"><i class="ri-questionnaire-line"></i></span>
+            <span>6. Interactive MCQ Quiz (Optional)</span>
+          </div>
+          <p class="t-section-sub">Add interactive multiple choice questions to assess learner comprehension.</p>
+
+          <div id="quiz-container" class="t-quiz-builder"></div>
+          <button type="button" class="btn btn-secondary btn-sm" id="add-quiz-btn" style="margin-top:0.75rem;">
+            <i class="ri-add-line"></i> Add Quiz Question
+          </button>
+        </div>
+
+        <!-- SUBMIT BAR -->
+        <div style="display:flex;justify-content:flex-end;gap:1rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border);">
+          <a class="btn btn-ghost" href="{{ url_for('teacher.dashboard') }}">Cancel</a>
+          <button type="submit" class="btn-hero-primary" style="cursor:pointer;border:none;">
+            <i class="ri-check-line"></i> Create &amp; Launch Course
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
 </div>
 
 <script>
 (function() {
-  // Store form data state for notes and quiz (videos now come from file input)
   let notesData = [];
   let quizData = [];
 
-  // PRIMARY VIDEO PREVIEW
-  document.querySelector('input[name="primary_video"]').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    const preview = document.getElementById('primary-video-preview');
-    if (file) {
-      const videoUrl = URL.createObjectURL(file);
-      preview.innerHTML = `
-        <div style="background:var(--bg-secondary);padding:0.75rem;border-radius:4px;">
-          <p style="margin:0 0 0.5rem;font-size:0.9rem;">Preview: ${file.name}</p>
-          <video src="${videoUrl}" controls width="100%" style="max-height:200px;border-radius:4px;"></video>
-        </div>
-      `;
-    } else {
-      preview.innerHTML = '';
-    }
-  });
+  // Thumbnail preview
+  const thumbInput = document.getElementById('thumb-input');
+  if (thumbInput) {
+    thumbInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      const wrap = document.getElementById('thumb-preview-wrap');
+      const img = document.getElementById('thumb-preview');
+      if (file && file.type.startsWith('image/')) {
+        img.src = URL.createObjectURL(file);
+        wrap.style.display = 'block';
+      } else {
+        wrap.style.display = 'none';
+      }
+    });
+  }
 
-  // RECORDED VIDEOS PREVIEW
-  document.querySelector('input[name="recorded_videos"]').addEventListener('change', (e) => {
-    const files = Array.from(e.target.files);
-    const preview = document.getElementById('recorded-videos-preview');
-    if (files.length === 0) {
-      preview.innerHTML = '';
-      return;
-    }
-    preview.innerHTML = files.map((file, idx) => {
-      const videoUrl = URL.createObjectURL(file);
-      return `
-        <div style="background:var(--bg-secondary);padding:0.75rem;border-radius:4px;margin-bottom:0.5rem;">
-          <p style="margin:0 0 0.5rem;font-size:0.9rem;font-weight:500;">Session ${idx + 1}: ${file.name}</p>
-          <video src="${videoUrl}" controls width="100%" style="max-height:150px;border-radius:4px;"></video>
-        </div>
-      `;
-    }).join('');
-  });
+  // Primary video preview
+  const primaryInput = document.getElementById('primary-video-input');
+  const primaryPreview = document.getElementById('primary-video-preview');
+  if (primaryInput) {
+    primaryInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const url = URL.createObjectURL(file);
+        primaryPreview.innerHTML = `
+          <div style="background:var(--bg-surface);padding:1rem;border-radius:var(--radius-md);border:1px solid var(--border-soft);margin-top:0.75rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+              <strong style="font-size:0.9rem;color:var(--text);"><i class="ri-movie-line" style="color:#f43f5e;"></i> ${file.name}</strong>
+              <span class="muted" style="font-size:0.8rem;">${(file.size / (1024 * 1024)).toFixed(1)} MB</span>
+            </div>
+            <video src="${url}" controls style="width:100%;max-height:260px;border-radius:8px;background:#000;"></video>
+          </div>
+        `;
+      } else {
+        primaryPreview.innerHTML = '';
+      }
+    });
+  }
 
-  // Notes management
+  // Recorded videos preview
+  const recInput = document.getElementById('recorded-videos-input');
+  const recPreview = document.getElementById('recorded-videos-preview');
+  if (recInput) {
+    recInput.addEventListener('change', (e) => {
+      const files = Array.from(e.target.files);
+      if (files.length === 0) {
+        recPreview.innerHTML = '';
+        return;
+      }
+      recPreview.innerHTML = files.map((file, idx) => {
+        const url = URL.createObjectURL(file);
+        return `
+          <div style="background:var(--bg-surface);padding:0.85rem;border-radius:var(--radius-md);border:1px solid var(--border-soft);margin-bottom:0.65rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+              <span style="font-weight:700;font-size:0.85rem;color:#4f46e5;">Lecture ${idx + 1}: ${file.name}</span>
+              <span class="muted" style="font-size:0.78rem;">${(file.size / (1024 * 1024)).toFixed(1)} MB</span>
+            </div>
+            <video src="${url}" controls style="width:100%;max-height:160px;border-radius:6px;background:#000;"></video>
+          </div>
+        `;
+      }).join('');
+    });
+  }
+
+  // Notes renderer
   function renderNotes() {
     const container = document.getElementById('notes-container');
+    if (!container) return;
+    if (notesData.length === 0) {
+      container.innerHTML = '<p class="muted" style="font-size:0.85rem;margin:0;">No study notes added yet.</p>';
+      return;
+    }
     container.innerHTML = notesData.map((note, idx) => `
-      <div style="background:var(--bg-secondary);padding:0.75rem;border-radius:4px;margin-bottom:0.5rem;">
-        <input type="hidden" name="notes" value='${JSON.stringify(note)}'>
-        <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;">
-          <input type="text" placeholder="Note title" value="${note.title}" 
+      <div style="background:var(--bg-surface);padding:1rem;border-radius:var(--radius-md);border:1px solid var(--border-soft);">
+        <input type="hidden" name="notes" value='${JSON.stringify(note).replace(/'/g, "&#39;")}'>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:0.75rem;margin-bottom:0.65rem;">
+          <input class="t-input" type="text" placeholder="Note Title (e.g. Chapter 1 Summary & Formulas)" value="${note.title}" 
             onchange="notesData[${idx}].title = this.value" style="flex:1;">
-          <button type="button" class="btn btn-ghost btn-sm" onclick="notesData.splice(${idx}, 1); renderNotes();">Remove</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="removeNote(${idx})" style="color:#ef4444;">
+            <i class="ri-delete-bin-line"></i> Remove
+          </button>
         </div>
-        <textarea placeholder="Note content" rows="3" onchange="notesData[${idx}].content = this.value" style="width:100%;">${note.content}</textarea>
+        <textarea class="t-textarea" placeholder="Note content, code snippets, key points..." rows="3" onchange="notesData[${idx}].content = this.value">${note.content}</textarea>
       </div>
     `).join('');
   }
 
-  // Quiz management
+  window.removeNote = function(idx) {
+    notesData.splice(idx, 1);
+    renderNotes();
+  };
+
+  // Quiz renderer
   function renderQuiz() {
     const container = document.getElementById('quiz-container');
+    if (!container) return;
+    if (quizData.length === 0) {
+      container.innerHTML = '<p class="muted" style="font-size:0.85rem;margin:0;">No quiz questions added yet.</p>';
+      return;
+    }
     container.innerHTML = quizData.map((q, idx) => `
-      <div style="background:var(--bg-secondary);padding:0.75rem;border-radius:4px;margin-bottom:0.5rem;">
-        <input type="hidden" name="quiz" value='${JSON.stringify(q)}'>
-        <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;">
-          <input type="text" placeholder="Question" value="${q.question}" 
-            onchange="quizData[${idx}].question = this.value" style="flex:1;">
-          <button type="button" class="btn btn-ghost btn-sm" onclick="quizData.splice(${idx}, 1); renderQuiz();">Remove</button>
+      <div class="t-mcq-card">
+        <input type="hidden" name="quiz" value='${JSON.stringify(q).replace(/'/g, "&#39;")}'>
+        <div class="t-mcq-header">
+          <span class="t-mcq-num">Question #${idx + 1}</span>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="removeQuiz(${idx})" style="color:#ef4444;padding:0.2rem 0.5rem;">
+            <i class="ri-delete-bin-line"></i> Remove
+          </button>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.5rem;">
-          ${(q.options || []).map((opt, oIdx) => `
-            <input type="text" placeholder="Option ${oIdx + 1}" value="${opt}" 
-              onchange="quizData[${idx}].options[${oIdx}] = this.value">
+        <input class="t-input" type="text" placeholder="Question prompt (e.g. What is the time complexity of binary search?)" value="${q.question}" 
+          onchange="quizData[${idx}].question = this.value" style="margin-bottom:0.65rem;">
+        
+        <div class="t-mcq-options-grid">
+          ${(q.options || ['', '', '', '']).map((opt, oIdx) => `
+            <div class="t-option-input-wrap">
+              <span style="font-weight:700;font-size:0.8rem;color:var(--text-muted);">${String.fromCharCode(65 + oIdx)}</span>
+              <input type="text" placeholder="Option ${String.fromCharCode(65 + oIdx)}" value="${opt}" 
+                onchange="quizData[${idx}].options[${oIdx}] = this.value; checkAutoAnswer(${idx});">
+            </div>
           `).join('')}
         </div>
-        <input type="text" placeholder="Correct answer" value="${q.correctAnswer}" 
-          onchange="quizData[${idx}].correctAnswer = this.value" style="width:100%;">
+
+        <div style="margin-top:0.75rem;">
+          <label style="font-size:0.8rem;font-weight:700;color:var(--text);display:block;margin-bottom:0.25rem;">Correct Answer (exact match):</label>
+          <input class="t-input" type="text" placeholder="Type the exact text of the correct option" value="${q.correctAnswer}" 
+            onchange="quizData[${idx}].correctAnswer = this.value">
+        </div>
       </div>
     `).join('');
   }
 
-  // Add note
+  window.removeQuiz = function(idx) {
+    quizData.splice(idx, 1);
+    renderQuiz();
+  };
+
+  window.checkAutoAnswer = function(idx) {
+    // If correct answer is empty, default to option 0
+    if (!quizData[idx].correctAnswer && quizData[idx].options[0]) {
+      quizData[idx].correctAnswer = quizData[idx].options[0];
+      renderQuiz();
+    }
+  };
+
   document.getElementById('add-note-btn').addEventListener('click', (e) => {
     e.preventDefault();
     notesData.push({ title: '', content: '' });
     renderNotes();
   });
 
-  // Add quiz
   document.getElementById('add-quiz-btn').addEventListener('click', (e) => {
     e.preventDefault();
     quizData.push({ question: '', options: ['', '', '', ''], correctAnswer: '' });
     renderQuiz();
   });
 
-  // Form submission - serialize data
-  document.querySelector('form').addEventListener('submit', (e) => {
+  // Submit serialization
+  document.getElementById('create-course-form').addEventListener('submit', (e) => {
     const form = e.target;
-    
     if (notesData.length > 0) {
+      const existing = form.querySelector('input[name="notes_json"]');
+      if (existing) existing.remove();
       const notesField = document.createElement('input');
       notesField.type = 'hidden';
       notesField.name = 'notes_json';
       notesField.value = JSON.stringify(notesData);
       form.appendChild(notesField);
     }
-    
     if (quizData.length > 0) {
+      const existing = form.querySelector('input[name="quiz_json"]');
+      if (existing) existing.remove();
       const quizField = document.createElement('input');
       quizField.type = 'hidden';
       quizField.name = 'quiz_json';
@@ -184,10 +402,8 @@
     }
   });
 
-  // Initial render
   renderNotes();
   renderQuiz();
 })();
 </script>
 {% endblock %}
-

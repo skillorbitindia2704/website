@@ -2,7 +2,7 @@
 {% block title %}Teacher Dashboard — Skill Orbit India{% endblock %}
 {% block breadcrumbs %}
 <div class="container breadcrumbs-wrap">
-  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', None)] %}
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher Dashboard', None)] %}
   {% include "partials/breadcrumbs.html" %}
 </div>
 {% endblock %}
@@ -10,85 +10,306 @@
 <div class="dashboard-shell">
   {% include "partials/dashboard_sidebar.html" %}
   <div class="dash-main">
-    <section class="role-shell">
-      <h1 class="page-title">Teacher dashboard</h1>
-      <p class="muted">Create courses, upload materials, and manage learning.</p>
-
-      <div class="grid-cards section-gap">
-        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('teacher.create_course') }}">
-          <h3 class="card-title-sm">Create a course</h3>
-          <p class="muted">Upload video, materials, and quiz</p>
-        </a>
-        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('teacher.teacher_courses') }}">
-          <h3 class="card-title-sm">Course manager</h3>
-          <p class="muted">Publish, thumbnail, modules, prerequisites</p>
-        </a>
-        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('teacher.teacher_live_sessions') }}">
-          <h3 class="card-title-sm">Live sessions</h3>
-          <p class="muted">Schedule and meeting links</p>
-        </a>
-        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('teacher.teacher_recorded_sessions') }}">
-          <h3 class="card-title-sm">Recorded lectures</h3>
-          <p class="muted">Videos, resources, visibility</p>
-        </a>
-        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('teacher.teacher_notes') }}">
-          <h3 class="card-title-sm">Notes &amp; files</h3>
-          <p class="muted">PDFs and documents by module</p>
-        </a>
-        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('teacher.teacher_quizzes') }}">
-          <h3 class="card-title-sm">LMS quizzes</h3>
-          <p class="muted">MCQs, timer, pass threshold</p>
-        </a>
-        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('teacher.teacher_hr_dashboard') }}">
-          <h3 class="card-title-sm">My HR</h3>
-          <p class="muted">Attendance, payroll and leave summary</p>
-        </a>
-      </div>
-
-      {% if employee %}
-      <h2>HR Summary</h2>
-      <div class="grid-cards section-gap">
-        <a class="card-premium reveal card-link-wrap surface-card" href="{{ url_for('teacher.teacher_hr_dashboard') }}">
-          <h3 class="card-title-sm">My HR Dashboard</h3>
-          <p class="muted">Attendance, payroll and leave at a glance</p>
-        </a>
-        <div class="card-premium surface-card reveal">
-          <h3 class="card-title-sm">Attendance records</h3>
-          <p class="muted">{{ attendance_count or 0 }} records</p>
+    
+    <!-- Hero Welcome Banner -->
+    <section class="teacher-hero-banner reveal">
+      <div class="teacher-hero-content">
+        <div class="teacher-hero-greeting">
+          <i class="ri-sparkling-fill" style="color:var(--accent);"></i>
+          <span>Teacher Workspace</span>
         </div>
-        <div class="card-premium surface-card reveal">
-          <h3 class="card-title-sm">Payroll runs</h3>
-          <p class="muted">{{ payroll_count or 0 }} payroll cycles</p>
-        </div>
-        <div class="card-premium surface-card reveal">
-          <h3 class="card-title-sm">Leave requests</h3>
-          <p class="muted">{{ leave_count or 0 }} requests</p>
+        <h1 class="teacher-hero-title">Welcome back, {{ current_user.full_name or 'Faculty Member' }} 👋</h1>
+        <p class="teacher-hero-sub">
+          Manage your course catalog, upload video lectures, host live interactive classes, create auto-graded quizzes, and monitor attendance.
+        </p>
+        <div class="teacher-hero-actions">
+          <a class="btn-hero-primary" href="{{ url_for('teacher.create_course') }}">
+            <i class="ri-add-line"></i> Create Course
+          </a>
+          <a class="btn-hero-secondary" href="{{ url_for('teacher.teacher_live_sessions') }}">
+            <span class="live-radar-dot"></span> Schedule Live Class
+          </a>
+          <a class="btn-hero-secondary" href="{{ url_for('teacher.teacher_hr_dashboard') }}">
+            <i class="ri-fingerprint-line"></i> Punch Attendance
+          </a>
         </div>
       </div>
-      {% endif %}
+    </section>
 
-      <h2>Recent courses</h2>
-      <div class="card-premium reveal" style="padding:0;">
-        <table class="table-modern">
-          <thead><tr><th>Title</th><th>Level</th><th>Duration</th><th></th></tr></thead>
+    <!-- Key Metrics Strip -->
+    <div class="teacher-stats-strip reveal">
+      <div class="teacher-stat-card">
+        <div class="teacher-stat-icon-wrap t-icon-indigo">
+          <i class="ri-book-open-line"></i>
+        </div>
+        <div class="teacher-stat-data">
+          <span class="teacher-stat-num">{{ courses|length if courses is defined else 0 }}</span>
+          <span class="teacher-stat-label">Published Courses</span>
+        </div>
+      </div>
+
+      <div class="teacher-stat-card">
+        <div class="teacher-stat-icon-wrap t-icon-blue">
+          <i class="ri-user-star-line"></i>
+        </div>
+        <div class="teacher-stat-data">
+          <span class="teacher-stat-num">{{ students_count or 0 }}</span>
+          <span class="teacher-stat-label">Total Enrollments</span>
+        </div>
+      </div>
+
+      <div class="teacher-stat-card">
+        <div class="teacher-stat-icon-wrap t-icon-rose">
+          <i class="ri-broadcast-line"></i>
+        </div>
+        <div class="teacher-stat-data">
+          <span class="teacher-stat-num">{{ live_count or 0 }}</span>
+          <span class="teacher-stat-label">Live Sessions</span>
+        </div>
+      </div>
+
+      <div class="teacher-stat-card">
+        <div class="teacher-stat-icon-wrap t-icon-purple">
+          <i class="ri-questionnaire-line"></i>
+        </div>
+        <div class="teacher-stat-data">
+          <span class="teacher-stat-num">{{ quizzes_count or 0 }}</span>
+          <span class="teacher-stat-label">Active Quizzes</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- The 7 Highlighted Interactive Feature Cards -->
+    <div class="teacher-grid-cards">
+      <!-- 1. Create a course -->
+      <a class="t-feature-card t-card-course reveal" href="{{ url_for('teacher.create_course') }}" id="teacher-card-create-course">
+        <div class="t-card-top-row">
+          <div class="t-card-icon-big t-icon-violet">
+            <i class="ri-add-box-line"></i>
+          </div>
+          <span class="t-card-badge" style="background:rgba(124,58,237,0.12);color:#7c3aed;">Studio</span>
+        </div>
+        <h3 class="t-card-title">
+          <span>Create a course</span>
+          <i class="ri-arrow-right-line t-card-arrow"></i>
+        </h3>
+        <p class="t-card-desc">Upload master lecture video, course thumbnail, lesson materials, and integrated quizzes in one unified flow.</p>
+        <div class="t-card-footer">
+          <span class="muted"><i class="ri-video-upload-line"></i> Full course authoring</span>
+          <span class="t-card-action-text">Launch Studio <i class="ri-arrow-right-s-line"></i></span>
+        </div>
+      </a>
+
+      <!-- 2. Course manager -->
+      <a class="t-feature-card t-card-manager reveal" href="{{ url_for('teacher.teacher_courses') }}" id="teacher-card-course-manager">
+        <div class="t-card-top-row">
+          <div class="t-card-icon-big t-icon-blue">
+            <i class="ri-folder-video-line"></i>
+          </div>
+          <span class="t-card-badge" style="background:rgba(2,132,199,0.12);color:#0284c7;">Catalog</span>
+        </div>
+        <h3 class="t-card-title">
+          <span>Course manager</span>
+          <i class="ri-arrow-right-line t-card-arrow"></i>
+        </h3>
+        <p class="t-card-desc">Publish courses, update thumbnails, organize curriculum modules, configure prerequisites, and manage enrolled students.</p>
+        <div class="t-card-footer">
+          <span class="muted"><i class="ri-stack-line"></i> {{ courses|length if courses is defined else 0 }} courses listed</span>
+          <span class="t-card-action-text">Manage courses <i class="ri-arrow-right-s-line"></i></span>
+        </div>
+      </a>
+
+      <!-- 3. Live sessions -->
+      <a class="t-feature-card t-card-live reveal" href="{{ url_for('teacher.teacher_live_sessions') }}" id="teacher-card-live-sessions">
+        <div class="t-card-top-row">
+          <div class="t-card-icon-big t-icon-rose">
+            <i class="ri-broadcast-line"></i>
+          </div>
+          <span class="t-card-badge" style="background:rgba(244,63,94,0.12);color:#f43f5e;">
+            <span class="live-radar-dot"></span>Live meet
+          </span>
+        </div>
+        <h3 class="t-card-title">
+          <span>Live sessions</span>
+          <i class="ri-arrow-right-line t-card-arrow"></i>
+        </h3>
+        <p class="t-card-desc">Schedule upcoming virtual classes, provide Google Meet or Zoom meeting links, and post real-time updates for students.</p>
+        <div class="t-card-footer">
+          <span class="muted"><i class="ri-calendar-event-line"></i> {{ live_count or 0 }} sessions scheduled</span>
+          <span class="t-card-action-text">Host & Schedule <i class="ri-arrow-right-s-line"></i></span>
+        </div>
+      </a>
+
+      <!-- 4. Recorded lectures -->
+      <a class="t-feature-card t-card-recorded reveal" href="{{ url_for('teacher.teacher_recorded_sessions') }}" id="teacher-card-recorded-sessions">
+        <div class="t-card-top-row">
+          <div class="t-card-icon-big t-icon-amber">
+            <i class="ri-film-line"></i>
+          </div>
+          <span class="t-card-badge" style="background:rgba(245,158,11,0.12);color:#d97706;">Video vault</span>
+        </div>
+        <h3 class="t-card-title">
+          <span>Recorded lectures</span>
+          <i class="ri-arrow-right-line t-card-arrow"></i>
+        </h3>
+        <p class="t-card-desc">Upload high-definition video lessons, manage student access visibility, and attach supplementary lecture files.</p>
+        <div class="t-card-footer">
+          <span class="muted"><i class="ri-play-list-2-line"></i> {{ recorded_count or 0 }} lectures uploaded</span>
+          <span class="t-card-action-text">Video library <i class="ri-arrow-right-s-line"></i></span>
+        </div>
+      </a>
+
+      <!-- 5. Notes & files -->
+      <a class="t-feature-card t-card-notes reveal" href="{{ url_for('teacher.teacher_notes') }}" id="teacher-card-notes">
+        <div class="t-card-top-row">
+          <div class="t-card-icon-big t-icon-emerald">
+            <i class="ri-file-text-line"></i>
+          </div>
+          <span class="t-card-badge" style="background:rgba(16,185,129,0.12);color:#10b981;">Resources</span>
+        </div>
+        <h3 class="t-card-title">
+          <span>Notes &amp; files</span>
+          <i class="ri-arrow-right-line t-card-arrow"></i>
+        </h3>
+        <p class="t-card-desc">Share PDFs, reference guides, lecture slide decks, and code cheat-sheets organized neatly by course module.</p>
+        <div class="t-card-footer">
+          <span class="muted"><i class="ri-attachment-line"></i> {{ notes_count or 0 }} documents</span>
+          <span class="t-card-action-text">Resource vault <i class="ri-arrow-right-s-line"></i></span>
+        </div>
+      </a>
+
+      <!-- 6. LMS quizzes -->
+      <a class="t-feature-card t-card-quizzes reveal" href="{{ url_for('teacher.teacher_quizzes') }}" id="teacher-card-quizzes">
+        <div class="t-card-top-row">
+          <div class="t-card-icon-big t-icon-purple">
+            <i class="ri-questionnaire-line"></i>
+          </div>
+          <span class="t-card-badge" style="background:rgba(139,92,246,0.12);color:#8b5cf6;">Assessments</span>
+        </div>
+        <h3 class="t-card-title">
+          <span>LMS quizzes</span>
+          <i class="ri-arrow-right-line t-card-arrow"></i>
+        </h3>
+        <p class="t-card-desc">Create interactive MCQs with auto-grading, custom countdown timers, and configurable passing percentage thresholds.</p>
+        <div class="t-card-footer">
+          <span class="muted"><i class="ri-medal-line"></i> {{ quizzes_count or 0 }} active quizzes</span>
+          <span class="t-card-action-text">Quiz builder <i class="ri-arrow-right-s-line"></i></span>
+        </div>
+      </a>
+
+      <!-- 7. My HR -->
+      <a class="t-feature-card t-card-hr reveal" href="{{ url_for('teacher.teacher_hr_dashboard') }}" id="teacher-card-hr">
+        <div class="t-card-top-row">
+          <div class="t-card-icon-big t-icon-cyan">
+            <i class="ri-user-star-line"></i>
+          </div>
+          <span class="t-card-badge" style="background:rgba(6,182,212,0.12);color:#06b6d4;">HR &amp; Payroll</span>
+        </div>
+        <h3 class="t-card-title">
+          <span>My HR</span>
+          <i class="ri-arrow-right-line t-card-arrow"></i>
+        </h3>
+        <p class="t-card-desc">Daily punch attendance clock-in/out, submit leave applications, request attendance corrections, and review monthly payslips.</p>
+        <div class="t-card-footer">
+          <span class="muted"><i class="ri-time-line"></i> Daily clock in/out ready</span>
+          <span class="t-card-action-text">Open portal <i class="ri-arrow-right-s-line"></i></span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Recent Courses Section -->
+    <div class="t-section-header">
+      <h2 class="t-section-title">
+        <i class="ri-graduation-cap-line" style="color:#4f46e5;"></i>
+        <span>My Courses Catalog</span>
+      </h2>
+      <div class="t-search-box">
+        <i class="ri-search-line" style="color:var(--text-muted);"></i>
+        <input type="text" id="course-filter-input" placeholder="Search by course name or level..." onkeyup="filterCoursesTable()">
+      </div>
+    </div>
+
+    <div class="t-modern-table-card reveal">
+      <div style="overflow-x:auto;">
+        <table class="t-table" id="courses-data-table">
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th>Category</th>
+              <th>Level</th>
+              <th>Duration</th>
+              <th>Status</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
           <tbody>
             {% for c in courses %}
-            <tr>
-              <td>{{ c.title }}</td>
-              <td>{{ c.level }}</td>
-              <td>{{ c.duration }}</td>
-              <td style="white-space:nowrap;">
-                <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.teacher_edit_course', course_id=c.id) }}">Manage</a>
+            <tr class="course-row-item">
+              <td>
+                <div style="display:flex;align-items:center;gap:0.85rem;">
+                  <div class="t-course-thumb">
+                    {% if c.thumbnail_path %}
+                    <img src="{{ c.thumbnail_path }}" alt="{{ c.title }}" style="width:100%;height:100%;border-radius:10px;object-fit:cover;">
+                    {% else %}
+                    {{ c.title[0]|upper }}
+                    {% endif %}
+                  </div>
+                  <div>
+                    <strong class="course-title-cell" style="font-size:0.95rem;color:var(--text);display:block;">{{ c.title }}</strong>
+                    <span class="muted" style="font-size:0.8rem;">₹{{ c.price_inr }} · Instructor: {{ c.instructor_name or current_user.full_name or 'Faculty' }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span style="font-size:0.85rem;color:var(--text-muted);font-weight:500;">{{ c.category or 'General' }}</span>
+              </td>
+              <td>
+                <span class="level-pill" style="font-size:0.75rem;">{{ c.level or 'All levels' }}</span>
+              </td>
+              <td class="muted" style="font-size:0.85rem;">
+                <i class="ri-time-line"></i> {{ c.duration or 'Self-paced' }}
+              </td>
+              <td>
+                {% if c.is_published %}
+                <span class="t-badge-published"><i class="ri-checkbox-circle-fill"></i> Published</span>
+                {% else %}
+                <span class="t-badge-draft"><i class="ri-draft-line"></i> Draft</span>
+                {% endif %}
+              </td>
+              <td style="text-align:right;white-space:nowrap;">
+                <a class="btn btn-primary btn-sm" href="{{ url_for('teacher.teacher_edit_course', course_id=c.id) }}" style="padding:0.35rem 0.75rem;font-size:0.82rem;">
+                  <i class="ri-edit-line"></i> Manage
+                </a>
+                <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.teacher_course_students', course_id=c.id) }}" style="padding:0.35rem 0.75rem;font-size:0.82rem;">
+                  <i class="ri-group-line"></i> Students
+                </a>
               </td>
             </tr>
             {% else %}
-            <tr><td colspan="3" class="muted">No courses yet.</td></tr>
+            <tr>
+              <td colspan="6" style="text-align:center;padding:2.5rem 1rem;">
+                <div style="font-size:2.5rem;color:var(--text-muted);margin-bottom:0.5rem;"><i class="ri-book-read-line"></i></div>
+                <p class="muted" style="margin:0 0 1rem;">No courses created yet. Launch your first course today!</p>
+                <a class="btn btn-primary btn-sm" href="{{ url_for('teacher.create_course') }}">+ Create your first course</a>
+              </td>
+            </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
-    </section>
+    </div>
+
   </div>
 </div>
-{% endblock %}
 
+<script>
+function filterCoursesTable() {
+  const query = document.getElementById('course-filter-input').value.toLowerCase();
+  const rows = document.querySelectorAll('.course-row-item');
+  rows.forEach(row => {
+    const text = row.innerText.toLowerCase();
+    row.style.display = text.includes(query) ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}

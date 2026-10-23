@@ -1,41 +1,94 @@
 {% extends "base.html" %}
-{% block title %}{% if session_row %}Edit{% else %}New{% endif %} live session — Teacher{% endblock %}
+{% block title %}{% if session_row %}Edit{% else %}Schedule{% endif %} Live Session — Teacher{% endblock %}
 {% block breadcrumbs %}
 <div class="container breadcrumbs-wrap">
-  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('Live', url_for('teacher.teacher_live_sessions')), (course.title[:24], None)] %}
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher Dashboard', url_for('teacher.dashboard')), ('Live Sessions', url_for('teacher.teacher_live_sessions')), (('Edit: ' ~ session_row.title[:18]) if session_row else 'New Session', None)] %}
   {% include "partials/breadcrumbs.html" %}
 </div>
 {% endblock %}
 {% block content %}
-<nav class="teacher-course-nav">
-  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_edit_course', course_id=course.id) }}">Course</a>
-  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_live_sessions') }}">All live</a>
-</nav>
-<div class="card-premium teacher-lms-card reveal" style="padding:1.25rem;max-width:640px;">
-  <h1 style="font-size:1.2rem;margin-top:0;">{% if session_row %}Edit{% else %}New{% endif %} live session</h1>
-  <p class="muted">{{ course.title }}</p>
-  <form method="post" class="form-modern teacher-lms-form">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <label>Title <input name="title" required value="{{ session_row.title if session_row else '' }}"></label>
-    <label>Description <textarea name="description" rows="3">{{ session_row.description if session_row else '' }}</textarea></label>
-    <label>Meet / Zoom link <input name="meet_url" type="url" required value="{{ session_row.meet_url if session_row else '' }}"></label>
-    <label>Scheduled (local) <input name="scheduled_at" type="datetime-local" value="{{ session_row.scheduled_at.strftime('%Y-%m-%dT%H:%M') if session_row and session_row.scheduled_at else '' }}"></label>
-    <label>Status
-      <select name="status">
-        <option value="upcoming" {% if not session_row or session_row.status == 'upcoming' %}selected{% endif %}>Upcoming</option>
-        <option value="completed" {% if session_row and session_row.status == 'completed' %}selected{% endif %}>Completed</option>
-      </select>
-    </label>
-    <label>Module (optional)
-      <select name="module_id">
-        <option value="">—</option>
-        {% for m in modules %}
-        <option value="{{ m.id }}" {% if session_row and session_row.module_id == m.id %}selected{% endif %}>{{ m.title }}</option>
-        {% endfor %}
-      </select>
-    </label>
-    <label>Session update / notes to learners <textarea name="session_update" rows="2">{{ session_row.session_update if session_row else '' }}</textarea></label>
-    <button type="submit" class="btn btn-primary">Save</button>
-  </form>
+<div class="dashboard-shell">
+  {% include "partials/dashboard_sidebar.html" %}
+  <div class="dash-main">
+
+    <!-- Subpage Header -->
+    <div class="t-subpage-header">
+      <div class="t-subpage-title-wrap">
+        <h1 class="t-subpage-title">
+          <span class="t-icon-box t-icon-rose"><i class="ri-video-chat-line"></i></span>
+          <span>{% if session_row %}Edit{% else %}Schedule{% endif %} Live Session</span>
+        </h1>
+        <p class="t-subpage-sub">Course: <strong>{{ course.title }}</strong></p>
+      </div>
+      <div class="t-subpage-actions">
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.teacher_live_sessions') }}">
+          <i class="ri-arrow-left-line"></i> All Sessions
+        </a>
+        <a class="btn btn-secondary btn-sm" href="{{ url_for('teacher.teacher_edit_course', course_id=course.id) }}">
+          <i class="ri-book-line"></i> Course Details
+        </a>
+      </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="t-form-card reveal" style="max-width:720px;">
+      <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="t-field" style="margin-bottom:1.15rem;">
+          <label class="t-field-label">Session Title <span style="color:#ef4444;">*</span></label>
+          <input class="t-input" name="title" required value="{{ session_row.title if session_row else '' }}" placeholder="e.g. Live Q&A and Practical Project Walkthrough">
+        </div>
+
+        <div class="t-field" style="margin-bottom:1.15rem;">
+          <label class="t-field-label">Description / Agenda</label>
+          <textarea class="t-textarea" name="description" rows="3" placeholder="Topics covered, prerequisite reading, questions to prepare...">{{ session_row.description if session_row else '' }}</textarea>
+        </div>
+
+        <div class="t-form-grid-2" style="margin-bottom:1.15rem;">
+          <div class="t-field">
+            <label class="t-field-label">Meet / Zoom Link <span style="color:#ef4444;">*</span></label>
+            <input class="t-input" name="meet_url" type="url" required value="{{ session_row.meet_url if session_row else '' }}" placeholder="https://meet.google.com/... or Zoom link">
+          </div>
+          <div class="t-field">
+            <label class="t-field-label">Scheduled Date &amp; Time</label>
+            <input class="t-input" name="scheduled_at" type="datetime-local" value="{{ session_row.scheduled_at.strftime('%Y-%m-%dT%H:%M') if session_row and session_row.scheduled_at else '' }}">
+          </div>
+        </div>
+
+        <div class="t-form-grid-2" style="margin-bottom:1.15rem;">
+          <div class="t-field">
+            <label class="t-field-label">Status</label>
+            <select class="t-select" name="status">
+              <option value="upcoming" {% if not session_row or session_row.status == 'upcoming' %}selected{% endif %}>Upcoming</option>
+              <option value="completed" {% if session_row and session_row.status == 'completed' %}selected{% endif %}>Completed</option>
+            </select>
+          </div>
+          <div class="t-field">
+            <label class="t-field-label">Curriculum Module (Optional)</label>
+            <select class="t-select" name="module_id">
+              <option value="">— None / Course Wide —</option>
+              {% for m in modules %}
+              <option value="{{ m.id }}" {% if session_row and session_row.module_id == m.id %}selected{% endif %}>{{ m.title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="t-field" style="margin-bottom:1.5rem;">
+          <label class="t-field-label">Session Announcements / Notes to Students</label>
+          <textarea class="t-textarea" name="session_update" rows="2" placeholder="e.g. Please bring your code editor open to branch feature/auth...">{{ session_row.session_update if session_row else '' }}</textarea>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:0.75rem;">
+          <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_live_sessions') }}">Cancel</a>
+          <button type="submit" class="btn-hero-primary" style="border:none;cursor:pointer;">
+            <i class="ri-check-line"></i> {% if session_row %}Update Session{% else %}Schedule Session{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
 </div>
 {% endblock %}

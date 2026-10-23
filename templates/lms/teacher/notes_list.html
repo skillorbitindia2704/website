@@ -1,43 +1,132 @@
 {% extends "base.html" %}
-{% block title %}Notes & files — Teacher{% endblock %}
+{% block title %}Notes & Files — Teacher Workspace{% endblock %}
 {% block breadcrumbs %}
 <div class="container breadcrumbs-wrap">
-  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('Notes', None)] %}
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher Dashboard', url_for('teacher.dashboard')), ('Notes & Files', None)] %}
   {% include "partials/breadcrumbs.html" %}
 </div>
 {% endblock %}
 {% block content %}
-<h1 class="page-title">Notes & resources</h1>
-<div class="teacher-dash-actions section-gap">
-  <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_courses') }}">Courses</a>
-</div>
-<div class="card-premium reveal" style="padding:0;overflow-x:auto;">
-  <table class="table-modern">
-    <thead><tr><th>Course</th><th>Title</th><th>File</th><th></th></tr></thead>
-    <tbody>
+<div class="dashboard-shell">
+  {% include "partials/dashboard_sidebar.html" %}
+  <div class="dash-main">
+
+    <!-- Subpage Header -->
+    <div class="t-subpage-header">
+      <div class="t-subpage-title-wrap">
+        <h1 class="t-subpage-title">
+          <span class="t-icon-box t-icon-emerald"><i class="ri-file-text-line"></i></span>
+          <span>Notes &amp; Learning Resources</span>
+        </h1>
+        <p class="t-subpage-sub">Distribute downloadable lecture slides, PDFs, code files, and module handouts to your students.</p>
+      </div>
+      <div class="t-subpage-actions">
+        {% if courses %}
+        <div style="position:relative;display:inline-block;" id="create-note-dropdown-wrap">
+          <button type="button" class="btn-hero-primary" onclick="toggleNotePicker()" style="border:none;cursor:pointer;">
+            <i class="ri-upload-2-line"></i> Upload New Document
+          </button>
+          <div id="note-picker-menu" style="display:none;position:absolute;right:0;top:105%;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);min-width:260px;z-index:20;padding:0.5rem;">
+            <p style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin:0.25rem 0.5rem 0.5rem;">Select target course:</p>
+            {% for c in courses %}
+            <a href="{{ url_for('teacher.teacher_note_new', course_id=c.id) }}" style="display:block;padding:0.5rem 0.75rem;border-radius:6px;font-size:0.88rem;color:var(--text);text-decoration:none;font-weight:600;" onmouseover="this.style.background='var(--bg-surface)'" onmouseout="this.style.background='transparent'">
+              <i class="ri-file-text-line" style="color:#10b981;margin-right:0.35rem;"></i> {{ c.title }}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Quick Tabs -->
+    <div class="t-pill-tabs">
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_courses') }}"><i class="ri-folder-video-line"></i> Courses</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_live_sessions') }}"><i class="ri-broadcast-line"></i> Live Sessions</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_recorded_sessions') }}"><i class="ri-film-line"></i> Recorded</a>
+      <a class="t-pill-tab active" href="{{ url_for('teacher.teacher_notes') }}"><i class="ri-file-text-line"></i> Notes &amp; Files ({{ rows|length }})</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_quizzes') }}"><i class="ri-questionnaire-line"></i> Quizzes</a>
+    </div>
+
+    <!-- Notes Grid -->
+    <div class="teacher-grid-cards" style="margin-top:0;">
       {% for n in rows %}
-      <tr>
-        <td>{{ n.course.title if n.course else '—' }}</td>
-        <td><strong>{{ n.title }}</strong></td>
-        <td><a href="{{ n.file_path }}" target="_blank" rel="noopener">Open</a></td>
-        <td style="white-space:nowrap;">
-          <a class="btn btn-primary btn-sm" href="{{ url_for('teacher.teacher_note_edit', note_id=n.id) }}">Edit</a>
-          <form method="post" action="{{ url_for('teacher.teacher_note_delete', note_id=n.id) }}" style="display:inline;" onsubmit="return confirm('Delete?');">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn btn-ghost btn-sm" style="color:#b91c1c;">Delete</button>
-          </form>
-        </td>
-      </tr>
+      <div class="t-feature-card t-card-notes reveal">
+        <div class="t-card-top-row">
+          <div class="t-card-icon-big t-icon-emerald">
+            <i class="ri-file-pdf-2-line"></i>
+          </div>
+          {% if n.is_visible %}
+          <span class="t-badge-published"><i class="ri-checkbox-circle-fill"></i> Available</span>
+          {% else %}
+          <span class="t-badge-draft"><i class="ri-eye-off-line"></i> Hidden</span>
+          {% endif %}
+        </div>
+
+        <h3 class="t-card-title" style="margin-bottom:0.35rem;">{{ n.title }}</h3>
+        <p class="muted" style="font-size:0.82rem;margin:0 0 0.75rem;font-weight:600;color:#4f46e5;">
+          <i class="ri-book-open-line"></i> {{ n.course.title if n.course else 'Course' }}
+          {% if n.module %}<span class="muted" style="font-weight:400;">· {{ n.module.title }}</span>{% endif %}
+        </p>
+
+        {% if n.description %}
+        <p class="t-card-desc" style="margin-bottom:1rem;">{{ n.description[:110] ~ '...' if n.description|length > 110 else n.description }}</p>
+        {% endif %}
+
+        <div class="t-card-footer" style="gap:0.5rem;flex-wrap:wrap;">
+          {% if n.file_path %}
+          <a class="btn btn-secondary btn-sm" href="{{ n.file_path }}" target="_blank" rel="noopener" style="font-size:0.82rem;padding:0.35rem 0.8rem;">
+            <i class="ri-download-cloud-line"></i> Download / View
+          </a>
+          {% endif %}
+          <div style="display:flex;gap:0.4rem;margin-left:auto;">
+            <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.teacher_note_edit', note_id=n.id) }}" style="font-size:0.82rem;padding:0.35rem 0.65rem;">
+              <i class="ri-edit-line"></i> Edit
+            </a>
+            <form method="post" action="{{ url_for('teacher.teacher_note_delete', note_id=n.id) }}" style="display:inline;" onsubmit="return confirm('Delete this note?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-ghost btn-sm" style="color:#ef4444;font-size:0.82rem;padding:0.35rem 0.5rem;" title="Delete">
+                <i class="ri-delete-bin-line"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
       {% else %}
-      <tr><td colspan="4" class="muted">No notes uploaded yet.</td></tr>
+      <div class="t-form-card" style="grid-column:1/-1;text-align:center;padding:3rem 1.5rem;">
+        <div style="font-size:3rem;color:#10b981;margin-bottom:0.5rem;"><i class="ri-file-text-line"></i></div>
+        <h3 style="margin:0 0 0.5rem;color:var(--text);">No notes uploaded yet</h3>
+        <p class="muted" style="margin:0 0 1.25rem;">Distribute PDFs, lecture slides, code files, and study guides to your students.</p>
+        {% if courses %}
+        <p class="muted" style="font-size:0.85rem;margin-bottom:0.75rem;">Select a course to upload study notes:</p>
+        <div style="display:flex;justify-content:center;gap:0.5rem;flex-wrap:wrap;">
+          {% for c in courses %}
+          <a class="btn btn-secondary btn-sm" href="{{ url_for('teacher.teacher_note_new', course_id=c.id) }}">
+            <i class="ri-upload-2-line"></i> {{ c.title }}
+          </a>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
       {% endfor %}
-    </tbody>
-  </table>
+    </div>
+
+  </div>
 </div>
-<h2 class="section-gap" style="font-size:1.05rem;">Upload to a course</h2>
-<ul class="muted">
-  {% for c in courses %}
-  <li><a href="{{ url_for('teacher.teacher_note_new', course_id=c.id) }}">{{ c.title }}</a></li>
-  {% endfor %}
-</ul>
+
+<script>
+function toggleNotePicker() {
+  const menu = document.getElementById('note-picker-menu');
+  if (menu) {
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  }
+}
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('create-note-dropdown-wrap');
+  const menu = document.getElementById('note-picker-menu');
+  if (wrap && menu && !wrap.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+</script>
 {% endblock %}

@@ -1,76 +1,133 @@
 {% extends "base.html" %}
-{% block title %}Attendance Correction — Teacher{% endblock %}
+{% block title %}Attendance Correction — Teacher Workspace{% endblock %}
 {% block breadcrumbs %}
 <div class="container breadcrumbs-wrap">
-  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('My HR', url_for('teacher.teacher_hr_dashboard')), ('Attendance Correction', None)] %}
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher Dashboard', url_for('teacher.dashboard')), ('My HR', url_for('teacher.teacher_hr_dashboard')), ('Correction Request', None)] %}
   {% include "partials/breadcrumbs.html" %}
 </div>
 {% endblock %}
 {% block content %}
-<h1>Attendance Correction Request</h1>
-<div class="form-actions" style="margin-bottom:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
-  <a href="{{ url_for('teacher.teacher_hr_dashboard') }}" class="btn btn-secondary btn-sm">Back to HR dashboard</a>
-  <a href="{{ url_for('teacher.teacher_hr_attendance') }}" class="btn btn-secondary btn-sm">Attendance</a>
-  <a href="{{ url_for('teacher.teacher_leave_requests') }}" class="btn btn-secondary btn-sm">Leave Requests</a>
-</div>
-<div class="card-premium form-modern reveal" style="padding:1.25rem;margin:1.25rem 0;">
-  <form method="post">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <div class="grid-2 gap-4">
-      <label class="form-field">
-        <span>Attendance record</span>
-        <select name="attendance_id" required>
-          <option value="">-- Select record --</option>
-          {% for record in attendance %}
-          <option value="{{ record.id }}">{{ record.attendance_date.strftime('%Y-%m-%d') }} — {{ record.status }}</option>
-          {% endfor %}
-        </select>
-      </label>
-      <label class="form-field">
-        <span>Requested check in</span>
-        <input type="datetime-local" name="requested_check_in">
-      </label>
-      <label class="form-field">
-        <span>Requested check out</span>
-        <input type="datetime-local" name="requested_check_out">
-      </label>
-      <label class="form-field" style="grid-column:1/-1;">
-        <span>Reason</span>
-        <textarea name="reason" rows="3" placeholder="Explain why correction is needed" required></textarea>
-      </label>
+<div class="dashboard-shell">
+  {% include "partials/dashboard_sidebar.html" %}
+  <div class="dash-main">
+
+    <!-- Subpage Header -->
+    <div class="t-subpage-header">
+      <div class="t-subpage-title-wrap">
+        <h1 class="t-subpage-title">
+          <span class="t-icon-box t-icon-rose"><i class="ri-edit-2-line"></i></span>
+          <span>Attendance Correction Request</span>
+        </h1>
+        <p class="t-subpage-sub">Request biometric or clock adjustment for missed or mismatched check-in/out stamps.</p>
+      </div>
+      <div class="t-subpage-actions">
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.teacher_hr_dashboard') }}">
+          <i class="ri-arrow-left-line"></i> HR Overview
+        </a>
+      </div>
     </div>
-    <div class="form-actions" style="margin-top:1rem;">
-      <button type="submit" class="btn btn-primary">Submit correction request</button>
+
+    <!-- HR Pill Navigation Bar -->
+    <div class="t-pill-tabs">
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_hr_dashboard') }}"><i class="ri-dashboard-line"></i> HR Overview</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_hr_attendance') }}"><i class="ri-calendar-check-line"></i> Attendance Log</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_leave_requests') }}"><i class="ri-flight-takeoff-line"></i> Apply Leave</a>
+      <a class="t-pill-tab active" href="{{ url_for('teacher.teacher_attendance_correction') }}"><i class="ri-edit-line"></i> Correction Request</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_hr_payroll') }}"><i class="ri-file-list-3-line"></i> Payslips</a>
     </div>
-  </form>
-</div>
-<div class="card-premium reveal" style="overflow-x:auto; padding:1rem;">
-  <h2>Submitted correction requests</h2>
-  <table class="table-modern" style="min-width:1000px;">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Status</th>
-        <th>Requested check in</th>
-        <th>Requested check out</th>
-        <th>Reason</th>
-        <th>Submitted</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for request in correction_requests %}
-      <tr>
-        <td>{{ request.attendance_record.attendance_date.strftime('%Y-%m-%d') }}</td>
-        <td>{{ request.status }}</td>
-        <td>{{ request.requested_check_in.strftime('%Y-%m-%d %H:%M') if request.requested_check_in else '—' }}</td>
-        <td>{{ request.requested_check_out.strftime('%Y-%m-%d %H:%M') if request.requested_check_out else '—' }}</td>
-        <td>{{ request.reason or '—' }}</td>
-        <td>{{ request.submitted_at.strftime('%Y-%m-%d') }}</td>
-      </tr>
-      {% else %}
-      <tr><td colspan="6" class="muted">No correction requests submitted yet.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+
+    <!-- Correction Form -->
+    <div class="t-form-card reveal" style="margin-bottom:1.75rem;max-width:760px;">
+      <h3 style="font-size:1.15rem;font-weight:700;margin:0 0 1rem;color:var(--text);display:flex;align-items:center;gap:0.5rem;">
+        <i class="ri-time-line" style="color:#f43f5e;"></i> Request Correction
+      </h3>
+
+      <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="t-field" style="margin-bottom:1.15rem;">
+          <label class="t-field-label">Target Attendance Record <span style="color:#ef4444;">*</span></label>
+          <select class="t-select" name="attendance_id" required>
+            <option value="">-- Select attendance day to correct --</option>
+            {% for record in attendance %}
+            <option value="{{ record.id }}">{{ record.attendance_date.strftime('%d %b %Y') }} — Status: {{ record.status }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="t-form-grid-2" style="margin-bottom:1.15rem;">
+          <div class="t-field">
+            <label class="t-field-label">Requested Check-In (Date &amp; Time)</label>
+            <input class="t-input" type="datetime-local" name="requested_check_in">
+          </div>
+          <div class="t-field">
+            <label class="t-field-label">Requested Check-Out (Date &amp; Time)</label>
+            <input class="t-input" type="datetime-local" name="requested_check_out">
+          </div>
+        </div>
+
+        <div class="t-field" style="margin-bottom:1.5rem;">
+          <label class="t-field-label">Reason / Justification <span style="color:#ef4444;">*</span></label>
+          <textarea class="t-textarea" name="reason" rows="3" placeholder="Explain why the timestamp was missed or needs adjustment (e.g. system connectivity issue, lecture ran late)..." required></textarea>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;">
+          <button type="submit" class="btn-hero-primary" style="border:none;cursor:pointer;">
+            <i class="ri-check-line"></i> Submit Correction Request
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Submitted Correction Requests -->
+    <div class="t-section-header" style="margin-top:1rem;">
+      <h2 class="t-section-title">
+        <i class="ri-history-line" style="color:#f43f5e;"></i>
+        <span>Correction Requests History</span>
+      </h2>
+    </div>
+
+    <div class="t-modern-table-card reveal">
+      <div style="overflow-x:auto;">
+        <table class="t-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Requested Check-In</th>
+              <th>Requested Check-Out</th>
+              <th>Reason</th>
+              <th>Submitted</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for req in correction_requests %}
+            <tr>
+              <td><strong>{{ req.attendance_record.attendance_date.strftime('%d %b %Y') if req.attendance_record else '—' }}</strong></td>
+              <td>
+                {% if req.status == 'Approved' %}
+                <span class="t-badge-published"><i class="ri-checkbox-circle-fill"></i> Approved</span>
+                {% elif req.status == 'Rejected' %}
+                <span style="color:#ef4444;font-weight:700;font-size:0.8rem;"><i class="ri-close-circle-fill"></i> Rejected</span>
+                {% else %}
+                <span class="t-badge-draft"><i class="ri-time-line"></i> Pending</span>
+                {% endif %}
+              </td>
+              <td>{{ req.requested_check_in.strftime('%I:%M %p') if req.requested_check_in else '—' }}</td>
+              <td>{{ req.requested_check_out.strftime('%I:%M %p') if req.requested_check_out else '—' }}</td>
+              <td>{{ req.reason or '—' }}</td>
+              <td class="muted">{{ req.submitted_at.strftime('%d %b %Y') if req.submitted_at else '—' }}</td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="6" style="text-align:center;padding:2.5rem 1rem;" class="muted">No attendance correction requests submitted yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
 </div>
 {% endblock %}

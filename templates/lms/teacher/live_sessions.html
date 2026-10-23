@@ -1,48 +1,141 @@
 {% extends "base.html" %}
-{% block title %}Live sessions — Teacher{% endblock %}
+{% block title %}Live Sessions — Teacher Workspace{% endblock %}
 {% block breadcrumbs %}
 <div class="container breadcrumbs-wrap">
-  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('Live sessions', None)] %}
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher Dashboard', url_for('teacher.dashboard')), ('Live Sessions', None)] %}
   {% include "partials/breadcrumbs.html" %}
 </div>
 {% endblock %}
 {% block content %}
-<h1 class="page-title">Live sessions</h1>
-<p class="muted">Schedule classes with Meet or Zoom links. Learners see these in the classroom.</p>
-<div class="teacher-dash-actions section-gap">
-  <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_courses') }}">Courses</a>
-  <a class="btn btn-ghost" href="{{ url_for('teacher.dashboard') }}">Dashboard</a>
-</div>
-<div class="card-premium reveal" style="padding:0;overflow-x:auto;">
-  <table class="table-modern">
-    <thead><tr><th>Course</th><th>Title</th><th>When</th><th>Status</th><th></th></tr></thead>
-    <tbody>
+<div class="dashboard-shell">
+  {% include "partials/dashboard_sidebar.html" %}
+  <div class="dash-main">
+
+    <!-- Subpage Header -->
+    <div class="t-subpage-header">
+      <div class="t-subpage-title-wrap">
+        <h1 class="t-subpage-title">
+          <span class="t-icon-box t-icon-rose"><i class="ri-broadcast-line"></i></span>
+          <span>Virtual Live Sessions</span>
+        </h1>
+        <p class="t-subpage-sub">Host interactive virtual classes via Google Meet or Zoom for your enrolled learners.</p>
+      </div>
+      <div class="t-subpage-actions">
+        {% if courses %}
+        <div style="position:relative;display:inline-block;" id="create-live-dropdown-wrap">
+          <button type="button" class="btn-hero-primary" onclick="toggleCoursePicker()" style="border:none;cursor:pointer;">
+            <i class="ri-add-line"></i> Schedule New Live Class
+          </button>
+          <div id="course-picker-menu" style="display:none;position:absolute;right:0;top:105%;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);min-width:260px;z-index:20;padding:0.5rem;overflow:hidden;">
+            <p style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin:0.25rem 0.5rem 0.5rem;">Select Course:</p>
+            {% for c in courses %}
+            <a href="{{ url_for('teacher.teacher_live_session_new', course_id=c.id) }}" style="display:block;padding:0.5rem 0.75rem;border-radius:6px;font-size:0.88rem;color:var(--text);text-decoration:none;font-weight:600;" onmouseover="this.style.background='var(--bg-surface)'" onmouseout="this.style.background='transparent'">
+              <i class="ri-book-line" style="color:#4f46e5;margin-right:0.35rem;"></i> {{ c.title }}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Quick Tabs -->
+    <div class="t-pill-tabs">
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_courses') }}"><i class="ri-folder-video-line"></i> Courses</a>
+      <a class="t-pill-tab active" href="{{ url_for('teacher.teacher_live_sessions') }}"><i class="ri-broadcast-line"></i> Live Sessions ({{ lives|length }})</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_recorded_sessions') }}"><i class="ri-film-line"></i> Recorded</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_notes') }}"><i class="ri-file-text-line"></i> Notes</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_quizzes') }}"><i class="ri-questionnaire-line"></i> Quizzes</a>
+    </div>
+
+    <!-- Sessions Grid Cards -->
+    <div class="teacher-grid-cards" style="margin-top:0;">
       {% for s in lives %}
-      <tr>
-        <td>{{ s.course.title if s.course else '—' }}</td>
-        <td><strong>{{ s.title }}</strong></td>
-        <td class="muted">{% if s.scheduled_at %}{{ s.scheduled_at.strftime('%d %b %Y %H:%M') }}{% else %}—{% endif %}</td>
-        <td><span class="level-pill">{{ s.status }}</span></td>
-        <td style="white-space:nowrap;">
-          <a class="btn btn-primary btn-sm" href="{{ url_for('teacher.teacher_live_session_edit', session_id=s.id) }}">Edit</a>
-          <form method="post" action="{{ url_for('teacher.teacher_live_session_delete', session_id=s.id) }}" style="display:inline;" onsubmit="return confirm('Delete this session?');">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn btn-ghost btn-sm" style="color:#b91c1c;">Delete</button>
-          </form>
-        </td>
-      </tr>
+      <div class="t-feature-card t-card-live reveal">
+        <div class="t-card-top-row">
+          <div class="t-card-icon-big t-icon-rose">
+            <i class="ri-video-chat-line"></i>
+          </div>
+          {% if s.status == 'completed' %}
+          <span class="t-badge-draft" style="background:rgba(100,116,139,0.15);color:#64748b;">Completed</span>
+          {% else %}
+          <span class="t-card-badge" style="background:rgba(244,63,94,0.12);color:#f43f5e;">
+            <span class="live-radar-dot"></span>Upcoming
+          </span>
+          {% endif %}
+        </div>
+
+        <h3 class="t-card-title" style="margin-bottom:0.35rem;">{{ s.title }}</h3>
+        <p class="muted" style="font-size:0.82rem;margin:0 0 0.75rem;font-weight:600;color:#4f46e5;">
+          <i class="ri-book-open-line"></i> {{ s.course.title if s.course else 'Course' }}
+        </p>
+
+        <div style="background:var(--bg-surface);padding:0.75rem;border-radius:8px;margin-bottom:1rem;font-size:0.85rem;">
+          <div style="display:flex;align-items:center;gap:0.4rem;color:var(--text);margin-bottom:0.25rem;">
+            <i class="ri-time-line" style="color:#f43f5e;"></i>
+            <strong>{% if s.scheduled_at %}{{ s.scheduled_at.strftime('%a, %d %b %Y · %I:%M %p') }}{% else %}Date not set{% endif %}</strong>
+          </div>
+          {% if s.description %}
+          <p class="muted" style="margin:0.25rem 0 0;font-size:0.8rem;line-height:1.4;">{{ s.description[:90] ~ '...' if s.description|length > 90 else s.description }}</p>
+          {% endif %}
+        </div>
+
+        <div class="t-card-footer" style="flex-wrap:wrap;gap:0.5rem;">
+          {% if s.meet_url %}
+          <a class="btn btn-primary btn-sm" href="{{ s.meet_url }}" target="_blank" rel="noopener" style="font-size:0.82rem;padding:0.35rem 0.8rem;">
+            <i class="ri-video-on-line"></i> Join Link
+          </a>
+          {% endif %}
+          <div style="display:flex;gap:0.4rem;margin-left:auto;">
+            <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.teacher_live_session_edit', session_id=s.id) }}" style="font-size:0.82rem;padding:0.35rem 0.65rem;">
+              <i class="ri-edit-line"></i> Edit
+            </a>
+            <form method="post" action="{{ url_for('teacher.teacher_live_session_delete', session_id=s.id) }}" style="display:inline;" onsubmit="return confirm('Delete this live session?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-ghost btn-sm" style="color:#ef4444;font-size:0.82rem;padding:0.35rem 0.5rem;" title="Delete">
+                <i class="ri-delete-bin-line"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
       {% else %}
-      <tr><td colspan="5" class="muted">No live sessions yet. Add one from a course.</td></tr>
+      <div class="t-form-card" style="grid-column:1/-1;text-align:center;padding:3rem 1.5rem;">
+        <div style="font-size:3rem;color:#f43f5e;margin-bottom:0.5rem;"><i class="ri-broadcast-line"></i></div>
+        <h3 style="margin:0 0 0.5rem;color:var(--text);">No live sessions scheduled</h3>
+        <p class="muted" style="margin:0 0 1.25rem;">Host interactive Google Meet or Zoom lectures for your learners.</p>
+        {% if courses %}
+        <p class="muted" style="font-size:0.85rem;margin-bottom:0.75rem;">Pick a course to schedule a live class:</p>
+        <div style="display:flex;justify-content:center;gap:0.5rem;flex-wrap:wrap;">
+          {% for c in courses %}
+          <a class="btn btn-secondary btn-sm" href="{{ url_for('teacher.teacher_live_session_new', course_id=c.id) }}">
+            <i class="ri-add-line"></i> {{ c.title }}
+          </a>
+          {% endfor %}
+        </div>
+        {% else %}
+        <a class="btn btn-primary btn-sm" href="{{ url_for('teacher.create_course') }}">+ Create a course first</a>
+        {% endif %}
+      </div>
       {% endfor %}
-    </tbody>
-  </table>
+    </div>
+
+  </div>
 </div>
-<h2 class="section-gap" style="font-size:1.05rem;">Create on a course</h2>
-<ul class="muted">
-  {% for c in courses %}
-  <li><a href="{{ url_for('teacher.teacher_live_session_new', course_id=c.id) }}">{{ c.title }}</a></li>
-  {% else %}
-  <li>No courses available.</li>
-  {% endfor %}
-</ul>
+
+<script>
+function toggleCoursePicker() {
+  const menu = document.getElementById('course-picker-menu');
+  if (menu) {
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  }
+}
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('create-live-dropdown-wrap');
+  const menu = document.getElementById('course-picker-menu');
+  if (wrap && menu && !wrap.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+</script>
 {% endblock %}

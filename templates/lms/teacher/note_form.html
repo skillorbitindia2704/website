@@ -1,37 +1,112 @@
 {% extends "base.html" %}
-{% block title %}{% if note %}Edit{% else %}Upload{% endif %} note — Teacher{% endblock %}
+{% block title %}{% if note %}Edit{% else %}Upload{% endif %} Note — Teacher{% endblock %}
 {% block breadcrumbs %}
 <div class="container breadcrumbs-wrap">
-  {% set crumbs = [('Home', url_for('main.home')), ('Notes', url_for('teacher.teacher_notes')), (course.title[:24], None)] %}
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher Dashboard', url_for('teacher.dashboard')), ('Notes & Files', url_for('teacher.teacher_notes')), (('Edit: ' ~ note.title[:18]) if note else 'Upload Note', None)] %}
   {% include "partials/breadcrumbs.html" %}
 </div>
 {% endblock %}
 {% block content %}
-<nav class="teacher-course-nav">
-  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_edit_course', course_id=course.id) }}">Course</a>
-</nav>
-<div class="card-premium teacher-lms-card reveal" style="padding:1.25rem;max-width:640px;">
-  <h1 style="font-size:1.2rem;margin-top:0;">{% if note %}Edit{% else %}Upload{% endif %} note</h1>
-  <form method="post" enctype="multipart/form-data" class="form-modern teacher-lms-form">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <label>Title <input name="title" required value="{{ note.title if note else '' }}"></label>
-    <label>Description <textarea name="description" rows="2">{{ note.description if note else '' }}</textarea></label>
-    <label>File (PDF, DOC, PPT, ZIP…) {% if note %}<span class="muted">optional to keep file</span>{% endif %}
-      <input type="file" name="file" {% if not note %}required{% endif %}></label>
-    {% if note and note.file_path %}<p class="muted" style="font-size:0.85rem;">Current: <a href="{{ note.file_path }}" target="_blank" rel="noopener">open</a></p>{% endif %}
-    <label>Module
-      <select name="module_id">
-        <option value="">—</option>
-        {% for m in modules %}
-        <option value="{{ m.id }}" {% if note and note.module_id == m.id %}selected{% endif %}>{{ m.title }}</option>
-        {% endfor %}
-      </select>
-    </label>
-    <label>Sort order <input name="sort_order" type="number" value="{{ note.sort_order if note else 0 }}"></label>
-    <label class="int-check" style="display:flex;align-items:center;gap:0.5rem;">
-      <input type="checkbox" name="is_visible" {% if not note or note.is_visible %}checked{% endif %}> Visible to students
-    </label>
-    <button type="submit" class="btn btn-primary">Save</button>
-  </form>
+<div class="dashboard-shell">
+  {% include "partials/dashboard_sidebar.html" %}
+  <div class="dash-main">
+
+    <!-- Subpage Header -->
+    <div class="t-subpage-header">
+      <div class="t-subpage-title-wrap">
+        <h1 class="t-subpage-title">
+          <span class="t-icon-box t-icon-emerald"><i class="ri-file-text-line"></i></span>
+          <span>{% if note %}Edit{% else %}Upload{% endif %} Study Resource</span>
+        </h1>
+        <p class="t-subpage-sub">Course: <strong>{{ course.title }}</strong></p>
+      </div>
+      <div class="t-subpage-actions">
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.teacher_notes') }}">
+          <i class="ri-arrow-left-line"></i> All Notes
+        </a>
+        <a class="btn btn-secondary btn-sm" href="{{ url_for('teacher.teacher_edit_course', course_id=course.id) }}">
+          <i class="ri-book-line"></i> Course Details
+        </a>
+      </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="t-form-card reveal" style="max-width:720px;">
+      <form method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="t-field" style="margin-bottom:1.15rem;">
+          <label class="t-field-label">Document Title <span style="color:#ef4444;">*</span></label>
+          <input class="t-input" name="title" required value="{{ note.title if note else '' }}" placeholder="e.g. Chapter 2 Lecture Slides & Code Cheat-Sheet">
+        </div>
+
+        <div class="t-field" style="margin-bottom:1.15rem;">
+          <label class="t-field-label">Document Description</label>
+          <textarea class="t-textarea" name="description" rows="3" placeholder="Summary of what this document covers...">{{ note.description if note else '' }}</textarea>
+        </div>
+
+        <div class="t-field" style="margin-bottom:1.15rem;">
+          <label class="t-field-label">
+            <span>File Attachment {% if note %}<small style="color:var(--text-muted);">(Leave empty to keep current file)</small>{% else %}<span style="color:#ef4444;">*</span>{% endif %}</span>
+          </label>
+          <div class="t-dropzone">
+            <input type="file" name="file" {% if not note %}required{% endif %} onchange="previewNoteFile(this)">
+            <div class="t-dropzone-icon" style="color:#10b981;"><i class="ri-file-cloud-line"></i></div>
+            <p style="margin:0;font-weight:700;font-size:0.92rem;">Click to choose file or drag &amp; drop</p>
+            <p class="muted" style="margin:0.25rem 0 0;font-size:0.8rem;">PDF, DOC, DOCX, PPT, PPTX, TXT, ZIP, PY (Max 25MB)</p>
+          </div>
+          <div id="note-file-status" style="margin-top:0.5rem;"></div>
+          {% if note and note.file_path %}
+          <div style="margin-top:0.65rem;background:var(--bg-surface);padding:0.65rem 0.85rem;border-radius:8px;display:flex;align-items:center;gap:0.5rem;">
+            <i class="ri-attachment-line" style="color:#10b981;"></i>
+            <span class="muted" style="font-size:0.82rem;">Current file: <a href="{{ note.file_path }}" target="_blank" rel="noopener" style="color:#4f46e5;font-weight:600;">Open / Download</a></span>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="t-form-grid-2" style="margin-bottom:1.25rem;">
+          <div class="t-field">
+            <label class="t-field-label">Curriculum Module</label>
+            <select class="t-select" name="module_id">
+              <option value="">— None / Course Wide —</option>
+              {% for m in modules %}
+              <option value="{{ m.id }}" {% if note and note.module_id == m.id %}selected{% endif %}>{{ m.title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="t-field">
+            <label class="t-field-label">Display Sort Order</label>
+            <input class="t-input" name="sort_order" type="number" value="{{ note.sort_order if note else 0 }}">
+          </div>
+        </div>
+
+        <div class="t-field" style="margin-bottom:1.5rem;">
+          <label class="t-field-label">Visibility</label>
+          <label style="display:flex;align-items:center;gap:0.6rem;padding:0.75rem 1rem;background:var(--bg-surface);border-radius:var(--radius-sm);cursor:pointer;">
+            <input type="checkbox" name="is_visible" {% if not note or note.is_visible %}checked{% endif %} style="width:18px;height:18px;accent-color:#4f46e5;">
+            <span style="font-weight:600;font-size:0.9rem;">Visible to students in classroom</span>
+          </label>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:0.75rem;">
+          <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_notes') }}">Cancel</a>
+          <button type="submit" class="btn-hero-primary" style="border:none;cursor:pointer;">
+            <i class="ri-check-line"></i> {% if note %}Update Note{% else %}Save &amp; Upload Document{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
 </div>
+
+<script>
+function previewNoteFile(input) {
+  const file = input.files[0];
+  const status = document.getElementById('note-file-status');
+  if (file) {
+    status.innerHTML = `<span style="color:#22c55e;font-size:0.85rem;font-weight:600;"><i class="ri-checkbox-circle-fill"></i> Selected: ${file.name} (${(file.size / (1024*1024)).toFixed(2)} MB)</span>`;
+  }
+}
+</script>
 {% endblock %}

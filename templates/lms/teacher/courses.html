@@ -1,43 +1,204 @@
 {% extends "base.html" %}
-{% block title %}My courses — Teacher{% endblock %}
+{% block title %}Course Manager — Teacher Workspace{% endblock %}
 {% block breadcrumbs %}
 <div class="container breadcrumbs-wrap">
-  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('Courses', None)] %}
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher Dashboard', url_for('teacher.dashboard')), ('Course Manager', None)] %}
   {% include "partials/breadcrumbs.html" %}
 </div>
 {% endblock %}
 {% block content %}
-<h1 class="page-title">Course manager</h1>
-<p class="muted">Edit catalog entries, modules, and LMS content.</p>
-<div class="teacher-dash-actions section-gap">
-  <a class="btn btn-primary" href="{{ url_for('teacher.create_course') }}">+ New course</a>
-  <a class="btn btn-ghost" href="{{ url_for('teacher.dashboard') }}">Dashboard</a>
-  <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_live_sessions') }}">Live sessions</a>
-  <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_recorded_sessions') }}">Recorded</a>
-  <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_notes') }}">Notes</a>
-  <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_quizzes') }}">Quizzes</a>
-</div>
-<div class="card-premium reveal" style="padding:0;overflow-x:auto;">
-  <table class="table-modern teacher-course-table">
-    <thead><tr><th>Title</th><th>Published</th><th>Actions</th></tr></thead>
-    <tbody>
+<div class="dashboard-shell">
+  {% include "partials/dashboard_sidebar.html" %}
+  <div class="dash-main">
+
+    <!-- Subpage Header -->
+    <div class="t-subpage-header">
+      <div class="t-subpage-title-wrap">
+        <h1 class="t-subpage-title">
+          <span class="t-icon-box t-icon-blue"><i class="ri-folder-video-line"></i></span>
+          <span>Course Manager</span>
+        </h1>
+        <p class="t-subpage-sub">Manage course curriculum, publication state, syllabus modules, and view student progress.</p>
+      </div>
+      <div class="t-subpage-actions">
+        <a class="btn-hero-primary" href="{{ url_for('teacher.create_course') }}">
+          <i class="ri-add-line"></i> Create Course
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick Navigation Pills -->
+    <div class="t-pill-tabs">
+      <a class="t-pill-tab active" href="{{ url_for('teacher.teacher_courses') }}"><i class="ri-book-open-line"></i> All Courses ({{ courses|length }})</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_live_sessions') }}"><i class="ri-broadcast-line"></i> Live Sessions</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_recorded_sessions') }}"><i class="ri-film-line"></i> Recorded</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_notes') }}"><i class="ri-file-text-line"></i> Notes &amp; Files</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_quizzes') }}"><i class="ri-questionnaire-line"></i> Quizzes</a>
+    </div>
+
+    <!-- Filter & Search Bar -->
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+      <div class="t-search-box" style="flex:1;max-width:380px;">
+        <i class="ri-search-line" style="color:var(--text-muted);"></i>
+        <input type="text" id="course-search-input" placeholder="Search courses by title, category, level..." onkeyup="filterCourseCards()">
+      </div>
+      <div style="display:flex;gap:0.5rem;">
+        <button type="button" class="btn btn-ghost btn-sm" id="btn-view-cards" onclick="setViewMode('cards')"><i class="ri-grid-fill"></i> Cards</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="btn-view-table" onclick="setViewMode('table')"><i class="ri-table-line"></i> Table</button>
+      </div>
+    </div>
+
+    <!-- Grid Cards View -->
+    <div id="courses-grid-container" class="teacher-grid-cards" style="margin-top:0;">
       {% for c in courses %}
-      <tr>
-        <td><strong>{{ c.title }}</strong><br><span class="muted" style="font-size:0.85rem;">{{ c.category or '—' }}</span></td>
-        <td>{% if c.is_published %}<span class="level-pill">Yes</span>{% else %}<span class="muted">No</span>{% endif %}</td>
-        <td style="white-space:nowrap;">
-          <a class="btn btn-primary btn-sm" href="{{ url_for('teacher.teacher_edit_course', course_id=c.id) }}">Edit</a>
-          <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.teacher_course_students', course_id=c.id) }}">Students</a>
-          <form method="post" action="{{ url_for('teacher.teacher_delete_course', course_id=c.id) }}" style="display:inline;" onsubmit="return confirm('Delete this course? This cannot be undone.');">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="btn btn-ghost btn-sm" style="color:#b91c1c;">Delete</button>
-          </form>
-        </td>
-      </tr>
+      <div class="t-feature-card t-card-manager course-card-item reveal" style="padding:0;overflow:hidden;" data-published="{{ '1' if c.is_published else '0' }}">
+        <div style="height:140px;background:linear-gradient(135deg, #4f46e5, #7c3aed);position:relative;display:flex;align-items:center;justify-content:center;color:#fff;">
+          {% if c.thumbnail_path %}
+          <img src="{{ c.thumbnail_path }}" alt="{{ c.title }}" style="width:100%;height:100%;object-fit:cover;">
+          {% else %}
+          <div style="font-size:3rem;opacity:0.3;"><i class="ri-book-open-fill"></i></div>
+          <span style="position:absolute;font-weight:800;font-size:1.3rem;letter-spacing:0.04em;">{{ c.category or 'COURSE' }}</span>
+          {% endif %}
+          <div style="position:absolute;top:10px;right:10px;">
+            {% if c.is_published %}
+            <span class="t-badge-published"><i class="ri-checkbox-circle-fill"></i> Live</span>
+            {% else %}
+            <span class="t-badge-draft"><i class="ri-draft-line"></i> Draft</span>
+            {% endif %}
+          </div>
+          <div style="position:absolute;bottom:10px;left:10px;display:flex;gap:0.4rem;">
+            <span style="font-size:0.75rem;padding:0.2rem 0.6rem;background:rgba(0,0,0,0.6);border-radius:999px;backdrop-filter:blur(4px);color:#fff;font-weight:600;">
+              ₹{{ c.price_inr }}
+            </span>
+            <span style="font-size:0.75rem;padding:0.2rem 0.6rem;background:rgba(0,0,0,0.6);border-radius:999px;backdrop-filter:blur(4px);color:#fff;font-weight:600;">
+              {{ c.level or 'All levels' }}
+            </span>
+          </div>
+        </div>
+
+        <div style="padding:1.25rem;display:flex;flex-direction:column;flex-grow:1;">
+          <h3 class="course-card-title" style="font-size:1.05rem;font-weight:700;margin:0 0 0.4rem;color:var(--text);line-height:1.3;">{{ c.title }}</h3>
+          <p class="muted" style="font-size:0.84rem;margin:0 0 1rem;line-height:1.45;flex-grow:1;">
+            {{ c.description[:110] ~ '...' if c.description and c.description|length > 110 else (c.description or 'No description provided.') }}
+          </p>
+
+          <div style="padding-top:0.85rem;border-top:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;">
+            <div style="display:flex;gap:0.4rem;">
+              <a class="btn btn-primary btn-sm" href="{{ url_for('teacher.teacher_edit_course', course_id=c.id) }}" style="font-size:0.8rem;padding:0.35rem 0.7rem;">
+                <i class="ri-edit-line"></i> Edit
+              </a>
+              <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.teacher_course_students', course_id=c.id) }}" style="font-size:0.8rem;padding:0.35rem 0.7rem;">
+                <i class="ri-group-line"></i> Students
+              </a>
+            </div>
+            <form method="post" action="{{ url_for('teacher.teacher_delete_course', course_id=c.id) }}" style="display:inline;" onsubmit="return confirm('Permanently delete {{ c.title|replace('\'', '\\\'') }}? This cannot be undone.');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-ghost btn-sm" style="color:#ef4444;font-size:0.8rem;padding:0.35rem 0.5rem;" title="Delete Course">
+                <i class="ri-delete-bin-line"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
       {% else %}
-      <tr><td colspan="3" class="muted">No courses yet.</td></tr>
+      <div class="t-form-card" style="grid-column:1/-1;text-align:center;padding:3rem 1.5rem;">
+        <div style="font-size:3rem;color:var(--text-muted);margin-bottom:0.75rem;"><i class="ri-book-line"></i></div>
+        <h3 style="margin:0 0 0.5rem;color:var(--text);">No courses yet</h3>
+        <p class="muted" style="margin:0 0 1.25rem;">You haven't created any courses yet. Get started with our Creator Studio!</p>
+        <a class="btn-hero-primary" href="{{ url_for('teacher.create_course') }}">+ Create New Course</a>
+      </div>
       {% endfor %}
-    </tbody>
-  </table>
+    </div>
+
+    <!-- Table View (Hidden by default, toggleable) -->
+    <div id="courses-table-container" class="t-modern-table-card reveal" style="display:none;">
+      <div style="overflow-x:auto;">
+        <table class="t-table">
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th>Category</th>
+              <th>Level</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in courses %}
+            <tr class="course-table-item">
+              <td>
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                  <div class="t-course-thumb">
+                    {% if c.thumbnail_path %}
+                    <img src="{{ c.thumbnail_path }}" alt="{{ c.title }}" style="width:100%;height:100%;border-radius:10px;object-fit:cover;">
+                    {% else %}
+                    {{ c.title[0]|upper }}
+                    {% endif %}
+                  </div>
+                  <div>
+                    <strong style="color:var(--text);font-size:0.92rem;display:block;">{{ c.title }}</strong>
+                    <span class="muted" style="font-size:0.8rem;">{{ c.duration or 'Self paced' }}</span>
+                  </div>
+                </div>
+              </td>
+              <td><span class="muted">{{ c.category or '—' }}</span></td>
+              <td><span class="level-pill">{{ c.level or 'All' }}</span></td>
+              <td><strong>₹{{ c.price_inr }}</strong></td>
+              <td>
+                {% if c.is_published %}
+                <span class="t-badge-published"><i class="ri-checkbox-circle-fill"></i> Published</span>
+                {% else %}
+                <span class="t-badge-draft"><i class="ri-draft-line"></i> Draft</span>
+                {% endif %}
+              </td>
+              <td style="text-align:right;white-space:nowrap;">
+                <a class="btn btn-primary btn-sm" href="{{ url_for('teacher.teacher_edit_course', course_id=c.id) }}"><i class="ri-edit-line"></i> Edit</a>
+                <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.teacher_course_students', course_id=c.id) }}"><i class="ri-group-line"></i> Students</a>
+                <form method="post" action="{{ url_for('teacher.teacher_delete_course', course_id=c.id) }}" style="display:inline;" onsubmit="return confirm('Delete course?');">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn btn-ghost btn-sm" style="color:#ef4444;"><i class="ri-delete-bin-line"></i></button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
 </div>
+
+<script>
+function filterCourseCards() {
+  const query = document.getElementById('course-search-input').value.toLowerCase();
+  document.querySelectorAll('.course-card-item').forEach(el => {
+    const text = el.innerText.toLowerCase();
+    el.style.display = text.includes(query) ? '' : 'none';
+  });
+  document.querySelectorAll('.course-table-item').forEach(el => {
+    const text = el.innerText.toLowerCase();
+    el.style.display = text.includes(query) ? '' : 'none';
+  });
+}
+
+function setViewMode(mode) {
+  const grid = document.getElementById('courses-grid-container');
+  const table = document.getElementById('courses-table-container');
+  const btnCards = document.getElementById('btn-view-cards');
+  const btnTable = document.getElementById('btn-view-table');
+  if (mode === 'table') {
+    grid.style.display = 'none';
+    table.style.display = 'block';
+    btnTable.classList.add('active');
+    btnCards.classList.remove('active');
+  } else {
+    grid.style.display = 'grid';
+    table.style.display = 'none';
+    btnCards.classList.add('active');
+    btnTable.classList.remove('active');
+  }
+}
+</script>
 {% endblock %}

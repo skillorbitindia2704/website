@@ -2,32 +2,143 @@
 {% block title %}Students — {{ course.title }}{% endblock %}
 {% block breadcrumbs %}
 <div class="container breadcrumbs-wrap">
-  {% set crumbs = [('Home', url_for('main.home')), ('Courses', url_for('teacher.teacher_courses')), (course.title[:28], None)] %}
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher Dashboard', url_for('teacher.dashboard')), ('Courses', url_for('teacher.teacher_courses')), ('Students', None)] %}
   {% include "partials/breadcrumbs.html" %}
 </div>
 {% endblock %}
 {% block content %}
-<nav class="teacher-course-nav">
-  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_edit_course', course_id=course.id) }}">Edit course</a>
-</nav>
-<h1 class="page-title">Enrolled students</h1>
-<p class="muted">{{ course.title }} — progress and payment flags.</p>
-<div class="card-premium reveal" style="padding:0;overflow-x:auto;">
-  <table class="table-modern">
-    <thead><tr><th>Student</th><th>Paid</th><th>Progress</th><th>Quiz passed</th><th>Since</th></tr></thead>
-    <tbody>
-      {% for e in enrolls %}
-      <tr>
-        <td>{{ e.user.full_name if e.user else '—' }}<br><span class="muted" style="font-size:0.8rem;">{{ e.user.email if e.user else '' }}</span></td>
-        <td>{% if e.is_paid %}<span class="level-pill">Yes</span>{% else %}<span class="muted">No</span>{% endif %}</td>
-        <td>{{ e.progress_pct }}%</td>
-        <td>{% if e.quiz_passed %}Yes{% else %}No{% endif %}</td>
-        <td class="muted" style="font-size:0.85rem;">{{ e.created_at.strftime('%d %b %Y') if e.created_at else '—' }}</td>
-      </tr>
-      {% else %}
-      <tr><td colspan="5" class="muted">No enrollments yet.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="dashboard-shell">
+  {% include "partials/dashboard_sidebar.html" %}
+  <div class="dash-main">
+
+    <!-- Subpage Header -->
+    <div class="t-subpage-header">
+      <div class="t-subpage-title-wrap">
+        <h1 class="t-subpage-title">
+          <span class="t-icon-box t-icon-blue"><i class="ri-team-line"></i></span>
+          <span>Enrolled Students</span>
+        </h1>
+        <p class="t-subpage-sub">{{ course.title }} · Student learning progress &amp; completion</p>
+      </div>
+      <div class="t-subpage-actions">
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.teacher_courses') }}">
+          <i class="ri-arrow-left-line"></i> All Courses
+        </a>
+        <a class="btn btn-secondary btn-sm" href="{{ url_for('teacher.teacher_edit_course', course_id=course.id) }}">
+          <i class="ri-edit-line"></i> Edit Course
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="teacher-stats-strip reveal" style="margin-top:0;">
+      <div class="teacher-stat-card">
+        <div class="teacher-stat-icon-wrap t-icon-blue"><i class="ri-group-line"></i></div>
+        <div class="teacher-stat-data">
+          <span class="teacher-stat-num">{{ enrolls|length }}</span>
+          <span class="teacher-stat-label">Total Enrolled</span>
+        </div>
+      </div>
+      <div class="teacher-stat-card">
+        <div class="teacher-stat-icon-wrap t-icon-emerald"><i class="ri-secure-payment-line"></i></div>
+        <div class="teacher-stat-data">
+          <span class="teacher-stat-num">{{ enrolls|selectattr('is_paid')|list|length }}</span>
+          <span class="teacher-stat-label">Paid Enrollments</span>
+        </div>
+      </div>
+      <div class="teacher-stat-card">
+        <div class="teacher-stat-icon-wrap t-icon-purple"><i class="ri-award-line"></i></div>
+        <div class="teacher-stat-data">
+          <span class="teacher-stat-num">{{ enrolls|selectattr('quiz_passed')|list|length }}</span>
+          <span class="teacher-stat-label">Passed Quiz</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student Roster Table -->
+    <div class="t-modern-table-card reveal">
+      <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border-soft);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+        <h3 style="font-size:1.1rem;font-weight:700;margin:0;color:var(--text);">Student Roster ({{ enrolls|length }})</h3>
+        <div class="t-search-box" style="min-width:240px;">
+          <i class="ri-search-line" style="color:var(--text-muted);"></i>
+          <input type="text" id="student-search-input" placeholder="Search by name or email..." onkeyup="filterStudents()">
+        </div>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="t-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Status</th>
+              <th>Progress</th>
+              <th>Quiz Assessment</th>
+              <th>Enrolled On</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in enrolls %}
+            <tr class="student-row-item">
+              <td>
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                  <div class="teacher-avatar-circle" style="width:36px;height:36px;font-size:0.9rem;">
+                    {{ e.user.full_name[0]|upper if e.user and e.user.full_name else 'S' }}
+                  </div>
+                  <div>
+                    <strong style="color:var(--text);font-size:0.92rem;display:block;">{{ e.user.full_name if e.user else 'Learner' }}</strong>
+                    <span class="muted" style="font-size:0.8rem;">{{ e.user.email if e.user else '—' }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                {% if e.is_paid %}
+                <span class="t-badge-published"><i class="ri-checkbox-circle-fill"></i> Paid</span>
+                {% else %}
+                <span class="t-badge-draft"><i class="ri-time-line"></i> Free / Trial</span>
+                {% endif %}
+              </td>
+              <td style="min-width:140px;">
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                  <div style="flex:1;height:6px;border-radius:999px;background:rgba(99,102,241,0.15);overflow:hidden;">
+                    <div style="height:100%;background:linear-gradient(90deg, #4f46e5, #22c55e);width:{{ e.progress_pct }}%;"></div>
+                  </div>
+                  <span style="font-weight:700;font-size:0.82rem;color:var(--text);">{{ e.progress_pct }}%</span>
+                </div>
+              </td>
+              <td>
+                {% if e.quiz_passed %}
+                <span class="t-badge-published"><i class="ri-medal-fill"></i> Passed</span>
+                {% else %}
+                <span class="muted" style="font-size:0.85rem;"><i class="ri-time-line"></i> Incomplete</span>
+                {% endif %}
+              </td>
+              <td class="muted" style="font-size:0.85rem;">
+                {{ e.created_at.strftime('%d %b %Y') if e.created_at else '—' }}
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="5" style="text-align:center;padding:3rem 1rem;">
+                <div style="font-size:2.5rem;color:var(--text-muted);margin-bottom:0.5rem;"><i class="ri-group-line"></i></div>
+                <p class="muted" style="margin:0;">No students enrolled in this course yet.</p>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
 </div>
+
+<script>
+function filterStudents() {
+  const query = document.getElementById('student-search-input').value.toLowerCase();
+  document.querySelectorAll('.student-row-item').forEach(row => {
+    const text = row.innerText.toLowerCase();
+    row.style.display = text.includes(query) ? '' : 'none';
+  });
+}
+</script>
 {% endblock %}

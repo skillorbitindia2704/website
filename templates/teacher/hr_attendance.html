@@ -1,74 +1,116 @@
 {% extends "base.html" %}
-{% block title %}Attendance — Teacher{% endblock %}
+{% block title %}My Attendance — Teacher Workspace{% endblock %}
 {% block breadcrumbs %}
 <div class="container breadcrumbs-wrap">
-  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('My HR', url_for('teacher.teacher_hr_dashboard')), ('Attendance', None)] %}
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher Dashboard', url_for('teacher.dashboard')), ('My HR', url_for('teacher.teacher_hr_dashboard')), ('Attendance', None)] %}
   {% include "partials/breadcrumbs.html" %}
 </div>
 {% endblock %}
 {% block content %}
-<h1>My Attendance</h1>
-<div class="form-actions" style="margin-bottom:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
-  <a href="{{ url_for('teacher.teacher_hr_dashboard') }}" class="btn btn-secondary btn-sm">Back to HR dashboard</a>
-  <a href="{{ url_for('teacher.teacher_leave_requests') }}" class="btn btn-primary btn-sm">My Leave Requests</a>
-  <a href="{{ url_for('teacher.teacher_attendance_correction') }}" class="btn btn-primary btn-sm">Request Attendance Correction</a>
-</div>
-<div class="card-premium reveal" style="padding:1rem; margin-bottom:1rem;">
-  <div class="grid-3 gap-4">
-    <div>
-      <strong>Today</strong>
-      <p class="muted">{{ today.strftime('%Y-%m-%d') }}</p>
+<div class="dashboard-shell">
+  {% include "partials/dashboard_sidebar.html" %}
+  <div class="dash-main">
+
+    <!-- Subpage Header -->
+    <div class="t-subpage-header">
+      <div class="t-subpage-title-wrap">
+        <h1 class="t-subpage-title">
+          <span class="t-icon-box t-icon-cyan"><i class="ri-calendar-check-line"></i></span>
+          <span>Attendance Records</span>
+        </h1>
+        <p class="t-subpage-sub">Review daily check-in / check-out history and punctuality logs.</p>
+      </div>
+      <div class="t-subpage-actions">
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.teacher_hr_dashboard') }}">
+          <i class="ri-arrow-left-line"></i> HR Overview
+        </a>
+      </div>
     </div>
-    <div>
-      <strong>Today's record</strong>
-      <p class="muted">{{ today_record.status if today_record else 'No record yet' }}</p>
+
+    <!-- HR Pill Navigation Bar -->
+    <div class="t-pill-tabs">
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_hr_dashboard') }}"><i class="ri-dashboard-line"></i> HR Overview</a>
+      <a class="t-pill-tab active" href="{{ url_for('teacher.teacher_hr_attendance') }}"><i class="ri-calendar-check-line"></i> Attendance Log</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_leave_requests') }}"><i class="ri-flight-takeoff-line"></i> Apply Leave</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_attendance_correction') }}"><i class="ri-edit-line"></i> Correction Request</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_hr_payroll') }}"><i class="ri-file-list-3-line"></i> Payslips</a>
     </div>
-    <div>
-      <strong>Action</strong>
-      <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.5rem;">
+
+    <!-- Today's Attendance Quick Card -->
+    <div class="t-punch-card reveal" style="margin-bottom:1.5rem;">
+      <div>
+        <span class="muted" style="font-size:0.75rem;font-weight:700;text-transform:uppercase;">Today's Date</span>
+        <h3 style="margin:0 0 0.25rem;font-size:1.25rem;color:var(--text);">{{ today.strftime('%A, %d %B %Y') }}</h3>
+        <p class="muted" style="margin:0;font-size:0.85rem;">Status: 
+          {% if today_record %}
+          <span class="t-badge-published"><i class="ri-checkbox-circle-fill"></i> {{ today_record.status }}</span>
+          {% else %}
+          <span class="t-badge-draft">No Check-in Recorded Yet</span>
+          {% endif %}
+        </p>
+      </div>
+
+      <div style="display:flex;gap:0.75rem;align-items:center;">
         {% if not today_record or not today_record.check_in %}
         <form method="post" action="{{ url_for('teacher.teacher_attendance_check_in') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button type="submit" class="btn btn-success btn-sm">Check in</button>
+          <button type="submit" class="btn btn-success btn-lg" style="box-shadow:0 4px 14px rgba(34,197,94,0.35);">
+            <i class="ri-login-box-line"></i> PUNCH CHECK IN
+          </button>
         </form>
-        {% endif %}
-        {% if today_record and today_record.check_in and not today_record.check_out %}
+        {% elif today_record and today_record.check_in and not today_record.check_out %}
         <form method="post" action="{{ url_for('teacher.teacher_attendance_check_out') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button type="submit" class="btn btn-primary btn-sm">Check out</button>
+          <button type="submit" class="btn btn-primary btn-lg" style="box-shadow:0 4px 14px rgba(79,70,229,0.35);">
+            <i class="ri-logout-box-line"></i> PUNCH CHECK OUT
+          </button>
         </form>
-        {% endif %}
-        {% if today_record and today_record.check_in and today_record.check_out %}
-        <span class="muted">Checked out for today</span>
+        {% elif today_record and today_record.check_in and today_record.check_out %}
+        <div style="padding:0.6rem 1.1rem;background:rgba(34,197,94,0.12);color:#15803d;border-radius:999px;font-weight:700;font-size:0.88rem;">
+          <i class="ri-checkbox-circle-fill"></i> Checked out for today
+        </div>
         {% endif %}
       </div>
     </div>
+
+    <!-- Attendance Table -->
+    <div class="t-modern-table-card reveal">
+      <div style="overflow-x:auto;">
+        <table class="t-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Check In Time</th>
+              <th>Check Out Time</th>
+              <th>Notes / Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in attendance %}
+            <tr>
+              <td><strong>{{ record.attendance_date.strftime('%d %b %Y') }}</strong></td>
+              <td>
+                {% if record.status == 'Present' %}
+                <span class="t-badge-published"><i class="ri-checkbox-circle-fill"></i> Present</span>
+                {% else %}
+                <span class="t-badge-draft">{{ record.status }}</span>
+                {% endif %}
+              </td>
+              <td>{{ record.check_in.strftime('%I:%M %p') if record.check_in else '—' }}</td>
+              <td>{{ record.check_out.strftime('%I:%M %p') if record.check_out else '—' }}</td>
+              <td class="muted">{{ record.notes or '—' }}</td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="5" style="text-align:center;padding:2.5rem 1rem;" class="muted">No attendance records found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
-</div>
-<div class="card-premium reveal" style="padding:1rem; overflow-x:auto;">
-  <table class="table-modern" style="min-width:1000px;">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Status</th>
-        <th>Check in</th>
-        <th>Check out</th>
-        <th>Notes</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for record in attendance %}
-      <tr>
-        <td>{{ record.attendance_date.strftime('%Y-%m-%d') }}</td>
-        <td>{{ record.status }}</td>
-        <td>{{ record.check_in.strftime('%Y-%m-%d %H:%M') if record.check_in else '—' }}</td>
-        <td>{{ record.check_out.strftime('%Y-%m-%d %H:%M') if record.check_out else '—' }}</td>
-        <td>{{ record.notes or '—' }}</td>
-      </tr>
-      {% else %}
-      <tr><td colspan="5" class="muted">No attendance records found.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
 </div>
 {% endblock %}

@@ -1,39 +1,120 @@
 {% extends "base.html" %}
-{% block title %}{% if rec %}Edit{% else %}Upload{% endif %} recording — Teacher{% endblock %}
+{% block title %}{% if rec %}Edit{% else %}Upload{% endif %} Recording — Teacher{% endblock %}
 {% block breadcrumbs %}
 <div class="container breadcrumbs-wrap">
-  {% set crumbs = [('Home', url_for('main.home')), ('Recorded', url_for('teacher.teacher_recorded_sessions')), (course.title[:24], None)] %}
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher Dashboard', url_for('teacher.dashboard')), ('Recorded Lectures', url_for('teacher.teacher_recorded_sessions')), (('Edit: ' ~ rec.title[:18]) if rec else 'New Recording', None)] %}
   {% include "partials/breadcrumbs.html" %}
 </div>
 {% endblock %}
 {% block content %}
-<nav class="teacher-course-nav">
-  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_edit_course', course_id=course.id) }}">Course</a>
-  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_recorded_sessions') }}">All recordings</a>
-</nav>
-<div class="card-premium teacher-lms-card reveal" style="padding:1.25rem;max-width:640px;">
-  <h1 style="font-size:1.2rem;margin-top:0;">{% if rec %}Edit{% else %}Upload{% endif %} recorded lecture</h1>
-  <form method="post" enctype="multipart/form-data" class="form-modern teacher-lms-form">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <label>Title <input name="title" required value="{{ rec.title if rec else '' }}"></label>
-    <label>Description <textarea name="description" rows="3">{{ rec.description if rec else '' }}</textarea></label>
-    <label>Video file {% if rec %}<span class="muted">(leave empty to keep current)</span>{% endif %}
-      <input type="file" name="video" accept="video/*" {% if not rec %}required{% endif %}></label>
-    {% if rec and rec.video_path %}<p class="muted" style="font-size:0.85rem;">Current: <a href="{{ rec.video_path }}" target="_blank" rel="noopener">preview</a></p>{% endif %}
-    <label>Extra resources (PDF, ZIP, …) <input type="file" name="resources" multiple></label>
-    <label>Module
-      <select name="module_id">
-        <option value="">—</option>
-        {% for m in modules %}
-        <option value="{{ m.id }}" {% if rec and rec.module_id == m.id %}selected{% endif %}>{{ m.title }}</option>
-        {% endfor %}
-      </select>
-    </label>
-    <label>Sort order <input name="sort_order" type="number" value="{{ rec.sort_order if rec else 0 }}"></label>
-    <label class="int-check" style="display:flex;align-items:center;gap:0.5rem;">
-      <input type="checkbox" name="is_visible" {% if not rec or rec.is_visible %}checked{% endif %}> Visible to students
-    </label>
-    <button type="submit" class="btn btn-primary">Save</button>
-  </form>
+<div class="dashboard-shell">
+  {% include "partials/dashboard_sidebar.html" %}
+  <div class="dash-main">
+
+    <!-- Subpage Header -->
+    <div class="t-subpage-header">
+      <div class="t-subpage-title-wrap">
+        <h1 class="t-subpage-title">
+          <span class="t-icon-box t-icon-amber"><i class="ri-video-upload-line"></i></span>
+          <span>{% if rec %}Edit{% else %}Upload{% endif %} Recorded Lecture</span>
+        </h1>
+        <p class="t-subpage-sub">Course: <strong>{{ course.title }}</strong></p>
+      </div>
+      <div class="t-subpage-actions">
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.teacher_recorded_sessions') }}">
+          <i class="ri-arrow-left-line"></i> All Recordings
+        </a>
+        <a class="btn btn-secondary btn-sm" href="{{ url_for('teacher.teacher_edit_course', course_id=course.id) }}">
+          <i class="ri-book-line"></i> Course Details
+        </a>
+      </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="t-form-card reveal" style="max-width:720px;">
+      <form method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="t-field" style="margin-bottom:1.15rem;">
+          <label class="t-field-label">Lecture Title <span style="color:#ef4444;">*</span></label>
+          <input class="t-input" name="title" required value="{{ rec.title if rec else '' }}" placeholder="e.g. Lecture 3: Neural Networks Architecture Deep Dive">
+        </div>
+
+        <div class="t-field" style="margin-bottom:1.15rem;">
+          <label class="t-field-label">Lecture Description</label>
+          <textarea class="t-textarea" name="description" rows="3" placeholder="Key concepts, timestamps, takeaways for students...">{{ rec.description if rec else '' }}</textarea>
+        </div>
+
+        <div class="t-field" style="margin-bottom:1.15rem;">
+          <label class="t-field-label">
+            <span>Video File {% if rec %}<small style="color:var(--text-muted);">(Leave empty to keep current video)</small>{% else %}<span style="color:#ef4444;">*</span>{% endif %}</span>
+          </label>
+          <div class="t-dropzone">
+            <input type="file" name="video" accept="video/*" {% if not rec %}required{% endif %} onchange="previewRecVideo(this)">
+            <div class="t-dropzone-icon" style="color:#f59e0b;"><i class="ri-upload-cloud-line"></i></div>
+            <p style="margin:0;font-weight:700;font-size:0.92rem;">Click to choose video file or drag &amp; drop</p>
+            <p class="muted" style="margin:0.25rem 0 0;font-size:0.8rem;">MP4, WebM, MOV, AVI, MKV (Max 100MB)</p>
+          </div>
+          <div id="video-file-status" style="margin-top:0.5rem;"></div>
+          {% if rec and rec.video_path %}
+          <div style="margin-top:0.75rem;padding:0.75rem;background:var(--bg-surface);border-radius:8px;">
+            <p class="muted" style="font-size:0.82rem;margin:0 0 0.4rem;"><strong>Current video:</strong> <a href="{{ rec.video_path }}" target="_blank" rel="noopener" style="color:#4f46e5;">Open preview in new tab</a></p>
+            <video src="{{ rec.video_path }}" controls style="max-height:160px;width:100%;border-radius:6px;background:#000;"></video>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="t-field" style="margin-bottom:1.15rem;">
+          <label class="t-field-label">Additional Resource Files (PDF, ZIP, Slides)</label>
+          <input class="t-input" type="file" name="resources" multiple>
+          {% if rec and rec.resource_files %}
+          <p class="muted" style="font-size:0.8rem;margin:0.35rem 0 0;">Attached resources: {{ rec.resource_files|length }} file(s)</p>
+          {% endif %}
+        </div>
+
+        <div class="t-form-grid-2" style="margin-bottom:1.25rem;">
+          <div class="t-field">
+            <label class="t-field-label">Curriculum Module</label>
+            <select class="t-select" name="module_id">
+              <option value="">— None / Course Wide —</option>
+              {% for m in modules %}
+              <option value="{{ m.id }}" {% if rec and rec.module_id == m.id %}selected{% endif %}>{{ m.title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="t-field">
+            <label class="t-field-label">Display Sort Order</label>
+            <input class="t-input" name="sort_order" type="number" value="{{ rec.sort_order if rec else 0 }}">
+          </div>
+        </div>
+
+        <div class="t-field" style="margin-bottom:1.5rem;">
+          <label class="t-field-label">Visibility</label>
+          <label style="display:flex;align-items:center;gap:0.6rem;padding:0.75rem 1rem;background:var(--bg-surface);border-radius:var(--radius-sm);cursor:pointer;">
+            <input type="checkbox" name="is_visible" {% if not rec or rec.is_visible %}checked{% endif %} style="width:18px;height:18px;accent-color:#4f46e5;">
+            <span style="font-weight:600;font-size:0.9rem;">Visible to enrolled students immediately</span>
+          </label>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:0.75rem;">
+          <a class="btn btn-ghost" href="{{ url_for('teacher.teacher_recorded_sessions') }}">Cancel</a>
+          <button type="submit" class="btn-hero-primary" style="border:none;cursor:pointer;">
+            <i class="ri-check-line"></i> {% if rec %}Update Lecture{% else %}Save &amp; Upload Lecture{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
 </div>
+
+<script>
+function previewRecVideo(input) {
+  const file = input.files[0];
+  const status = document.getElementById('video-file-status');
+  if (file) {
+    status.innerHTML = `<span style="color:#22c55e;font-size:0.85rem;font-weight:600;"><i class="ri-checkbox-circle-fill"></i> Selected: ${file.name} (${(file.size / (1024*1024)).toFixed(1)} MB)</span>`;
+  }
+}
+</script>
 {% endblock %}

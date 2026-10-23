@@ -1,63 +1,197 @@
 {% extends "base.html" %}
-{% block title %}Edit course — {{ course.title }}{% endblock %}
+{% block title %}Edit Course — {{ course.title }}{% endblock %}
 {% block breadcrumbs %}
 <div class="container breadcrumbs-wrap">
-  {% set crumbs = [('Home', url_for('main.home')), ('Teacher', url_for('teacher.dashboard')), ('Courses', url_for('teacher.teacher_courses')), (course.title[:28], None)] %}
+  {% set crumbs = [('Home', url_for('main.home')), ('Teacher Dashboard', url_for('teacher.dashboard')), ('Courses', url_for('teacher.teacher_courses')), (course.title[:24] ~ '...', None)] %}
   {% include "partials/breadcrumbs.html" %}
 </div>
 {% endblock %}
 {% block content %}
-<nav class="teacher-course-nav">
-  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_edit_course', course_id=course.id) }}">Overview</a>
-  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_live_session_new', course_id=course.id) }}">+ Live</a>
-  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_recorded_new', course_id=course.id) }}">+ Recording</a>
-  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_note_new', course_id=course.id) }}">+ Note</a>
-  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_quiz_new', course_id=course.id) }}">+ Quiz</a>
-  <a class="teacher-course-nav-link" href="{{ url_for('teacher.teacher_course_students', course_id=course.id) }}">Students</a>
-</nav>
-<div class="card-premium teacher-lms-card reveal" style="padding:1.25rem;max-width:720px;">
-  <h1 style="font-size:1.25rem;margin-top:0;">Edit course</h1>
-  <form method="post" enctype="multipart/form-data" class="form-modern teacher-lms-form">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <label>Title <input name="title" value="{{ course.title }}" required></label>
-    <label>Description <textarea name="description" rows="3">{{ course.description }}</textarea></label>
-    <label>Instructor <input name="instructor_name" value="{{ course.instructor_name }}"></label>
-    <label>Duration <input name="duration" value="{{ course.duration }}"></label>
-    <label>Level <input name="level" value="{{ course.level }}"></label>
-    <label>Price (₹) <input name="price_inr" type="number" value="{{ course.price_inr }}"></label>
-    <label>Category <input name="category" value="{{ course.category }}"></label>
-    <label>Prerequisites <textarea name="prerequisites" rows="2">{{ course.prerequisites }}</textarea></label>
-    <label>Learning outcomes <textarea name="learning_outcomes" rows="2">{{ course.learning_outcomes }}</textarea></label>
-    <label>Lesson body <textarea name="content" rows="4">{{ course.content }}</textarea></label>
-    <label class="int-check" style="display:flex;align-items:center;gap:0.5rem;margin-top:0.75rem;">
-      <input type="checkbox" name="is_published" {% if course.is_published %}checked{% endif %}>
-      Published (visible in course catalog)
-    </label>
-    <label>Thumbnail image <input type="file" name="thumbnail" accept=".jpg,.jpeg,.png,.webp,.gif"></label>
-    {% if course.thumbnail_path %}<p class="muted" style="font-size:0.85rem;">Current: <a href="{{ course.thumbnail_path }}" target="_blank" rel="noopener">view</a></p>{% endif %}
-    <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Save</button>
-  </form>
-</div>
-<h2 style="font-size:1.05rem;margin-top:2rem;">Modules</h2>
-<form method="post" action="{{ url_for('teacher.teacher_module_add', course_id=course.id) }}" class="form-modern teacher-lms-form" style="max-width:480px;margin-bottom:1rem;">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:flex-end;">
-    <label style="flex:1;min-width:160px;">New module <input name="title" placeholder="Module title" required></label>
-    <label style="width:100px;">Order <input name="sort_order" type="number" value="0"></label>
-    <button type="submit" class="btn btn-secondary btn-sm">Add</button>
+<div class="dashboard-shell">
+  {% include "partials/dashboard_sidebar.html" %}
+  <div class="dash-main">
+
+    <!-- Subpage Header -->
+    <div class="t-subpage-header">
+      <div class="t-subpage-title-wrap">
+        <h1 class="t-subpage-title">
+          <span class="t-icon-box t-icon-blue"><i class="ri-edit-circle-line"></i></span>
+          <span>Edit Course</span>
+        </h1>
+        <p class="t-subpage-sub">{{ course.title }} · Updated in real time</p>
+      </div>
+      <div class="t-subpage-actions">
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.teacher_courses') }}">
+          <i class="ri-arrow-left-line"></i> Back to Courses
+        </a>
+        <a class="btn btn-secondary btn-sm" href="{{ url_for('teacher.teacher_course_students', course_id=course.id) }}">
+          <i class="ri-group-line"></i> Students
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick LMS Action Buttons for this Course -->
+    <div class="t-pill-tabs">
+      <a class="t-pill-tab active" href="{{ url_for('teacher.teacher_edit_course', course_id=course.id) }}"><i class="ri-information-line"></i> Course Details</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_live_session_new', course_id=course.id) }}"><i class="ri-broadcast-line"></i> + Add Live Session</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_recorded_new', course_id=course.id) }}"><i class="ri-film-line"></i> + Add Recording</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_note_new', course_id=course.id) }}"><i class="ri-file-text-line"></i> + Add Note</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_quiz_new', course_id=course.id) }}"><i class="ri-questionnaire-line"></i> + Add Quiz</a>
+      <a class="t-pill-tab" href="{{ url_for('teacher.teacher_course_students', course_id=course.id) }}"><i class="ri-user-star-line"></i> Enrolled Students</a>
+    </div>
+
+    <!-- 2-Column Responsive Layout -->
+    <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:1.5rem;align-items:start;">
+      
+      <!-- Left: Course Metadata Form -->
+      <div class="t-form-card reveal">
+        <h3 style="font-size:1.15rem;font-weight:700;margin:0 0 1.25rem;color:var(--text);display:flex;align-items:center;gap:0.5rem;">
+          <i class="ri-file-settings-line" style="color:#4f46e5;"></i> Course Settings
+        </h3>
+
+        <form method="post" enctype="multipart/form-data">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="t-field" style="margin-bottom:1rem;">
+            <label class="t-field-label">Title <span style="color:#ef4444;">*</span></label>
+            <input class="t-input" name="title" value="{{ course.title }}" required>
+          </div>
+
+          <div class="t-field" style="margin-bottom:1rem;">
+            <label class="t-field-label">Description</label>
+            <textarea class="t-textarea" name="description" rows="3">{{ course.description }}</textarea>
+          </div>
+
+          <div class="t-form-grid-2" style="margin-bottom:1rem;">
+            <div class="t-field">
+              <label class="t-field-label">Instructor Name</label>
+              <input class="t-input" name="instructor_name" value="{{ course.instructor_name or '' }}">
+            </div>
+            <div class="t-field">
+              <label class="t-field-label">Category</label>
+              <input class="t-input" name="category" value="{{ course.category or '' }}">
+            </div>
+          </div>
+
+          <div class="t-form-grid-3" style="margin-bottom:1rem;">
+            <div class="t-field">
+              <label class="t-field-label">Duration</label>
+              <input class="t-input" name="duration" value="{{ course.duration or '' }}" placeholder="4 weeks">
+            </div>
+            <div class="t-field">
+              <label class="t-field-label">Level</label>
+              <input class="t-input" name="level" value="{{ course.level or '' }}" placeholder="Beginner">
+            </div>
+            <div class="t-field">
+              <label class="t-field-label">Price (₹ INR)</label>
+              <input class="t-input" name="price_inr" type="number" value="{{ course.price_inr or 0 }}">
+            </div>
+          </div>
+
+          <div class="t-field" style="margin-bottom:1rem;">
+            <label class="t-field-label">Prerequisites</label>
+            <textarea class="t-textarea" name="prerequisites" rows="2">{{ course.prerequisites or '' }}</textarea>
+          </div>
+
+          <div class="t-field" style="margin-bottom:1rem;">
+            <label class="t-field-label">Learning Outcomes</label>
+            <textarea class="t-textarea" name="learning_outcomes" rows="2">{{ course.learning_outcomes or '' }}</textarea>
+          </div>
+
+          <div class="t-field" style="margin-bottom:1rem;">
+            <label class="t-field-label">Lesson Body / Syllabus Notes</label>
+            <textarea class="t-textarea" name="content" rows="4">{{ course.content or '' }}</textarea>
+          </div>
+
+          <div class="t-field" style="margin-bottom:1.25rem;">
+            <label class="t-field-label">Catalog Status</label>
+            <label style="display:flex;align-items:center;gap:0.6rem;padding:0.75rem 1rem;background:var(--bg-surface);border-radius:var(--radius-sm);cursor:pointer;">
+              <input type="checkbox" name="is_published" {% if course.is_published %}checked{% endif %} style="width:18px;height:18px;accent-color:#4f46e5;">
+              <span style="font-weight:600;font-size:0.9rem;">Published in course catalog</span>
+            </label>
+          </div>
+
+          <div class="t-field" style="margin-bottom:1.5rem;">
+            <label class="t-field-label">Update Thumbnail Image</label>
+            <div class="t-dropzone" style="padding:1rem;">
+              <input type="file" name="thumbnail" accept=".jpg,.jpeg,.png,.webp,.gif" onchange="previewThumb(this)">
+              <div class="t-dropzone-icon" style="font-size:1.8rem;"><i class="ri-image-edit-line"></i></div>
+              <p style="margin:0;font-size:0.85rem;font-weight:600;">Choose new thumbnail image</p>
+            </div>
+            {% if course.thumbnail_path %}
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.6rem;background:var(--bg-surface);padding:0.5rem 0.85rem;border-radius:8px;">
+              <img src="{{ course.thumbnail_path }}" alt="Current thumb" style="width:48px;height:32px;object-fit:cover;border-radius:4px;">
+              <span class="muted" style="font-size:0.8rem;">Current Thumbnail: <a href="{{ course.thumbnail_path }}" target="_blank" rel="noopener" style="color:#4f46e5;font-weight:600;">View full image</a></span>
+            </div>
+            {% endif %}
+          </div>
+
+          <div style="display:flex;justify-content:flex-end;">
+            <button type="submit" class="btn-hero-primary" style="border:none;cursor:pointer;">
+              <i class="ri-save-line"></i> Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Right: Curriculum Modules & LMS Content -->
+      <div style="display:flex;flex-direction:column;gap:1.5rem;">
+        
+        <!-- Add Module Card -->
+        <div class="t-form-card reveal">
+          <h3 style="font-size:1.1rem;font-weight:700;margin:0 0 0.5rem;color:var(--text);display:flex;align-items:center;gap:0.5rem;">
+            <i class="ri-menu-add-line" style="color:#7c3aed;"></i> Add Curriculum Module
+          </h3>
+          <p class="muted" style="font-size:0.85rem;margin:0 0 1rem;">Group lessons, recordings, notes and quizzes into structured chapters.</p>
+
+          <form method="post" action="{{ url_for('teacher.teacher_module_add', course_id=course.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="t-field" style="margin-bottom:0.75rem;">
+              <label class="t-field-label">Module Title</label>
+              <input class="t-input" name="title" placeholder="e.g. Module 1: Introduction & Fundamentals" required>
+            </div>
+            <div class="t-field" style="margin-bottom:1rem;">
+              <label class="t-field-label">Display Order</label>
+              <input class="t-input" name="sort_order" type="number" value="{{ modules|length + 1 }}">
+            </div>
+            <button type="submit" class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;">
+              <i class="ri-add-line"></i> Add Module
+            </button>
+          </form>
+        </div>
+
+        <!-- Modules List -->
+        <div class="t-form-card reveal">
+          <h3 style="font-size:1.1rem;font-weight:700;margin:0 0 0.75rem;color:var(--text);display:flex;align-items:center;justify-content:space-between;">
+            <span>Curriculum Modules ({{ modules|length }})</span>
+          </h3>
+
+          <div style="display:flex;flex-direction:column;gap:0.6rem;">
+            {% for m in modules %}
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;background:var(--bg-surface);padding:0.75rem 0.95rem;border-radius:var(--radius-sm);border:1px solid var(--border-soft);">
+              <div style="display:flex;align-items:center;gap:0.65rem;">
+                <span class="t-icon-box t-icon-violet" style="width:26px;height:26px;font-size:0.8rem;border-radius:6px;">{{ m.sort_order }}</span>
+                <strong style="font-size:0.88rem;color:var(--text);">{{ m.title }}</strong>
+              </div>
+              <form method="post" action="{{ url_for('teacher.teacher_module_delete', course_id=course.id, module_id=m.id) }}" onsubmit="return confirm('Remove module {{ m.title|replace('\'', '\\\'') }}?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-ghost btn-sm" style="color:#ef4444;padding:0.25rem 0.5rem;" title="Delete Module">
+                  <i class="ri-delete-bin-line"></i>
+                </button>
+              </form>
+            </div>
+            {% else %}
+            <p class="muted" style="font-size:0.85rem;margin:0;padding:1rem;text-align:center;background:var(--bg-surface);border-radius:8px;">
+              No modules added yet. Add your first module above!
+            </p>
+            {% endfor %}
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
   </div>
-</form>
-<ul class="teacher-module-list" style="max-width:520px;">
-  {% for m in modules %}
-  <li style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
-    <span>{{ m.title }} <span class="muted" style="font-size:0.8rem;">(order {{ m.sort_order }})</span></span>
-    <form method="post" action="{{ url_for('teacher.teacher_module_delete', course_id=course.id, module_id=m.id) }}" onsubmit="return confirm('Remove module?');">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" class="btn btn-ghost btn-sm">Remove</button>
-    </form>
-  </li>
-  {% else %}
-  <li class="muted">No modules yet — optional grouping for live/recordings/notes.</li>
-  {% endfor %}
-</ul>
+</div>
 {% endblock %}

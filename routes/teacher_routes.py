@@ -7,8 +7,9 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user
 
 from models import db
-from models.course import Course
+from models.course import Course, Enrollment
 from models.hr import AttendanceRecord, LeaveRequest, AttendanceCorrectionRequest
+from models.lms import CourseNote, LiveSession, LmsQuiz, RecordedSession
 from models.payroll import PayrollRun
 from sqlalchemy import or_
 from utils.lms_uploads import ALLOWED_IMAGE, save_upload
@@ -70,6 +71,14 @@ def dashboard():
         attendance_count = AttendanceRecord.query.filter_by(employee_id=employee.id).count()
         payroll_count = PayrollRun.query.filter_by(employee_id=employee.id).count()
         leave_count = LeaveRequest.query.filter_by(employee_id=employee.id).count()
+
+    course_ids = [c.id for c in courses]
+    students_count = Enrollment.query.filter(Enrollment.course_id.in_(course_ids)).count() if course_ids else 0
+    live_count = LiveSession.query.filter(LiveSession.course_id.in_(course_ids)).count() if course_ids else 0
+    recorded_count = RecordedSession.query.filter(RecordedSession.course_id.in_(course_ids)).count() if course_ids else 0
+    notes_count = CourseNote.query.filter(CourseNote.course_id.in_(course_ids)).count() if course_ids else 0
+    quizzes_count = LmsQuiz.query.filter(LmsQuiz.course_id.in_(course_ids)).count() if course_ids else 0
+
     return render_template(
         "teacher/dashboard.html",
         courses=courses,
@@ -77,6 +86,11 @@ def dashboard():
         attendance_count=attendance_count,
         payroll_count=payroll_count,
         leave_count=leave_count,
+        students_count=students_count,
+        live_count=live_count,
+        recorded_count=recorded_count,
+        notes_count=notes_count,
+        quizzes_count=quizzes_count,
     )
 
 
