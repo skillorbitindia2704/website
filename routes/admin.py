@@ -4145,6 +4145,49 @@ def homepage_manager():
             set_content("achievements_list", request.form.get("achievements_list", "[]").strip())
             set_content("faculty_list", request.form.get("faculty_list", "[]").strip())
             set_content("cta_banners", request.form.get("cta_banners", "[]").strip())
+                        # Verified Certificates Section Content
+            set_content(
+                "certification_heading",
+                request.form.get(
+                    "certification_heading",
+                    "Verified Certificates"
+                ).strip()
+            )
+            set_content(
+                "certification_description",
+                request.form.get(
+                    "certification_description",
+                    "Instant QR verification with a clean lookup experience."
+                ).strip()
+            )
+            set_content(
+                "certification_card_heading",
+                request.form.get(
+                    "certification_card_heading",
+                    "Certificate verification"
+                ).strip()
+            )
+            set_content(
+                "certification_card_description",
+                request.form.get(
+                    "certification_card_description",
+                    "Verify certificates in seconds using our public lookup."
+                ).strip()
+            )
+            set_content(
+                "certification_verify_btn_text",
+                request.form.get(
+                    "certification_verify_btn_text",
+                    "Verify now"
+                ).strip()
+            )
+            set_content(
+                "certification_signup_btn_text",
+                request.form.get(
+                    "certification_signup_btn_text",
+                    "Start learning"
+                ).strip()
+            )
             set_content("faqs_list", request.form.get("faqs_list", "[]").strip())
 
             # Footer Promo
