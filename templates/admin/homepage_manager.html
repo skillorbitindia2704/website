@@ -540,6 +540,55 @@
           </div>
         </div>
 
+        <!-- VERIFIED CERTIFICATES -->
+<div id="tab-content-certificates" class="tab-pane hidden card-premium p-6">
+  <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2">
+    <i class="ri-verified-badge-line"></i> Verified Certificates Section
+  </h2>
+
+  <div class="form-group mb-4">
+    <label for="certification_heading">Section Heading</label>
+    <input type="text" id="certification_heading"
+           name="certification_heading" class="form-control"
+           value="{{ content.certification_heading or 'Verified Certificates' }}">
+  </div>
+
+  <div class="form-group mb-4">
+    <label for="certification_description">Section Description</label>
+    <textarea id="certification_description" name="certification_description"
+              class="form-control">{{ content.certification_description or 'Instant QR verification with a clean lookup experience.' }}</textarea>
+  </div>
+
+  <div class="form-group mb-4">
+    <label for="certification_card_heading">Card Heading</label>
+    <input type="text" id="certification_card_heading"
+           name="certification_card_heading" class="form-control"
+           value="{{ content.certification_card_heading or 'Certificate verification' }}">
+  </div>
+
+  <div class="form-group mb-4">
+    <label for="certification_card_description">Card Description</label>
+    <textarea id="certification_card_description"
+              name="certification_card_description" class="form-control">{{ content.certification_card_description or 'Verify certificates in seconds using our public lookup.' }}</textarea>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="form-group">
+      <label for="certification_verify_btn_text">Verify Button Text</label>
+      <input type="text" id="certification_verify_btn_text"
+             name="certification_verify_btn_text" class="form-control"
+             value="{{ content.certification_verify_btn_text or 'Verify now' }}">
+    </div>
+
+    <div class="form-group">
+      <label for="certification_signup_btn_text">Start Learning Button Text</label>
+      <input type="text" id="certification_signup_btn_text"
+             name="certification_signup_btn_text" class="form-control"
+             value="{{ content.certification_signup_btn_text or 'Start learning' }}">
+    </div>
+  </div>
+</div>
+        
         <!-- 14. FACULTY -->
         <div id="tab-content-faculty" class="tab-pane hidden card-premium p-6">
           <div class="flex justify-between items-center mb-4 border-b pb-2">
