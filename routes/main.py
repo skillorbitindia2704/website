@@ -171,6 +171,8 @@ def home():
         projects_list=projects_list,
         faqs_list=faqs_list,
         cta_banners=cta_banners,
+        achievements_list=achievements_list,
+        faculty_list=faculty_list,
     )
 
 
