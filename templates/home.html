@@ -1391,58 +1391,6 @@
 </section>
 {% endif %}
 
-<!-- PRODUCTS -->
-{% if visibilities.products %}
-<div class="section-head reveal">
-  <h2>Featured products</h2>
-      <a href="{{ url_for('store.listing') }}" class="section-link">View all <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
-</div>
-<div class="carousel-section reveal">
-  <div class="carousel-nav">
-    <button type="button" data-carousel-prev aria-label="Previous"><i class="ri-arrow-left-s-line" aria-hidden="true"></i></button>
-    <button type="button" data-carousel-next aria-label="Next"><i class="ri-arrow-right-s-line" aria-hidden="true"></i></button>
-  </div>
-  <div class="carousel">
-    {% for p in products %}
-    <div class="carousel-item">
-      <article class="card-premium">
-        {% set p_img = (p.image_url or '') %}
-        {% if 'default_product.svg' in p_img or not p_img %}
-          {% set img_src = url_for('static', filename='images/product_placeholder.svg') %}
-        {% elif p_img.startswith('/static/') or p_img.startswith('http://') or p_img.startswith('https://') %}
-          {% set img_src = p_img %}
-        {% elif p_img.startswith('static/') %}
-          {% set img_src = '/' ~ p_img %}
-        {% else %}
-          {% set img_src = url_for('static', filename=p_img) %}
-        {% endif %}
-        <a href="{{ url_for('store.listing') }}" class="card-img-wrap">
-          <img src="{{ img_src }}" 
-               alt="{{ p.name }}" 
-               loading="lazy" 
-               decoding="async" 
-               width="400" 
-               height="300"
-               onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/product_placeholder.svg') }}';">
-        </a>
-        <div class="card-body">
-          <div class="card-meta"><span>{{ p.category }}</span><span class="stars">{{ '%.1f'|format((p.rating|default(4.5))|float) }} <i class="ri-star-s-fill" aria-hidden="true"></i></span></div>
-          <h3>{{ p.name }}</h3>
-          <p class="muted">{{ p.description[:80] }}{% if p.description|length > 80 %}…{% endif %}</p>
-          <div class="meta-row mt-2">
-            <strong class="price-tag">₹{{ p.price_inr }}</strong>
-            <a class="btn btn-primary btn-sm" href="{{ url_for('store.listing') }}">Add to cart</a>
-          </div>
-        </div>
-      </article>
-    </div>
-    {% else %}
-    <p class="muted">Products coming soon — check back after admin setup.</p>
-    {% endfor %}
-  </div>
-</div>
-{% endif %}
-
 <!-- POPULAR COURSES -->
 {% if visibilities.courses %}
 <div class="section-head reveal">
