@@ -4348,7 +4348,8 @@ def homepage_manager():
         "hero_image", "hero_ai_lab_image", "hero_robotics_image", "hero_workshop_image", "hero_student_activity_image",
         "stats_kpis", "trusted_partners", "featured_courses",
         "ai_lab_heading", "ai_lab_description", "ai_lab_image", "ai_lab_video", "ai_lab_equipment", "ai_lab_cta_text", "ai_lab_cta_link",
-        "internships_list", "services_list", "learning_paths", "testimonials_list", "projects_list", "events_list", "achievements_list", "faculty_list",
+        "internships_list", "services_list", "learning_paths", "testimonials_list", "projects_list", "events_list", "achievements_list", "faculty_list", "certification_heading", "certification_description",
+        "certification_card_heading", "certification_card_description", "certification_verify_btn_text", "certification_signup_btn_text",
         "cta_banners", "faqs_list", "footer_promo_text", "footer_promo_btn_text", "footer_promo_btn_link", "footer_promo_image", "footer_promo_badge",
         "seo_meta_title", "seo_meta_description", "seo_keywords", "seo_canonical_url", "seo_og_image", "seo_twitter_image", "seo_schema_markup",
         "theme_primary_color", "theme_secondary_color", "theme_gradient_theme", "theme_card_radius", "theme_shadows", "theme_typography", "theme_section_spacing", "theme_dark_mode",
@@ -4416,6 +4417,24 @@ def homepage_manager():
             content[k] = get_content(k, "[]")
         elif k == "faculty_list":
             content[k] = get_content(k, "[]")
+        elif k == "certification_heading":
+            content[k] = get_content(k, "Verified Certificates")
+        elif k == "certification_description":
+            content[k] = get_content(
+                k,
+                "Instant QR verification with a clean lookup experience."
+            )
+        elif k == "certification_card_heading":
+            content[k] = get_content(k, "Certificate verification")
+        elif k == "certification_card_description":
+            content[k] = get_content(
+                k,
+                "Verify certificates in seconds using our public lookup."
+            )
+        elif k == "certification_verify_btn_text":
+            content[k] = get_content(k, "Verify now")
+        elif k == "certification_signup_btn_text":
+            content[k] = get_content(k, "Start learning")
         elif k == "cta_banners":
             content[k] = get_content(k, "[]")
         elif k == "faqs_list":
