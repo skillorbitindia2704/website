@@ -265,21 +265,17 @@ def _setting_set(key: str, value: str):
 
 
 def _upload_product_image(file_storage):
-    """Upload product images to permanent Cloudinary storage."""
-    if not file_storage or not file_storage.filename:
+    """Upload product images to Cloudinary and return a permanent HTTPS URL."""
+    if not file_storage or not getattr(file_storage, "filename", ""):
         return None
 
     safe_name = secure_filename(file_storage.filename)
-
     if not safe_name or "." not in safe_name:
         raise ValueError("Invalid image file.")
 
     ext = safe_name.rsplit(".", 1)[1].lower()
-
     if ext not in ALLOWED_PRODUCT_IMAGE_EXTENSIONS:
-        raise ValueError(
-            "Allowed image formats: png, jpg, jpeg, webp, gif."
-        )
+        raise ValueError("Allowed image formats: png, jpg, jpeg, webp, gif.")
 
     try:
         import cloudinary.uploader
@@ -290,25 +286,22 @@ def _upload_product_image(file_storage):
             public_id=uuid4().hex,
             resource_type="image",
             overwrite=False,
+            invalidate=True,
         )
 
         secure_url = result.get("secure_url")
-
         if not secure_url:
-            raise RuntimeError(
-                "Cloudinary did not return a secure image URL."
-            )
+            raise RuntimeError("Cloudinary did not return a secure image URL.")
 
         return secure_url
 
     except Exception as exc:
         current_app.logger.exception(
-            "Product image upload failed: %s", exc
+            "Cloudinary product image upload failed: %s", exc
         )
         raise ValueError(
             "Product image upload failed. Please try again."
         )
-
 
 
 def _upload_hero_image(file_storage):
