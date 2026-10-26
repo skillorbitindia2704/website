@@ -66,6 +66,8 @@ def home():
     ai_lab_equipment = get_json_content("ai_lab_equipment", '["Complete AI Lab Setup", "Robotics Kits", "IoT Modules", "Teacher Training", "Curriculum Support", "Installation & Maintenance"]')
     projects_list = get_json_content("projects_list", '[{"title": "Line Follower Robot", "description": "Robotics foundations with sensors.", "tech_stack": "Arduino, IR Sensors", "demo_link": "", "github_link": "", "is_featured": "1"}, {"title": "AI Face Detection", "description": "Computer vision demo pipeline.", "tech_stack": "Python, OpenCV", "demo_link": "", "github_link": "", "is_featured": "1"}, {"title": "Smart Home Automation", "description": "IoT + automation workflows.", "tech_stack": "ESP32, Blynk", "demo_link": "", "github_link": "", "is_featured": "1"}, {"title": "Gesture Control Robot", "description": "Control + vision interaction.", "tech_stack": "Arduino, MPU6050", "demo_link": "", "github_link": "", "is_featured": "1"}, {"title": "Obstacle Avoidance Bot", "description": "Navigation + sensor fusion.", "tech_stack": "Arduino, Ultrasonic Sensor", "demo_link": "", "github_link": "", "is_featured": "1"}]')
     faqs_list = get_json_content("faqs_list", "[]")
+    achievements_list = get_json_content("achievements_list", "[]")
+    faculty_list = get_json_content("faculty_list", "[]")
     cta_banners = get_json_content("cta_banners", "[]")
     
     # Query database records as fallbacks / data sources
