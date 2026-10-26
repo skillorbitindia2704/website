@@ -806,6 +806,256 @@
     <h3 class="card-title-sm">{{ title }}</h3>
     <p class="muted" style="margin:0;">{{ desc }}</p>
   </article>
+  
+<style>
+/* =====================================
+   SKILL ORBIT INDIA - HOMEPAGE POLISH
+   Why Choose Us + Featured Products
+   ===================================== */
+
+/* WHY CHOOSE US */
+section[aria-label="Why choose us"] {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px !important;
+  margin-bottom: 4rem;
+}
+
+section[aria-label="Why choose us"] > article {
+  position: relative;
+  min-width: 0;
+  min-height: 145px;
+  padding: 24px 20px !important;
+  overflow: hidden;
+  border: 1px solid #e2e8ff !important;
+  border-radius: 20px !important;
+  background: linear-gradient(145deg, #ffffff 0%, #f8faff 100%) !important;
+  box-shadow: 0 8px 26px rgba(48, 57, 120, .07) !important;
+  transition: transform .22s ease, box-shadow .22s ease,
+              border-color .22s ease;
+}
+
+section[aria-label="Why choose us"] > article::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #4f46e5, #06b6d4);
+  content: "";
+}
+
+section[aria-label="Why choose us"] > article:hover {
+  transform: translateY(-5px);
+  border-color: #c7d2fe !important;
+  box-shadow: 0 16px 34px rgba(79, 70, 229, .13) !important;
+}
+
+section[aria-label="Why choose us"] > article h3 {
+  margin: 0 0 10px !important;
+  color: #172033;
+  font-size: 1rem !important;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+section[aria-label="Why choose us"] > article p {
+  color: #64748b;
+  font-size: .875rem;
+  line-height: 1.75;
+}
+
+/* FEATURED PRODUCTS SECTION */
+.carousel-section {
+  position: relative;
+  margin-bottom: 4rem;
+  padding: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(199, 210, 254, .7);
+  border-radius: 24px;
+  background: linear-gradient(145deg, #f8faff, #eef2ff);
+  box-shadow: 0 12px 34px rgba(48, 57, 120, .06);
+}
+
+.carousel-section .carousel-nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.carousel-section .carousel-nav button {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid #dbe2ff;
+  border-radius: 13px;
+  background: #fff;
+  color: #4f46e5;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, .07);
+  cursor: pointer;
+  transition: background .2s ease, color .2s ease,
+              transform .2s ease;
+}
+
+.carousel-section .carousel-nav button:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  color: #fff;
+}
+
+/* Preserve carousel's existing horizontal behaviour */
+.carousel-section .carousel {
+  gap: 18px;
+  padding: 4px 2px 16px;
+}
+
+.carousel-section .carousel-item {
+  min-width: 0;
+  padding: 2px;
+}
+
+.carousel-section .carousel-item > .card-premium {
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid #e2e8ff;
+  border-radius: 19px;
+  background: #fff;
+  box-shadow: 0 7px 22px rgba(48, 57, 120, .07);
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+
+.carousel-section .carousel-item > .card-premium:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px rgba(48, 57, 120, .13);
+}
+
+.carousel-section .card-img-wrap {
+  display: block;
+  overflow: hidden;
+  background: linear-gradient(145deg, #f8faff, #eef2ff);
+}
+
+.carousel-section .card-img-wrap img {
+  display: block;
+  width: 100%;
+  height: 210px;
+  object-fit: contain;
+  padding: 12px;
+  box-sizing: border-box;
+  transition: transform .3s ease;
+}
+
+.carousel-section .card-premium:hover .card-img-wrap img {
+  transform: scale(1.045);
+}
+
+.carousel-section .card-body {
+  display: flex;
+  flex-direction: column;
+  padding: 16px !important;
+}
+
+.carousel-section .card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: #64748b;
+  font-size: .75rem;
+}
+
+.carousel-section .card-meta .stars {
+  color: #e99a0b;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.carousel-section .card-body h3 {
+  margin: 0 0 8px;
+  color: #172033;
+  font-size: .95rem;
+  font-weight: 750;
+  line-height: 1.55;
+}
+
+.carousel-section .card-body > .muted {
+  color: #64748b;
+  font-size: .83rem;
+  line-height: 1.7;
+}
+
+.carousel-section .card-body .price,
+.carousel-section .card-body .product-price {
+  color: #4338ca;
+  font-weight: 800;
+}
+
+/* Buttons inside product cards */
+.carousel-section .card-body .btn,
+.carousel-section .card-body button {
+  border-radius: 11px;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.carousel-section .card-body .btn:hover,
+.carousel-section .card-body button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, .18);
+}
+
+/* Responsive layout */
+@media (max-width: 1000px) {
+  section[aria-label="Why choose us"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .carousel-section {
+    padding: 16px;
+  }
+
+  .carousel-section .card-img-wrap img {
+    height: 180px;
+  }
+}
+
+@media (max-width: 560px) {
+  section[aria-label="Why choose us"] {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 13px !important;
+  }
+
+  section[aria-label="Why choose us"] > article {
+    min-height: 0;
+    padding: 20px !important;
+  }
+
+  .carousel-section {
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .carousel-section .carousel-nav button {
+    width: 38px;
+    height: 38px;
+  }
+
+  .carousel-section .card-img-wrap img {
+    height: 160px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  section[aria-label="Why choose us"] > article,
+  .carousel-section .carousel-item > .card-premium,
+  .carousel-section .card-img-wrap img {
+    transition: none;
+  }
+}
+</style>
   {% endfor %}
 </section>
 {% endif %}
