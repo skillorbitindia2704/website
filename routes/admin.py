@@ -263,42 +263,52 @@ def _setting_set(key: str, value: str):
         row.value = value or ""
 
 
+
 def _upload_product_image(file_storage):
+    """Upload product images to permanent Cloudinary storage."""
     if not file_storage or not file_storage.filename:
         return None
+
     safe_name = secure_filename(file_storage.filename)
-    if "." not in safe_name:
+
+    if not safe_name or "." not in safe_name:
         raise ValueError("Invalid image file.")
+
     ext = safe_name.rsplit(".", 1)[1].lower()
+
     if ext not in ALLOWED_PRODUCT_IMAGE_EXTENSIONS:
-        raise ValueError("Allowed image formats: png, jpg, jpeg, webp, gif.")
-    
-    upload_rel_dir = os.path.join("uploads", "products")
-    upload_abs_dir = os.path.join(current_app.static_folder, upload_rel_dir)
-    os.makedirs(upload_abs_dir, exist_ok=True)
-    
-    # Generate unique filename with .webp extension
-    base_name = safe_name.rsplit(".", 1)[0]
-    unique_name = f"{uuid4().hex}_{base_name}.webp"
-    abs_path = os.path.join(upload_abs_dir, unique_name)
-    
+        raise ValueError(
+            "Allowed image formats: png, jpg, jpeg, webp, gif."
+        )
+
     try:
-        from PIL import Image
-        img = Image.open(file_storage)
-        # Convert to RGB/RGBA as needed and save as WebP with 85% quality
-        if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
-            img.save(abs_path, "WEBP", quality=85)
-        else:
-            img.convert("RGB").save(abs_path, "WEBP", quality=85)
-    except Exception as e:
-        # Fallback to standard save if Pillow conversion fails
-        current_app.logger.warning(f"WebP compression failed, saving original: {e}")
-        unique_name = f"{uuid4().hex}_{safe_name}"
-        abs_path = os.path.join(upload_abs_dir, unique_name)
-        file_storage.seek(0)
-        file_storage.save(abs_path)
-        
-    return f"{upload_rel_dir.replace(os.sep, '/')}/{unique_name}"
+        import cloudinary.uploader
+
+        result = cloudinary.uploader.upload(
+            file_storage,
+            folder="skill-orbit-india/products",
+            public_id=uuid4().hex,
+            resource_type="image",
+            overwrite=False,
+        )
+
+        secure_url = result.get("secure_url")
+
+        if not secure_url:
+            raise RuntimeError(
+                "Cloudinary did not return a secure image URL."
+            )
+
+        return secure_url
+
+    except Exception as exc:
+        current_app.logger.exception(
+            "Product image upload failed: %s", exc
+        )
+        raise ValueError(
+            "Product image upload failed. Please try again."
+        )
+
 
 
 def _upload_hero_image(file_storage):
