@@ -1283,6 +1283,33 @@
 {% endif %}
 
 
+<!-- BADGES & ACHIEVEMENTS -->
+{% if achievements_list %}
+<div class="section-head reveal">
+  <h2>Badges &amp; Certifications</h2>
+  <p class="muted">Recognitions, achievements and credentials from Skill Orbit India.</p>
+</div>
+
+<section class="grid-cards reveal" aria-label="Badges and achievements">
+  {% for badge in achievements_list %}
+    {% if badge.title or badge.issuer %}
+    <article class="card-premium surface-card">
+      <div style="width:48px;height:48px;border-radius:14px;background:rgba(79,70,229,.10);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+        <i class="ri-award-line" style="font-size:26px;color:var(--primary-from);" aria-hidden="true"></i>
+      </div>
+
+      {% if badge.title %}
+      <h3 class="card-title-sm">{{ badge.title }}</h3>
+      {% endif %}
+
+      {% if badge.issuer %}
+      <p class="muted" style="margin:8px 0 0;">Issued by {{ badge.issuer }}</p>
+      {% endif %}
+    </article>
+    {% endif %}
+  {% endfor %}
+</section>
+{% endif %}
 
 <!-- CMS Promotional Banners -->
 {% if visibilities.cta_banner and cta_banners %}
