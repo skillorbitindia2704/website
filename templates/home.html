@@ -1310,6 +1310,36 @@
 </section>
 {% endif %}
 
+
+<!-- FACULTY & MENTORS -->
+{% if faculty_list %}
+<div class="section-head reveal">
+  <h2>Faculty &amp; Mentors</h2>
+  <p class="muted">Meet the mentors guiding learners through practical technology and projects.</p>
+</div>
+
+<section class="grid-cards reveal" aria-label="Faculty and mentors">
+  {% for faculty in faculty_list %}
+    {% if faculty.name or faculty.role %}
+    <article class="card-premium surface-card">
+      <div style="width:52px;height:52px;border-radius:50%;background:rgba(79,70,229,.10);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+        <i class="ri-user-star-line" style="font-size:27px;color:var(--primary-from);" aria-hidden="true"></i>
+      </div>
+
+      {% if faculty.name %}
+      <h3 class="card-title-sm">{{ faculty.name }}</h3>
+      {% endif %}
+
+      {% if faculty.role %}
+      <p class="muted" style="margin:8px 0 0;">{{ faculty.role }}</p>
+      {% endif %}
+    </article>
+    {% endif %}
+  {% endfor %}
+</section>
+{% endif %}
+
+
 <!-- CMS Promotional Banners -->
 {% if visibilities.cta_banner and cta_banners %}
 <section class="max-w-6xl mx-auto px-4 py-8" aria-label="Promotional banners">
