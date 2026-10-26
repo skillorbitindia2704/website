@@ -807,256 +807,614 @@
     <p class="muted" style="margin:0;">{{ desc }}</p>
   </article>
   
+```html
+<!-- =========================================
+     PREMIUM HOMEPAGE: WHY CHOOSE US + PRODUCTS
+     ========================================= -->
+
 <style>
-/* =====================================
-   SKILL ORBIT INDIA - HOMEPAGE POLISH
-   Why Choose Us + Featured Products
-   ===================================== */
-
-/* WHY CHOOSE US */
-section[aria-label="Why choose us"] {
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px !important;
-  margin-bottom: 4rem;
-}
-
-section[aria-label="Why choose us"] > article {
-  position: relative;
-  min-width: 0;
-  min-height: 145px;
-  padding: 24px 20px !important;
-  overflow: hidden;
-  border: 1px solid #e2e8ff !important;
-  border-radius: 20px !important;
-  background: linear-gradient(145deg, #ffffff 0%, #f8faff 100%) !important;
-  box-shadow: 0 8px 26px rgba(48, 57, 120, .07) !important;
-  transition: transform .22s ease, box-shadow .22s ease,
-              border-color .22s ease;
-}
-
-section[aria-label="Why choose us"] > article::before {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, #4f46e5, #06b6d4);
-  content: "";
-}
-
-section[aria-label="Why choose us"] > article:hover {
-  transform: translateY(-5px);
-  border-color: #c7d2fe !important;
-  box-shadow: 0 16px 34px rgba(79, 70, 229, .13) !important;
-}
-
-section[aria-label="Why choose us"] > article h3 {
-  margin: 0 0 10px !important;
-  color: #172033;
-  font-size: 1rem !important;
-  font-weight: 750;
-  line-height: 1.45;
-}
-
-section[aria-label="Why choose us"] > article p {
-  color: #64748b;
-  font-size: .875rem;
-  line-height: 1.75;
-}
-
-/* FEATURED PRODUCTS SECTION */
-.carousel-section {
-  position: relative;
-  margin-bottom: 4rem;
-  padding: 22px;
-  overflow: hidden;
-  border: 1px solid rgba(199, 210, 254, .7);
-  border-radius: 24px;
-  background: linear-gradient(145deg, #f8faff, #eef2ff);
-  box-shadow: 0 12px 34px rgba(48, 57, 120, .06);
-}
-
-.carousel-section .carousel-nav {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.carousel-section .carousel-nav button {
-  display: grid;
-  width: 42px;
-  height: 42px;
-  place-items: center;
-  border: 1px solid #dbe2ff;
-  border-radius: 13px;
-  background: #fff;
-  color: #4f46e5;
-  font-size: 1.3rem;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, .07);
-  cursor: pointer;
-  transition: background .2s ease, color .2s ease,
-              transform .2s ease;
-}
-
-.carousel-section .carousel-nav button:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(135deg, #4f46e5, #06b6d4);
-  color: #fff;
-}
-
-/* Preserve carousel's existing horizontal behaviour */
-.carousel-section .carousel {
-  gap: 18px;
-  padding: 4px 2px 16px;
-}
-
-.carousel-section .carousel-item {
-  min-width: 0;
-  padding: 2px;
-}
-
-.carousel-section .carousel-item > .card-premium {
-  height: 100%;
-  overflow: hidden;
-  border: 1px solid #e2e8ff;
-  border-radius: 19px;
-  background: #fff;
-  box-shadow: 0 7px 22px rgba(48, 57, 120, .07);
-  transition: transform .22s ease, box-shadow .22s ease;
-}
-
-.carousel-section .carousel-item > .card-premium:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 32px rgba(48, 57, 120, .13);
-}
-
-.carousel-section .card-img-wrap {
-  display: block;
-  overflow: hidden;
-  background: linear-gradient(145deg, #f8faff, #eef2ff);
-}
-
-.carousel-section .card-img-wrap img {
-  display: block;
-  width: 100%;
-  height: 210px;
-  object-fit: contain;
-  padding: 12px;
-  box-sizing: border-box;
-  transition: transform .3s ease;
-}
-
-.carousel-section .card-premium:hover .card-img-wrap img {
-  transform: scale(1.045);
-}
-
-.carousel-section .card-body {
-  display: flex;
-  flex-direction: column;
-  padding: 16px !important;
-}
-
-.carousel-section .card-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 10px;
-  color: #64748b;
-  font-size: .75rem;
-}
-
-.carousel-section .card-meta .stars {
-  color: #e99a0b;
-  white-space: nowrap;
-  font-weight: 700;
-}
-
-.carousel-section .card-body h3 {
-  margin: 0 0 8px;
-  color: #172033;
-  font-size: .95rem;
-  font-weight: 750;
-  line-height: 1.55;
-}
-
-.carousel-section .card-body > .muted {
-  color: #64748b;
-  font-size: .83rem;
-  line-height: 1.7;
-}
-
-.carousel-section .card-body .price,
-.carousel-section .card-body .product-price {
-  color: #4338ca;
-  font-weight: 800;
-}
-
-/* Buttons inside product cards */
-.carousel-section .card-body .btn,
-.carousel-section .card-body button {
-  border-radius: 11px;
-  transition: transform .2s ease, box-shadow .2s ease;
-}
-
-.carousel-section .card-body .btn:hover,
-.carousel-section .card-body button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(79, 70, 229, .18);
-}
-
-/* Responsive layout */
-@media (max-width: 1000px) {
-  section[aria-label="Why choose us"] {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* Shared premium section headings */
+  .why-premium-section,
+  .featured-premium-section {
+    position: relative;
+    margin: 0 0 4rem;
   }
 
-  .carousel-section {
-    padding: 16px;
+  .why-premium-heading,
+  .featured-premium-heading {
+    max-width: 850px;
+    margin: 0 auto 2rem;
+    text-align: center;
   }
 
-  .carousel-section .card-img-wrap img {
-    height: 180px;
+  .why-premium-badge,
+  .featured-premium-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 9px 17px;
+    border: 1px solid rgba(99, 102, 241, .22);
+    border-radius: 999px;
+    background: linear-gradient(
+      135deg,
+      rgba(79, 70, 229, .08),
+      rgba(6, 182, 212, .09)
+    );
+    color: var(--primary-from, #4f46e5);
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
   }
-}
 
-@media (max-width: 560px) {
-  section[aria-label="Why choose us"] {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 13px !important;
+  .why-premium-heading h2,
+  .featured-premium-heading h2 {
+    margin: 0;
+    color: #111827;
+    font-family: var(--font-display, 'Outfit', sans-serif);
+    font-size: clamp(1.9rem, 3.5vw, 3rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -.035em;
   }
 
-  section[aria-label="Why choose us"] > article {
-    min-height: 0;
+  .why-premium-heading p,
+  .featured-premium-heading p {
+    max-width: 680px;
+    margin: 14px auto 0;
+    color: #64748b;
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  /* Why Choose Us premium feature cards */
+  .why-premium-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .why-premium-card {
+    position: relative;
+    min-width: 0;
+    min-height: 210px;
+    padding: 26px 22px;
+    overflow: hidden;
+    border: 1px solid #e0e7ff;
+    border-radius: 22px;
+    background: linear-gradient(145deg, #ffffff 0%, #f8faff 72%, #f1f5ff 100%);
+    box-shadow: 0 10px 30px rgba(48, 57, 120, .07);
+    transition:
+      transform .25s ease,
+      box-shadow .25s ease,
+      border-color .25s ease;
+  }
+
+  .why-premium-card::after {
+    position: absolute;
+    right: -35px;
+    bottom: -45px;
+    width: 115px;
+    height: 115px;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(6, 182, 212, .09),
+      rgba(79, 70, 229, .025) 70%,
+      transparent
+    );
+    content: "";
+    pointer-events: none;
+  }
+
+  .why-premium-card:hover {
+    transform: translateY(-6px);
+    border-color: #c7d2fe;
+    box-shadow: 0 18px 38px rgba(79, 70, 229, .13);
+  }
+
+  .why-premium-icon {
+    display: flex;
+    width: 54px;
+    height: 54px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 22px;
+    border: 1px solid rgba(255, 255, 255, .65);
+    border-radius: 17px;
+    background: linear-gradient(135deg, #5145e5 0%, #3478ed 55%, #06b6d4 100%);
+    box-shadow: 0 9px 20px rgba(79, 70, 229, .22);
+    color: #fff;
+    font-size: 24px;
+  }
+
+  .why-premium-card h3 {
+    margin: 0 0 9px;
+    color: #111827;
+    font-family: var(--font-display, 'Outfit', sans-serif);
+    font-size: 1.03rem;
+    font-weight: 750;
+    line-height: 1.45;
+  }
+
+  .why-premium-card p {
+    margin: 0;
+    color: #64748b;
+    font-size: .9rem;
+    line-height: 1.75;
+  }
+
+  /* Featured products outer panel */
+  .featured-premium-panel {
+    padding: 28px;
+    overflow: hidden;
+    border: 1px solid rgba(199, 210, 254, .8);
+    border-radius: 28px;
+    background:
+      radial-gradient(ellipse at 0% 0%, rgba(79, 70, 229, .07), transparent 45%),
+      radial-gradient(ellipse at 100% 100%, rgba(6, 182, 212, .08), transparent 45%),
+      linear-gradient(145deg, #ffffff 0%, #f8faff 55%, #eef2ff 100%);
+    box-shadow: 0 16px 42px rgba(48, 57, 120, .08);
+  }
+
+  .featured-premium-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 22px;
+  }
+
+  .featured-premium-topline .featured-premium-label {
+    color: #64748b;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .featured-premium-topline .section-link {
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+
+  /* Keep the existing horizontal carousel behaviour */
+  .featured-premium-panel .carousel-section {
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .featured-premium-panel .carousel-nav {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .featured-premium-panel .carousel-nav button {
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dbe2ff;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 5px 14px rgba(79, 70, 229, .08);
+    color: #4f46e5;
+    font-size: 1.35rem;
+    cursor: pointer;
+    transition: all .2s ease;
+  }
+
+  .featured-premium-panel .carousel-nav button:hover {
+    transform: translateY(-2px);
+    border-color: transparent;
+    background: linear-gradient(135deg, #5145e5, #06b6d4);
+    box-shadow: 0 9px 20px rgba(79, 70, 229, .2);
+    color: #fff;
+  }
+
+  .featured-premium-panel .carousel {
+    gap: 20px;
+    padding: 4px 3px 18px;
+  }
+
+  .featured-premium-panel .carousel-item {
+    min-width: 0;
+    padding: 2px;
+  }
+
+  .featured-premium-panel .carousel-item > .card-premium {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #e0e7ff;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, .96);
+    box-shadow: 0 9px 25px rgba(48, 57, 120, .08);
+    transition:
+      transform .25s ease,
+      border-color .25s ease,
+      box-shadow .25s ease;
+  }
+
+  .featured-premium-panel .carousel-item > .card-premium:hover {
+    transform: translateY(-5px);
+    border-color: #c7d2fe;
+    box-shadow: 0 18px 34px rgba(79, 70, 229, .14);
+  }
+
+  .featured-premium-panel .card-img-wrap {
+    display: flex;
+    min-height: 220px;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(224, 231, 255, .8);
+    background:
+      radial-gradient(circle at 50% 40%, rgba(6, 182, 212, .11), transparent 55%),
+      linear-gradient(145deg, #ffffff, #f0f3ff);
+  }
+
+  .featured-premium-panel .card-img-wrap img {
+    display: block;
+    width: 100%;
+    height: 220px;
+    padding: 17px;
+    box-sizing: border-box;
+    object-fit: contain;
+    transition: transform .3s ease;
+  }
+
+  .featured-premium-panel .card-premium:hover .card-img-wrap img {
+    transform: scale(1.045);
+  }
+
+  .featured-premium-panel .card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
     padding: 20px !important;
   }
 
-  .carousel-section {
-    padding: 12px;
-    border-radius: 18px;
+  .featured-premium-panel .card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+    color: #64748b;
+    font-size: .76rem;
   }
 
-  .carousel-section .carousel-nav button {
-    width: 38px;
-    height: 38px;
+  .featured-premium-panel .card-meta .stars {
+    flex-shrink: 0;
+    color: #e99a0b;
+    font-weight: 750;
+    white-space: nowrap;
   }
 
-  .carousel-section .card-img-wrap img {
-    height: 160px;
+  .featured-premium-panel .card-body h3 {
+    margin: 0 0 10px;
+    color: #111827;
+    font-family: var(--font-display, 'Outfit', sans-serif);
+    font-size: 1.02rem;
+    font-weight: 750;
+    line-height: 1.5;
   }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  section[aria-label="Why choose us"] > article,
-  .carousel-section .carousel-item > .card-premium,
-  .carousel-section .card-img-wrap img {
-    transition: none;
+  .featured-premium-panel .card-body > .muted {
+    flex: 1;
+    margin: 0 0 18px;
+    color: #64748b;
+    font-size: .86rem;
+    line-height: 1.7;
   }
-}
+
+  .featured-premium-panel .meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid #edf0ff;
+  }
+
+  .featured-premium-panel .price-tag {
+    color: #4338ca;
+    font-size: 1.12rem;
+    font-weight: 850;
+    white-space: nowrap;
+  }
+
+  .featured-premium-panel .card-body .btn {
+    border-radius: 12px;
+    box-shadow: 0 5px 13px rgba(79, 70, 229, .14);
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+
+  .featured-premium-panel .card-body .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 9px 18px rgba(79, 70, 229, .22);
+  }
+
+  /* Responsive layouts */
+  @media (max-width: 1050px) {
+    .why-premium-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .featured-premium-panel {
+      padding: 22px;
+    }
+
+    .featured-premium-panel .card-img-wrap,
+    .featured-premium-panel .card-img-wrap img {
+      height: 195px;
+      min-height: 195px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .why-premium-section,
+    .featured-premium-section {
+      margin-bottom: 2.8rem;
+    }
+
+    .why-premium-heading,
+    .featured-premium-heading {
+      margin-bottom: 1.5rem;
+    }
+
+    .why-premium-heading h2,
+    .featured-premium-heading h2 {
+      font-size: clamp(1.75rem, 8vw, 2.25rem);
+    }
+
+    .why-premium-heading p,
+    .featured-premium-heading p {
+      font-size: .92rem;
+    }
+
+    .why-premium-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    .why-premium-card {
+      min-height: 0;
+      padding: 22px;
+    }
+
+    .why-premium-icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      border-radius: 15px;
+      font-size: 22px;
+    }
+
+    .featured-premium-panel {
+      padding: 15px;
+      border-radius: 21px;
+    }
+
+    .featured-premium-topline {
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .featured-premium-topline .featured-premium-label {
+      font-size: .7rem;
+    }
+
+    .featured-premium-panel .carousel-nav button {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+    }
+
+    .featured-premium-panel .carousel {
+      gap: 12px;
+    }
+
+    .featured-premium-panel .card-img-wrap,
+    .featured-premium-panel .card-img-wrap img {
+      height: 165px;
+      min-height: 165px;
+    }
+
+    .featured-premium-panel .card-body {
+      padding: 15px !important;
+    }
+
+    .featured-premium-panel .card-body h3 {
+      font-size: .95rem;
+    }
+
+    .featured-premium-panel .price-tag {
+      font-size: 1rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .why-premium-card,
+    .featured-premium-panel .carousel-item > .card-premium,
+    .featured-premium-panel .card-img-wrap img,
+    .featured-premium-panel .card-body .btn {
+      transition: none !important;
+    }
+  }
 </style>
-  {% endfor %}
+
+
+<!-- WHY CHOOSE US -->
+{% if visibilities.why_choose_us %}
+<section class="why-premium-section reveal" aria-label="Why choose us">
+
+  <div class="why-premium-heading">
+    <span class="why-premium-badge">
+      <i class="ri-shield-check-line" aria-hidden="true"></i>
+      TRUSTED LEARNING
+    </span>
+
+    <h2>Why Choose Skill Orbit India?</h2>
+
+    <p>
+      Practical skills, real projects and expert guidance to help you
+      learn with confidence and build for the future.
+    </p>
+  </div>
+
+  {% set features = [
+    ('Hands-on Learning', 'Real hardware + guided labs', 'ri-tools-line'),
+    ('Industry Trainers', 'Mentor support & structured paths', 'ri-user-star-line'),
+    ('Real Projects', 'Build portfolio-grade demos', 'ri-code-box-line'),
+    ('Verified Certificates', 'Instant verification workflow', 'ri-shield-check-line'),
+    ('Affordable Fees', 'Value-first pricing', 'ri-wallet-3-line'),
+    ('Placement Support', 'Internship + career guidance', 'ri-briefcase-4-line'),
+    ('Lifetime Access', 'Learn at your pace', 'ri-infinity-line'),
+    ('24×7 Support', 'Always-on help when stuck', 'ri-customer-service-2-line')
+  ] %}
+
+  <div class="why-premium-grid">
+    {% for title, desc, icon in features %}
+    <article class="why-premium-card">
+      <div class="why-premium-icon" aria-hidden="true">
+        <i class="{{ icon }}"></i>
+      </div>
+
+      <h3>{{ title }}</h3>
+      <p>{{ desc }}</p>
+    </article>
+    {% endfor %}
+  </div>
+
+</section>
+{% endif %}
+
+
+<!-- FEATURED PRODUCTS -->
+{% if visibilities.products %}
+<section class="featured-premium-section reveal" aria-label="Featured products">
+
+  <div class="featured-premium-heading">
+    <span class="featured-premium-badge">
+      <i class="ri-shopping-bag-3-line" aria-hidden="true"></i>
+      EXPLORE OUR STORE
+    </span>
+
+    <h2>Featured Products</h2>
+
+    <p>
+      Explore quality electronics components, development boards and
+      learning essentials for your next project.
+    </p>
+  </div>
+
+  <div class="featured-premium-panel">
+
+    <div class="featured-premium-topline">
+      <span class="featured-premium-label">
+        <i class="ri-flashlight-line" aria-hidden="true"></i>
+        Picks for makers & learners
+      </span>
+
+      <a href="{{ url_for('store.listing') }}" class="section-link">
+        View all <i class="ri-arrow-right-line" aria-hidden="true"></i>
+      </a>
+    </div>
+
+    <!-- Keep existing carousel controls for the current JavaScript -->
+    <div class="carousel-section">
+      <div class="carousel-nav">
+        <button type="button" data-carousel-prev aria-label="Previous products">
+          <i class="ri-arrow-left-s-line" aria-hidden="true"></i>
+        </button>
+
+        <button type="button" data-carousel-next aria-label="Next products">
+          <i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="carousel">
+        {% for p in products %}
+        <div class="carousel-item">
+          <article class="card-premium">
+
+            {% set p_img = (p.image_url or '') %}
+
+            {% if 'default_product.svg' in p_img or not p_img %}
+              {% set img_src = url_for('static', filename='images/product_placeholder.svg') %}
+            {% elif p_img.startswith('/static/') or p_img.startswith('http://') or p_img.startswith('https://') %}
+              {% set img_src = p_img %}
+            {% elif p_img.startswith('static/') %}
+              {% set img_src = '/' ~ p_img %}
+            {% else %}
+              {% set img_src = url_for('static', filename=p_img) %}
+            {% endif %}
+
+            <a href="{{ url_for('store.listing') }}"
+               class="card-img-wrap"
+               aria-label="View {{ p.name }}">
+              <img
+                src="{{ img_src }}"
+                alt="{{ p.name }}"
+                loading="lazy"
+                decoding="async"
+                width="400"
+                height="300"
+                onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/product_placeholder.svg') }}';">
+            </a>
+
+            <div class="card-body">
+              <div class="card-meta">
+                <span>{{ p.category }}</span>
+                <span class="stars">
+                  {{ '%.1f'|format((p.rating|default(4.5))|float) }}
+                  <i class="ri-star-s-fill" aria-hidden="true"></i>
+                </span>
+              </div>
+
+              <h3>{{ p.name }}</h3>
+
+              <p class="muted">
+                {{ p.description[:80] }}{% if p.description|length > 80 %}…{% endif %}
+              </p>
+
+              <div class="meta-row">
+                <strong class="price-tag">₹{{ p.price_inr }}</strong>
+
+                <a class="btn btn-primary btn-sm"
+                   href="{{ url_for('store.listing') }}">
+                  Add to cart
+                </a>
+              </div>
+            </div>
+
+          </article>
+        </div>
+
+        {% else %}
+        <p class="muted">Products coming soon — check back after admin setup.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endif %}
+```  {% endfor %}
 </section>
 {% endif %}
 
