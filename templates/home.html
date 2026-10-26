@@ -1254,25 +1254,31 @@
 {% endif %}
 
 <!-- CERTIFICATION -->
+
 {% if visibilities.certification %}
 <div class="section-head reveal">
-  <h2>Verified Certificates</h2>
-  <p class="muted">Instant QR verification with a clean lookup experience.</p>
+  <h2>{{ content.get('certification_heading', 'Verified Certificates') }}</h2>
+  <p class="muted">{{ content.get('certification_description', 'Instant QR verification with a clean lookup experience.') }}</p>
 </div>
+
 <section class="grid-cards grid-cards--lg reveal">
   <article class="card-premium surface-card-lg">
-    <h3 class="card-title-sm">Certificate verification</h3>
-    <p class="muted">Verify certificates in seconds using our public lookup.</p>
+    <h3 class="card-title-sm">{{ content.get('certification_card_heading', 'Certificate verification') }}</h3>
+    <p class="muted">{{ content.get('certification_card_description', 'Verify certificates in seconds using our public lookup.') }}</p>
+
     <div class="form-actions-row">
-      <a class="btn btn-primary btn-sm" href="{{ url_for('certificates.verify_lookup') }}">Verify now</a>
-      <a class="btn btn-ghost btn-sm" href="{{ url_for('auth.signup') }}">Start learning</a>
+      <a class="btn btn-primary btn-sm" href="{{ url_for('certificates.verify_lookup') }}">{{ content.get('certification_verify_btn_text', 'Verify now') }}</a>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('auth.signup') }}">{{ content.get('certification_signup_btn_text', 'Start learning') }}</a>
     </div>
   </article>
+
   <article class="card-premium card-img-full">
     <div class="card-img-wrap" style="aspect-ratio:16/10;">
       <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(34,197,94,.14),rgba(29,78,216,.10));">
         <div style="text-align:center;">
-          <div style="font-size:2.2rem;"><i class="ri-checkbox-circle-line" aria-hidden="true"></i></div>
+          <div style="font-size:2.2rem;">
+            <i class="ri-checkbox-circle-line" aria-hidden="true"></i>
+          </div>
           <p style="margin:0.6rem 0 0;font-weight:800;font-family:var(--font-display);">Verified Badge</p>
           <p class="muted" style="margin:0.25rem 0 0;">Employer-ready proof</p>
         </div>
