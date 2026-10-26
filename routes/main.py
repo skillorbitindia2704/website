@@ -108,6 +108,29 @@ def home():
         "hero_workshop_image": get_content("hero_workshop_image", ""),
         "hero_student_activity_image": get_content("hero_student_activity_image", ""),
         
+        # Verified Certificates Section
+        "certification_heading": get_content(
+            "certification_heading", "Verified Certificates"
+        ),
+        "certification_description": get_content(
+            "certification_description",
+            "Instant QR verification with a clean lookup experience."
+        ),
+        "certification_card_heading": get_content(
+            "certification_card_heading", "Certificate verification"
+        ),
+        "certification_card_description": get_content(
+            "certification_card_description",
+            "Verify certificates in seconds using our public lookup."
+        ),
+        "certification_verify_btn_text": get_content(
+            "certification_verify_btn_text", "Verify now"
+        ),
+        "certification_signup_btn_text": get_content(
+            "certification_signup_btn_text", "Start learning"
+        ),
+
+        
         "ai_lab_heading": get_content("ai_lab_heading", "AI Lab Setup for Schools & Colleges"),
         "ai_lab_description": get_content("ai_lab_description", "Premium NEP-aligned labs with hardware + curriculum + teacher enablement."),
         "ai_lab_image": get_content("ai_lab_image", ""),
