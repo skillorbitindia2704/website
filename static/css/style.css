@@ -12,49 +12,69 @@
   --shadow-glow: 0 0 0 1px rgba(99, 102, 241, 0.16), 0 20px 60px rgba(99, 102, 241, 0.2);
   --transition: 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
   --transition-fast: 0.18s ease-out;
-  /* Brand palette (AI + Robotics premium tech) */
-  --primary-from: #4f46e5;
-  /* rich indigo */
-  --primary-to: #7c3aed;
-  /* premium violet */
-  --accent: #f97316;
-  /* orange accent */
-  --accent-soft: rgba(249, 115, 22, 0.16);
-  --accent-light: rgba(249, 115, 22, 0.12);
-  --success: #22c55e;
-  --success-soft: rgba(34, 197, 94, 0.14);
-  --bg: #f5f7ff;
-  --bg-elevated: #ffffff;
-  --bg-surface: #eef2ff;
-  --text: #0f172a;
+  /* Brand palette (Indian Tricolor: Saffron, Chakra Blue, India Green) */
+  --primary-from: #FF6B00;
+  /* rich Indian saffron */
+  --primary-to: #FF8800;
+  /* radiant saffron */
+  --accent: #1D4ED8;
+  /* royal chakra blue */
+  --accent-soft: rgba(29, 78, 216, 0.12);
+  --accent-light: rgba(29, 78, 216, 0.08);
+  --saffron: #FF6B00;
+  --saffron-light: rgba(255, 107, 0, 0.12);
+  --chakra-blue: #1D4ED8;
+  --chakra-blue-hover: #2563EB;
+  --india-green: #10B981;
+  --india-green-dark: #059669;
+  --success: #10B981;
+  --success-soft: rgba(16, 185, 129, 0.14);
+  --bg: #F8FAFC;
+  --bg-elevated: #FFFFFF;
+  --bg-surface: #F1F5F9;
+  --text: #0A1931;
   --text-muted: #475569;
-  --border: rgba(99, 102, 241, 0.18);
-  --border-soft: rgba(99, 102, 241, 0.1);
-  --glass: rgba(27, 26, 26, 0.72);
-  --glass-border: rgba(99, 102, 241, 0.18);
-  --bg-secondary: #eef2ff;
-  --bg-warning: #fff7ed;
-  --focus-ring: rgba(79, 70, 229, 0.28);
+  --border: rgba(226, 232, 240, 0.95);
+  --border-soft: rgba(226, 232, 240, 0.70);
+  --glass: rgba(255, 255, 255, 0.92);
+  --glass-border: rgba(226, 232, 240, 0.85);
+  --bg-secondary: #F1F5F9;
+  --bg-warning: #FFF7ED;
+  --focus-ring: rgba(255, 107, 0, 0.28);
+  --shadow-glow: 0 0 0 1px rgba(255, 107, 0, 0.16), 0 20px 60px rgba(255, 107, 0, 0.18);
 }
 
 [data-theme="dark"] {
-  --bg: #080b18;
-  --bg-elevated: #11172b;
-  --bg-surface: #161f3d;
-  --text: #f8fafc;
-  --text-muted: #cbd5e1;
+  --bg: #080B18;
+  --bg-elevated: #11172B;
+  --bg-surface: #161F3D;
+  --text: #F8FAFC;
+  --text-muted: #94A3B8;
   --border: rgba(148, 163, 184, 0.18);
-  --border-soft: rgba(148, 163, 184, 0.1);
-  --glass: rgba(15, 23, 42, 0.88);
-  --glass-border: rgba(148, 163, 184, 0.25);
-  --bg-secondary: #1e293b;
-  --bg-warning: #3b2416;
-  --accent-light: rgba(251, 146, 60, 0.18);
-  --success-soft: rgba(34, 197, 94, 0.24);
+  --border-soft: rgba(148, 163, 184, 0.10);
+  --glass: rgba(11, 15, 25, 0.90);
+  --glass-border: rgba(148, 163, 184, 0.22);
+  --bg-secondary: #161F3D;
+  --bg-warning: #3B2416;
+  --primary-from: #FF6B00;
+  --primary-to: #FF8800;
+  --accent: #60A5FA;
+  --accent-soft: rgba(96, 165, 250, 0.16);
+  --accent-light: rgba(96, 165, 250, 0.12);
+  --saffron: #FF8A3D;
+  --saffron-light: rgba(255, 138, 61, 0.16);
+  --chakra-blue: #3B82F6;
+  --chakra-blue-hover: #60A5FA;
+  --india-green: #10B981;
+  --india-green-dark: #059669;
+  --success: #10B981;
+  --success-soft: rgba(16, 185, 129, 0.22);
+  --focus-ring: rgba(255, 107, 0, 0.35);
   --shadow-xs: 0 2px 6px rgba(0, 0, 0, 0.24);
   --shadow-sm: 0 8px 22px rgba(0, 0, 0, 0.28);
   --shadow-md: 0 16px 50px rgba(0, 0, 0, 0.36);
   --shadow-lg: 0 24px 90px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 0 1px rgba(255, 107, 0, 0.25), 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 *,
@@ -1679,30 +1699,61 @@ a:hover {
 
 /* ————— ENHANCED STORE SECTION —————— */
 
-/* Sleek Compact Hero Card matching About theme */
+/* Sleek Compact Hero Card matching Indian Tricolor & Royal Chakra Blue Theme */
 .hero-compact-about,
 .store-hero-section {
   position: relative;
   border-radius: var(--radius-lg);
   overflow: hidden;
   margin-bottom: 2.25rem;
-  background: linear-gradient(135deg, #0B1225 0%, #111827 30%, #1D4ED8 60%, #7C3AED 100%);
-  box-shadow: 0 15px 35px -10px rgba(15, 23, 42, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85), 0 0 22px rgba(255, 255, 255, 0.65), 0 20px 60px rgba(15, 23, 42, 0.08);
   padding: 0;
 }
 
-.hero-compact-about::before,
-.store-hero-section::before {
+html:not([data-theme="dark"]) .hero-compact-about,
+html:not([data-theme="dark"]) .store-hero-section {
+  background: 
+    radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.36) 0%, transparent 45%),
+    radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.24) 0%, transparent 48%),
+    radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.32) 0%, transparent 46%),
+    linear-gradient(
+      135deg,
+      #FF964E 0%,
+      #FFAC72 10%,
+      #FFDDBF 22%,
+      #FFF6EE 34%,
+      #FFFFFF 47%,
+      #FFFFFF 55%,
+      #EDF5FF 66%,
+      #CCE2FD 78%,
+      #72EEBA 89%,
+      #10B981 100%
+    ) !important;
+}
+
+html:not([data-theme="dark"]) .hero-compact-about::before,
+html:not([data-theme="dark"]) .store-hero-section::before {
   content: "";
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(60% 60% at 20% 20%, rgba(79, 70, 229, 0.35), transparent 60%),
-    radial-gradient(50% 50% at 80% 25%, rgba(6, 182, 212, 0.25), transparent 60%),
-    radial-gradient(60% 60% at 55% 85%, rgba(249, 115, 22, 0.20), transparent 60%);
+    radial-gradient(60% 60% at 8% 10%, rgba(255, 138, 61, 0.28), transparent 65%),
+    radial-gradient(45% 45% at 50% 50%, rgba(255, 255, 255, 0.92), transparent 65%),
+    radial-gradient(55% 55% at 92% 90%, rgba(16, 185, 129, 0.26), transparent 65%),
+    radial-gradient(40% 40% at 82% 22%, rgba(29, 78, 216, 0.18), transparent 60%);
   pointer-events: none;
+}
+
+[data-theme="dark"] .hero-compact-about,
+[data-theme="dark"] .store-hero-section {
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 0 25px rgba(255, 138, 61, 0.15), 0 20px 60px rgba(0, 0, 0, 0.45) !important;
+  background: 
+    radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.28) 0%, transparent 45%),
+    radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.32) 0%, transparent 48%),
+    radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.26) 0%, transparent 46%),
+    linear-gradient(135deg, #2B1306 0%, #131735 32%, #0F1E36 55%, #0B2524 78%, #042017 100%) !important;
 }
 
 .hero-compact-inner,
@@ -1721,35 +1772,56 @@ a:hover {
   max-width: 760px;
 }
 
-.hero-compact-title,
-.store-hero-title {
+html:not([data-theme="dark"]) .hero-compact-title,
+html:not([data-theme="dark"]) .store-hero-title {
   margin: 0 0 0.5rem;
-  color: #ffffff !important;
-  font-family: var(--font-display);
+  color: #0A1931 !important;
+  font-family: var(--font-display, 'Outfit', 'Poppins', sans-serif);
   font-size: clamp(1.75rem, 3.5vw, 2.45rem);
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.25;
 }
 
-.hero-compact-subtitle,
-.store-hero-subtitle {
+[data-theme="dark"] .hero-compact-title,
+[data-theme="dark"] .store-hero-title {
+  margin: 0 0 0.5rem;
+  color: #F8FAFC !important;
+  font-family: var(--font-display, 'Outfit', 'Poppins', sans-serif);
+  font-size: clamp(1.75rem, 3.5vw, 2.45rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+html:not([data-theme="dark"]) .hero-compact-subtitle,
+html:not([data-theme="dark"]) .store-hero-subtitle {
   margin: 0 0 1.25rem;
-  color: rgba(255, 255, 255, 0.92) !important;
+  color: #1E293B !important;
+  font-size: clamp(0.95rem, 1.8vw, 1.05rem);
+  font-weight: 600;
+  line-height: 1.6;
+  max-width: 660px;
+}
+
+[data-theme="dark"] .hero-compact-subtitle,
+[data-theme="dark"] .store-hero-subtitle {
+  margin: 0 0 1.25rem;
+  color: #CBD5E1 !important;
   font-size: clamp(0.95rem, 1.8vw, 1.05rem);
   line-height: 1.6;
   max-width: 660px;
 }
 
-.hero-compact-badge {
+html:not([data-theme="dark"]) .hero-compact-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
   padding: 0.35rem 0.85rem;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(255, 107, 0, 0.14) !important;
+  border: 1.5px solid rgba(255, 107, 0, 0.38) !important;
   border-radius: 99px;
-  color: #ffffff !important;
+  color: #C2410C !important;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -1759,6 +1831,22 @@ a:hover {
   -webkit-backdrop-filter: blur(8px);
 }
 
+[data-theme="dark"] .hero-compact-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  background: rgba(255, 107, 0, 0.22) !important;
+  border: 1px solid rgba(255, 138, 61, 0.35) !important;
+  border-radius: 99px;
+  color: #FFA559 !important;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
 .store-hero-badges {
   display: flex;
   flex-wrap: wrap;
@@ -1766,39 +1854,58 @@ a:hover {
   align-items: center;
 }
 
-.badge-pill {
+html:not([data-theme="dark"]) .badge-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
   padding: 0.45rem 1rem;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.98) !important;
+  border-radius: 99px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0A1931 !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  transition: all var(--transition-fast);
+}
+
+[data-theme="dark"] .badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 1rem;
+  background: rgba(17, 23, 43, 0.88) !important;
+  border: 1px solid rgba(148, 163, 184, 0.20) !important;
   border-radius: 99px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #ffffff !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  color: #F8FAFC !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   transition: all var(--transition-fast);
 }
 
 .badge-pill:hover {
-  background: rgba(255, 255, 255, 0.25);
   transform: translateY(-2px);
-  color: #ffffff !important;
 }
 
-.hero-compact-showcase {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+html:not([data-theme="dark"]) .hero-compact-showcase {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.98) !important;
   border-radius: 18px;
   padding: 1.15rem 1.4rem;
   text-align: center;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  color: #fff;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+  color: #0A1931 !important;
+}
+
+[data-theme="dark"] .hero-compact-showcase {
+  background: rgba(17, 23, 43, 0.88) !important;
+  border: 1.5px solid rgba(148, 163, 184, 0.22) !important;
+  border-radius: 18px;
+  padding: 1.15rem 1.4rem;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  color: #F8FAFC !important;
 }
 
 /* Enhanced Filters Panel */
@@ -5490,37 +5597,58 @@ a:hover {
 }
 
 /* —— AI Lab landing page: About-theme Cosmic Hero & Enhanced Interactivity —— */
+/* —— AI Lab landing page: Tricolor & Royal Chakra Blue Hero & Enhanced Interactivity —— */
 .page-ai-lab .ai-hero.hero-premium {
   position: relative;
-  background: linear-gradient(135deg, #0B1225 0%, #111827 30%, #1D4ED8 60%, #7C3AED 100%) !important;
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-lg, 28px);
+  border: 2px solid rgba(255, 255, 255, 0.95);
   padding: clamp(2rem, 5vw, 3.5rem);
-  box-shadow: 0 24px 70px rgba(11, 18, 37, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-  color: #fff;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85), 0 0 22px rgba(255, 255, 255, 0.65), 0 20px 60px rgba(15, 23, 42, 0.08);
   overflow: hidden;
   margin-bottom: 3.5rem;
 }
 
-.page-ai-lab .ai-hero.hero-premium::before {
+html:not([data-theme="dark"]) .page-ai-lab .ai-hero.hero-premium {
+  background: 
+    radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.36) 0%, transparent 45%),
+    radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.24) 0%, transparent 48%),
+    radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.34) 0%, transparent 46%),
+    linear-gradient(
+      135deg,
+      #FF964E 0%,
+      #FFAC72 10%,
+      #FFDDBF 22%,
+      #FFF6EE 34%,
+      #FFFFFF 47%,
+      #FFFFFF 55%,
+      #EDF8F2 66%,
+      #B9F0D2 78%,
+      #65EBD6 89%,
+      #10B981 100%
+    ) !important;
+}
+
+html:not([data-theme="dark"]) .page-ai-lab .ai-hero.hero-premium::before {
   content: "";
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(60% 60% at 20% 20%, rgba(79, 70, 229, 0.35), transparent 60%),
-    radial-gradient(50% 50% at 80% 25%, rgba(6, 182, 212, 0.28), transparent 60%),
-    radial-gradient(60% 60% at 55% 85%, rgba(249, 115, 22, 0.22), transparent 60%);
+    radial-gradient(60% 60% at 8% 10%, rgba(255, 138, 61, 0.28), transparent 65%),
+    radial-gradient(45% 45% at 50% 50%, rgba(255, 255, 255, 0.92), transparent 65%),
+    radial-gradient(55% 55% at 92% 90%, rgba(16, 185, 129, 0.26), transparent 65%),
+    radial-gradient(40% 40% at 82% 22%, rgba(29, 78, 216, 0.18), transparent 60%);
   pointer-events: none;
   z-index: 0;
 }
 
-.page-ai-lab .ai-hero.hero-premium::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: url("data:image/svg+xml,%3Csvg width='50' height='50' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1' fill='rgba(255,255,255,0.07)'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 0;
+[data-theme="dark"] .page-ai-lab .ai-hero.hero-premium {
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 0 25px rgba(255, 138, 61, 0.15), 0 20px 60px rgba(0, 0, 0, 0.45) !important;
+  background: 
+    radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.28) 0%, transparent 45%),
+    radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.32) 0%, transparent 48%),
+    radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.26) 0%, transparent 46%),
+    linear-gradient(135deg, #2B1306 0%, #131735 32%, #0F1E36 55%, #0B2524 78%, #042017 100%) !important;
 }
 
 .ai-hero-grid {
@@ -5541,19 +5669,33 @@ a:hover {
   max-width: 620px;
 }
 
-.page-ai-lab .ai-nep-badge {
+html:not([data-theme="dark"]) .page-ai-lab .ai-nep-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.12) !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
-  color: #ffffff !important;
+  background: rgba(255, 107, 0, 0.14) !important;
+  border: 1.5px solid rgba(255, 107, 0, 0.38) !important;
+  color: #C2410C !important;
   padding: 0.35rem 0.85rem;
   border-radius: 999px;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.02em;
   backdrop-filter: blur(8px);
+}
+
+[data-theme="dark"] .page-ai-lab .ai-nep-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 107, 0, 0.22) !important;
+  border: 1px solid rgba(255, 138, 61, 0.35) !important;
+  color: #FFA559 !important;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .page-ai-lab .ai-nep-badge .dot-live {
@@ -5570,18 +5712,37 @@ a:hover {
   50% { opacity: 0.5; transform: scale(0.85); }
 }
 
-.page-ai-lab .ai-hero h1 {
-  font-family: var(--font-display);
+html:not([data-theme="dark"]) .page-ai-lab .ai-hero h1 {
+  font-family: var(--font-display, 'Outfit', 'Poppins', sans-serif);
   font-size: clamp(2rem, 4.2vw, 3.1rem);
   font-weight: 800;
-  color: #ffffff;
+  color: #0A1931 !important;
   letter-spacing: -0.02em;
   line-height: 1.15;
   margin: 0.85rem 0 0.75rem;
 }
 
-.page-ai-lab .ai-hero-sub {
-  color: rgba(255, 255, 255, 0.88) !important;
+[data-theme="dark"] .page-ai-lab .ai-hero h1 {
+  font-family: var(--font-display, 'Outfit', 'Poppins', sans-serif);
+  font-size: clamp(2rem, 4.2vw, 3.1rem);
+  font-weight: 800;
+  color: #F8FAFC !important;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0.85rem 0 0.75rem;
+}
+
+html:not([data-theme="dark"]) .page-ai-lab .ai-hero-sub {
+  color: #1E293B !important;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.7;
+  max-width: 58ch;
+  margin: 0 0 1.25rem;
+}
+
+[data-theme="dark"] .page-ai-lab .ai-hero-sub {
+  color: #CBD5E1 !important;
   font-size: 1.05rem;
   line-height: 1.7;
   max-width: 58ch;
@@ -5599,54 +5760,51 @@ a:hover {
 .page-ai-lab .ai-hero-cta .btn {
   min-height: 46px;
   border-radius: 999px;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.95rem;
   padding: 0.65rem 1.45rem;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .page-ai-lab .ai-hero-cta .btn-primary {
-  background: #ffffff !important;
-  color: #1e1b4b !important;
-  font-weight: 700;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: linear-gradient(135deg, #FF6B00 0%, #FF8800 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(255, 107, 0, 0.32) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35);
 }
 
 .page-ai-lab .ai-hero-cta .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 35px rgba(255, 255, 255, 0.28);
-  color: #1e1b4b !important;
-  background: #ffffff !important;
+  box-shadow: 0 14px 30px rgba(255, 107, 0, 0.45) !important;
+  color: #ffffff !important;
 }
 
 .page-ai-lab .ai-hero-cta .btn-ghost {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.30) !important;
   color: #ffffff !important;
-  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 24px rgba(29, 78, 216, 0.28) !important;
 }
 
 .page-ai-lab .ai-hero-cta .btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border-color: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 14px 30px rgba(29, 78, 216, 0.42) !important;
   transform: translateY(-2px);
   color: #ffffff !important;
 }
 
 .page-ai-lab .ai-hero-cta .btn-accent {
-  background: linear-gradient(135deg, #f97316, #ea580c) !important;
+  background: linear-gradient(135deg, #059669 0%, #10B981 100%) !important;
   color: #ffffff !important;
-  border: none !important;
-  box-shadow: 0 10px 25px rgba(249, 115, 22, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.30) !important;
+  box-shadow: 0 10px 24px rgba(16, 185, 129, 0.28) !important;
 }
 
 .page-ai-lab .ai-hero-cta .btn-accent:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 35px rgba(249, 115, 22, 0.45);
+  box-shadow: 0 14px 30px rgba(16, 185, 129, 0.42) !important;
 }
 
-/* Frosted glass KPI stat cards (matching About Hero) */
+/* Frosted glass KPI stat cards (matching About & Courses Hero) */
 .ai-hero-stats {
   margin-top: 1.75rem;
   display: grid;
@@ -5654,15 +5812,16 @@ a:hover {
   gap: 0.85rem;
 }
 
-.page-ai-lab .ai-hero-stats .stat-card,
-.page-ai-lab .ai-hero-stats .about-hero-kpi {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+html:not([data-theme="dark"]) .page-ai-lab .ai-hero-stats .stat-card,
+html:not([data-theme="dark"]) .page-ai-lab .ai-hero-stats .about-hero-kpi {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.98) !important;
+  border-top: 3px solid #FF8800 !important;
   backdrop-filter: blur(14px) !important;
   -webkit-backdrop-filter: blur(14px) !important;
   border-radius: 18px !important;
   padding: 0.95rem 1rem !important;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06) !important;
   min-width: 0;
   width: 100%;
   transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -5670,13 +5829,44 @@ a:hover {
   flex-direction: column !important;
   justify-content: center !important;
 }
+html:not([data-theme="dark"]) .page-ai-lab .ai-hero-stats .stat-card:nth-child(2),
+html:not([data-theme="dark"]) .page-ai-lab .ai-hero-stats .about-hero-kpi:nth-child(2) {
+  border-top: 3px solid #1D4ED8 !important;
+}
+html:not([data-theme="dark"]) .page-ai-lab .ai-hero-stats .stat-card:nth-child(3),
+html:not([data-theme="dark"]) .page-ai-lab .ai-hero-stats .about-hero-kpi:nth-child(3) {
+  border-top: 3px solid #10B981 !important;
+}
+
+[data-theme="dark"] .page-ai-lab .ai-hero-stats .stat-card,
+[data-theme="dark"] .page-ai-lab .ai-hero-stats .about-hero-kpi {
+  background: rgba(17, 23, 43, 0.88) !important;
+  border: 1px solid rgba(148, 163, 184, 0.20) !important;
+  border-top: 3px solid #FF8800 !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border-radius: 18px !important;
+  padding: 0.95rem 1rem !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35) !important;
+  min-width: 0;
+  width: 100%;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+[data-theme="dark"] .page-ai-lab .ai-hero-stats .stat-card:nth-child(2),
+[data-theme="dark"] .page-ai-lab .ai-hero-stats .about-hero-kpi:nth-child(2) {
+  border-top: 3px solid #1D4ED8 !important;
+}
+[data-theme="dark"] .page-ai-lab .ai-hero-stats .stat-card:nth-child(3),
+[data-theme="dark"] .page-ai-lab .ai-hero-stats .about-hero-kpi:nth-child(3) {
+  border-top: 3px solid #10B981 !important;
+}
 
 .page-ai-lab .ai-hero-stats .stat-card:hover,
 .page-ai-lab .ai-hero-stats .about-hero-kpi:hover {
   transform: translateY(-4px) !important;
-  background: rgba(255, 255, 255, 0.14) !important;
-  border-color: rgba(255, 255, 255, 0.35) !important;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25) !important;
 }
 
 .page-ai-lab .ai-hero-stats .stat-card .num-wrap {
@@ -5693,23 +5883,41 @@ a:hover {
   align-items: center;
   justify-content: center;
   font-size: 1.05rem;
-  background: rgba(255, 255, 255, 0.12);
-  color: #38bdf8;
+  background: rgba(29, 78, 216, 0.12);
+  color: #1D4ED8;
   flex-shrink: 0;
 }
 
-.page-ai-lab .ai-hero-stats .stat-card .num {
-  font-family: var(--font-display) !important;
+html:not([data-theme="dark"]) .page-ai-lab .ai-hero-stats .stat-card .num {
+  font-family: var(--font-display, 'Outfit', 'Poppins', sans-serif) !important;
   font-size: 1.65rem !important;
   font-weight: 800 !important;
-  color: #ffffff !important;
+  color: #0A1931 !important;
   line-height: 1.15 !important;
   margin: 0 !important;
   letter-spacing: -0.01em;
 }
 
-.page-ai-lab .ai-hero-stats .stat-card .lbl {
-  color: rgba(255, 255, 255, 0.85) !important;
+[data-theme="dark"] .page-ai-lab .ai-hero-stats .stat-card .num {
+  font-family: var(--font-display, 'Outfit', 'Poppins', sans-serif) !important;
+  font-size: 1.65rem !important;
+  font-weight: 800 !important;
+  color: #F8FAFC !important;
+  line-height: 1.15 !important;
+  margin: 0 !important;
+  letter-spacing: -0.01em;
+}
+
+html:not([data-theme="dark"]) .page-ai-lab .ai-hero-stats .stat-card .lbl {
+  color: #475569 !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  margin: 0.4rem 0 0 !important;
+  line-height: 1.35 !important;
+}
+
+[data-theme="dark"] .page-ai-lab .ai-hero-stats .stat-card .lbl {
+  color: #94A3B8 !important;
   font-size: 0.82rem !important;
   font-weight: 500 !important;
   margin: 0.4rem 0 0 !important;
@@ -5720,18 +5928,31 @@ a:hover {
   margin-top: 1.25rem;
 }
 
-.page-ai-lab .ai-hero-chip {
+html:not([data-theme="dark"]) .page-ai-lab .ai-hero-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
-  color: rgba(255, 255, 255, 0.9) !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.98) !important;
+  color: #0A1931 !important;
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+[data-theme="dark"] .page-ai-lab .ai-hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(17, 23, 43, 0.88) !important;
+  border: 1px solid rgba(148, 163, 184, 0.20) !important;
+  color: #F8FAFC !important;
   font-size: 0.84rem;
   font-weight: 500;
   padding: 0.4rem 0.9rem;
   border-radius: 999px;
-  backdrop-filter: blur(8px);
 }
 
 /* AI Hero Right Showcase Card */
@@ -8011,6 +8232,1137 @@ p, li, a, span, code, pre {
   justify-content: center;
 }
 
+/* ==========================================================================
+   GLOBAL INDIAN TRICOLOR & CHAKRA UNIFIED THEME SYSTEM
+   Applies the stunning homepage theme across the entire website:
+   - Header, Navigation, Footer
+   - Courses, Store, Certificates, Internships, IT Services, AI Lab, About
+   - Teacher Panel, Student Panel, Admin Panel
+   - Forms, Tables, Modals, Cards, Badges, Tabs, Stats, Buttons
+   - Full Light Mode and Dark Mode support
+   ========================================================================== */
 
+/* 1. UNIVERSAL CANVAS & MAIN CONTAINER */
+html:not([data-theme="dark"]) body,
+html:not([data-theme="dark"]) .main-content {
+  background: 
+    radial-gradient(circle at 4% 10%, rgba(255, 140, 40, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 96% 40%, rgba(16, 185, 129, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 6% 75%, rgba(37, 99, 235, 0.03) 0%, transparent 40%),
+    #F8FAFC !important;
+  color: #0A1931 !important;
+}
 
+[data-theme="dark"] body,
+[data-theme="dark"] .main-content {
+  background: 
+    radial-gradient(circle at 4% 10%, rgba(255, 107, 0, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 96% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 6% 75%, rgba(29, 78, 216, 0.07) 0%, transparent 40%),
+    #080B18 !important;
+  color: #F8FAFC !important;
+}
+
+/* 2. UNIVERSAL NAVBAR (Across Every Page) */
+html:not([data-theme="dark"]) .nav-wrap {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border-bottom: 1.5px solid rgba(226, 232, 240, 0.85) !important;
+}
+html:not([data-theme="dark"]) .glass-nav {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+html:not([data-theme="dark"]) .nav-link {
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+html:not([data-theme="dark"]) .nav-link:hover,
+html:not([data-theme="dark"]) .nav-link.is-active {
+  color: #1D4ED8 !important;
+  background: rgba(29, 78, 216, 0.08) !important;
+}
+html:not([data-theme="dark"]) .nav-brand-text {
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .nav-brand-text em {
+  color: #FF6B00 !important;
+  font-style: normal !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="dark"] .nav-wrap {
+  background: #0B0F19 !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15) !important;
+}
+[data-theme="dark"] .glass-nav {
+  background: rgba(11, 15, 25, 0.90) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.20) !important;
+}
+[data-theme="dark"] .nav-link {
+  color: #F1F5F9 !important;
+  font-weight: 600 !important;
+}
+[data-theme="dark"] .nav-link:hover {
+  color: #60A5FA !important;
+  background: rgba(96, 165, 250, 0.12) !important;
+}
+[data-theme="dark"] .nav-link.is-active {
+  color: #FFFFFF !important;
+  background: rgba(96, 165, 250, 0.20) !important;
+}
+[data-theme="dark"] .nav-brand-text {
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .nav-brand-text em {
+  color: #FF8A3D !important;
+  font-style: normal !important;
+  font-weight: 800 !important;
+}
+[data-theme="dark"] .nav-actions .icon-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .nav-actions .icon-btn i {
+  color: #F8FAFC !important;
+}
+
+/* 3. UNIVERSAL FOOTER (Across Every Page) */
+html:not([data-theme="dark"]) .site-footer {
+  background: rgba(255, 255, 255, 0.70) !important;
+  border-top: 1px solid rgba(226, 232, 240, 0.75) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+html:not([data-theme="dark"]) .site-footer strong,
+html:not([data-theme="dark"]) .site-footer h4 {
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .site-footer .footer-tagline,
+html:not([data-theme="dark"]) .site-footer p.muted,
+html:not([data-theme="dark"]) .site-footer .footer-columns a,
+html:not([data-theme="dark"]) .site-footer .footer-contact-link {
+  color: #475569 !important;
+}
+html:not([data-theme="dark"]) .site-footer a:hover {
+  color: #1D4ED8 !important;
+}
+
+[data-theme="dark"] .site-footer {
+  background: #080B18 !important;
+  border-top: 1px solid rgba(148, 163, 184, 0.15) !important;
+}
+[data-theme="dark"] .site-footer strong,
+[data-theme="dark"] .site-footer h4 {
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .site-footer .footer-tagline,
+[data-theme="dark"] .site-footer p.muted,
+[data-theme="dark"] .site-footer .footer-columns a,
+[data-theme="dark"] .site-footer .footer-contact-link {
+  color: #94A3B8 !important;
+}
+[data-theme="dark"] .site-footer a:hover {
+  color: #60A5FA !important;
+}
+
+/* 4. UNIVERSAL BUTTONS */
+.btn-primary {
+  background: linear-gradient(135deg, #FF6B00 0%, #FF8800 50%, #FFA133 100%) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  box-shadow: 0 8px 22px rgba(255, 107, 0, 0.28) !important;
+  font-weight: 700 !important;
+  transition: all 0.2s ease !important;
+}
+.btn-primary:hover {
+  box-shadow: 0 12px 28px rgba(255, 107, 0, 0.42) !important;
+  transform: translateY(-2px);
+  color: #FFFFFF !important;
+}
+
+.btn-accent {
+  background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 50%, #2563EB 100%) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  box-shadow: 0 8px 22px rgba(29, 78, 216, 0.26) !important;
+  font-weight: 700 !important;
+  transition: all 0.2s ease !important;
+}
+.btn-accent:hover {
+  box-shadow: 0 12px 28px rgba(29, 78, 216, 0.40) !important;
+  transform: translateY(-2px);
+  color: #FFFFFF !important;
+}
+
+html:not([data-theme="dark"]) .btn-ghost {
+  background: #FFFFFF !important;
+  border: 1.5px solid rgba(15, 23, 42, 0.16) !important;
+  color: #0A1931 !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+html:not([data-theme="dark"]) .btn-ghost:hover {
+  background: #0A1931 !important;
+  border-color: #0A1931 !important;
+  color: #FFFFFF !important;
+  transform: translateY(-2px);
+}
+
+[data-theme="dark"] .btn-ghost {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1.5px solid rgba(148, 163, 184, 0.28) !important;
+  color: #F8FAFC !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+[data-theme="dark"] .btn-ghost:hover {
+  background: #1D4ED8 !important;
+  border-color: #1D4ED8 !important;
+  color: #FFFFFF !important;
+  transform: translateY(-2px);
+}
+
+/* 5. UNIVERSAL CARDS & PANELS (Admin, Teacher, Student, Store, Courses, Internships) */
+html:not([data-theme="dark"]) .card-premium,
+html:not([data-theme="dark"]) .surface-card,
+html:not([data-theme="dark"]) .surface-card-lg,
+html:not([data-theme="dark"]) .stat-card,
+html:not([data-theme="dark"]) .admin-module-card,
+html:not([data-theme="dark"]) .admin-feature-card,
+html:not([data-theme="dark"]) .dash-card,
+html:not([data-theme="dark"]) .role-shell,
+html:not([data-theme="dark"]) .lms-sidebar,
+html:not([data-theme="dark"]) .lms-content-card,
+html:not([data-theme="dark"]) .lms-lesson-card,
+html:not([data-theme="dark"]) .t-card,
+html:not([data-theme="dark"]) .t-stat-card,
+html:not([data-theme="dark"]) .t-table-card,
+html:not([data-theme="dark"]) .table-card,
+html:not([data-theme="dark"]) .admin-internship-card,
+html:not([data-theme="dark"]) .cart-card,
+html:not([data-theme="dark"]) .filters-panel,
+html:not([data-theme="dark"]) .courses-card {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(226, 232, 240, 0.90) !important;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04) !important;
+  border-radius: var(--radius-lg, 22px) !important;
+}
+
+[data-theme="dark"] .card-premium,
+[data-theme="dark"] .surface-card,
+[data-theme="dark"] .surface-card-lg,
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .admin-module-card,
+[data-theme="dark"] .admin-feature-card,
+[data-theme="dark"] .dash-card,
+[data-theme="dark"] .role-shell,
+[data-theme="dark"] .lms-sidebar,
+[data-theme="dark"] .lms-content-card,
+[data-theme="dark"] .lms-lesson-card,
+[data-theme="dark"] .t-card,
+[data-theme="dark"] .t-stat-card,
+[data-theme="dark"] .t-table-card,
+[data-theme="dark"] .table-card,
+[data-theme="dark"] .admin-internship-card,
+[data-theme="dark"] .cart-card,
+[data-theme="dark"] .filters-panel,
+[data-theme="dark"] .courses-card {
+  background: #11172B !important;
+  border: 1px solid rgba(148, 163, 184, 0.18) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35) !important;
+  border-radius: var(--radius-lg, 22px) !important;
+}
+
+/* 6. UNIVERSAL TYPOGRAPHY & HEADINGS */
+html:not([data-theme="dark"]) h1,
+html:not([data-theme="dark"]) h2,
+html:not([data-theme="dark"]) h3,
+html:not([data-theme="dark"]) h4,
+html:not([data-theme="dark"]) h5,
+html:not([data-theme="dark"]) .page-title,
+html:not([data-theme="dark"]) .card-title-sm,
+html:not([data-theme="dark"]) .card-title,
+html:not([data-theme="dark"]) .t-subpage-title,
+html:not([data-theme="dark"]) .dash-title,
+html:not([data-theme="dark"]) .section-head h2 {
+  color: #0A1931 !important;
+  font-family: var(--font-display, 'Outfit', 'Poppins', sans-serif);
+}
+
+html:not([data-theme="dark"]) p.muted,
+html:not([data-theme="dark"]) .text-muted,
+html:not([data-theme="dark"]) .text-secondary,
+html:not([data-theme="dark"]) .lbl,
+html:not([data-theme="dark"]) .stat-lbl,
+html:not([data-theme="dark"]) .t-subpage-sub,
+html:not([data-theme="dark"]) .section-head p.muted {
+  color: #475569 !important;
+}
+
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] .page-title,
+[data-theme="dark"] .card-title-sm,
+[data-theme="dark"] .card-title,
+[data-theme="dark"] .t-subpage-title,
+[data-theme="dark"] .dash-title,
+[data-theme="dark"] .section-head h2 {
+  color: #F8FAFC !important;
+  font-family: var(--font-display, 'Outfit', 'Poppins', sans-serif);
+}
+
+[data-theme="dark"] p.muted,
+[data-theme="dark"] .text-muted,
+[data-theme="dark"] .text-secondary,
+[data-theme="dark"] .lbl,
+[data-theme="dark"] .stat-lbl,
+[data-theme="dark"] .t-subpage-sub,
+[data-theme="dark"] .section-head p.muted {
+  color: #94A3B8 !important;
+}
+
+/* 7. DASHBOARD SIDEBARS (Admin & Teacher Workspaces) */
+html:not([data-theme="dark"]) .dash-sidebar,
+html:not([data-theme="dark"]) .sidebar-nav,
+html:not([data-theme="dark"]) .teacher-sidebar {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(226, 232, 240, 0.90) !important;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04) !important;
+  border-radius: var(--radius-lg, 24px) !important;
+}
+
+html:not([data-theme="dark"]) .dash-nav-link,
+html:not([data-theme="dark"]) .sidebar-link,
+html:not([data-theme="dark"]) .teacher-sidebar-link {
+  color: #334155 !important;
+  font-weight: 600 !important;
+  border-radius: var(--radius-sm, 10px) !important;
+  transition: all 0.2s ease !important;
+}
+
+html:not([data-theme="dark"]) .dash-nav-link:hover,
+html:not([data-theme="dark"]) .dash-nav-link.is-active,
+html:not([data-theme="dark"]) .sidebar-link.is-active,
+html:not([data-theme="dark"]) .teacher-sidebar-link.is-active {
+  background: rgba(255, 107, 0, 0.10) !important;
+  color: #FF6B00 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="dark"] .dash-sidebar,
+[data-theme="dark"] .sidebar-nav,
+[data-theme="dark"] .teacher-sidebar {
+  background: #0E1428 !important;
+  border: 1px solid rgba(148, 163, 184, 0.18) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35) !important;
+  border-radius: var(--radius-lg, 24px) !important;
+}
+
+[data-theme="dark"] .dash-nav-link,
+[data-theme="dark"] .sidebar-link,
+[data-theme="dark"] .teacher-sidebar-link {
+  color: #CBD5E1 !important;
+  font-weight: 600 !important;
+  border-radius: var(--radius-sm, 10px) !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="dark"] .dash-nav-link:hover,
+[data-theme="dark"] .dash-nav-link.is-active,
+[data-theme="dark"] .sidebar-link.is-active,
+[data-theme="dark"] .teacher-sidebar-link.is-active {
+  background: rgba(255, 107, 0, 0.16) !important;
+  color: #FFA45E !important;
+  font-weight: 700 !important;
+}
+
+/* 8. UNIVERSAL TABLES (Admin, Teacher, LMS, Users, Orders) */
+html:not([data-theme="dark"]) table,
+html:not([data-theme="dark"]) .table,
+html:not([data-theme="dark"]) .dash-table,
+html:not([data-theme="dark"]) .t-table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+html:not([data-theme="dark"]) table th,
+html:not([data-theme="dark"]) .table th,
+html:not([data-theme="dark"]) .dash-table th,
+html:not([data-theme="dark"]) .t-table th {
+  background: #F1F5F9 !important;
+  color: #0A1931 !important;
+  font-weight: 700 !important;
+  border-bottom: 2px solid #E2E8F0 !important;
+  padding: 0.85rem 1rem !important;
+}
+
+html:not([data-theme="dark"]) table td,
+html:not([data-theme="dark"]) .table td,
+html:not([data-theme="dark"]) .dash-table td,
+html:not([data-theme="dark"]) .t-table td {
+  background: transparent !important;
+  color: #334155 !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+  padding: 0.85rem 1rem !important;
+}
+
+html:not([data-theme="dark"]) table tr:hover td,
+html:not([data-theme="dark"]) .table tr:hover td,
+html:not([data-theme="dark"]) .dash-table tr:hover td,
+html:not([data-theme="dark"]) .t-table tr:hover td {
+  background: rgba(255, 107, 0, 0.04) !important;
+}
+
+[data-theme="dark"] table th,
+[data-theme="dark"] .table th,
+[data-theme="dark"] .dash-table th,
+[data-theme="dark"] .t-table th {
+  background: #161F3D !important;
+  color: #F8FAFC !important;
+  font-weight: 700 !important;
+  border-bottom: 2px solid rgba(148, 163, 184, 0.25) !important;
+  padding: 0.85rem 1rem !important;
+}
+
+[data-theme="dark"] table td,
+[data-theme="dark"] .table td,
+[data-theme="dark"] .dash-table td,
+[data-theme="dark"] .t-table td {
+  background: transparent !important;
+  color: #CBD5E1 !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15) !important;
+  padding: 0.85rem 1rem !important;
+}
+
+[data-theme="dark"] table tr:hover td,
+[data-theme="dark"] .table tr:hover td,
+[data-theme="dark"] .dash-table tr:hover td,
+[data-theme="dark"] .t-table tr:hover td {
+  background: rgba(255, 107, 0, 0.08) !important;
+}
+
+/* 9. UNIVERSAL FORM CONTROLS & INPUTS */
+html:not([data-theme="dark"]) input[type="text"],
+html:not([data-theme="dark"]) input[type="email"],
+html:not([data-theme="dark"]) input[type="password"],
+html:not([data-theme="dark"]) input[type="number"],
+html:not([data-theme="dark"]) input[type="tel"],
+html:not([data-theme="dark"]) input[type="url"],
+html:not([data-theme="dark"]) input[type="date"],
+html:not([data-theme="dark"]) input[type="search"],
+html:not([data-theme="dark"]) select,
+html:not([data-theme="dark"]) textarea,
+html:not([data-theme="dark"]) .form-control {
+  background: #FFFFFF !important;
+  border: 1.5px solid #CBD5E1 !important;
+  color: #0A1931 !important;
+  border-radius: var(--radius-sm, 10px) !important;
+  transition: all 0.2s ease !important;
+}
+
+html:not([data-theme="dark"]) input:focus,
+html:not([data-theme="dark"]) select:focus,
+html:not([data-theme="dark"]) textarea:focus,
+html:not([data-theme="dark"]) .form-control:focus {
+  border-color: #FF8800 !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.18) !important;
+  outline: none !important;
+}
+
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="email"],
+[data-theme="dark"] input[type="password"],
+[data-theme="dark"] input[type="number"],
+[data-theme="dark"] input[type="tel"],
+[data-theme="dark"] input[type="url"],
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="search"],
+[data-theme="dark"] select,
+[data-theme="dark"] textarea,
+[data-theme="dark"] .form-control {
+  background: #161F3D !important;
+  border: 1.5px solid rgba(148, 163, 184, 0.25) !important;
+  color: #F8FAFC !important;
+  border-radius: var(--radius-sm, 10px) !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] textarea:focus,
+[data-theme="dark"] .form-control:focus {
+  border-color: #FF8800 !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.25) !important;
+  outline: none !important;
+}
+
+/* 10. BADGES, PILLS & KPI STAT NUMBERS */
+.level-pill,
+.badge-pill,
+.t-badge {
+  background: rgba(255, 107, 0, 0.12) !important;
+  color: #FF6B00 !important;
+  border: 1px solid rgba(255, 107, 0, 0.32) !important;
+  font-weight: 700 !important;
+  border-radius: 999px !important;
+  padding: 0.25rem 0.65rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.3rem !important;
+}
+
+[data-theme="dark"] .level-pill,
+[data-theme="dark"] .badge-pill,
+[data-theme="dark"] .t-badge {
+  background: rgba(255, 107, 0, 0.16) !important;
+  color: #FFA45E !important;
+  border-color: rgba(255, 138, 61, 0.38) !important;
+}
+
+.num,
+.count-num,
+.stat-card .num,
+.t-stat-num {
+  font-family: var(--font-display, 'Outfit', 'Poppins', sans-serif) !important;
+  font-weight: 800 !important;
+  color: #FF6B00 !important;
+}
+
+[data-theme="dark"] .num,
+[data-theme="dark"] .count-num,
+[data-theme="dark"] .stat-card .num,
+[data-theme="dark"] .t-stat-num {
+  color: #FFA45E !important;
+}
+
+.price-tag,
+.product-price {
+  color: #059669 !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="dark"] .price-tag,
+[data-theme="dark"] .product-price {
+  color: #10B981 !important;
+}
+
+/* 11. BREADCRUMBS & SECTION LINKS */
+.breadcrumbs a,
+.section-link {
+  color: #1D4ED8 !important;
+  font-weight: 700 !important;
+  transition: all 0.2s ease !important;
+}
+.breadcrumbs a:hover,
+.section-link:hover {
+  color: #FF6B00 !important;
+  transform: translateX(3px);
+}
+
+[data-theme="dark"] .breadcrumbs a,
+[data-theme="dark"] .section-link {
+  color: #60A5FA !important;
+}
+[data-theme="dark"] .breadcrumbs a:hover,
+[data-theme="dark"] .section-link:hover {
+  color: #FF8A3D !important;
+}
+
+/* 12. ABOUT SECTION THEME - VISIBILITY & TRICOLOR HARMONY */
+.about-hero .about-hero-banner {
+  border-radius: var(--radius-lg, 24px) !important;
+  overflow: hidden !important;
+  border: 2px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85), 0 0 22px rgba(255, 255, 255, 0.65), 0 20px 60px rgba(15, 23, 42, 0.08) !important;
+}
+
+html:not([data-theme="dark"]) .about-hero .about-hero-grad-bg {
+  position: relative !important;
+  border-radius: var(--radius-lg, 24px) !important;
+  overflow: hidden !important;
+  background: 
+    radial-gradient(circle at 5% 6%, rgba(255, 120, 20, 0.35) 0%, transparent 42%),
+    radial-gradient(circle at 95% 94%, rgba(19, 136, 8, 0.35) 0%, transparent 42%),
+    linear-gradient(135deg, #FF8A3D 0%, #FFA45E 12%, #FFD6B2 24%, #FFF2E4 36%, #FFFFFF 47%, #FFFFFF 55%, #E4F7EC 66%, #A6E8BE 78%, #34D399 89%, #138808 100%) !important;
+}
+
+html:not([data-theme="dark"]) .about-hero .about-hero-title,
+html:not([data-theme="dark"]) #about-hero-title {
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .about-hero .about-hero-subtitle {
+  color: #1E293B !important;
+}
+html:not([data-theme="dark"]) .about-hero .about-hero-desc {
+  color: #334155 !important;
+}
+html:not([data-theme="dark"]) .about-hero .about-hero-trust {
+  color: #475569 !important;
+}
+
+html:not([data-theme="dark"]) .about-hero .about-hero-kpi {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.98) !important;
+  border-top: 3px solid #FF8800 !important;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06) !important;
+}
+html:not([data-theme="dark"]) .about-hero .about-hero-kpi .about-hero-kpi-num {
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .about-hero .about-hero-kpi .about-hero-kpi-lbl {
+  color: #475569 !important;
+}
+
+html:not([data-theme="dark"]) .about-hero .about-hero-right-card {
+  background: rgba(255, 255, 255, 0.90) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
+}
+html:not([data-theme="dark"]) .about-hero .about-hero-feature-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-bottom: 3px solid #10B981 !important;
+}
+html:not([data-theme="dark"]) .about-hero .about-hero-feat-title {
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .about-hero .about-hero-feat-desc {
+  color: #475569 !important;
+}
+
+[data-theme="dark"] .about-hero .about-hero-banner {
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 0 25px rgba(255, 138, 61, 0.15), 0 20px 60px rgba(0, 0, 0, 0.45) !important;
+}
+
+[data-theme="dark"] .about-hero .about-hero-grad-bg {
+  background: 
+    radial-gradient(circle at 5% 6%, rgba(255, 120, 20, 0.28) 0%, transparent 42%),
+    radial-gradient(circle at 95% 94%, rgba(19, 136, 8, 0.28) 0%, transparent 42%),
+    linear-gradient(135deg, #2A1406 0%, #1A1028 35%, #0F172A 50%, #08201A 75%, #052618 100%) !important;
+}
+
+[data-theme="dark"] .about-hero .about-hero-title,
+[data-theme="dark"] #about-hero-title {
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .about-hero .about-hero-subtitle {
+  color: #CBD5E1 !important;
+}
+[data-theme="dark"] .about-hero .about-hero-desc,
+[data-theme="dark"] .about-hero .about-hero-trust {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .about-hero .about-hero-kpi {
+  background: rgba(17, 23, 43, 0.88) !important;
+  border: 1px solid rgba(148, 163, 184, 0.20) !important;
+  border-top: 3px solid #FF8800 !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35) !important;
+}
+[data-theme="dark"] .about-hero .about-hero-kpi .about-hero-kpi-num {
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .about-hero .about-hero-kpi .about-hero-kpi-lbl {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .about-hero .about-hero-right-card {
+  background: rgba(17, 23, 43, 0.88) !important;
+  border: 1.5px solid rgba(148, 163, 184, 0.22) !important;
+}
+[data-theme="dark"] .about-hero .about-hero-feature-card {
+  background: rgba(17, 23, 43, 0.85) !important;
+  border: 1px solid rgba(148, 163, 184, 0.20) !important;
+  border-bottom: 3px solid #10B981 !important;
+}
+[data-theme="dark"] .about-hero .about-hero-feat-title {
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .about-hero .about-hero-feat-desc {
+  color: #94A3B8 !important;
+}
+
+/* 13. COURSES SECTION THEME - TRICOLOR & ROYAL CHAKRA BLUE COMPOSITION */
+.courses-hero .courses-hero-banner {
+  border-radius: var(--radius-lg, 24px) !important;
+  overflow: hidden !important;
+  border: 2px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85), 0 0 22px rgba(255, 255, 255, 0.65), 0 20px 60px rgba(15, 23, 42, 0.08) !important;
+}
+
+html:not([data-theme="dark"]) .courses-hero .courses-hero-grad-bg {
+  position: relative !important;
+  border-radius: var(--radius-lg, 24px) !important;
+  overflow: hidden !important;
+  background: 
+    radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.35) 0%, transparent 45%),
+    radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.22) 0%, transparent 48%),
+    radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.32) 0%, transparent 46%),
+    linear-gradient(135deg, #FF9248 0%, #FFA96C 10%, #FFD9BD 22%, #FFF5EB 34%, #FFFFFF 47%, #FFFFFF 55%, #EAF8F0 66%, #B4EFCD 78%, #5EEAD4 89%, #10B981 100%) !important;
+}
+
+html:not([data-theme="dark"]) .courses-hero .courses-hero-title,
+html:not([data-theme="dark"]) #courses-hero-title {
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .courses-hero .courses-hero-subtitle {
+  color: #1E293B !important;
+}
+
+html:not([data-theme="dark"]) .courses-hero .courses-hero-kpi {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.98) !important;
+  border-top: 3px solid #FF8800 !important;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06) !important;
+}
+html:not([data-theme="dark"]) .courses-hero .courses-hero-kpi-num {
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .courses-hero .courses-hero-kpi-lbl {
+  color: #475569 !important;
+}
+
+html:not([data-theme="dark"]) .courses-hero .courses-hero-right-card {
+  background: rgba(255, 255, 255, 0.90) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
+}
+html:not([data-theme="dark"]) .courses-hero .courses-hero-right-inner {
+  background: linear-gradient(145deg, rgba(29, 78, 216, 0.08), rgba(255, 255, 255, 0.95), rgba(16, 185, 129, 0.08)) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+}
+html:not([data-theme="dark"]) .courses-hero .courses-hero-feat-title {
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .courses-hero .courses-hero-feat-desc {
+  color: #475569 !important;
+}
+html:not([data-theme="dark"]) .courses-hero .courses-hero-feature-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-bottom: 3px solid #10B981 !important;
+}
+
+[data-theme="dark"] .courses-hero .courses-hero-banner {
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 0 25px rgba(255, 138, 61, 0.15), 0 20px 60px rgba(0, 0, 0, 0.45) !important;
+}
+
+[data-theme="dark"] .courses-hero .courses-hero-grad-bg {
+  background: 
+    radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.28) 0%, transparent 45%),
+    radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.32) 0%, transparent 48%),
+    radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.26) 0%, transparent 46%),
+    linear-gradient(135deg, #2B1306 0%, #131735 32%, #0F1E36 55%, #0B2524 78%, #042017 100%) !important;
+}
+
+[data-theme="dark"] .courses-hero .courses-hero-title,
+[data-theme="dark"] #courses-hero-title {
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .courses-hero .courses-hero-subtitle {
+  color: #CBD5E1 !important;
+}
+
+[data-theme="dark"] .courses-hero .courses-hero-kpi {
+  background: rgba(17, 23, 43, 0.88) !important;
+  border: 1px solid rgba(148, 163, 184, 0.20) !important;
+  border-top: 3px solid #FF8800 !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35) !important;
+}
+[data-theme="dark"] .courses-hero .courses-hero-kpi-num {
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .courses-hero .courses-hero-kpi-lbl {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .courses-hero .courses-hero-right-card {
+  background: rgba(17, 23, 43, 0.88) !important;
+  border: 1.5px solid rgba(148, 163, 184, 0.22) !important;
+}
+[data-theme="dark"] .courses-hero .courses-hero-right-inner {
+  background: linear-gradient(145deg, rgba(29, 78, 216, 0.16), rgba(17, 23, 43, 0.92), rgba(16, 185, 129, 0.14)) !important;
+  border: 1px solid rgba(148, 163, 184, 0.20) !important;
+}
+[data-theme="dark"] .courses-hero .courses-hero-feat-title {
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .courses-hero .courses-hero-feat-desc {
+  color: #94A3B8 !important;
+}
+[data-theme="dark"] .courses-hero .courses-hero-feature-card {
+  background: rgba(17, 23, 43, 0.85) !important;
+  border: 1px solid rgba(148, 163, 184, 0.20) !important;
+  border-bottom: 3px solid #10B981 !important;
+}
+
+/* 14. CERTIFICATES SECTION - TRICOLOR & ROYAL CHAKRA BLUE COMPOSITION */
+.cert-hero .cert-hero-banner {
+  border-radius: var(--radius-lg, 28px) !important;
+  overflow: hidden !important;
+  border: 2px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85), 0 0 22px rgba(255, 255, 255, 0.65), 0 20px 60px rgba(15, 23, 42, 0.08) !important;
+}
+html:not([data-theme="dark"]) .cert-hero .cert-hero-grad-bg {
+  position: relative !important;
+  border-radius: var(--radius-lg, 28px) !important;
+  overflow: hidden !important;
+  background: 
+    radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.35) 0%, transparent 45%),
+    radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.24) 0%, transparent 48%),
+    radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.32) 0%, transparent 46%),
+    linear-gradient(135deg, #FF944B 0%, #FFAA70 10%, #FFDCBF 22%, #FFF6ED 34%, #FFFFFF 47%, #FFFFFF 55%, #EDF5FF 66%, #C7E0FE 78%, #72EEB9 89%, #10B981 100%) !important;
+}
+html:not([data-theme="dark"]) .cert-hero .cert-hero-title,
+html:not([data-theme="dark"]) #cert-hero-title {
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .cert-hero .cert-hero-subtitle {
+  color: #1E293B !important;
+}
+html:not([data-theme="dark"]) .cert-hero .cert-hero-badge {
+  background: rgba(29, 78, 216, 0.12) !important;
+  border: 1.5px solid rgba(29, 78, 216, 0.32) !important;
+  color: #1D4ED8 !important;
+}
+html:not([data-theme="dark"]) .cert-hero .cert-hero-feat-item {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06) !important;
+}
+html:not([data-theme="dark"]) .cert-hero .cert-hero-feat-title {
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .cert-hero .cert-hero-feat-desc {
+  color: #475569 !important;
+}
+html:not([data-theme="dark"]) .cert-hero .cert-hero-sample-card {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 2px solid rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08) !important;
+}
+html:not([data-theme="dark"]) .cert-hero .cert-hero-sample-card .cert-sample-title {
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .cert-hero .cert-hero-sample-card .cert-sample-sub {
+  color: #475569 !important;
+}
+[data-theme="dark"] .cert-hero .cert-hero-banner {
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 0 25px rgba(255, 138, 61, 0.15), 0 20px 60px rgba(0, 0, 0, 0.45) !important;
+}
+[data-theme="dark"] .cert-hero .cert-hero-grad-bg {
+  background: 
+    radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.28) 0%, transparent 45%),
+    radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.32) 0%, transparent 48%),
+    radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.26) 0%, transparent 46%),
+    linear-gradient(135deg, #2B1408 0%, #111A36 32%, #0E1E38 55%, #0A2422 78%, #042017 100%) !important;
+}
+[data-theme="dark"] .cert-hero .cert-hero-title,
+[data-theme="dark"] #cert-hero-title {
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .cert-hero .cert-hero-subtitle {
+  color: #CBD5E1 !important;
+}
+[data-theme="dark"] .cert-hero .cert-hero-badge {
+  background: rgba(29, 78, 216, 0.25) !important;
+  border: 1px solid rgba(147, 197, 253, 0.35) !important;
+  color: #93C5FD !important;
+}
+[data-theme="dark"] .cert-hero .cert-hero-feat-item {
+  background: rgba(17, 23, 43, 0.88) !important;
+  border: 1px solid rgba(148, 163, 184, 0.20) !important;
+}
+[data-theme="dark"] .cert-hero .cert-hero-feat-title {
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .cert-hero .cert-hero-feat-desc {
+  color: #94A3B8 !important;
+}
+[data-theme="dark"] .cert-hero .cert-hero-sample-card {
+  background: rgba(17, 23, 43, 0.88) !important;
+  border: 1.5px solid rgba(148, 163, 184, 0.22) !important;
+}
+[data-theme="dark"] .cert-hero .cert-hero-sample-card .cert-sample-title {
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .cert-hero .cert-hero-sample-card .cert-sample-sub {
+  color: #94A3B8 !important;
+}
+
+/* 15. INTERNSHIPS SECTION - TRICOLOR & ROYAL CHAKRA BLUE COMPOSITION */
+.internships-hero .internships-hero-banner {
+  border-radius: var(--radius-lg, 24px) !important;
+  overflow: hidden !important;
+  border: 2px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85), 0 0 22px rgba(255, 255, 255, 0.65), 0 20px 60px rgba(15, 23, 42, 0.08) !important;
+}
+html:not([data-theme="dark"]) .internships-hero .internships-hero-grad-bg {
+  position: relative !important;
+  border-radius: var(--radius-lg, 24px) !important;
+  overflow: hidden !important;
+  background: 
+    radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.36) 0%, transparent 45%),
+    radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.22) 0%, transparent 48%),
+    radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.34) 0%, transparent 46%),
+    linear-gradient(135deg, #FF964E 0%, #FFAC72 10%, #FFDDBF 22%, #FFF6EE 34%, #FFFFFF 47%, #FFFFFF 55%, #EDF8F2 66%, #B9F0D2 78%, #65EBD6 89%, #10B981 100%) !important;
+}
+html:not([data-theme="dark"]) .internships-hero .internships-hero-title,
+html:not([data-theme="dark"]) #internships-hero-title {
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .internships-hero .internships-hero-subtitle {
+  color: #1E293B !important;
+}
+html:not([data-theme="dark"]) .internships-hero .internships-hero-badge {
+  background: rgba(255, 107, 0, 0.14) !important;
+  border: 1.5px solid rgba(255, 107, 0, 0.38) !important;
+  color: #C2410C !important;
+}
+html:not([data-theme="dark"]) .internships-hero .internships-hero-pill {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.98) !important;
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .internships-hero .internships-hero-showcase {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.98) !important;
+}
+html:not([data-theme="dark"]) .internships-hero .internships-hero-showcase .sc-title {
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .internships-hero .internships-hero-showcase .sc-sub {
+  color: #475569 !important;
+}
+[data-theme="dark"] .internships-hero .internships-hero-banner {
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 0 25px rgba(255, 138, 61, 0.15), 0 20px 60px rgba(0, 0, 0, 0.45) !important;
+}
+[data-theme="dark"] .internships-hero .internships-hero-grad-bg {
+  background: 
+    radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.28) 0%, transparent 45%),
+    radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.32) 0%, transparent 48%),
+    radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.26) 0%, transparent 46%),
+    linear-gradient(135deg, #2B1306 0%, #131735 32%, #0F1E36 55%, #0B2524 78%, #042017 100%) !important;
+}
+[data-theme="dark"] .internships-hero .internships-hero-title,
+[data-theme="dark"] #internships-hero-title {
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .internships-hero .internships-hero-subtitle {
+  color: #CBD5E1 !important;
+}
+[data-theme="dark"] .internships-hero .internships-hero-badge {
+  background: rgba(255, 107, 0, 0.22) !important;
+  border: 1px solid rgba(255, 138, 61, 0.35) !important;
+  color: #FFA559 !important;
+}
+[data-theme="dark"] .internships-hero .internships-hero-pill {
+  background: rgba(17, 23, 43, 0.88) !important;
+  border: 1px solid rgba(148, 163, 184, 0.20) !important;
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .internships-hero .internships-hero-showcase {
+  background: rgba(17, 23, 43, 0.88) !important;
+  border: 1.5px solid rgba(148, 163, 184, 0.22) !important;
+}
+[data-theme="dark"] .internships-hero .internships-hero-showcase .sc-title {
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .internships-hero .internships-hero-showcase .sc-sub {
+  color: #94A3B8 !important;
+}
+
+/* 16. STORE SECTION - TRICOLOR & ROYAL CHAKRA BLUE COMPOSITION */
+.store-hero .store-hero-banner {
+  border-radius: var(--radius-lg, 24px) !important;
+  overflow: hidden !important;
+  border: 2px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85), 0 0 22px rgba(255, 255, 255, 0.65), 0 20px 60px rgba(15, 23, 42, 0.08) !important;
+}
+html:not([data-theme="dark"]) .store-hero .store-hero-grad-bg {
+  position: relative !important;
+  border-radius: var(--radius-lg, 24px) !important;
+  overflow: hidden !important;
+  background: 
+    radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.36) 0%, transparent 45%),
+    radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.26) 0%, transparent 48%),
+    radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.32) 0%, transparent 46%),
+    linear-gradient(135deg, #FF964E 0%, #FFAC72 10%, #FFDDBF 22%, #FFF6EE 34%, #FFFFFF 47%, #FFFFFF 55%, #EDF5FF 66%, #CCE2FD 78%, #72EEBA 89%, #10B981 100%) !important;
+}
+html:not([data-theme="dark"]) .store-hero .store-hero-title,
+html:not([data-theme="dark"]) #store-hero-title {
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .store-hero .store-hero-subtitle {
+  color: #1E293B !important;
+}
+html:not([data-theme="dark"]) .store-hero .store-hero-badge {
+  background: rgba(255, 107, 0, 0.14) !important;
+  border: 1.5px solid rgba(255, 107, 0, 0.38) !important;
+  color: #C2410C !important;
+}
+html:not([data-theme="dark"]) .store-hero .store-hero-pill {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.98) !important;
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .store-hero .store-hero-showcase {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.98) !important;
+}
+html:not([data-theme="dark"]) .store-hero .store-hero-showcase .sc-title {
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .store-hero .store-hero-showcase .sc-sub {
+  color: #475569 !important;
+}
+[data-theme="dark"] .store-hero .store-hero-banner {
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 0 25px rgba(255, 138, 61, 0.15), 0 20px 60px rgba(0, 0, 0, 0.45) !important;
+}
+[data-theme="dark"] .store-hero .store-hero-grad-bg {
+  background: 
+    radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.28) 0%, transparent 45%),
+    radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.32) 0%, transparent 48%),
+    radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.26) 0%, transparent 46%),
+    linear-gradient(135deg, #2B1306 0%, #131735 32%, #0F1E36 55%, #0B2524 78%, #042017 100%) !important;
+}
+[data-theme="dark"] .store-hero .store-hero-title,
+[data-theme="dark"] #store-hero-title {
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .store-hero .store-hero-subtitle {
+  color: #CBD5E1 !important;
+}
+[data-theme="dark"] .store-hero .store-hero-badge {
+  background: rgba(255, 107, 0, 0.22) !important;
+  border: 1px solid rgba(255, 138, 61, 0.35) !important;
+  color: #FFA559 !important;
+}
+[data-theme="dark"] .store-hero .store-hero-pill {
+  background: rgba(17, 23, 43, 0.88) !important;
+  border: 1px solid rgba(148, 163, 184, 0.20) !important;
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .store-hero .store-hero-showcase {
+  background: rgba(17, 23, 43, 0.88) !important;
+  border: 1.5px solid rgba(148, 163, 184, 0.22) !important;
+}
+[data-theme="dark"] .store-hero .store-hero-showcase .sc-title {
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .store-hero .store-hero-showcase .sc-sub {
+  color: #94A3B8 !important;
+}
+
+/* 17. AI LAB SECTION - TRICOLOR & ROYAL CHAKRA BLUE COMPOSITION */
+.ai-lab-hero-banner {
+  border-radius: var(--radius-lg, 28px) !important;
+  overflow: hidden !important;
+  border: 2px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85), 0 0 22px rgba(255, 255, 255, 0.65), 0 20px 60px rgba(15, 23, 42, 0.08) !important;
+}
+html:not([data-theme="dark"]) .ai-lab-hero-grad-bg {
+  position: relative !important;
+  border-radius: var(--radius-lg, 28px) !important;
+  overflow: hidden !important;
+  background: 
+    radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.36) 0%, transparent 45%),
+    radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.24) 0%, transparent 48%),
+    radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.34) 0%, transparent 46%),
+    linear-gradient(135deg, #FF964E 0%, #FFAC72 10%, #FFDDBF 22%, #FFF6EE 34%, #FFFFFF 47%, #FFFFFF 55%, #EDF8F2 66%, #B9F0D2 78%, #65EBD6 89%, #10B981 100%) !important;
+}
+[data-theme="dark"] .ai-lab-hero-banner {
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 0 25px rgba(255, 138, 61, 0.15), 0 20px 60px rgba(0, 0, 0, 0.45) !important;
+}
+[data-theme="dark"] .ai-lab-hero-grad-bg {
+  background: 
+    radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.28) 0%, transparent 45%),
+    radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.32) 0%, transparent 48%),
+    radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.26) 0%, transparent 46%),
+    linear-gradient(135deg, #2B1306 0%, #131735 32%, #0F1E36 55%, #0B2524 78%, #042017 100%) !important;
+}
+
+/* 18. SERVICES SECTION - TRICOLOR & ROYAL CHAKRA BLUE COMPOSITION */
+.services-hero .services-hero-banner {
+  border-radius: var(--radius-lg, 24px) !important;
+  overflow: hidden !important;
+  border: 2px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85), 0 0 22px rgba(255, 255, 255, 0.65), 0 20px 60px rgba(15, 23, 42, 0.08) !important;
+}
+html:not([data-theme="dark"]) .services-hero .services-hero-grad-bg {
+  position: relative !important;
+  border-radius: var(--radius-lg, 24px) !important;
+  overflow: hidden !important;
+  background: 
+    radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.36) 0%, transparent 45%),
+    radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.24) 0%, transparent 48%),
+    radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.32) 0%, transparent 46%),
+    linear-gradient(135deg, #FF964E 0%, #FFAC72 10%, #FFDDBF 22%, #FFF6EE 34%, #FFFFFF 47%, #FFFFFF 55%, #EDF5FF 66%, #CCE2FD 78%, #72EEBA 89%, #10B981 100%) !important;
+}
+html:not([data-theme="dark"]) .services-hero .services-hero-title,
+html:not([data-theme="dark"]) #services-hero-title {
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .services-hero .services-hero-subtitle {
+  color: #1E293B !important;
+}
+html:not([data-theme="dark"]) .services-hero .services-hero-badge {
+  background: rgba(255, 107, 0, 0.14) !important;
+  border: 1.5px solid rgba(255, 107, 0, 0.38) !important;
+  color: #C2410C !important;
+}
+html:not([data-theme="dark"]) .services-hero .services-hero-showcase {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.98) !important;
+}
+html:not([data-theme="dark"]) .services-hero .services-hero-showcase .sc-title {
+  color: #0A1931 !important;
+}
+html:not([data-theme="dark"]) .services-hero .services-hero-showcase .sc-sub {
+  color: #475569 !important;
+}
+[data-theme="dark"] .services-hero .services-hero-banner {
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 0 25px rgba(255, 138, 61, 0.15), 0 20px 60px rgba(0, 0, 0, 0.45) !important;
+}
+[data-theme="dark"] .services-hero .services-hero-grad-bg {
+  background: 
+    radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.28) 0%, transparent 45%),
+    radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.32) 0%, transparent 48%),
+    radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.26) 0%, transparent 46%),
+    linear-gradient(135deg, #2B1306 0%, #131735 32%, #0F1E36 55%, #0B2524 78%, #042017 100%) !important;
+}
+[data-theme="dark"] .services-hero .services-hero-title,
+[data-theme="dark"] #services-hero-title {
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .services-hero .services-hero-subtitle {
+  color: #CBD5E1 !important;
+}
+[data-theme="dark"] .services-hero .services-hero-badge {
+  background: rgba(255, 107, 0, 0.22) !important;
+  border: 1px solid rgba(255, 138, 61, 0.35) !important;
+  color: #FFA559 !important;
+}
+[data-theme="dark"] .services-hero .services-hero-showcase {
+  background: rgba(17, 23, 43, 0.88) !important;
+  border: 1.5px solid rgba(148, 163, 184, 0.22) !important;
+}
+[data-theme="dark"] .services-hero .services-hero-showcase .sc-title {
+  color: #F8FAFC !important;
+}
+[data-theme="dark"] .services-hero .services-hero-showcase .sc-sub {
+  color: #94A3B8 !important;
+}
 

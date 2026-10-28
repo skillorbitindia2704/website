@@ -30,11 +30,9 @@
       theme: {
         extend: {
           colors: {
-            brand: { 500: "#4F46E5", 600: "#4338CA", 700: "#3730A3" },
-            violet: { 600: "#7C3AED" },
-            accent: { 500: "#F97316", 600: "#EA580C" },
-            cyan: { 500: "#06B6D4" },
-            dark: { 900: "#0F172A", 950: "#111827" }
+            brand: { 500: "#FF6B00", 600: "#FF8800", 700: "#EA580C" },
+            accent: { 500: "#1D4ED8", 600: "#1E3A8A" },
+            green: { 500: "#10B981", 600: "#059669" }
           }
         }
       }
@@ -42,6 +40,428 @@
   };
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
+<style>
+  /* =========================================================================
+     ABOUT PAGE - ENHANCED INDIAN TRICOLOR THEME (LIGHT & DARK MODE)
+     ========================================================================= */
+
+  /* 1. Hero Outer Container with Glowing Perimeter Border */
+  .about-hero .about-hero-banner {
+    border-radius: var(--radius-lg, 24px) !important;
+    overflow: hidden !important;
+    border: 2px solid rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 
+      0 0 0 1px rgba(255, 255, 255, 0.85),
+      0 0 22px rgba(255, 255, 255, 0.65),
+      0 20px 60px rgba(15, 23, 42, 0.08) !important;
+  }
+
+  /* 2. Light Mode Banner Canvas: Radiant Saffron, Luminous Clean White, Vibrant Green */
+  html:not([data-theme="dark"]) .about-hero .about-hero-grad-bg {
+    position: relative !important;
+    border-radius: var(--radius-lg, 24px) !important;
+    overflow: hidden !important;
+    background: 
+      radial-gradient(circle at 5% 6%, rgba(255, 120, 20, 0.35) 0%, transparent 42%),
+      radial-gradient(circle at 95% 94%, rgba(19, 136, 8, 0.35) 0%, transparent 42%),
+      linear-gradient(
+        135deg,
+        #FF8A3D 0%,
+        #FFA45E 12%,
+        #FFD6B2 24%,
+        #FFF2E4 36%,
+        #FFFFFF 47%,
+        #FFFFFF 55%,
+        #E4F7EC 66%,
+        #A6E8BE 78%,
+        #34D399 89%,
+        #138808 100%
+      ) !important;
+  }
+
+  html:not([data-theme="dark"]) .about-hero .about-hero-ambient-glow {
+    background: 
+      radial-gradient(60% 60% at 8% 10%, rgba(255, 138, 61, 0.28), transparent 65%),
+      radial-gradient(45% 45% at 50% 50%, rgba(255, 255, 255, 0.90), transparent 65%),
+      radial-gradient(55% 55% at 92% 90%, rgba(16, 185, 129, 0.26), transparent 65%),
+      radial-gradient(35% 35% at 75% 22%, rgba(37, 99, 235, 0.10), transparent 60%) !important;
+  }
+
+  /* Light Mode Typography: Crystal-Clear, High-Contrast, Eye-Friendly */
+  html:not([data-theme="dark"]) .about-hero .about-hero-title,
+  html:not([data-theme="dark"]) #about-hero-title {
+    color: #0A1931 !important;
+    font-family: var(--font-display, 'Outfit', 'Poppins', sans-serif) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  html:not([data-theme="dark"]) .about-hero .about-hero-subtitle {
+    color: #1E293B !important;
+    font-weight: 600 !important;
+    line-height: 1.7 !important;
+  }
+
+  html:not([data-theme="dark"]) .about-hero .about-hero-desc {
+    color: #334155 !important;
+    line-height: 1.65 !important;
+  }
+
+  html:not([data-theme="dark"]) .about-hero .about-hero-trust {
+    color: #475569 !important;
+    letter-spacing: 0.08em !important;
+    font-weight: 700 !important;
+  }
+
+  html:not([data-theme="dark"]) .about-hero .about-hero-badge {
+    background: rgba(255, 107, 0, 0.14) !important;
+    border: 1.5px solid rgba(255, 107, 0, 0.38) !important;
+    color: #C2410C !important;
+    font-weight: 700 !important;
+  }
+
+  /* Light Mode Hero Buttons */
+  .about-hero .about-hero-btn-primary {
+    background: linear-gradient(135deg, #FF6B00 0%, #FF8800 50%, #FFA133 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    box-shadow: 0 10px 24px rgba(255, 107, 0, 0.32) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    transition: all 0.25s ease !important;
+  }
+  .about-hero .about-hero-btn-primary:hover {
+    box-shadow: 0 14px 30px rgba(255, 107, 0, 0.46) !important;
+    transform: translateY(-2px);
+  }
+
+  .about-hero .about-hero-btn-accent {
+    background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 50%, #2563EB 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.30) !important;
+    box-shadow: 0 10px 24px rgba(29, 78, 216, 0.28) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    transition: all 0.25s ease !important;
+  }
+  .about-hero .about-hero-btn-accent:hover {
+    box-shadow: 0 14px 30px rgba(29, 78, 216, 0.42) !important;
+    transform: translateY(-2px);
+  }
+
+  /* Light Mode KPI Stat Cards */
+  html:not([data-theme="dark"]) .about-hero .about-hero-kpi {
+    background: rgba(255, 255, 255, 0.94) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.98) !important;
+    border-top: 3px solid #FF8800 !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06) !important;
+    border-radius: 18px !important;
+    padding: 1rem 0.85rem !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+  }
+  html:not([data-theme="dark"]) .about-hero .about-hero-kpi:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12) !important;
+  }
+  html:not([data-theme="dark"]) .about-hero .about-hero-kpi .about-hero-kpi-num {
+    color: #0A1931 !important;
+    font-family: var(--font-display, 'Outfit', sans-serif) !important;
+    font-weight: 800 !important;
+    font-size: 1.35rem !important;
+    margin: 0 !important;
+  }
+  html:not([data-theme="dark"]) .about-hero .about-hero-kpi .about-hero-kpi-lbl {
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    margin: 0.2rem 0 0 !important;
+  }
+
+  /* Light Mode Right Card */
+  html:not([data-theme="dark"]) .about-hero .about-hero-right-card {
+    background: rgba(255, 255, 255, 0.90) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 20px 48px rgba(15, 23, 42, 0.08) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-radius: 22px !important;
+  }
+
+  html:not([data-theme="dark"]) .about-hero .about-hero-feature-card {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid rgba(226, 232, 240, 0.9) !important;
+    border-bottom: 3px solid #10B981 !important;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05) !important;
+    border-radius: 16px !important;
+    padding: 0.85rem !important;
+    transition: transform 0.2s ease !important;
+  }
+  html:not([data-theme="dark"]) .about-hero .about-hero-feature-card:hover {
+    transform: translateY(-2px);
+  }
+  html:not([data-theme="dark"]) .about-hero .about-hero-feat-title {
+    color: #0A1931 !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    margin: 0 !important;
+  }
+  html:not([data-theme="dark"]) .about-hero .about-hero-feat-desc {
+    color: #475569 !important;
+    font-size: 0.82rem !important;
+    margin: 0.25rem 0 0 !important;
+  }
+
+  /* 3. Dark Mode Banner Canvas: Deep Indian Tricolor Night */
+  [data-theme="dark"] .about-hero .about-hero-banner {
+    border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+    box-shadow: 0 0 25px rgba(255, 138, 61, 0.15), 0 20px 60px rgba(0, 0, 0, 0.45) !important;
+  }
+
+  [data-theme="dark"] .about-hero .about-hero-grad-bg {
+    position: relative !important;
+    border-radius: var(--radius-lg, 24px) !important;
+    overflow: hidden !important;
+    background: 
+      radial-gradient(circle at 5% 6%, rgba(255, 120, 20, 0.28) 0%, transparent 42%),
+      radial-gradient(circle at 95% 94%, rgba(19, 136, 8, 0.28) 0%, transparent 42%),
+      linear-gradient(
+        135deg,
+        #2A1406 0%,
+        #1A1028 35%,
+        #0F172A 50%,
+        #08201A 75%,
+        #052618 100%
+      ) !important;
+  }
+
+  [data-theme="dark"] .about-hero .about-hero-ambient-glow {
+    background: 
+      radial-gradient(60% 60% at 8% 10%, rgba(255, 138, 61, 0.20), transparent 65%),
+      radial-gradient(45% 45% at 50% 50%, rgba(15, 23, 42, 0.85), transparent 65%),
+      radial-gradient(55% 55% at 92% 90%, rgba(16, 185, 129, 0.18), transparent 65%),
+      radial-gradient(35% 35% at 75% 22%, rgba(37, 99, 235, 0.12), transparent 60%) !important;
+  }
+
+  /* Dark Mode Typography */
+  [data-theme="dark"] .about-hero .about-hero-title,
+  [data-theme="dark"] #about-hero-title {
+    color: #F8FAFC !important;
+    font-family: var(--font-display, 'Outfit', 'Poppins', sans-serif) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  [data-theme="dark"] .about-hero .about-hero-subtitle {
+    color: #CBD5E1 !important;
+    line-height: 1.7 !important;
+  }
+
+  [data-theme="dark"] .about-hero .about-hero-desc {
+    color: #94A3B8 !important;
+    line-height: 1.65 !important;
+  }
+
+  [data-theme="dark"] .about-hero .about-hero-trust {
+    color: #94A3B8 !important;
+    letter-spacing: 0.08em !important;
+    font-weight: 700 !important;
+  }
+
+  [data-theme="dark"] .about-hero .about-hero-badge {
+    background: rgba(255, 107, 0, 0.16) !important;
+    border: 1px solid rgba(255, 138, 61, 0.38) !important;
+    color: #FFA45E !important;
+  }
+
+  /* Dark Mode KPI Cards */
+  [data-theme="dark"] .about-hero .about-hero-kpi {
+    background: rgba(17, 23, 43, 0.88) !important;
+    border: 1px solid rgba(148, 163, 184, 0.20) !important;
+    border-top: 3px solid #FF8800 !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35) !important;
+    border-radius: 18px !important;
+    padding: 1rem 0.85rem !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+  }
+  [data-theme="dark"] .about-hero .about-hero-kpi:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5) !important;
+  }
+  [data-theme="dark"] .about-hero .about-hero-kpi .about-hero-kpi-num {
+    color: #F8FAFC !important;
+    font-family: var(--font-display, 'Outfit', sans-serif) !important;
+    font-weight: 800 !important;
+    font-size: 1.35rem !important;
+    margin: 0 !important;
+  }
+  [data-theme="dark"] .about-hero .about-hero-kpi .about-hero-kpi-lbl {
+    color: #94A3B8 !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    margin: 0.2rem 0 0 !important;
+  }
+
+  /* Dark Mode Right Card */
+  [data-theme="dark"] .about-hero .about-hero-right-card {
+    background: rgba(17, 23, 43, 0.88) !important;
+    border: 1.5px solid rgba(148, 163, 184, 0.22) !important;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-radius: 22px !important;
+  }
+
+  [data-theme="dark"] .about-hero .about-hero-feature-card {
+    background: rgba(17, 23, 43, 0.85) !important;
+    border: 1px solid rgba(148, 163, 184, 0.20) !important;
+    border-bottom: 3px solid #10B981 !important;
+    border-radius: 16px !important;
+    padding: 0.85rem !important;
+    transition: transform 0.2s ease !important;
+  }
+  [data-theme="dark"] .about-hero .about-hero-feature-card:hover {
+    transform: translateY(-2px);
+  }
+  [data-theme="dark"] .about-hero .about-hero-feat-title {
+    color: #F8FAFC !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    margin: 0 !important;
+  }
+  [data-theme="dark"] .about-hero .about-hero-feat-desc {
+    color: #94A3B8 !important;
+    font-size: 0.82rem !important;
+    margin: 0.25rem 0 0 !important;
+  }
+
+  /* 4. Downstream Section Styling for About Page */
+  .about-feature-icon {
+    background: linear-gradient(135deg, rgba(255, 107, 0, 0.14), rgba(29, 78, 216, 0.12)) !important;
+    color: #FF6B00 !important;
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 16px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.4rem !important;
+    flex-shrink: 0 !important;
+  }
+  [data-theme="dark"] .about-feature-icon {
+    background: linear-gradient(135deg, rgba(255, 107, 0, 0.22), rgba(29, 78, 216, 0.22)) !important;
+    color: #FFA45E !important;
+  }
+
+  /* Timeline Nodes */
+  .about-timeline-node {
+    border-radius: 18px !important;
+    padding: 1.15rem !important;
+    transition: all 0.25s ease !important;
+    text-align: left !important;
+  }
+  html:not([data-theme="dark"]) .about-timeline-node {
+    background: #FFFFFF !important;
+    border: 1.5px solid rgba(226, 232, 240, 0.9) !important;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
+  }
+  html:not([data-theme="dark"]) .about-timeline-node:hover {
+    border-color: #FF8800 !important;
+    box-shadow: 0 10px 24px rgba(255, 107, 0, 0.14) !important;
+    transform: translateY(-2px);
+  }
+  [data-theme="dark"] .about-timeline-node {
+    background: #11172B !important;
+    border: 1.5px solid rgba(148, 163, 184, 0.20) !important;
+  }
+  [data-theme="dark"] .about-timeline-node:hover {
+    border-color: #FF8800 !important;
+    box-shadow: 0 10px 24px rgba(255, 107, 0, 0.25) !important;
+    transform: translateY(-2px);
+  }
+
+  /* Partner Chips */
+  .partner-chip {
+    padding: 0.6rem 1.15rem !important;
+    border-radius: 999px !important;
+    font-weight: 700 !important;
+    font-size: 0.92rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    transition: all 0.2s ease !important;
+  }
+  html:not([data-theme="dark"]) .partner-chip {
+    background: #FFFFFF !important;
+    border: 1.5px solid rgba(226, 232, 240, 0.9) !important;
+    color: #0F172A !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04) !important;
+  }
+  [data-theme="dark"] .partner-chip {
+    background: #161F3D !important;
+    border: 1.5px solid rgba(148, 163, 184, 0.22) !important;
+    color: #F8FAFC !important;
+  }
+
+  /* Testimonial Cards */
+  html:not([data-theme="dark"]) .testimonial-card {
+    background: #FFFFFF !important;
+    border: 1.5px solid rgba(226, 232, 240, 0.9) !important;
+    border-top: 3.5px solid #FF8800 !important;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05) !important;
+    border-radius: 20px !important;
+  }
+  [data-theme="dark"] .testimonial-card {
+    background: #11172B !important;
+    border: 1.5px solid rgba(148, 163, 184, 0.20) !important;
+    border-top: 3.5px solid #FF8800 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important;
+    border-radius: 20px !important;
+  }
+
+  /* Final CTA Banner */
+  .cta-banner {
+    border-radius: var(--radius-lg, 24px) !important;
+    background: linear-gradient(135deg, #FF6B00 0%, #FF8800 45%, #1D4ED8 100%) !important;
+    border: 2px solid rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 20px 50px rgba(255, 107, 0, 0.25) !important;
+    color: #ffffff !important;
+    padding: 3rem 1.5rem !important;
+    text-align: center !important;
+  }
+  .cta-banner h3 {
+    color: #ffffff !important;
+    font-size: clamp(1.6rem, 3.5vw, 2.2rem) !important;
+    font-weight: 800 !important;
+  }
+  .cta-banner p {
+    color: rgba(255, 255, 255, 0.95) !important;
+    font-size: 1.05rem !important;
+  }
+  .cta-banner .btn-primary {
+    background: #ffffff !important;
+    color: #FF6B00 !important;
+    font-weight: 800 !important;
+    border: none !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+  }
+  .cta-banner .btn-primary:hover {
+    background: #FFF5EB !important;
+    transform: translateY(-2px);
+  }
+  .cta-banner .btn-ghost {
+    background: rgba(255, 255, 255, 0.18) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    backdrop-filter: blur(10px);
+  }
+  .cta-banner .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.30) !important;
+    transform: translateY(-2px);
+  }
+</style>
 {% endblock %}
 
 {% block structured_data %}
@@ -59,54 +479,40 @@
 {% block content %}
 
 {% if visibilities.hero != False %}
-<!-- PREMIUM HERO -->
-<section class="reveal" aria-labelledby="about-hero-title">
-  <div class="card-premium" style="padding:0;overflow:hidden;border-radius:var(--radius-lg);">
-    {% set theme = content.hero_gradient_theme or 'blue-purple' %}
-    {% if theme == 'indigo-cyan' %}
-      {% set grad = 'linear-gradient(135deg, #0a0f1d 0%, #0e1e38 35%, #4f46e5 75%, #10b981 100%)' %}
-    {% elif theme == 'dark-slate' %}
-      {% set grad = 'linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #334155 80%, #475569 100%)' %}
-    {% elif theme == 'orange-amber' %}
-      {% set grad = 'linear-gradient(135deg, #180805 0%, #2e1007 30%, #ea580c 70%, #d97706 100%)' %}
-    {% else %}
-      {% set grad = 'linear-gradient(135deg, #0B1225 0%, #111827 30%, #1D4ED8 60%, #7C3AED 100%)' %}
-    {% endif %}
-    <div class="relative" style="background:{{ grad }};">
-      <div class="absolute inset-0" style="background:
-        radial-gradient(60% 60% at 20% 20%, rgba(79,70,229,.35), transparent 60%),
-        radial-gradient(50% 50% at 80% 25%, rgba(6,182,212,.25), transparent 60%),
-        radial-gradient(60% 60% at 55% 85%, rgba(249,115,22,.20), transparent 60%);
-        pointer-events:none;"></div>
+<!-- PREMIUM HERO (INDIAN TRICOLOR & CHAKRA THEME) -->
+<section class="about-hero reveal" aria-labelledby="about-hero-title">
+  <div class="card-premium about-hero-banner" style="padding:0;overflow:hidden;border-radius:var(--radius-lg);">
+    <div class="relative about-hero-grad-bg">
+      <div class="absolute inset-0 about-hero-ambient-glow" style="pointer-events:none;"></div>
       <div class="relative px-6 py-10 md:px-10 md:py-14 lg:px-14 lg:py-16">
         <div class="grid gap-10 lg:grid-cols-12 items-center">
           <div class="lg:col-span-7">
             {% if content.hero_badge_text %}
-            <span class="level-pill" style="background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.18);">{{ content.hero_badge_text }}</span>
+            <span class="level-pill about-hero-badge">{{ content.hero_badge_text }}</span>
             {% endif %}
-            <h1 id="about-hero-title" class="mt-4 text-white font-extrabold leading-tight"
-                style="font-family:var(--font-display);font-size:clamp(1.9rem,4vw,3.1rem);letter-spacing:-0.02em;">
+            <h1 id="about-hero-title" class="mt-4 about-hero-title leading-tight"
+                style="font-family:var(--font-display);font-size:clamp(1.9rem,4vw,3.1rem);">
               {{ (content.hero_heading if content else 'About Skill Orbit India') }}
             </h1>
-            <p class="mt-4 text-white/85 max-w-2xl" style="font-size:1.05rem;line-height:1.75;">
+            <p class="mt-4 about-hero-subtitle max-w-2xl" style="font-size:1.05rem;">
               {{ (content.hero_subtitle if content else 'Empowering Future Tech Innovators through practical, hands-on learning.') }}
             </p>
             {% if content.hero_description %}
-            <p class="mt-3 text-white/70 max-w-2xl text-sm md:text-base" style="line-height:1.65;">
+            <p class="mt-3 about-hero-desc max-w-2xl text-sm md:text-base">
               {{ content.hero_description }}
             </p>
             {% endif %}
             <div class="mt-6 flex flex-wrap gap-3">
               {% if content.hero_primary_btn_text %}
-              <a href="{{ content.hero_primary_btn_link or url_for('courses.list_courses') }}" class="btn btn-primary">{{ content.hero_primary_btn_text }}</a>
+              <a href="{{ content.hero_primary_btn_link or url_for('courses.list_courses') }}" class="btn btn-primary about-hero-btn-primary">{{ content.hero_primary_btn_text }}</a>
               {% endif %}
               {% if content.hero_secondary_btn_text %}
-              <a href="{{ content.hero_secondary_btn_link or url_for('ai_lab.index') }}" class="btn btn-accent">{{ content.hero_secondary_btn_text }}</a>
+              <a href="{{ content.hero_secondary_btn_link or url_for('ai_lab.index') }}" class="btn btn-accent about-hero-btn-accent">{{ content.hero_secondary_btn_text }}</a>
               {% endif %}
             </div>
             
             {% if content.hero_trust_line %}
-            <p class="mt-5 text-white/50 text-xs font-semibold tracking-wider uppercase">{{ content.hero_trust_line }}</p>
+            <p class="mt-5 about-hero-trust text-xs uppercase">{{ content.hero_trust_line }}</p>
             {% endif %}
 
             <div class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -128,35 +534,35 @@
               {% endif %}
               {% for n,lbl in kpis %}
               <div class="glass-panel about-hero-kpi">
-                <p class="text-white font-extrabold" style="margin:0;font-family:var(--font-display);font-size:1.25rem;">{{ n }}</p>
-                <p class="text-white/70" style="margin:0;font-size:0.85rem;">{{ lbl }}</p>
+                <p class="about-hero-kpi-num">{{ n }}</p>
+                <p class="about-hero-kpi-lbl">{{ lbl }}</p>
               </div>
               {% endfor %}
             </div>
           </div>
           <div class="lg:col-span-5">
-            <div class="card-premium glass-hero-card">
-              <div class="relative" style="border-radius:18px;overflow:hidden;background:linear-gradient(135deg,rgba(79,70,229,.22),rgba(6,182,212,.18),rgba(249,115,22,.14));display:flex;align-items:center;justify-content:center;">
+            <div class="card-premium glass-hero-card about-hero-right-card">
+              <div class="relative about-hero-img-wrap" style="border-radius:18px;overflow:hidden;background:linear-gradient(135deg,rgba(255,107,0,0.12),rgba(255,255,255,0.7),rgba(16,185,129,0.12));display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,0.06);">
                 {% if content.hero_image %}
                     <img src="{{ content.hero_image }}"
                          alt="About Skill Orbit India"
                          style="width:100%;height:auto;object-fit:contain;display:block;border-radius:14px;">
                 {% else %}
                   <div style="text-align:center;max-width:24ch;padding:3.5rem 1rem;">
-                    <div style="font-size:2.3rem;" aria-hidden="true"><i class="ri-robot-2-line"></i></div>
-                    <p class="text-white font-bold" style="margin:0.6rem 0 0;">AI & Robotics learning</p>
-                    <p class="text-white/70" style="margin:0.35rem 0 0;font-size:0.9rem;">Add real visuals via admin gallery.</p>
+                    <div style="font-size:2.3rem;color:#FF6B00;" aria-hidden="true"><i class="ri-robot-2-line"></i></div>
+                    <p class="about-hero-feat-title" style="margin:0.6rem 0 0;">AI & Robotics learning</p>
+                    <p class="about-hero-feat-desc" style="margin:0.35rem 0 0;font-size:0.9rem;">Hands-on practical training ecosystem.</p>
                   </div>
                 {% endif %}
               </div>
               <div class="mt-4 grid grid-cols-2 gap-3">
-                <div class="glass-panel" style="padding:0.85rem;border-radius:16px;">
-                  <p class="text-white font-bold" style="margin:0;">Hands-on labs</p>
-                  <p class="text-white/70" style="margin:0.25rem 0 0;font-size:0.85rem;">Robotics, IoT, AI</p>
+                <div class="glass-panel about-hero-feature-card">
+                  <p class="about-hero-feat-title">Hands-on labs</p>
+                  <p class="about-hero-feat-desc">Robotics, IoT, AI</p>
                 </div>
-                <div class="glass-panel" style="padding:0.85rem;border-radius:16px;">
-                  <p class="text-white font-bold" style="margin:0;">Mentor support</p>
-                  <p class="text-white/70" style="margin:0.25rem 0 0;font-size:0.85rem;">Project pathways</p>
+                <div class="glass-panel about-hero-feature-card">
+                  <p class="about-hero-feat-title">Mentor support</p>
+                  <p class="about-hero-feat-desc">Project pathways</p>
                 </div>
               </div>
             </div>

@@ -12,9 +12,9 @@
       theme: {
         extend: {
           colors: {
-            brand: { 500: "#4F46E5", 600: "#4338CA" },
-            violet: { 600: "#7C3AED" },
-            accent: { 500: "#F97316" },
+            brand: { 500: "#FF6B00", 600: "#FF8800", 700: "#EA580C" },
+            accent: { 500: "#1D4ED8", 600: "#1E3A8A" },
+            green: { 500: "#10B981", 600: "#059669" },
             cyan: { 500: "#06B6D4" },
           },
         },
@@ -23,6 +23,413 @@
   };
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
+<style>
+  /* =========================================================================
+     COURSES SECTION - TRICOLOR & ROYAL CHAKRA BLUE COMPOSITION VARIATION
+     ========================================================================= */
+
+  /* 1. Glowing Perimeter Border */
+  .courses-hero .courses-hero-banner {
+    border-radius: var(--radius-lg, 24px) !important;
+    overflow: hidden !important;
+    border: 2px solid rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 
+      0 0 0 1px rgba(255, 255, 255, 0.85),
+      0 0 22px rgba(255, 255, 255, 0.65),
+      0 20px 60px rgba(15, 23, 42, 0.08) !important;
+  }
+
+  /* 2. Light Mode Banner Canvas:
+     Vibrant Indian Saffron (top-left) + Clean Luminous White/Sky (center) + Royal Chakra Blue & India Green (right & corner) */
+  html:not([data-theme="dark"]) .courses-hero .courses-hero-grad-bg {
+    position: relative !important;
+    border-radius: var(--radius-lg, 24px) !important;
+    overflow: hidden !important;
+    background: 
+      radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.35) 0%, transparent 45%),
+      radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.22) 0%, transparent 48%),
+      radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.32) 0%, transparent 46%),
+      linear-gradient(
+        135deg,
+        #FF9248 0%,
+        #FFA96C 10%,
+        #FFD9BD 22%,
+        #FFF5EB 34%,
+        #FFFFFF 47%,
+        #FFFFFF 55%,
+        #EAF8F0 66%,
+        #B4EFCD 78%,
+        #5EEAD4 89%,
+        #10B981 100%
+      ) !important;
+  }
+
+  html:not([data-theme="dark"]) .courses-hero .courses-hero-ambient-glow {
+    background: 
+      radial-gradient(60% 60% at 8% 10%, rgba(255, 138, 61, 0.28), transparent 65%),
+      radial-gradient(45% 45% at 50% 50%, rgba(255, 255, 255, 0.92), transparent 65%),
+      radial-gradient(55% 55% at 92% 90%, rgba(16, 185, 129, 0.26), transparent 65%),
+      radial-gradient(40% 40% at 82% 22%, rgba(29, 78, 216, 0.16), transparent 60%) !important;
+  }
+
+  /* Light Mode Typography: Crystal-Clear, High-Contrast */
+  html:not([data-theme="dark"]) .courses-hero .courses-hero-title,
+  html:not([data-theme="dark"]) #courses-hero-title {
+    color: #0A1931 !important;
+    font-family: var(--font-display, 'Outfit', 'Poppins', sans-serif) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  html:not([data-theme="dark"]) .courses-hero .courses-hero-subtitle {
+    color: #1E293B !important;
+    font-weight: 600 !important;
+    line-height: 1.7 !important;
+  }
+
+  html:not([data-theme="dark"]) .courses-hero .courses-hero-badge {
+    background: rgba(255, 107, 0, 0.14) !important;
+    border: 1.5px solid rgba(255, 107, 0, 0.38) !important;
+    color: #C2410C !important;
+    font-weight: 700 !important;
+  }
+
+  /* Light Mode Buttons */
+  .courses-hero .courses-hero-btn-primary {
+    background: linear-gradient(135deg, #FF6B00 0%, #FF8800 50%, #FFA133 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    box-shadow: 0 10px 24px rgba(255, 107, 0, 0.32) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    transition: all 0.25s ease !important;
+  }
+  .courses-hero .courses-hero-btn-primary:hover {
+    box-shadow: 0 14px 30px rgba(255, 107, 0, 0.46) !important;
+    transform: translateY(-2px);
+  }
+
+  .courses-hero .courses-hero-btn-accent {
+    background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 50%, #2563EB 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.30) !important;
+    box-shadow: 0 10px 24px rgba(29, 78, 216, 0.28) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    transition: all 0.25s ease !important;
+  }
+  .courses-hero .courses-hero-btn-accent:hover {
+    box-shadow: 0 14px 30px rgba(29, 78, 216, 0.42) !important;
+    transform: translateY(-2px);
+  }
+
+  /* Light Mode KPI Stat Cards */
+  html:not([data-theme="dark"]) .courses-hero .courses-hero-kpi {
+    background: rgba(255, 255, 255, 0.94) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.98) !important;
+    border-top: 3px solid #FF8800 !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06) !important;
+    border-radius: 18px !important;
+    padding: 0.95rem 1rem !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+  }
+  html:not([data-theme="dark"]) .courses-hero .courses-hero-kpi:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12) !important;
+  }
+  html:not([data-theme="dark"]) .courses-hero .courses-hero-kpi-num {
+    color: #0A1931 !important;
+    font-family: var(--font-display, 'Outfit', sans-serif) !important;
+    font-weight: 800 !important;
+    font-size: 1.35rem !important;
+    margin: 0 !important;
+  }
+  html:not([data-theme="dark"]) .courses-hero .courses-hero-kpi-lbl {
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    margin: 0.25rem 0 0 !important;
+  }
+
+  /* Light Mode Right Card */
+  html:not([data-theme="dark"]) .courses-hero .courses-hero-right-card {
+    background: rgba(255, 255, 255, 0.90) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 20px 48px rgba(15, 23, 42, 0.08) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-radius: 24px !important;
+  }
+  html:not([data-theme="dark"]) .courses-hero .courses-hero-right-inner {
+    background: linear-gradient(145deg, rgba(29, 78, 216, 0.08), rgba(255, 255, 255, 0.95), rgba(16, 185, 129, 0.08)) !important;
+    border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  }
+  html:not([data-theme="dark"]) .courses-hero .courses-hero-robot-icon {
+    background: linear-gradient(135deg, rgba(255, 107, 0, 0.15), rgba(29, 78, 216, 0.20)) !important;
+    border: 1.5px solid rgba(29, 78, 216, 0.3) !important;
+    color: #1D4ED8 !important;
+  }
+  html:not([data-theme="dark"]) .courses-hero .courses-hero-feat-title {
+    color: #0A1931 !important;
+    font-weight: 800 !important;
+  }
+  html:not([data-theme="dark"]) .courses-hero .courses-hero-feat-desc {
+    color: #475569 !important;
+  }
+  html:not([data-theme="dark"]) .courses-hero .courses-hero-curriculum-pill {
+    background: rgba(16, 185, 129, 0.12) !important;
+    border: 1px solid rgba(16, 185, 129, 0.35) !important;
+    color: #047857 !important;
+    font-weight: 700 !important;
+  }
+
+  html:not([data-theme="dark"]) .courses-hero .courses-hero-feature-card {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid rgba(226, 232, 240, 0.9) !important;
+    border-bottom: 3px solid #10B981 !important;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05) !important;
+    border-radius: 14px !important;
+    padding: 0.75rem !important;
+    transition: transform 0.2s ease !important;
+  }
+  html:not([data-theme="dark"]) .courses-hero .courses-hero-feature-card:hover {
+    transform: translateY(-2px);
+  }
+
+  /* 3. Dark Mode Banner Canvas: Deep Indian Tricolor & Royal Chakra Blue Night */
+  [data-theme="dark"] .courses-hero .courses-hero-banner {
+    border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+    box-shadow: 0 0 25px rgba(255, 138, 61, 0.15), 0 20px 60px rgba(0, 0, 0, 0.45) !important;
+  }
+
+  [data-theme="dark"] .courses-hero .courses-hero-grad-bg {
+    position: relative !important;
+    border-radius: var(--radius-lg, 24px) !important;
+    overflow: hidden !important;
+    background: 
+      radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.28) 0%, transparent 45%),
+      radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.32) 0%, transparent 48%),
+      radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.26) 0%, transparent 46%),
+      linear-gradient(
+        135deg,
+        #2B1306 0%,
+        #131735 32%,
+        #0F1E36 55%,
+        #0B2524 78%,
+        #042017 100%
+      ) !important;
+  }
+
+  [data-theme="dark"] .courses-hero .courses-hero-ambient-glow {
+    background: 
+      radial-gradient(60% 60% at 8% 10%, rgba(255, 138, 61, 0.20), transparent 65%),
+      radial-gradient(45% 45% at 50% 50%, rgba(15, 23, 42, 0.85), transparent 65%),
+      radial-gradient(55% 55% at 92% 90%, rgba(16, 185, 129, 0.18), transparent 65%),
+      radial-gradient(40% 40% at 82% 22%, rgba(29, 78, 216, 0.20), transparent 60%) !important;
+  }
+
+  /* Dark Mode Typography */
+  [data-theme="dark"] .courses-hero .courses-hero-title,
+  [data-theme="dark"] #courses-hero-title {
+    color: #F8FAFC !important;
+    font-family: var(--font-display, 'Outfit', 'Poppins', sans-serif) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  [data-theme="dark"] .courses-hero .courses-hero-subtitle {
+    color: #CBD5E1 !important;
+    line-height: 1.7 !important;
+  }
+
+  [data-theme="dark"] .courses-hero .courses-hero-badge {
+    background: rgba(255, 107, 0, 0.16) !important;
+    border: 1px solid rgba(255, 138, 61, 0.38) !important;
+    color: #FFA45E !important;
+  }
+
+  /* Dark Mode KPI Cards */
+  [data-theme="dark"] .courses-hero .courses-hero-kpi {
+    background: rgba(17, 23, 43, 0.88) !important;
+    border: 1px solid rgba(148, 163, 184, 0.20) !important;
+    border-top: 3px solid #FF8800 !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35) !important;
+    border-radius: 18px !important;
+    padding: 0.95rem 1rem !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+  }
+  [data-theme="dark"] .courses-hero .courses-hero-kpi:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5) !important;
+  }
+  [data-theme="dark"] .courses-hero .courses-hero-kpi-num {
+    color: #F8FAFC !important;
+    font-family: var(--font-display, 'Outfit', sans-serif) !important;
+    font-weight: 800 !important;
+    font-size: 1.35rem !important;
+    margin: 0 !important;
+  }
+  [data-theme="dark"] .courses-hero .courses-hero-kpi-lbl {
+    color: #94A3B8 !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    margin: 0.25rem 0 0 !important;
+  }
+
+  /* Dark Mode Right Card */
+  [data-theme="dark"] .courses-hero .courses-hero-right-card {
+    background: rgba(17, 23, 43, 0.88) !important;
+    border: 1.5px solid rgba(148, 163, 184, 0.22) !important;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-radius: 24px !important;
+  }
+  [data-theme="dark"] .courses-hero .courses-hero-right-inner {
+    background: linear-gradient(145deg, rgba(29, 78, 216, 0.16), rgba(17, 23, 43, 0.92), rgba(16, 185, 129, 0.14)) !important;
+    border: 1px solid rgba(148, 163, 184, 0.20) !important;
+  }
+  [data-theme="dark"] .courses-hero .courses-hero-robot-icon {
+    background: linear-gradient(135deg, rgba(255, 107, 0, 0.22), rgba(29, 78, 216, 0.30)) !important;
+    border: 1.5px solid rgba(29, 78, 216, 0.45) !important;
+    color: #60A5FA !important;
+  }
+  [data-theme="dark"] .courses-hero .courses-hero-feat-title {
+    color: #F8FAFC !important;
+    font-weight: 800 !important;
+  }
+  [data-theme="dark"] .courses-hero .courses-hero-feat-desc {
+    color: #94A3B8 !important;
+  }
+  [data-theme="dark"] .courses-hero .courses-hero-curriculum-pill {
+    background: rgba(16, 185, 129, 0.18) !important;
+    border: 1px solid rgba(16, 185, 129, 0.4) !important;
+    color: #6EE7B7 !important;
+  }
+
+  [data-theme="dark"] .courses-hero .courses-hero-feature-card {
+    background: rgba(17, 23, 43, 0.85) !important;
+    border: 1px solid rgba(148, 163, 184, 0.20) !important;
+    border-bottom: 3px solid #10B981 !important;
+    border-radius: 14px !important;
+    padding: 0.75rem !important;
+    transition: transform 0.2s ease !important;
+  }
+
+  /* 4. Filters, Tags & Cards in Courses Page */
+  .course-tag-btn {
+    border-radius: 999px !important;
+    font-weight: 600 !important;
+    font-size: 0.82rem !important;
+    padding: 0.3rem 0.75rem !important;
+    transition: all 0.2s ease !important;
+  }
+  html:not([data-theme="dark"]) .course-tag-btn {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(226, 232, 240, 0.9) !important;
+    color: #0F172A !important;
+  }
+  html:not([data-theme="dark"]) .course-tag-btn:hover {
+    background: #FF6B00 !important;
+    border-color: #FF6B00 !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+  }
+  [data-theme="dark"] .course-tag-btn {
+    background: #161F3D !important;
+    border: 1px solid rgba(148, 163, 184, 0.20) !important;
+    color: #F8FAFC !important;
+  }
+  [data-theme="dark"] .course-tag-btn:hover {
+    background: #FF6B00 !important;
+    border-color: #FF6B00 !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+  }
+
+  /* Course Catalog Cards */
+  .course-catalog-card {
+    border-radius: 20px !important;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease !important;
+  }
+  html:not([data-theme="dark"]) .course-catalog-card {
+    background: #FFFFFF !important;
+    border: 1.5px solid rgba(226, 232, 240, 0.85) !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04) !important;
+  }
+  html:not([data-theme="dark"]) .course-catalog-card:hover {
+    border-color: #FF8800 !important;
+    box-shadow: 0 14px 34px rgba(255, 107, 0, 0.12) !important;
+    transform: translateY(-4px);
+  }
+  [data-theme="dark"] .course-catalog-card {
+    background: #11172B !important;
+    border: 1.5px solid rgba(148, 163, 184, 0.18) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+  }
+  [data-theme="dark"] .course-catalog-card:hover {
+    border-color: #FF8800 !important;
+    box-shadow: 0 14px 34px rgba(255, 107, 0, 0.22) !important;
+    transform: translateY(-4px);
+  }
+
+  /* Category Tiles */
+  .course-cat-tile {
+    border-radius: 18px !important;
+    padding: 1.25rem 0.85rem !important;
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.65rem !important;
+    transition: all 0.25s ease !important;
+  }
+  html:not([data-theme="dark"]) .course-cat-tile {
+    background: #FFFFFF !important;
+    border: 1.5px solid rgba(226, 232, 240, 0.85) !important;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
+  }
+  html:not([data-theme="dark"]) .course-cat-tile:hover {
+    border-color: #1D4ED8 !important;
+    box-shadow: 0 10px 24px rgba(29, 78, 216, 0.12) !important;
+    transform: translateY(-3px);
+  }
+  [data-theme="dark"] .course-cat-tile {
+    background: #11172B !important;
+    border: 1.5px solid rgba(148, 163, 184, 0.18) !important;
+  }
+  [data-theme="dark"] .course-cat-tile:hover {
+    border-color: #60A5FA !important;
+    box-shadow: 0 10px 24px rgba(29, 78, 216, 0.25) !important;
+    transform: translateY(-3px);
+  }
+
+  /* Why Learn Cards */
+  .course-why-card {
+    border-radius: 20px !important;
+    padding: 1.6rem !important;
+    transition: all 0.25s ease !important;
+  }
+  html:not([data-theme="dark"]) .course-why-card {
+    background: #FFFFFF !important;
+    border: 1.5px solid rgba(226, 232, 240, 0.85) !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04) !important;
+  }
+  html:not([data-theme="dark"]) .course-why-card:hover {
+    border-color: #FF8800 !important;
+    transform: translateY(-3px);
+  }
+  [data-theme="dark"] .course-why-card {
+    background: #11172B !important;
+    border: 1.5px solid rgba(148, 163, 184, 0.18) !important;
+  }
+  [data-theme="dark"] .course-why-card:hover {
+    border-color: #FF8800 !important;
+    transform: translateY(-3px);
+  }
+</style>
 {% endblock %}
 {% block structured_data %}
 {% if courses %}
@@ -53,81 +460,77 @@
 {% endblock %}
 {% block content %}
 
-<!-- HERO -->
-<section class="reveal" aria-labelledby="courses-hero-title">
-  <div class="card-premium" style="padding:0;overflow:hidden;border-radius:var(--radius-lg);">
-    <div class="relative" style="background:linear-gradient(135deg,#0B1225 0%,#111827 35%,#1D4ED8 65%,#7C3AED 100%);">
+<!-- HERO (TRICOLOR & ROYAL CHAKRA BLUE COMPOSITION) -->
+<section class="courses-hero reveal" aria-labelledby="courses-hero-title">
+  <div class="card-premium courses-hero-banner" style="padding:0;overflow:hidden;border-radius:var(--radius-lg);">
+    <div class="relative courses-hero-grad-bg">
       <div class="courses-particles" aria-hidden="true"></div>
-      <div class="absolute inset-0" style="background:
-        radial-gradient(55% 55% at 15% 20%, rgba(79,70,229,.4), transparent 55%),
-        radial-gradient(45% 45% at 85% 30%, rgba(6,182,212,.28), transparent 55%),
-        radial-gradient(50% 50% at 50% 90%, rgba(249,115,22,.18), transparent 55%);
-        pointer-events:none;"></div>
+      <div class="absolute inset-0 courses-hero-ambient-glow" style="pointer-events:none;"></div>
       <div class="relative px-6 py-10 md:px-10 md:py-14 lg:px-12 lg:py-16">
         <div class="grid gap-10 lg:grid-cols-12 items-center">
           <div class="lg:col-span-7">
-            <span class="level-pill" style="background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);"><span class="dot-live" style="width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;display:inline-block;margin-right:4px;"></span> Course Catalog</span>
-            <h1 id="courses-hero-title" class="mt-4 text-white font-extrabold leading-tight" style="font-family:var(--font-display);font-size:clamp(1.85rem,3.6vw,2.85rem);letter-spacing:-0.02em;">
+            <span class="level-pill courses-hero-badge"><span class="dot-live" style="width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;display:inline-block;margin-right:4px;"></span> Course Catalog</span>
+            <h1 id="courses-hero-title" class="mt-4 courses-hero-title font-extrabold leading-tight" style="font-family:var(--font-display);font-size:clamp(1.85rem,3.6vw,2.85rem);letter-spacing:-0.02em;">
               {{ page_copy.hero_heading }}
             </h1>
-            <p class="mt-4 text-white/85 max-w-2xl" style="font-size:1.05rem;line-height:1.75;">
+            <p class="mt-4 courses-hero-subtitle max-w-2xl" style="font-size:1.05rem;line-height:1.75;">
               {{ page_copy.hero_subtitle }}
             </p>
             <div class="mt-6 flex flex-wrap gap-3">
-              <a href="#course-catalog" class="btn btn-primary" style="border-radius:999px;font-weight:700;"><i class="ri-compass-3-line" aria-hidden="true"></i> Explore Free Courses</a>
-              <a href="{{ url_for('ai_lab.index') }}" class="btn btn-accent" style="border-radius:999px;font-weight:700;"><i class="ri-robot-2-line" aria-hidden="true"></i> Visit AI Lab</a>
+              <a href="#course-catalog" class="btn btn-primary courses-hero-btn-primary" style="border-radius:999px;font-weight:700;"><i class="ri-compass-3-line" aria-hidden="true"></i> Explore Free Courses</a>
+              <a href="{{ url_for('ai_lab.index') }}" class="btn btn-accent courses-hero-btn-accent" style="border-radius:999px;font-weight:700;"><i class="ri-robot-2-line" aria-hidden="true"></i> Visit AI Lab</a>
             </div>
             <div class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div class="glass-panel about-hero-kpi" style="padding:0.95rem 1rem;border-radius:18px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);backdrop-filter:blur(14px);transition:all 0.3s ease;">
+              <div class="glass-panel courses-hero-kpi">
                 <div style="display:flex;align-items:center;gap:0.45rem;">
-                  <div style="width:28px;height:28px;border-radius:8px;background:rgba(56,189,248,0.16);display:inline-flex;align-items:center;justify-content:center;color:#38bdf8;font-size:0.95rem;" aria-hidden="true"><i class="ri-user-3-fill"></i></div>
-                  <p class="text-white font-extrabold" style="margin:0;font-family:var(--font-display);font-size:1.25rem;">5000+</p>
+                  <div style="width:28px;height:28px;border-radius:8px;background:rgba(29,78,216,0.12);display:inline-flex;align-items:center;justify-content:center;color:#1D4ED8;font-size:0.95rem;" aria-hidden="true"><i class="ri-user-3-fill"></i></div>
+                  <p class="courses-hero-kpi-num font-extrabold" style="margin:0;font-family:var(--font-display);font-size:1.25rem;">5000+</p>
                 </div>
-                <p class="text-white/80" style="margin:0.35rem 0 0;font-size:0.82rem;font-weight:500;">Students Trained</p>
+                <p class="courses-hero-kpi-lbl" style="margin:0.35rem 0 0;font-size:0.82rem;font-weight:600;">Students Trained</p>
               </div>
-              <div class="glass-panel about-hero-kpi" style="padding:0.95rem 1rem;border-radius:18px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);backdrop-filter:blur(14px);transition:all 0.3s ease;">
+              <div class="glass-panel courses-hero-kpi">
                 <div style="display:flex;align-items:center;gap:0.45rem;">
-                  <div style="width:28px;height:28px;border-radius:8px;background:rgba(129,140,248,0.16);display:inline-flex;align-items:center;justify-content:center;color:#818cf8;font-size:0.95rem;" aria-hidden="true"><i class="ri-team-fill"></i></div>
-                  <p class="text-white font-extrabold" style="margin:0;font-family:var(--font-display);font-size:1.25rem;">120+</p>
+                  <div style="width:28px;height:28px;border-radius:8px;background:rgba(255,107,0,0.12);display:inline-flex;align-items:center;justify-content:center;color:#FF6B00;font-size:0.95rem;" aria-hidden="true"><i class="ri-team-fill"></i></div>
+                  <p class="courses-hero-kpi-num font-extrabold" style="margin:0;font-family:var(--font-display);font-size:1.25rem;">120+</p>
                 </div>
-                <p class="text-white/80" style="margin:0.35rem 0 0;font-size:0.82rem;font-weight:500;">Expert Mentors</p>
+                <p class="courses-hero-kpi-lbl" style="margin:0.35rem 0 0;font-size:0.82rem;font-weight:600;">Expert Mentors</p>
               </div>
-              <div class="glass-panel about-hero-kpi" style="padding:0.95rem 1rem;border-radius:18px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);backdrop-filter:blur(14px);transition:all 0.3s ease;">
+              <div class="glass-panel courses-hero-kpi">
                 <div style="display:flex;align-items:center;gap:0.45rem;">
-                  <div style="width:28px;height:28px;border-radius:8px;background:rgba(52,211,153,0.16);display:inline-flex;align-items:center;justify-content:center;color:#34d399;font-size:0.95rem;" aria-hidden="true"><i class="ri-tools-fill"></i></div>
-                  <p class="text-white font-extrabold" style="margin:0;font-family:var(--font-display);font-size:1.25rem;">250+</p>
+                  <div style="width:28px;height:28px;border-radius:8px;background:rgba(16,185,129,0.12);display:inline-flex;align-items:center;justify-content:center;color:#10B981;font-size:0.95rem;" aria-hidden="true"><i class="ri-tools-fill"></i></div>
+                  <p class="courses-hero-kpi-num font-extrabold" style="margin:0;font-family:var(--font-display);font-size:1.25rem;">250+</p>
                 </div>
-                <p class="text-white/80" style="margin:0.35rem 0 0;font-size:0.82rem;font-weight:500;">Hands-on Projects</p>
+                <p class="courses-hero-kpi-lbl" style="margin:0.35rem 0 0;font-size:0.82rem;font-weight:600;">Hands-on Projects</p>
               </div>
-              <div class="glass-panel about-hero-kpi" style="padding:0.95rem 1rem;border-radius:18px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);backdrop-filter:blur(14px);transition:all 0.3s ease;">
+              <div class="glass-panel courses-hero-kpi">
                 <div style="display:flex;align-items:center;gap:0.45rem;">
-                  <div style="width:28px;height:28px;border-radius:8px;background:rgba(251,191,36,0.16);display:inline-flex;align-items:center;justify-content:center;color:#fbbf24;font-size:0.95rem;" aria-hidden="true"><i class="ri-customer-service-2-fill"></i></div>
-                  <p class="text-white font-extrabold" style="margin:0;font-family:var(--font-display);font-size:1.25rem;">24×7</p>
+                  <div style="width:28px;height:28px;border-radius:8px;background:rgba(245,158,11,0.12);display:inline-flex;align-items:center;justify-content:center;color:#D97706;font-size:0.95rem;" aria-hidden="true"><i class="ri-customer-service-2-fill"></i></div>
+                  <p class="courses-hero-kpi-num font-extrabold" style="margin:0;font-family:var(--font-display);font-size:1.25rem;">24×7</p>
                 </div>
-                <p class="text-white/80" style="margin:0.35rem 0 0;font-size:0.82rem;font-weight:500;">Support</p>
+                <p class="courses-hero-kpi-lbl" style="margin:0.35rem 0 0;font-size:0.82rem;font-weight:600;">Support</p>
               </div>
             </div>
           </div>
           <div class="lg:col-span-5">
-            <div class="card-premium glass-panel courses-hero-float" style="padding:1.15rem;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(16px);box-shadow:0 20px 50px rgba(0,0,0,0.3);">
-              <div class="relative" style="aspect-ratio:4/3;border-radius:18px;overflow:hidden;background:linear-gradient(145deg,rgba(79,70,229,.3),rgba(6,182,212,.22),rgba(249,115,22,.15));display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;">
-                <div style="width:68px;height:68px;border-radius:20px;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(56,189,248,0.25),rgba(124,58,237,0.35));border:1px solid rgba(255,255,255,0.25);box-shadow:0 10px 30px rgba(56,189,248,0.35);font-size:2.2rem;color:#38bdf8;" aria-hidden="true">
+            <div class="card-premium glass-panel courses-hero-float courses-hero-right-card" style="padding:1.15rem;border-radius:24px;">
+              <div class="courses-hero-right-inner" style="aspect-ratio:4/3;border-radius:18px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;">
+                <div class="courses-hero-robot-icon" style="width:68px;height:68px;border-radius:20px;display:inline-flex;align-items:center;justify-content:center;font-size:2.2rem;" aria-hidden="true">
                   <i class="ri-robot-2-line"></i>
                 </div>
-                <h3 class="text-white font-bold" style="margin:0.75rem 0 0;font-size:1.1rem;">Labs · Projects · Mentors</h3>
-                <p class="text-white/80" style="margin:0.35rem 0 0;font-size:0.85rem;max-width:28ch;">Build real robots, train AI models &amp; ship connected IoT devices.</p>
-                <span class="level-pill" style="margin-top:0.75rem;background:rgba(16,185,129,0.22);border:1px solid rgba(16,185,129,0.4);color:#6ee7b7;font-size:0.75rem;padding:0.25rem 0.65rem;">
+                <h3 class="courses-hero-feat-title font-bold" style="margin:0.75rem 0 0;font-size:1.1rem;">Labs · Projects · Mentors</h3>
+                <p class="courses-hero-feat-desc" style="margin:0.35rem 0 0;font-size:0.85rem;max-width:28ch;">Build real robots, train AI models &amp; ship connected IoT devices.</p>
+                <span class="level-pill courses-hero-curriculum-pill" style="margin-top:0.75rem;font-size:0.75rem;padding:0.25rem 0.65rem;">
                   <span style="background:#10b981;box-shadow:0 0 8px #10b981;width:6px;height:6px;display:inline-block;border-radius:50%;margin-right:4px;"></span> Industry-Ready Curriculum
                 </span>
               </div>
               <div class="mt-3 grid grid-cols-2 gap-2">
-                <div class="glass-panel" style="padding:0.75rem;border-radius:14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);">
-                  <p class="text-white font-bold" style="margin:0;font-size:0.85rem;"><i class="ri-tools-line" style="color:#38bdf8;"></i> Practical Labs</p>
-                  <p class="text-white/70" style="margin:0.2rem 0 0;font-size:0.75rem;">Build-first modules</p>
+                <div class="glass-panel courses-hero-feature-card">
+                  <p class="courses-hero-feat-title font-bold" style="margin:0;font-size:0.85rem;"><i class="ri-tools-line" style="color:#1D4ED8;"></i> Practical Labs</p>
+                  <p class="courses-hero-feat-desc" style="margin:0.2rem 0 0;font-size:0.75rem;">Build-first modules</p>
                 </div>
-                <div class="glass-panel" style="padding:0.75rem;border-radius:14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);">
-                  <p class="text-white font-bold" style="margin:0;font-size:0.85rem;"><i class="ri-award-line" style="color:#f97316;"></i> Verified Certs</p>
-                  <p class="text-white/70" style="margin:0.2rem 0 0;font-size:0.75rem;">Shareable credentials</p>
+                <div class="glass-panel courses-hero-feature-card">
+                  <p class="courses-hero-feat-title font-bold" style="margin:0;font-size:0.85rem;"><i class="ri-award-line" style="color:#FF6B00;"></i> Verified Certs</p>
+                  <p class="courses-hero-feat-desc" style="margin:0.2rem 0 0;font-size:0.75rem;">Shareable credentials</p>
                 </div>
               </div>
             </div>

@@ -6,34 +6,158 @@
   {% include "partials/breadcrumbs.html" %}
 </div>
 {% endblock %}
-{% block content %}
-<!-- PREMIUM SERVICES HERO (ABOUT THEME - SLEEK & COMPACT) -->
-<section class="hero-compact-about reveal" aria-labelledby="services-hero-title">
-  <div class="hero-compact-inner">
-    <div class="hero-compact-main">
-      <span class="hero-compact-badge">
-        <i class="ri-sparkling-fill" style="color:#38bdf8;"></i> Learn &amp; Innovate
-      </span>
-      <h1 id="services-hero-title" class="hero-compact-title">
-        Enterprise-grade EdTech Programs
-      </h1>
-      <p class="hero-compact-subtitle">
-        Coding, AI, robotics, and drone training programs for schools, colleges, and future innovators.
-      </p>
-    </div>
+{% block extra_head %}
+<style>
+  /* =========================================================================
+     SERVICES SECTION - TRICOLOR & ROYAL CHAKRA BLUE COMPOSITION VARIATION
+     ========================================================================= */
+  .services-hero .services-hero-banner {
+    border-radius: var(--radius-lg, 24px) !important;
+    overflow: hidden !important;
+    border: 2px solid rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 
+      0 0 0 1px rgba(255, 255, 255, 0.85),
+      0 0 22px rgba(255, 255, 255, 0.65),
+      0 20px 60px rgba(15, 23, 42, 0.08) !important;
+    margin-bottom: 2.25rem;
+  }
 
-    <!-- Right side decorative subtle glass chip (hidden on mobile, compact on desktop) -->
-    <div class="hide-mobile">
-      <div class="hero-compact-showcase">
-        <div style="width:46px;height:46px;margin:0 auto 0.5rem;border-radius:14px;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#38bdf8;">
-          <i class="ri-rocket-2-fill"></i>
+  html:not([data-theme="dark"]) .services-hero .services-hero-grad-bg {
+    position: relative !important;
+    border-radius: var(--radius-lg, 24px) !important;
+    overflow: hidden !important;
+    background: 
+      radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.36) 0%, transparent 45%),
+      radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.24) 0%, transparent 48%),
+      radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.32) 0%, transparent 46%),
+      linear-gradient(
+        135deg,
+        #FF964E 0%,
+        #FFAC72 10%,
+        #FFDDBF 22%,
+        #FFF6EE 34%,
+        #FFFFFF 47%,
+        #FFFFFF 55%,
+        #EDF5FF 66%,
+        #CCE2FD 78%,
+        #72EEBA 89%,
+        #10B981 100%
+      ) !important;
+  }
+
+  html:not([data-theme="dark"]) .services-hero .services-hero-ambient-glow {
+    background: 
+      radial-gradient(60% 60% at 8% 10%, rgba(255, 138, 61, 0.28), transparent 65%),
+      radial-gradient(45% 45% at 50% 50%, rgba(255, 255, 255, 0.92), transparent 65%),
+      radial-gradient(55% 55% at 92% 90%, rgba(16, 185, 129, 0.26), transparent 65%),
+      radial-gradient(40% 40% at 82% 22%, rgba(29, 78, 216, 0.18), transparent 60%) !important;
+  }
+
+  html:not([data-theme="dark"]) .services-hero .services-hero-title,
+  html:not([data-theme="dark"]) #services-hero-title {
+    color: #0A1931 !important;
+    font-family: var(--font-display, 'Outfit', 'Poppins', sans-serif) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  html:not([data-theme="dark"]) .services-hero .services-hero-subtitle {
+    color: #1E293B !important;
+    font-weight: 600 !important;
+    line-height: 1.65 !important;
+  }
+
+  html:not([data-theme="dark"]) .services-hero .services-hero-badge {
+    background: rgba(255, 107, 0, 0.14) !important;
+    border: 1.5px solid rgba(255, 107, 0, 0.38) !important;
+    color: #C2410C !important;
+    font-weight: 700 !important;
+  }
+
+  html:not([data-theme="dark"]) .services-hero .services-hero-showcase {
+    background: rgba(255, 255, 255, 0.94) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.98) !important;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08) !important;
+  }
+  html:not([data-theme="dark"]) .services-hero .services-hero-showcase .sc-title {
+    color: #0A1931 !important;
+    font-weight: 700 !important;
+  }
+  html:not([data-theme="dark"]) .services-hero .services-hero-showcase .sc-sub {
+    color: #475569 !important;
+    font-weight: 500 !important;
+  }
+
+  /* Dark Mode */
+  [data-theme="dark"] .services-hero .services-hero-banner {
+    border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+    box-shadow: 0 0 25px rgba(255, 138, 61, 0.15), 0 20px 60px rgba(0, 0, 0, 0.45) !important;
+  }
+  [data-theme="dark"] .services-hero .services-hero-grad-bg {
+    background: 
+      radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.28) 0%, transparent 45%),
+      radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.32) 0%, transparent 48%),
+      radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.26) 0%, transparent 46%),
+      linear-gradient(135deg, #2B1306 0%, #131735 32%, #0F1E36 55%, #0B2524 78%, #042017 100%) !important;
+  }
+  [data-theme="dark"] .services-hero .services-hero-title,
+  [data-theme="dark"] #services-hero-title {
+    color: #F8FAFC !important;
+  }
+  [data-theme="dark"] .services-hero .services-hero-subtitle {
+    color: #CBD5E1 !important;
+  }
+  [data-theme="dark"] .services-hero .services-hero-badge {
+    background: rgba(255, 107, 0, 0.22) !important;
+    border: 1px solid rgba(255, 138, 61, 0.35) !important;
+    color: #FFA559 !important;
+  }
+  [data-theme="dark"] .services-hero .services-hero-showcase {
+    background: rgba(17, 23, 43, 0.88) !important;
+    border: 1.5px solid rgba(148, 163, 184, 0.22) !important;
+  }
+  [data-theme="dark"] .services-hero .services-hero-showcase .sc-title {
+    color: #F8FAFC !important;
+  }
+  [data-theme="dark"] .services-hero .services-hero-showcase .sc-sub {
+    color: #94A3B8 !important;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<!-- PREMIUM SERVICES HERO (TRICOLOR & ROYAL CHAKRA BLUE COMPOSITION) -->
+<div class="services-hero">
+  <section class="services-hero-banner services-hero-grad-bg reveal" aria-labelledby="services-hero-title">
+    <div class="services-hero-ambient-glow pointer-events-none absolute inset-0"></div>
+    <div class="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-500/15 blur-3xl"></div>
+    <div class="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-amber-500/15 blur-3xl"></div>
+
+    <div class="hero-compact-inner relative z-10">
+      <div class="hero-compact-main">
+        <span class="hero-compact-badge services-hero-badge">
+          <i class="ri-sparkling-fill" style="color:#FF6B00;"></i> Learn &amp; Innovate
+        </span>
+        <h1 id="services-hero-title" class="hero-compact-title services-hero-title">
+          Enterprise-Grade EdTech Programs
+        </h1>
+        <p class="hero-compact-subtitle services-hero-subtitle">
+          Coding, AI, robotics, and drone training programs for schools, colleges, and future innovators across India.
+        </p>
+      </div>
+
+      <!-- Right side decorative subtle glass chip (hidden on mobile, compact on desktop) -->
+      <div class="hide-mobile">
+        <div class="hero-compact-showcase services-hero-showcase">
+          <div style="width:46px;height:46px;margin:0 auto 0.5rem;border-radius:14px;background:rgba(255,107,0,0.12);border:1px solid rgba(255,107,0,0.25);display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#FF6B00;">
+            <i class="ri-rocket-2-fill"></i>
+          </div>
+          <p class="sc-title" style="margin:0;font-size:0.9rem;">Turnkey Solutions</p>
+          <p class="sc-sub" style="margin:0.2rem 0 0;font-size:0.76rem;">Syllabus + Lab Hardware</p>
         </div>
-        <p style="margin:0;color:#ffffff;font-weight:700;font-size:0.9rem;">Turnkey Solutions</p>
-        <p style="margin:0.2rem 0 0;color:rgba(255,255,255,0.75);font-size:0.76rem;">Syllabus + Lab Hardware</p>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 
 
 <!-- SERVICES GRID -->

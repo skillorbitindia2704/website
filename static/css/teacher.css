@@ -5,30 +5,30 @@
 
 /* Root tokens specific to Teacher Hub */
 :root {
-  --t-primary: #4f46e5;
-  --t-primary-hover: #4338ca;
-  --t-secondary: #7c3aed;
-  --t-accent: #f97316;
-  --t-accent-glow: rgba(249, 115, 22, 0.25);
-  --t-emerald: #10b981;
-  --t-rose: #f43f5e;
-  --t-sky: #0284c7;
-  --t-amber: #f59e0b;
-  --t-card-bg: rgba(255, 255, 255, 0.85);
-  --t-card-border: rgba(99, 102, 241, 0.16);
-  --t-card-hover-border: rgba(99, 102, 241, 0.35);
-  --t-card-shadow: 0 10px 30px -8px rgba(79, 70, 229, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
-  --t-card-shadow-hover: 0 20px 45px -10px rgba(79, 70, 229, 0.18), 0 10px 20px -3px rgba(15, 23, 42, 0.08);
-  --t-badge-bg: rgba(79, 70, 229, 0.08);
+  --t-primary: #FF6B00;
+  --t-primary-hover: #EA580C;
+  --t-secondary: #1D4ED8;
+  --t-accent: #FF8A3D;
+  --t-accent-glow: rgba(255, 107, 0, 0.25);
+  --t-emerald: #10B981;
+  --t-rose: #F43F5E;
+  --t-sky: #0284C7;
+  --t-amber: #F59E0B;
+  --t-card-bg: rgba(255, 255, 255, 0.95);
+  --t-card-border: rgba(226, 232, 240, 0.90);
+  --t-card-hover-border: rgba(255, 107, 0, 0.40);
+  --t-card-shadow: 0 10px 30px -8px rgba(15, 23, 42, 0.05), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+  --t-card-shadow-hover: 0 20px 45px -10px rgba(255, 107, 0, 0.16), 0 10px 20px -3px rgba(15, 23, 42, 0.06);
+  --t-badge-bg: rgba(255, 107, 0, 0.10);
 }
 
 [data-theme="dark"] {
-  --t-card-bg: rgba(17, 23, 43, 0.82);
-  --t-card-border: rgba(148, 163, 184, 0.16);
-  --t-card-hover-border: rgba(124, 58, 237, 0.45);
+  --t-card-bg: rgba(17, 23, 43, 0.92);
+  --t-card-border: rgba(148, 163, 184, 0.18);
+  --t-card-hover-border: rgba(255, 107, 0, 0.45);
   --t-card-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.45);
-  --t-card-shadow-hover: 0 20px 50px -10px rgba(79, 70, 229, 0.3), 0 0 20px rgba(124, 58, 237, 0.2);
-  --t-badge-bg: rgba(99, 102, 241, 0.2);
+  --t-card-shadow-hover: 0 20px 50px -10px rgba(255, 107, 0, 0.25), 0 0 20px rgba(29, 78, 216, 0.2);
+  --t-badge-bg: rgba(255, 107, 0, 0.16);
 }
 
 /* ==========================================================================

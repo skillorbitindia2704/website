@@ -52,25 +52,28 @@
 {% endblock %}
 {% block content %}
 <div class="cert-page-root text-slate-800 dark:text-slate-100">
-  <section class="cert-hero-banner relative overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-brand-600 via-indigo-700 to-violet-800 p-8 sm:p-10 text-white shadow-xl shadow-indigo-950/20 mb-8 mt-2">
-    <div class="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-cyan-400/20 blur-3xl"></div>
-    <div class="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-violet-400/20 blur-3xl"></div>
-    
-    <div class="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <div class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-200 backdrop-blur-md mb-2">
-          <span class="inline-block h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>
-          Public Verification
+  <div class="cert-hero mb-8 mt-2">
+    <section class="cert-hero-banner cert-hero-grad-bg relative overflow-hidden p-8 sm:p-10" aria-labelledby="cert-verified-title">
+      <div class="cert-hero-ambient-glow pointer-events-none absolute inset-0"></div>
+      <div class="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-500/15 blur-3xl"></div>
+      <div class="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-amber-500/15 blur-3xl"></div>
+      
+      <div class="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div class="inline-flex items-center gap-2 rounded-full px-3.5 py-1 text-xs font-bold uppercase tracking-wider cert-hero-badge backdrop-blur-md mb-2">
+            <span class="inline-block h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
+            Official Verification Match
+          </div>
+          <h1 id="cert-verified-title" class="cert-hero-title font-display mt-1 text-2xl sm:text-3xl font-extrabold">Credential Verified</h1>
+          <p class="cert-hero-subtitle mt-2 max-w-xl text-sm sm:text-base leading-relaxed">This URL matches our issuance database. Share it with employers and institutions.</p>
         </div>
-        <h1 class="font-display mt-1 text-2xl sm:text-3xl font-extrabold text-white">Credential verified</h1>
-        <p class="mt-2 max-w-xl text-sm sm:text-base text-white/90 leading-relaxed">This URL matches our issuance database. Share it with employers and institutions.</p>
+        <a href="{{ url_for('certificates.verify_lookup') }}" class="cert-btn-primary inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold shadow-md">
+          <i class="ri-search-line"></i>
+          <span>Verify another ID</span>
+        </a>
       </div>
-      <a href="{{ url_for('certificates.verify_lookup') }}" class="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/15 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/25 shadow-sm">
-        <i class="ri-search-line"></i>
-        <span>Verify another ID</span>
-      </a>
-    </div>
-  </section>
+    </section>
+  </div>
   <section class="mb-12">
     {% include "certificates/_verify_success.html" %}
   </section>

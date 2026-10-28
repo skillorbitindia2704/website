@@ -56,6 +56,19 @@
     border-radius: {{ content.theme_card_radius or '22px' }} !important;
   }
   
+  /* =========================================================================
+     [THEME BACKUP - PREVIOUS BLUE-PURPLE THEME]
+     To revert back to original Blue-Purple theme:
+     Simply comment out or remove the Indian Tricolor block below.
+     Original values:
+     - .hero-grad-bg: linear-gradient(135deg, #0b1225 0%, #111827 30%, #1d4ed8 60%, #7c3aed 100%) !important;
+     - ambient glow:
+         radial-gradient(60% 60% at 20% 20%, rgba(79,70,229,.35), transparent 60%),
+         radial-gradient(50% 50% at 80% 25%, rgba(6,182,212,.25), transparent 60%),
+         radial-gradient(60% 60% at 55% 85%, rgba(249,115,22,.20), transparent 60%)
+     - right card slide: radial-gradient(circle at 50% 40%, rgba(99,102,241,0.25) 0%, rgba(15,23,42,0.6) 100%)
+     ========================================================================= */
+
   /* Apply preset gradient themes */
   {% set theme = content.theme_gradient_theme or 'blue-purple' %}
   {% if theme == 'indigo-cyan' %}
@@ -73,9 +86,868 @@
   {% elif theme == 'crimson-gold' %}
     .hero-grad-bg { background: linear-gradient(135deg, #1c0a10 0%, #300c1c 30%, #be123c 60%, #eab308 100%) !important; }
   {% else %}
-    /* Default blue-purple */
+    /* Default blue-purple fallback */
     .hero-grad-bg { background: linear-gradient(135deg, #0b1225 0%, #111827 30%, #1d4ed8 60%, #7c3aed 100%) !important; }
   {% endif %}
+
+  /* =========================================================================
+     [ACTIVE] ENHANCED TRICOLOR BANNER WITH ANIMATED GLOWING BORDER
+     - Corners: Rich Indian Saffron (#FF8A3D) in top-left & vibrant Green (#138808) in bottom-right
+     - Middle: Luminous Clean White (#FFFFFF)
+     - Border: Moving animated glowing border around the perimeter
+     - Buttons: Saffron, Royal Blue, Frosted White, Emerald Green
+     ========================================================================= */
+
+  /* 1. Single Lighted Glowing Border (Continuous Clean Loop Around Banner) */
+  .home-hero .card-img-full {
+    border-radius: var(--radius-lg) !important;
+    overflow: hidden !important;
+    border: 2px solid rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 
+      0 0 0 1px rgba(255, 255, 255, 0.85),
+      0 0 20px rgba(255, 255, 255, 0.65),
+      0 20px 60px rgba(15, 23, 42, 0.08) !important;
+  }
+
+  /* 2. Banner Canvas with Rich Saffron & Green Corners and White Center */
+  .home-hero .hero-grad-bg {
+    position: relative !important;
+    border-radius: var(--radius-lg) !important;
+    overflow: hidden !important;
+    background: 
+      radial-gradient(circle at 5% 6%, rgba(255, 120, 20, 0.35) 0%, transparent 42%),
+      radial-gradient(circle at 95% 94%, rgba(19, 136, 8, 0.35) 0%, transparent 42%),
+      linear-gradient(
+        135deg,
+        #FF8A3D 0%,
+        #FFA45E 12%,
+        #FFD6B2 24%,
+        #FFF2E4 36%,
+        #FFFFFF 47%,
+        #FFFFFF 55%,
+        #E4F7EC 66%,
+        #A6E8BE 78%,
+        #34D399 89%,
+        #138808 100%
+      ) !important;
+  }
+
+  .home-hero .hero-ambient-glow {
+    background: 
+      radial-gradient(60% 60% at 8% 10%, rgba(255, 138, 61, 0.28), transparent 65%),
+      radial-gradient(45% 45% at 50% 50%, rgba(255, 255, 255, 0.90), transparent 65%),
+      radial-gradient(55% 55% at 92% 90%, rgba(16, 185, 129, 0.26), transparent 65%),
+      radial-gradient(35% 35% at 75% 22%, rgba(37, 99, 235, 0.10), transparent 60%) !important;
+  }
+
+  /* High-Contrast, Eye-Friendly Typography on Light Canvas */
+  html:not([data-theme="dark"]) .home-hero h1#home-hero-title,
+  html:not([data-theme="dark"]) .home-hero .text-white {
+    color: #0A1931 !important;
+  }
+
+  html:not([data-theme="dark"]) .home-hero p.text-white\/80 {
+    color: #334155 !important;
+  }
+
+  html:not([data-theme="dark"]) .home-hero span.text-white\/70 {
+    color: #475569 !important;
+  }
+
+  /* Dark Mode Hero Banner Adjustments */
+  [data-theme="dark"] .home-hero .hero-grad-bg {
+    background: 
+      radial-gradient(circle at 5% 6%, rgba(255, 120, 20, 0.28) 0%, transparent 42%),
+      radial-gradient(circle at 95% 94%, rgba(19, 136, 8, 0.28) 0%, transparent 42%),
+      linear-gradient(
+        135deg,
+        #2A1406 0%,
+        #1A1028 35%,
+        #0F172A 50%,
+        #08201A 75%,
+        #052618 100%
+      ) !important;
+  }
+  [data-theme="dark"] .home-hero .card-img-full {
+    border: 1.5px solid rgba(255, 255, 255, 0.25) !important;
+    box-shadow: 0 0 25px rgba(255, 138, 61, 0.15), 0 20px 60px rgba(0, 0, 0, 0.45) !important;
+  }
+  [data-theme="dark"] .home-hero h1#home-hero-title,
+  [data-theme="dark"] .home-hero .text-white {
+    color: #F8FAFC !important;
+  }
+  [data-theme="dark"] .home-hero p.text-white\/80 {
+    color: #CBD5E1 !important;
+  }
+  [data-theme="dark"] .home-hero span.text-white\/70 {
+    color: #94A3B8 !important;
+  }
+
+  /* Distinctive, Harmonious Button Palette (Not all blue!) */
+
+  /* 1. Explore Courses: Vibrant Saffron Button */
+  .home-hero .btn-primary {
+    background: linear-gradient(135deg, #FF6B00 0%, #FF8800 50%, #FFA133 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    box-shadow: 0 10px 24px rgba(255, 107, 0, 0.32) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+  }
+  .home-hero .btn-primary:hover {
+    box-shadow: 0 14px 30px rgba(255, 107, 0, 0.46) !important;
+    transform: translateY(-2px);
+  }
+
+  /* 2. Explore AI Lab Solutions: Royal Chakra Blue Button */
+  .home-hero .btn-accent {
+    background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 50%, #2563EB 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.30) !important;
+    box-shadow: 0 10px 24px rgba(29, 78, 216, 0.28) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+  }
+  .home-hero .btn-accent:hover {
+    box-shadow: 0 14px 30px rgba(29, 78, 216, 0.42) !important;
+    transform: translateY(-2px);
+  }
+
+  /* 3. Watch Video: Frosted White Crystal Button */
+  .home-hero .hero-ghost-btn {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border: 1.5px solid rgba(15, 23, 42, 0.16) !important;
+    color: #0F172A !important;
+    font-weight: 700 !important;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06) !important;
+    backdrop-filter: blur(12px);
+  }
+  .home-hero .hero-ghost-btn:hover {
+    background: #0F172A !important;
+    border-color: #0F172A !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.22) !important;
+    transform: translateY(-2px);
+  }
+
+  /* Badge styling */
+  .home-hero .hero-badge {
+    background: rgba(255, 107, 0, 0.12) !important;
+    border: 1px solid rgba(255, 107, 0, 0.35) !important;
+    color: #C2410C !important;
+    font-weight: 700 !important;
+  }
+
+  /* Stats KPI Cards with Frosted Glass & Saffron Top Border */
+  /* Stats KPI Cards with Frosted Glass & Saffron Top Border */
+  html:not([data-theme="dark"]) .home-hero .hero-stat-card {
+    background: rgba(255, 255, 255, 0.90) !important;
+    border: 1px solid rgba(255, 255, 255, 0.95) !important;
+    border-top: 2.5px solid #FF8800 !important;
+    backdrop-filter: blur(16px) !important;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  html:not([data-theme="dark"]) .home-hero .hero-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.09) !important;
+  }
+  html:not([data-theme="dark"]) .home-hero .hero-stat-card .hero-stat-num {
+    color: #0A1931 !important;
+  }
+  html:not([data-theme="dark"]) .home-hero .hero-stat-card .hero-stat-label {
+    color: #475569 !important;
+  }
+
+  [data-theme="dark"] .home-hero .hero-stat-card {
+    background: rgba(17, 23, 43, 0.85) !important;
+    border: 1px solid rgba(148, 163, 184, 0.18) !important;
+    border-top: 2.5px solid #FF8800 !important;
+    backdrop-filter: blur(16px) !important;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3) !important;
+  }
+  [data-theme="dark"] .home-hero .hero-stat-card .hero-stat-num {
+    color: #F8FAFC !important;
+  }
+  [data-theme="dark"] .home-hero .hero-stat-card .hero-stat-label {
+    color: #94A3B8 !important;
+  }
+
+  /* Right Card (AI Lab Innovation Center) */
+  html:not([data-theme="dark"]) .home-hero .glass-hero-card {
+    background: rgba(255, 255, 255, 0.88) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 20px 48px rgba(15, 23, 42, 0.08) !important;
+    backdrop-filter: blur(20px) !important;
+  }
+  [data-theme="dark"] .home-hero .glass-hero-card {
+    background: rgba(17, 23, 43, 0.88) !important;
+    border: 1.5px solid rgba(148, 163, 184, 0.20) !important;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(20px) !important;
+  }
+
+  html:not([data-theme="dark"]) .home-hero .hero-feature-card {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border: 1px solid rgba(255, 255, 255, 0.95) !important;
+    border-bottom: 2.5px solid #10B981 !important;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05) !important;
+    transition: transform 0.2s ease;
+  }
+  html:not([data-theme="dark"]) .home-hero .hero-feature-card p:first-child {
+    color: #0A1931 !important;
+  }
+  html:not([data-theme="dark"]) .home-hero .hero-feature-card p:last-child {
+    color: #64748B !important;
+  }
+
+  [data-theme="dark"] .home-hero .hero-feature-card {
+    background: rgba(17, 23, 43, 0.85) !important;
+    border: 1px solid rgba(148, 163, 184, 0.18) !important;
+    border-bottom: 2.5px solid #10B981 !important;
+  }
+  [data-theme="dark"] .home-hero .hero-feature-card p:first-child {
+    color: #F8FAFC !important;
+  }
+  [data-theme="dark"] .home-hero .hero-feature-card p:last-child {
+    color: #94A3B8 !important;
+  }
+
+  html:not([data-theme="dark"]) .home-hero .ai-lab-slide-bg {
+    background: radial-gradient(circle at 50% 25%, rgba(16, 185, 129, 0.08) 0%, rgba(255, 255, 255, 0.96) 65%) !important;
+    border: 1px solid rgba(16, 185, 129, 0.18) !important;
+  }
+  html:not([data-theme="dark"]) .home-hero .ai-lab-slide-bg h3 {
+    color: #0A1931 !important;
+  }
+  html:not([data-theme="dark"]) .home-hero .ai-lab-slide-bg p {
+    color: #475569 !important;
+  }
+
+  [data-theme="dark"] .home-hero .ai-lab-slide-bg {
+    background: radial-gradient(circle at 50% 25%, rgba(16, 185, 129, 0.15) 0%, rgba(17, 23, 43, 0.96) 65%) !important;
+    border: 1px solid rgba(16, 185, 129, 0.25) !important;
+  }
+  [data-theme="dark"] .home-hero .ai-lab-slide-bg h3 {
+    color: #F8FAFC !important;
+  }
+  [data-theme="dark"] .home-hero .ai-lab-slide-bg p {
+    color: #CBD5E1 !important;
+  }
+
+  /* 4. Explore AI Labs: Lush Emerald Green Button */
+  .home-hero .ai-lab-slide-bg .btn-primary {
+    background: linear-gradient(135deg, #059669 0%, #10B981 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 20px rgba(5, 150, 105, 0.30) !important;
+    font-weight: 700 !important;
+  }
+  .home-hero .ai-lab-slide-bg .btn-primary:hover {
+    box-shadow: 0 12px 26px rgba(5, 150, 105, 0.45) !important;
+    transform: translateY(-2px);
+  }
+
+  /* Partner chips */
+  html:not([data-theme="dark"]) .home-hero .partner-chip {
+    background: #FFFFFF !important;
+    color: #0A1931 !important;
+    border: 1px solid rgba(10, 25, 60, 0.12) !important;
+    box-shadow: 0 4px 12px rgba(10, 25, 60, 0.05) !important;
+  }
+  [data-theme="dark"] .home-hero .partner-chip {
+    background: #161F3D !important;
+    color: #F8FAFC !important;
+    border: 1px solid rgba(148, 163, 184, 0.25) !important;
+  }
+
+  /* =========================================================================
+     [PAGE-WIDE THEME] INDIAN TRICOLOR & CHAKRA UNIFIED HOMEPAGE STYLING
+     Supports both Light Mode (radiant tricolor) & Dark Mode (deep tricolor).
+     ========================================================================= */
+
+  /* 1. LIGHT MODE CANVAS & TYPOGRAPHY */
+  html:not([data-theme="dark"]) .main-content {
+    background: 
+      radial-gradient(circle at 4% 10%, rgba(255, 140, 40, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 96% 40%, rgba(16, 185, 129, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 6% 75%, rgba(37, 99, 235, 0.03) 0%, transparent 40%),
+      #F8FAFC !important;
+  }
+
+  html:not([data-theme="dark"]) .section-head h2 {
+    color: #0A1931 !important;
+    font-family: var(--font-display, 'Outfit', sans-serif) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  html:not([data-theme="dark"]) .section-head p.muted {
+    color: #475569 !important;
+    font-size: 1.02rem !important;
+  }
+
+  html:not([data-theme="dark"]) .section-link {
+    color: #1D4ED8 !important;
+    font-weight: 700 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    transition: all 0.2s ease !important;
+  }
+
+  html:not([data-theme="dark"]) .section-link:hover {
+    color: #FF6B00 !important;
+    transform: translateX(4px);
+  }
+
+  html:not([data-theme="dark"]) .card-premium,
+  html:not([data-theme="dark"]) .surface-card,
+  html:not([data-theme="dark"]) .event-card,
+  html:not([data-theme="dark"]) .faq-card,
+  html:not([data-theme="dark"]) .testimonial-card {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid rgba(226, 232, 240, 0.85) !important;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04) !important;
+    border-radius: var(--radius-lg, 22px) !important;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease !important;
+  }
+
+  html:not([data-theme="dark"]) .card-premium h3,
+  html:not([data-theme="dark"]) .card-title-sm,
+  html:not([data-theme="dark"]) .testimonial-name {
+    color: #0A1931 !important;
+    font-weight: 700 !important;
+  }
+
+  html:not([data-theme="dark"]) .card-premium p.muted,
+  html:not([data-theme="dark"]) .surface-card p.muted,
+  html:not([data-theme="dark"]) .faq-answer {
+    color: #475569 !important;
+  }
+
+  html:not([data-theme="dark"]) .faq-summary span {
+    color: #0A1931 !important;
+    font-weight: 700 !important;
+  }
+
+  html:not([data-theme="dark"]) .surface-card-lg {
+    background: #FFFFFF !important;
+    border: 1px solid rgba(226, 232, 240, 0.9) !important;
+    border-left: 4px solid #10B981 !important;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.05) !important;
+  }
+  html:not([data-theme="dark"]) .surface-card-lg h3 {
+    color: #0A1931 !important;
+    font-weight: 800 !important;
+  }
+
+  html:not([data-theme="dark"]) .carousel-nav button {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    color: #0A1931 !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06) !important;
+  }
+
+  html:not([data-theme="dark"]) .filter-row .btn.btn-ghost {
+    background: #FFFFFF !important;
+    border: 1px solid #CBD5E1 !important;
+    color: #334155 !important;
+    font-weight: 600 !important;
+  }
+
+  html:not([data-theme="dark"]) .btn-ghost {
+    background: #FFFFFF !important;
+    border: 1.5px solid rgba(15, 23, 42, 0.16) !important;
+    color: #0A1931 !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+  }
+  html:not([data-theme="dark"]) .btn-ghost:hover {
+    background: #0A1931 !important;
+    border-color: #0A1931 !important;
+    color: #FFFFFF !important;
+    transform: translateY(-2px);
+  }
+
+  /* Light Mode Navbar */
+  html:not([data-theme="dark"]) .nav-inner.glass-nav {
+    background: rgba(255, 255, 255, 0.94) !important;
+    border-bottom: 1.5px solid rgba(226, 232, 240, 0.85) !important;
+    backdrop-filter: blur(16px) !important;
+  }
+  html:not([data-theme="dark"]) .nav-link {
+    color: #334155 !important;
+  }
+  html:not([data-theme="dark"]) .nav-link:hover,
+  html:not([data-theme="dark"]) .nav-link.is-active {
+    color: #1D4ED8 !important;
+  }
+  html:not([data-theme="dark"]) .nav-link.is-active::after {
+    background: #FF6B00 !important;
+  }
+  html:not([data-theme="dark"]) .nav-brand-text em {
+    color: #FF6B00 !important;
+    font-style: normal !important;
+    font-weight: 800 !important;
+  }
+
+  /* Light Mode CTA Banner */
+  html:not([data-theme="dark"]) .cta-banner {
+    background: 
+      radial-gradient(circle at 8% 12%, rgba(255, 140, 40, 0.28) 0%, transparent 45%),
+      radial-gradient(circle at 92% 88%, rgba(16, 185, 129, 0.28) 0%, transparent 45%),
+      linear-gradient(
+        135deg,
+        #FF8A3D 0%,
+        #FFA45E 15%,
+        #FFD6B2 30%,
+        #FFFFFF 50%,
+        #E4F7EC 70%,
+        #34D399 88%,
+        #138808 100%
+      ) !important;
+    border: 2px solid rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.65), 0 20px 60px rgba(15, 23, 42, 0.08) !important;
+    color: #0A1931 !important;
+  }
+  html:not([data-theme="dark"]) .cta-banner h3 {
+    color: #0A1931 !important;
+  }
+  html:not([data-theme="dark"]) .cta-banner p {
+    color: #283854 !important;
+  }
+
+
+  /* 2. DARK MODE CANVAS & TYPOGRAPHY */
+  [data-theme="dark"] .main-content {
+    background: 
+      radial-gradient(circle at 4% 10%, rgba(255, 107, 0, 0.05) 0%, transparent 40%),
+      radial-gradient(circle at 96% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 40%),
+      radial-gradient(circle at 6% 75%, rgba(29, 78, 216, 0.07) 0%, transparent 40%),
+      #080B18 !important;
+  }
+
+  [data-theme="dark"] .section-head h2 {
+    color: #F8FAFC !important;
+    font-family: var(--font-display, 'Outfit', sans-serif) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  [data-theme="dark"] .section-head p.muted {
+    color: #94A3B8 !important;
+    font-size: 1.02rem !important;
+  }
+
+  [data-theme="dark"] .section-link {
+    color: #60A5FA !important;
+    font-weight: 700 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    transition: all 0.2s ease !important;
+  }
+  [data-theme="dark"] .section-link:hover {
+    color: #FF8A3D !important;
+    transform: translateX(4px);
+  }
+
+  [data-theme="dark"] .card-premium,
+  [data-theme="dark"] .surface-card,
+  [data-theme="dark"] .event-card,
+  [data-theme="dark"] .faq-card,
+  [data-theme="dark"] .testimonial-card,
+  [data-theme="dark"] .surface-card-lg {
+    background: #11172B !important;
+    border: 1px solid rgba(148, 163, 184, 0.18) !important;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35) !important;
+    border-radius: var(--radius-lg, 22px) !important;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease !important;
+  }
+
+  [data-theme="dark"] .card-premium h3,
+  [data-theme="dark"] .card-title-sm,
+  [data-theme="dark"] .testimonial-name,
+  [data-theme="dark"] .surface-card-lg h3 {
+    color: #F8FAFC !important;
+    font-weight: 700 !important;
+  }
+
+  [data-theme="dark"] .card-premium p.muted,
+  [data-theme="dark"] .surface-card p.muted,
+  [data-theme="dark"] .faq-answer,
+  [data-theme="dark"] .list-clean li {
+    color: #94A3B8 !important;
+  }
+
+  [data-theme="dark"] .faq-summary span {
+    color: #F8FAFC !important;
+    font-weight: 700 !important;
+  }
+
+  [data-theme="dark"] .surface-card-lg {
+    border-left: 4px solid #10B981 !important;
+  }
+
+  [data-theme="dark"] .carousel-nav button {
+    background: #161F3D !important;
+    border: 1px solid rgba(148, 163, 184, 0.25) !important;
+    color: #F8FAFC !important;
+  }
+  [data-theme="dark"] .carousel-nav button:hover {
+    background: #1D4ED8 !important;
+    border-color: #1D4ED8 !important;
+    color: #FFFFFF !important;
+  }
+
+  [data-theme="dark"] .filter-row .btn.btn-ghost {
+    background: #161F3D !important;
+    border: 1px solid rgba(148, 163, 184, 0.25) !important;
+    color: #CBD5E1 !important;
+  }
+
+  [data-theme="dark"] .btn-ghost {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1.5px solid rgba(148, 163, 184, 0.25) !important;
+    color: #F8FAFC !important;
+  }
+  [data-theme="dark"] .btn-ghost:hover {
+    background: #1D4ED8 !important;
+    border-color: #1D4ED8 !important;
+    color: #FFFFFF !important;
+  }
+
+  /* Dark Mode Header & Navbar */
+  [data-theme="dark"] .nav-wrap {
+    background: #0B0F19 !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.15) !important;
+  }
+  [data-theme="dark"] .nav-inner.glass-nav,
+  [data-theme="dark"] .glass-nav {
+    background: rgba(11, 15, 25, 0.90) !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.20) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+  }
+  [data-theme="dark"] .nav-link {
+    color: #F1F5F9 !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+  }
+  [data-theme="dark"] .nav-link:hover {
+    color: #60A5FA !important;
+    background: rgba(96, 165, 250, 0.12) !important;
+  }
+  [data-theme="dark"] .nav-link.is-active {
+    color: #FFFFFF !important;
+    background: rgba(96, 165, 250, 0.20) !important;
+  }
+  [data-theme="dark"] .nav-link.is-active::after {
+    background: #FF8A3D !important;
+  }
+  [data-theme="dark"] .nav-brand-text {
+    color: #F8FAFC !important;
+  }
+  [data-theme="dark"] .nav-brand-text em {
+    color: #FF8A3D !important;
+    font-style: normal !important;
+    font-weight: 800 !important;
+  }
+  [data-theme="dark"] .nav-actions .icon-btn {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(148, 163, 184, 0.28) !important;
+    color: #F8FAFC !important;
+  }
+  [data-theme="dark"] .nav-actions .icon-btn i {
+    color: #F8FAFC !important;
+  }
+  [data-theme="dark"] .nav-actions .icon-btn:hover {
+    background: rgba(255, 255, 255, 0.16) !important;
+    color: #FFFFFF !important;
+  }
+  [data-theme="dark"] .nav-actions .btn-ghost {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #F8FAFC !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
+    font-weight: 600 !important;
+  }
+  [data-theme="dark"] .nav-actions .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.16) !important;
+    color: #FFFFFF !important;
+  }
+  [data-theme="dark"] .nav-actions .btn-primary {
+    background: linear-gradient(135deg, #FF6B00 0%, #FF8800 100%) !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+  }
+  [data-theme="dark"] .nav-toggle span {
+    background: #F8FAFC !important;
+  }
+  [data-theme="dark"] .nav-links.open {
+    background: #0B0F19 !important;
+    border: 1px solid rgba(148, 163, 184, 0.25) !important;
+  }
+
+  /* Dark Mode Hardcoded and Inline Element Adjustments */
+  [data-theme="dark"] [style*="color: #0A1931"],
+  [data-theme="dark"] [style*="color:#0A1931"] {
+    color: #F8FAFC !important;
+  }
+  [data-theme="dark"] .event-card-image-wrap {
+    background: #161F3D !important;
+  }
+  [data-theme="dark"] .card-img-wrap > div[style*="background:linear-gradient"] {
+    background: linear-gradient(135deg, rgba(255,138,61,.18), rgba(15,23,42,.85), rgba(16,185,129,.18)) !important;
+  }
+  [data-theme="dark"] .card-img-wrap > div[style*="background:linear-gradient"] * {
+    color: #F8FAFC !important;
+  }
+
+  /* Dark Mode CTA Banner */
+  [data-theme="dark"] .cta-banner {
+    background: 
+      radial-gradient(circle at 8% 12%, rgba(255, 140, 40, 0.25) 0%, transparent 45%),
+      radial-gradient(circle at 92% 88%, rgba(16, 185, 129, 0.25) 0%, transparent 45%),
+      linear-gradient(135deg, #1C0F05 0%, #0F172A 50%, #062013 100%) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+    box-shadow: 0 0 25px rgba(255, 138, 61, 0.15), 0 20px 60px rgba(0, 0, 0, 0.4) !important;
+    color: #F8FAFC !important;
+  }
+  [data-theme="dark"] .cta-banner h3 {
+    color: #F8FAFC !important;
+  }
+  [data-theme="dark"] .cta-banner p {
+    color: #CBD5E1 !important;
+  }
+
+
+  /* 3. SHARED TRICOLOR COMPONENT ACCENTS (Active in both modes) */
+  .card-premium:hover,
+  .surface-card:hover,
+  .event-card:hover,
+  .faq-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14) !important;
+    border-color: rgba(255, 138, 61, 0.45) !important;
+  }
+
+  /* Alternating Tricolor Top Accent on Cards */
+  .grid-cards .surface-card:nth-child(3n+1),
+  .projects-showcase-grid > .card-premium:nth-child(3n+1),
+  .event-card:nth-child(3n+1),
+  .testimonial-card:nth-child(3n+1) {
+    border-top: 3px solid #FF8800 !important; /* Saffron */
+  }
+
+  .grid-cards .surface-card:nth-child(3n+2),
+  .projects-showcase-grid > .card-premium:nth-child(3n+2),
+  .event-card:nth-child(3n+2),
+  .testimonial-card:nth-child(3n+2) {
+    border-top: 3px solid #10B981 !important; /* India Green */
+  }
+
+  .grid-cards .surface-card:nth-child(3n),
+  .projects-showcase-grid > .card-premium:nth-child(3n),
+  .event-card:nth-child(3n),
+  .testimonial-card:nth-child(3n) {
+    border-top: 3px solid #1D4ED8 !important; /* Chakra Blue */
+  }
+
+  /* Products & Pricing */
+  .price-tag {
+    color: #059669 !important; /* India Green */
+    font-weight: 800 !important;
+    font-size: 1.15rem !important;
+  }
+
+  .stars, .stars i {
+    color: #F59E0B !important; /* Golden Amber */
+  }
+
+  /* Level Pills & Filter Tabs */
+  .level-pill {
+    background: rgba(255, 107, 0, 0.10) !important;
+    border: 1px solid rgba(255, 107, 0, 0.30) !important;
+    color: #FF8A3D !important;
+    font-weight: 700 !important;
+  }
+
+  .filter-row .btn.btn-primary,
+  .filter-row .btn.is-active {
+    background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%) !important;
+    border: none !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 6px 16px rgba(29, 78, 216, 0.28) !important;
+    font-weight: 700 !important;
+  }
+
+  /* Internship Tags */
+  .internship-tag.tag-featured {
+    background: rgba(255, 107, 0, 0.12) !important;
+    color: #FF8A3D !important;
+    border: 1px solid rgba(255, 107, 0, 0.32) !important;
+    font-weight: 700 !important;
+  }
+
+  .internship-tag.tag-remote {
+    background: rgba(16, 185, 129, 0.12) !important;
+    color: #10B981 !important;
+    border: 1px solid rgba(16, 185, 129, 0.32) !important;
+    font-weight: 700 !important;
+  }
+
+  /* Global Action Buttons on Home Page */
+  .btn-primary {
+    background: linear-gradient(135deg, #FF6B00 0%, #FF8800 50%, #FFA133 100%) !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    box-shadow: 0 8px 20px rgba(255, 107, 0, 0.28) !important;
+    font-weight: 700 !important;
+    transition: all 0.2s ease !important;
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 12px 26px rgba(255, 107, 0, 0.42) !important;
+    transform: translateY(-2px);
+    color: #FFFFFF !important;
+  }
+
+  .btn-accent {
+    background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 50%, #2563EB 100%) !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    box-shadow: 0 8px 20px rgba(29, 78, 216, 0.26) !important;
+    font-weight: 700 !important;
+    transition: all 0.2s ease !important;
+  }
+
+  .btn-accent:hover {
+    box-shadow: 0 12px 26px rgba(29, 78, 216, 0.40) !important;
+    transform: translateY(-2px);
+    color: #FFFFFF !important;
+  }
+
+  /* Services Section */
+  .grid-cards a.surface-card:nth-child(3n+1) div[style*="border-radius:14px"] {
+    background: rgba(255, 107, 0, 0.12) !important;
+  }
+  .grid-cards a.surface-card:nth-child(3n+1) div[style*="border-radius:14px"] i {
+    color: #FF6B00 !important;
+  }
+  .grid-cards a.surface-card:nth-child(3n+2) div[style*="border-radius:14px"] {
+    background: rgba(16, 185, 129, 0.12) !important;
+  }
+  .grid-cards a.surface-card:nth-child(3n+2) div[style*="border-radius:14px"] i {
+    color: #059669 !important;
+  }
+  .grid-cards a.surface-card:nth-child(3n) div[style*="border-radius:14px"] {
+    background: rgba(29, 78, 216, 0.12) !important;
+  }
+  .grid-cards a.surface-card:nth-child(3n) div[style*="border-radius:14px"] i {
+    color: #1D4ED8 !important;
+  }
+
+  .grid-cards a.surface-card div[style*="color:var(--primary-from)"] {
+    color: #1D4ED8 !important;
+    transition: all 0.2s ease !important;
+  }
+  .grid-cards a.surface-card:hover div[style*="color:var(--primary-from)"] {
+    color: #FF6B00 !important;
+    transform: translateX(4px);
+  }
+
+  /* FAQ Accordion Details */
+  .faq-card details[open] {
+    border-left: 4px solid #FF8800 !important;
+    box-shadow: 0 10px 28px rgba(255, 107, 0, 0.08) !important;
+  }
+  .faq-summary i {
+    color: #1D4ED8 !important;
+  }
+
+  /* Bottom CTA Promotional Banner Common Styles */
+  .cta-banner {
+    border-radius: var(--radius-lg, 22px) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    padding: 3.5rem 2.5rem !important;
+    text-align: center !important;
+  }
+
+  .cta-banner h3 {
+    font-weight: 800 !important;
+    font-family: var(--font-display, 'Outfit', sans-serif) !important;
+    font-size: clamp(1.8rem, 3.5vw, 2.5rem) !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  .cta-banner p {
+    font-size: 1.08rem !important;
+    margin-top: 0.6rem !important;
+    max-width: 650px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .cta-banner .cta-white-btn {
+    background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 50%, #2563EB 100%) !important;
+    color: #FFFFFF !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 10px 25px rgba(29, 78, 216, 0.32) !important;
+    font-weight: 700 !important;
+    border-radius: 9999px !important;
+    display: inline-block !important;
+    margin-top: 1.5rem !important;
+    padding: 0.75rem 2rem !important;
+    font-size: 1rem !important;
+    transition: all 0.25s ease !important;
+  }
+
+  .cta-banner .cta-white-btn:hover {
+    box-shadow: 0 14px 32px rgba(29, 78, 216, 0.48) !important;
+    transform: translateY(-2px);
+    color: #FFFFFF !important;
+  }
+
+  /* 4. FOOTER: Light and Transparent as before (No eye-irritating dark blue!) */
+  html:not([data-theme="dark"]) .site-footer {
+    background: rgba(255, 255, 255, 0.70) !important;
+    border-top: 1px solid rgba(226, 232, 240, 0.75) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+  }
+  html:not([data-theme="dark"]) .site-footer strong,
+  html:not([data-theme="dark"]) .site-footer h4 {
+    color: #0A1931 !important;
+  }
+  html:not([data-theme="dark"]) .site-footer .footer-tagline,
+  html:not([data-theme="dark"]) .site-footer p.muted,
+  html:not([data-theme="dark"]) .site-footer .footer-columns a,
+  html:not([data-theme="dark"]) .site-footer .footer-contact-link {
+    color: #475569 !important;
+  }
+  html:not([data-theme="dark"]) .site-footer .footer-columns a:hover,
+  html:not([data-theme="dark"]) .site-footer .footer-contact-link:hover {
+    color: #1D4ED8 !important;
+  }
+
+  [data-theme="dark"] .site-footer {
+    background: #080B18 !important;
+    border-top: 1px solid rgba(148, 163, 184, 0.15) !important;
+  }
+  [data-theme="dark"] .site-footer strong,
+  [data-theme="dark"] .site-footer h4 {
+    color: #F8FAFC !important;
+  }
+  [data-theme="dark"] .site-footer .footer-tagline,
+  [data-theme="dark"] .site-footer p.muted,
+  [data-theme="dark"] .site-footer .footer-columns a,
+  [data-theme="dark"] .site-footer .footer-contact-link {
+    color: #94A3B8 !important;
+  }
+  [data-theme="dark"] .site-footer .footer-columns a:hover,
+  [data-theme="dark"] .site-footer .footer-contact-link:hover {
+    color: #60A5FA !important;
+  }
   
   /* Apply animation transition speed */
 .reveal {
@@ -562,7 +1434,7 @@
 >
    <div class="card-premium card-img-full" style="border-radius:var(--radius-lg);">
     <div class="relative hero-grad-bg">
-      <div class="absolute inset-0" style="background:
+      <div class="absolute inset-0 hero-ambient-glow" style="background:
         radial-gradient(60% 60% at 20% 20%, rgba(79,70,229,.35), transparent 60%),
         radial-gradient(50% 50% at 80% 25%, rgba(6,182,212,.25), transparent 60%),
         radial-gradient(60% 60% at 55% 85%, rgba(249,115,22,.20), transparent 60%);
@@ -673,7 +1545,7 @@
     {% endfor %}
 
     {% if slide_index.value == 0 %}
-        <div class="hero-carousel-slide is-active" data-slide="0" style="display:flex;align-items:center;justify-content:center;min-height:340px;background:radial-gradient(circle at 50% 40%, rgba(99,102,241,0.25) 0%, rgba(15,23,42,0.6) 100%);border-radius:1rem;border:1px solid rgba(255,255,255,0.1);padding:2rem;text-align:center;">
+        <div class="hero-carousel-slide is-active ai-lab-slide-bg" data-slide="0" style="display:flex;align-items:center;justify-content:center;min-height:340px;background:radial-gradient(circle at 50% 40%, rgba(99,102,241,0.25) 0%, rgba(15,23,42,0.6) 100%);border-radius:1rem;border:1px solid rgba(255,255,255,0.1);padding:2rem;text-align:center;">
             <div>
                 <div style="font-size:3.75rem;margin-bottom:0.75rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3));">🤖 ⚡ 🎓</div>
                 <h3 style="color:#fff;font-weight:800;font-size:1.35rem;letter-spacing:-0.01em;margin-bottom:0.5rem;">AI & Robotics Innovation Center</h3>
@@ -1522,10 +2394,10 @@
           loading="lazy"
           decoding="async">
       {% endif %}
-           <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(79,70,229,.18),rgba(6,182,212,.12),rgba(249,115,22,.10));">
+           <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(255,138,61,.14),rgba(255,255,255,.7),rgba(16,185,129,.14));">
         <div style="text-align:center;">
-          <div style="font-size:2.3rem;" aria-hidden="true"><i class="ri-building-2-line"></i></div>
-          <p style="margin:0.6rem 0 0;font-weight:800;font-family:var(--font-display);">Demo Lab Visual</p>
+          <div style="font-size:2.3rem;color:#0A1931;" aria-hidden="true"><i class="ri-building-2-line"></i></div>
+          <p style="margin:0.6rem 0 0;font-weight:800;color:#0A1931;font-family:var(--font-display);">Demo Lab Visual</p>
           <p class="muted" style="margin:0.25rem 0 0;">Admin can upload real lab images.</p>
         </div>
       </div>
@@ -1592,8 +2464,8 @@
       onerror="this.style.display='none';"
     >
   {% else %}
-    <div style="display:flex;width:100%;height:100%;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(29,78,216,.12),rgba(109,40,217,.10),rgba(249,115,22,.08));">
-      <i class="ri-flashlight-line" aria-hidden="true" style="font-size:2rem;"></i>
+    <div style="display:flex;width:100%;height:100%;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(255,138,61,.12),rgba(255,255,255,.6),rgba(16,185,129,.12));">
+      <i class="ri-flashlight-line" aria-hidden="true" style="font-size:2rem;color:#0A1931;"></i>
     </div>
   {% endif %}
     </div>
@@ -2280,13 +3152,13 @@
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     {% for banner in cta_banners %}
       {% if banner.title %}
-      <div class="rounded-2xl border border-indigo-100 bg-white p-6 shadow-sm">
-        <h2 class="text-lg md:text-xl font-bold text-slate-900">
+      <div class="card-premium surface-card p-6" style="border-top: 3px solid #1D4ED8;">
+        <h2 class="text-lg md:text-xl font-bold">
           {{ banner.title }}
         </h2>
         {% if banner.link %}
           <a href="{{ banner.link }}"
-             class="inline-flex mt-4 items-center rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white hover:bg-indigo-700">
+             class="btn btn-primary btn-sm mt-4">
             Explore Now →
           </a>
         {% endif %}
@@ -2324,7 +3196,7 @@
 
 <!-- CTA BANNER -->
 {% if visibilities.cta_banner %}
-<section class="cta-banner reveal" style="background: linear-gradient(135deg, var(--primary-from, #4F46E5) 0%, var(--primary-to, #06B6D4) 100%); position: relative; overflow: hidden; border-radius: var(--radius-lg, 22px);">
+<section class="cta-banner reveal">
   {% if content.footer_promo_image %}
   <div class="absolute inset-0 opacity-20" style="background-image: url('{{ content.footer_promo_image if content.footer_promo_image.startswith("http") else url_for("static", filename=content.footer_promo_image) }}'); background-size: cover; background-position: center; pointer-events: none;"></div>
   {% endif %}
