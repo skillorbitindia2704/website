@@ -5,6 +5,7 @@ import hashlib
 import secrets
 from datetime import date
 from pathlib import Path
+from urllib.parse import urlparse, unquote
 from werkzeug.utils import secure_filename
 from typing import Optional
 
@@ -85,6 +86,10 @@ def _normalize_lookup_id(raw: str) -> str:
     m = _UUID_RE.search(s)
     if m:
         return m.group(0).lower()
+    if "://" in s:
+        path = unquote(urlparse(s).path).rstrip("/")
+        if path:
+            return path.rsplit("/", 1)[-1]
     return s
 
 
@@ -160,6 +165,8 @@ def _save_custom_pdf(upload):
         raise ValueError("Please choose a certificate PDF.")
     if not upload.filename.lower().endswith(".pdf"):
         raise ValueError("Only PDF certificates are supported.")
+    if upload.mimetype not in {"application/pdf", "application/octet-stream", "application/x-pdf"}:
+        raise ValueError("The uploaded file must have PDF content type.")
     data = upload.read(10 * 1024 * 1024 + 1)
     if len(data) > 10 * 1024 * 1024:
         raise ValueError("Certificate PDF must be 10 MB or smaller.")
@@ -194,7 +201,7 @@ def upload_custom_certificate():
         uid = (request.form.get("certificate_uid") or "").strip()
         if not uid:
             uid = str(__import__("uuid").uuid4())
-        if len(uid) > 120 or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._/-]{2,119}", uid):
+        if len(uid) > 120 or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{2,119}", uid):
             raise ValueError("Certificate ID must be 3–120 characters using letters, numbers, dot, underscore, slash or hyphen.")
         if Certificate.query.filter_by(certificate_uid=uid).first() or CustomCertificate.query.filter_by(certificate_uid=uid).first():
             raise ValueError("This Certificate ID already exists. Please use a unique ID.")
