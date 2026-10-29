@@ -69,7 +69,7 @@
           <tr>
             <td>{{ c.issued_at.strftime('%d %b %Y') }}</td><td>{{ c.user.full_name }}<br><small>{{ c.user.email }}</small></td><td>{{ c.program_title }}</td><td>{{ c.certificate_title }}</td><td style="word-break:break-all;">{{ c.certificate_uid }}</td><td>Custom Uploaded</td><td>{{ c.verification_status|title }}</td>
             <td style="min-width:220px;">
-              <a href="{{ url_for('certificates.verify', uid=c.certificate_uid) }}" target="_blank" rel="noopener">View / Verify</a> · <a href="{{ url_for('certificates.download_custom_certificate', uid=c.certificate_uid) }}">Download</a>
+              <a href="{{ url_for('certificates.verify', uid=c.certificate_uid) }}" target="_blank" rel="noopener">Verify</a> · <a href="{{ url_for('certificates.view_custom_certificate', uid=c.certificate_uid) }}" target="_blank" rel="noopener">View PDF</a> · <a href="{{ url_for('certificates.download_custom_certificate', uid=c.certificate_uid) }}">Download</a>
               <details style="margin-top:.6rem;"><summary>Edit / Manage</summary>
                 <form method="post" action="{{ url_for('certificates.manage_custom_certificate', certificate_id=c.id) }}" enctype="multipart/form-data" style="display:grid;gap:.4rem;margin-top:.5rem;">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
