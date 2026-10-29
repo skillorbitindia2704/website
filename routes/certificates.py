@@ -280,6 +280,16 @@ def manage_custom_certificate(certificate_id):
     if status not in {"verified", "pending", "revoked"}:
         flash("Invalid verification status.", "danger")
         return redirect(url_for("admin.issue_certificate"))
+    new_uid = (request.form.get("certificate_uid") or cert.certificate_uid).strip()
+    if len(new_uid) > 120 or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{2,119}", new_uid):
+        flash("Certificate ID must be 3–120 characters using letters, numbers, dot, underscore or hyphen.", "danger")
+        return redirect(url_for("admin.issue_certificate"))
+    duplicate_system = Certificate.query.filter_by(certificate_uid=new_uid).first()
+    duplicate_custom = CustomCertificate.query.filter_by(certificate_uid=new_uid).first()
+    if duplicate_system or (duplicate_custom and duplicate_custom.id != cert.id):
+        flash("This Certificate ID already exists. Please use a unique ID.", "danger")
+        return redirect(url_for("admin.issue_certificate"))
+    cert.certificate_uid = new_uid
     cert.verification_status = status
     cert.certificate_title = (request.form.get("certificate_title") or cert.certificate_title).strip()[:180]
     cert.remarks = (request.form.get("remarks") or "").strip()[:4000]
