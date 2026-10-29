@@ -1444,16 +1444,26 @@ def internships():
             flash("Title must be at least 2 characters.", "danger")
             return redirect(url_for("admin.internships"))
         try:
-            program_fee = int((request.form.get("program_fee_inr") or "0").strip())
-            if program_fee < 0:
+            raw_fee = (request.form.get("program_fee_inr") or "0").strip()
+            program_fee = int(raw_fee)
+            program_type = (request.form.get("program_type") or "").strip().lower()
+            # Backward compatibility for forms submitted before the type selector existed.
+            if not program_type:
+                program_type = "paid" if program_fee > 0 else "unpaid"
+            if program_type not in {"paid", "unpaid"} or program_fee < 0:
                 raise ValueError
+            if program_type == "paid" and program_fee <= 0:
+                flash("Enter a program fee greater than ₹0 for a Paid Program.", "danger")
+                return redirect(url_for("admin.internships"))
+            if program_type == "unpaid":
+                program_fee = 0
         except (TypeError, ValueError):
-            flash("Program fee must be a non-negative whole amount in INR.", "danger")
+            flash("Choose Paid or Unpaid and enter a valid whole amount in INR.", "danger")
             return redirect(url_for("admin.internships"))
         row = Internship(
             title=title,
             description=request.form.get("description", "").strip(),
-            stipend=request.form.get("stipend", "").strip(),
+            stipend=request.form.get("stipend", "").strip() if program_type == "unpaid" else "",
             internship_type=request.form.get("internship_type", "").strip(),
             duration=request.form.get("duration", "").strip(),
             location=request.form.get("location", "").strip(),
@@ -1509,12 +1519,22 @@ def edit_internship(iid):
     row.requirements = request.form.get("requirements", row.requirements or "").strip()
     row.skills_needed = request.form.get("skills_needed", row.skills_needed or "").strip()
     try:
-        program_fee = int((request.form.get("program_fee_inr") or "0").strip())
-        if program_fee < 0:
+        raw_fee = (request.form.get("program_fee_inr") or "0").strip()
+        program_fee = int(raw_fee)
+        program_type = (request.form.get("program_type") or "").strip().lower()
+        if not program_type:
+            program_type = "paid" if program_fee > 0 else "unpaid"
+        if program_type not in {"paid", "unpaid"} or program_fee < 0:
             raise ValueError
+        if program_type == "paid" and program_fee <= 0:
+            flash("Enter a program fee greater than ₹0 for a Paid Program.", "danger")
+            return redirect(url_for("admin.internships"))
+        if program_type == "unpaid":
+            program_fee = 0
     except (TypeError, ValueError):
-        flash("Program fee must be a non-negative whole amount in INR.", "danger")
+        flash("Choose Paid or Unpaid and enter a valid whole amount in INR.", "danger")
         return redirect(url_for("admin.internships"))
+    row.stipend = request.form.get("stipend", row.stipend or "").strip() if program_type == "unpaid" else ""
     row.listing_status = _internship_listing_status(request.form.get("listing_status", row.listing_status))
     row.is_visible = request.form.get("is_visible") == "1"
     row.is_active = request.form.get("is_active") == "1"
