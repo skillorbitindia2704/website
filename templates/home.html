@@ -1391,36 +1391,63 @@
 </section>
 {% endif %}
 
-<!-- POPULAR COURSES -->
+<!-- POPULAR COURSES — aligned with Verified Certificates visual style -->
+<style>
+.home-popular-courses{margin:clamp(28px,5vw,64px) auto;padding:clamp(26px,4vw,56px) clamp(14px,3vw,32px);border:1px solid rgba(129,140,248,.18);border-radius:28px;background:radial-gradient(circle at 0 0,rgba(255,138,61,.10),transparent 34%),radial-gradient(circle at 100% 100%,rgba(16,185,129,.09),transparent 32%),linear-gradient(135deg,#f8f9ff,#f1f4ff 58%,#f9fbff);overflow:hidden}
+.home-popular-courses .pc-heading{text-align:center;max-width:760px;margin:0 auto 28px}
+.home-popular-courses .pc-eyebrow{display:inline-flex;gap:8px;align-items:center;padding:8px 14px;margin-bottom:14px;border:1px solid #dcdcff;border-radius:999px;background:#eeeeff;color:#4f46e5;font-size:.75rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
+.home-popular-courses .pc-heading h2{margin:0;color:#111a31;font-family:var(--font-display,inherit);font-size:clamp(1.9rem,3.5vw,2.8rem);font-weight:800;letter-spacing:-.04em;line-height:1.15}
+.home-popular-courses .pc-heading p{max-width:640px;margin:12px auto 0;color:#58657d;line-height:1.75}
+.home-popular-courses .pc-all-link{display:inline-flex;gap:9px;align-items:center;margin-top:18px;padding:11px 17px;border:1px solid #dcdffc;border-radius:999px;background:#fff;color:#4338ca;font-weight:750;text-decoration:none;transition:.2s}
+.home-popular-courses .pc-all-link:hover{transform:translateY(-2px);box-shadow:0 10px 24px #4f46e51c}
+.home-popular-courses .pc-filters{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin:0 0 24px}
+.home-popular-courses .pc-filter{padding:10px 17px;border:1px solid #dbe2f2;border-radius:999px;background:#fff;color:#34415a;font:inherit;font-size:.9rem;font-weight:700;cursor:pointer;transition:.18s}
+.home-popular-courses .pc-filter:hover,.home-popular-courses .pc-filter[aria-pressed=true]{border-color:#6366f1;background:linear-gradient(110deg,#4f46e5,#0891b2);color:#fff;box-shadow:0 8px 18px #4f46e52e}
+.home-popular-courses .pc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.home-popular-courses .pc-card{display:flex;min-width:0;flex-direction:column;padding:clamp(20px,2.2vw,27px);border:1px solid #dce3f0;border-radius:22px;background:rgba(255,255,255,.94);box-shadow:0 12px 34px #1622410e;transition:transform .2s,box-shadow .2s,border-color .2s}
+.home-popular-courses .pc-card:hover{transform:translateY(-4px);border-color:#a5b4fc;box-shadow:0 20px 42px #2d37641c}
+.home-popular-courses .pc-card-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}
+.home-popular-courses .pc-level{display:inline-flex;max-width:68%;padding:7px 11px;border:1px solid #d8d9ff;border-radius:999px;background:#f0f0ff;color:#4f46e5;font-size:.78rem;font-weight:800}
+.home-popular-courses .pc-duration{color:#66718a;font-size:.86rem;font-weight:700;white-space:nowrap}
+.home-popular-courses .pc-card h3{margin:0 0 10px;color:#111a31;font-family:var(--font-display,inherit);font-size:clamp(1.08rem,1.4vw,1.25rem);font-weight:800;letter-spacing:-.025em;line-height:1.4}
+.home-popular-courses .pc-instructor{margin:0 0 12px;color:#475569;font-size:.92rem;font-weight:650}
+.home-popular-courses .pc-description{display:-webkit-box;min-height:4.8em;margin:0 0 22px;overflow:hidden;color:#58657d;font-size:.94rem;line-height:1.65;-webkit-box-orient:vertical;-webkit-line-clamp:3}
+.home-popular-courses .pc-card-foot{margin-top:auto}
+.home-popular-courses .pc-cta{display:inline-flex;min-height:45px;align-items:center;justify-content:center;gap:9px;padding:12px 18px;border-radius:14px;background:linear-gradient(110deg,#4f46e5,#0891b2);color:#fff!important;font-weight:800;text-decoration:none;box-shadow:0 10px 22px #4f46e533;transition:transform .18s,box-shadow .18s}
+.home-popular-courses .pc-cta:hover{transform:translateY(-2px);box-shadow:0 14px 26px #4f46e542}
+.home-popular-courses .pc-empty{grid-column:1/-1;padding:26px;border:1px dashed #cbd5e1;border-radius:18px;color:#58657d;text-align:center}
+@media(max-width:960px){.home-popular-courses .pc-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}}
+@media(max-width:620px){.home-popular-courses{margin:26px 10px;padding:26px 13px;border-radius:22px}.home-popular-courses .pc-grid{grid-template-columns:1fr}.home-popular-courses .pc-card{padding:21px}.home-popular-courses .pc-description{min-height:0}}
+@media(prefers-reduced-motion:reduce){.home-popular-courses *{transition:none!important}}
+</style>
 {% if visibilities.courses %}
-<div class="section-head reveal">
-  <h2>Popular courses</h2>
-      <a href="{{ url_for('courses.list_courses') }}" class="section-link">All courses <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
-</div>
-<div class="filter-row reveal">
-  <button type="button" class="btn btn-ghost btn-sm js-course-filter" data-level="all">All</button>
-  <button type="button" class="btn btn-ghost btn-sm js-course-filter" data-level="Beginner">Beginner</button>
-  <button type="button" class="btn btn-ghost btn-sm js-course-filter" data-level="Intermediate">Intermediate</button>
-  <button type="button" class="btn btn-ghost btn-sm js-course-filter" data-level="Advanced">Advanced</button>
-</div>
-<div class="grid-cards reveal">
-  {% for c in courses %}
-  <article class="card-premium course-card" data-course-level="{{ c.level }}">
-    <div class="card-body">
-      <div class="card-meta">
-        <span class="level-pill">{{ c.level }}</span>
-        <span>{{ c.duration }}</span>
-      </div>
+<section class="home-popular-courses reveal" id="popular-courses" aria-labelledby="pc-title">
+  <header class="pc-heading">
+    <span class="pc-eyebrow"><i class="ri-shield-check-line" aria-hidden="true"></i> Industry-aligned learning</span>
+    <h2 id="pc-title">Popular Courses</h2>
+    <p>Build practical skills with hands-on courses designed to help you learn, build and lead with confidence.</p>
+    <a href="{{ url_for('courses.list_courses') }}" class="pc-all-link">Explore all courses <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+  </header>
+  <div class="pc-filters" role="group" aria-label="Filter courses by level">
+    <button type="button" class="pc-filter js-course-filter" data-level="all" aria-pressed="true">All courses</button>
+    <button type="button" class="pc-filter js-course-filter" data-level="Beginner" aria-pressed="false">Beginner</button>
+    <button type="button" class="pc-filter js-course-filter" data-level="Intermediate" aria-pressed="false">Intermediate</button>
+    <button type="button" class="pc-filter js-course-filter" data-level="Advanced" aria-pressed="false">Advanced</button>
+  </div>
+  <div class="pc-grid grid-cards reveal">
+    {% for c in courses %}
+    <article class="pc-card card-premium course-card" data-course-level="{{ c.level }}">
+      <div class="pc-card-meta"><span class="pc-level">{{ c.level }}</span><span class="pc-duration">{{ c.duration }}</span></div>
       <h3>{{ c.title }}</h3>
-      <p class="muted">{{ c.instructor_name }}</p>
-      <p class="muted">{{ c.description[:100] }}{% if c.description|length > 100 %}…{% endif %}</p>
-      <a href="{{ url_for('courses.list_courses') }}" class="btn btn-primary btn-sm">View course</a>
-    </div>
-  </article>
-  {% else %}
-  <p class="muted">No courses yet.</p>
-  {% endfor %}
-</div>
+      <p class="pc-instructor">{{ c.instructor_name }}</p>
+      <p class="pc-description">{{ c.description }}</p>
+      <div class="pc-card-foot"><a href="{{ url_for('courses.list_courses') }}" class="pc-cta">View course <i class="ri-arrow-right-line" aria-hidden="true"></i></a></div>
+    </article>
+    {% else %}
+    <p class="pc-empty">New courses are being prepared. Please check back soon.</p>
+    {% endfor %}
+  </div>
+</section>
 {% endif %}
 
 <!-- INTERNSHIPS -->
