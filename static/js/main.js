@@ -340,8 +340,18 @@
     btn.addEventListener("click", () => {
       const id = btn.getAttribute("data-internship-id");
       const title = btn.getAttribute("data-internship-title") || "Apply";
+      const programFee = Number(btn.getAttribute("data-program-fee") || "0");
       if (modalForm) modalForm.action = `/internships/apply/${id}`;
       if (modalTitle) modalTitle.textContent = title;
+      const modalHelp = $("#internship-modal-help");
+      const submitButton = modalForm?.querySelector('button[type="submit"]');
+      if (programFee > 0) {
+        if (modalHelp) modalHelp.textContent = `Upload your resume and continue to secure Razorpay checkout for the one-time ₹${programFee} program fee. Your application is submitted after payment verification.`;
+        if (submitButton) submitButton.innerHTML = '<i class="ri-lock-line" aria-hidden="true"></i> Continue to Secure Payment';
+      } else {
+        if (modalHelp) modalHelp.textContent = "Upload your resume and optionally include a brief note for the evaluation team.";
+        if (submitButton) submitButton.innerHTML = '<i class="ri-send-plane-fill" aria-hidden="true"></i> Submit Application';
+      }
       modal?.classList.add("open");
     });
   });
