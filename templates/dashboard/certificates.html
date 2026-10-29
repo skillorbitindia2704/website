@@ -29,7 +29,7 @@
         <td><code>{{ c.certificate_uid }}</code></td>
         <td>{{ c.issued_at.strftime('%d %b %Y') }}</td>
         <td>{{ c.verification_status|title }}</td>
-        <td><a href="{{ url_for('certificates.verify', uid=c.certificate_uid) }}">Verify Certificate</a> · <a href="{{ url_for('certificates.download_custom_certificate', uid=c.certificate_uid) }}">View / Download Original PDF</a></td>
+        <td><a href="{{ url_for('certificates.verify', uid=c.certificate_uid) }}">Verify Certificate</a> · <a href="{{ url_for('certificates.view_custom_certificate', uid=c.certificate_uid) }}" target="_blank" rel="noopener">View Original PDF</a> · <a href="{{ url_for('certificates.download_custom_certificate', uid=c.certificate_uid) }}">Download PDF</a></td>
       </tr>
       {% endfor %}
     </tbody>
