@@ -25,6 +25,7 @@ from extensions import bcrypt, csrf, login_manager
 # pyright: ignore[reportUnusedImport, reportUnknownVariableType, reportUnknownMemberType, reportCallIssue, reportAttributeAccessIssue, reportDeprecated, reportMissingParameterType, reportUnknownArgumentType]
 
 from models import db
+from models.custom_certificate import CustomCertificate  # noqa: F401 — register custom certificate table before db.create_all()
 from models.ai_lab_package import AILabPackage
 from models.internship import Internship, InternshipApplication, InternshipProgramFee, InternshipProgramPayment  # noqa: F401 — register internship payment tables before db.create_all()
 if TYPE_CHECKING:
