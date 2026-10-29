@@ -193,16 +193,23 @@ def upload_custom_certificate():
         learner = User.query.get_or_404(int(request.form.get("user_id", "")))
         if learner.role != "student":
             raise ValueError("Select a registered learner account.")
-        program_type = request.form.get("program_type", "course")
-        program_id = int(request.form.get("program_id", ""))
+        program_type = (request.form.get("program_type") or "course").strip().lower()
+        allowed_program_types = {"course", "internship", "teacher_training", "workshop", "summer_camp", "bootcamp", "seminar"}
+        if program_type not in allowed_program_types:
+            raise ValueError("Select a valid Course / Program type.")
+        course_id, program_ref_id = None, None
         if program_type == "internship":
+            program_id = int(request.form.get("program_id", ""))
             program = Internship.query.get_or_404(program_id)
-            course_id, program_ref_id, program_title = None, program.id, program.title
+            program_ref_id, program_title = program.id, program.title
         elif program_type == "course":
+            program_id = int(request.form.get("program_id", ""))
             program = Course.query.get_or_404(program_id)
-            course_id, program_ref_id, program_title = program.id, None, program.title
+            course_id, program_title = program.id, program.title
         else:
-            raise ValueError("Select a valid course or internship program.")
+            program_title = (request.form.get("program_title") or "").strip()[:180]
+            if not program_title:
+                raise ValueError("Enter the name of the selected program.")
 
         title = (request.form.get("certificate_title") or "Certificate of Completion").strip()[:180]
         uid = (request.form.get("certificate_uid") or "").strip()
@@ -213,7 +220,7 @@ def upload_custom_certificate():
         if Certificate.query.filter_by(certificate_uid=uid).first() or CustomCertificate.query.filter_by(certificate_uid=uid).first():
             raise ValueError("This Certificate ID already exists. Please use a unique ID.")
         status = request.form.get("verification_status", "verified").lower()
-        if status not in {"verified", "pending", "revoked"}:
+        if status not in {"verified", "pending", "revoked", "disabled"}:
             raise ValueError("Choose a valid verification status.")
         issued_at = date.fromisoformat(request.form.get("issued_at", ""))
         stored_path = _save_custom_pdf(request.files.get("certificate_file"))
