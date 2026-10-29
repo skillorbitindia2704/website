@@ -33,11 +33,11 @@
   <section class="card-premium form-modern reveal" style="padding:1.25rem;margin:1.25rem 0;">
     <h2 style="font-size:1.25rem;font-weight:700;">2. Upload Custom Certificate</h2>
     <p class="muted">Upload an already-designed PDF from Canva, Illustrator, Photoshop, or another design tool. The uploaded PDF is stored as-is; it is not regenerated.</p>
-    {% if users_list %}
+    {% if learners_list %}
     <form method="post" action="{{ url_for('certificates.upload_custom_certificate') }}" enctype="multipart/form-data">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div><label for="custom_user_id">Learner</label><select id="custom_user_id" name="user_id" required>{% for u in users_list %}<option value="{{ u.id }}">{{ u.full_name }} ({{ u.email }})</option>{% endfor %}</select></div>
+        <div><label for="custom_user_id">Learner</label><select id="custom_user_id" name="user_id" required>{% for u in learners_list %}<option value="{{ u.id }}">{{ u.full_name }} ({{ u.email }})</option>{% endfor %}</select></div>
         <div><label for="program_type">Course / Program type</label><select id="program_type" name="program_type" required><option value="course">Course</option><option value="internship">Internship</option></select></div>
         <div><label for="program_id">Course / Internship</label><select id="program_id" name="program_id" required>{% for c in courses_list %}<option value="{{ c.id }}" data-kind="course">Course: {{ c.title }}</option>{% endfor %}{% for p in internships_list %}<option value="{{ p.id }}" data-kind="internship">Internship: {{ p.title }}</option>{% endfor %}</select></div>
         <div><label for="certificate_title">Certificate title</label><input id="certificate_title" name="certificate_title" maxlength="180" value="Certificate of Completion" required></div>
