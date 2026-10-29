@@ -31,7 +31,7 @@ from models.course_cert_highlight import CourseCertHighlight
 from models.course_learning_path import CourseLearningPath
 from models.course_showcase_project import CourseShowcaseProject
 from models.courses_page_content import CoursesPageContent
-from models.internship import Internship, InternshipApplication
+from models.internship import Internship, InternshipApplication, InternshipProgramFee
 from models.service_request import ServiceRequest
 from models.service_package import ServicePackage
 from models.event import Event
@@ -1443,6 +1443,13 @@ def internships():
         if len(title) < 2:
             flash("Title must be at least 2 characters.", "danger")
             return redirect(url_for("admin.internships"))
+        try:
+            program_fee = int((request.form.get("program_fee_inr") or "0").strip())
+            if program_fee < 0:
+                raise ValueError
+        except (TypeError, ValueError):
+            flash("Program fee must be a non-negative whole amount in INR.", "danger")
+            return redirect(url_for("admin.internships"))
         row = Internship(
             title=title,
             description=request.form.get("description", "").strip(),
@@ -1461,6 +1468,9 @@ def internships():
         )
         try:
             db.session.add(row)
+            db.session.flush()
+            if program_fee > 0:
+                db.session.add(InternshipProgramFee(internship_id=row.id, fee_inr=program_fee))
             db.session.commit()
             flash("Internship listing created.", "success")
         except SQLAlchemyError:
@@ -1498,6 +1508,13 @@ def edit_internship(iid):
     row.location = request.form.get("location", row.location or "").strip()
     row.requirements = request.form.get("requirements", row.requirements or "").strip()
     row.skills_needed = request.form.get("skills_needed", row.skills_needed or "").strip()
+    try:
+        program_fee = int((request.form.get("program_fee_inr") or "0").strip())
+        if program_fee < 0:
+            raise ValueError
+    except (TypeError, ValueError):
+        flash("Program fee must be a non-negative whole amount in INR.", "danger")
+        return redirect(url_for("admin.internships"))
     row.listing_status = _internship_listing_status(request.form.get("listing_status", row.listing_status))
     row.is_visible = request.form.get("is_visible") == "1"
     row.is_active = request.form.get("is_active") == "1"
@@ -1505,6 +1522,14 @@ def edit_internship(iid):
     row.is_urgent = request.form.get("is_urgent") == "1"
     row.is_remote = request.form.get("is_remote") == "1"
     try:
+        fee_record = InternshipProgramFee.query.filter_by(internship_id=row.id).first()
+        if program_fee > 0:
+            if fee_record:
+                fee_record.fee_inr = program_fee
+            else:
+                db.session.add(InternshipProgramFee(internship_id=row.id, fee_inr=program_fee))
+        elif fee_record:
+            db.session.delete(fee_record)
         db.session.commit()
         flash("Internship listing updated.", "success")
     except SQLAlchemyError:
