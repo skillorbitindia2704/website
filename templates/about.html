@@ -461,6 +461,54 @@
     background: rgba(255, 255, 255, 0.30) !important;
     transform: translateY(-2px);
   }
+
+  /* Who We Are image: predictable aspect ratio and responsive cropping. */
+  .who-we-are-image-card {
+    position: relative;
+    overflow: hidden;
+    align-self: stretch;
+    min-width: 0;
+    min-height: 0;
+    aspect-ratio: 4 / 5;
+    border-radius: var(--radius-lg, 24px);
+    background: #e2e8f0;
+  }
+  .who-we-are-image-card > img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-fit: cover;
+    object-position: center 42%;
+  }
+  .who-we-are-image-caption {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 14px;
+    color: #fff;
+    background: rgba(15,23,42,0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+  }
+  .who-we-are-image-caption-main { display:flex; align-items:center; gap:0.6rem; min-width:0; }
+  .who-we-are-image-caption-icon { width:32px; height:32px; flex:0 0 32px; border-radius:8px; background:linear-gradient(135deg,var(--primary-from),var(--accent-from)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1rem; }
+  .who-we-are-image-caption-title { margin:0; font-weight:700; font-size:0.88rem; color:#fff; }
+  .who-we-are-image-caption-subtitle { margin:0; font-size:0.75rem; color:rgba(255,255,255,0.78); }
+  .who-we-are-image-caption-tag { flex:0 0 auto; font-size:0.75rem; font-weight:600; padding:0.25rem 0.65rem; background:rgba(255,255,255,0.15); border-radius:20px; white-space:nowrap; color:#fff; }
+  @media (max-width: 640px) {
+    .who-we-are-image-card { aspect-ratio: 4 / 3; }
+    .who-we-are-image-caption { left:0.65rem; right:0.65rem; bottom:0.65rem; padding:0.65rem; }
+    .who-we-are-image-caption-tag { display:none; }
+  }
 </style>
 {% endblock %}
 
@@ -621,21 +669,21 @@
   </article>
 
    {% if content.who_we_are_side_image %}
-   <article class="card-premium card-img-full" style="position:relative;overflow:hidden;border-radius:var(--radius-lg);display:flex;min-height:420px;">
+   <article class="card-premium card-img-full who-we-are-image-card">
      <img src="{{ content.who_we_are_side_image }}"
-          alt="Skill Orbit India Story"
-          style="width:100%;height:100%;min-height:400px;object-fit:cover;object-position:center;display:block;">
-     <div style="position:absolute;bottom:1.25rem;left:1.25rem;right:1.25rem;background:rgba(15,23,42,0.8);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.18);padding:0.75rem 1.15rem;border-radius:14px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;box-shadow:0 10px 25px -5px rgba(0,0,0,0.3);">
-       <div style="display:flex;align-items:center;gap:0.6rem;">
-         <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--primary-from),var(--accent-from));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;">
-           <i class="ri-user-star-line"></i>
+          alt="Students collaborating on hands-on robotics and engineering projects at Skill Orbit India"
+          loading="lazy" decoding="async">
+     <div class="who-we-are-image-caption">
+       <div class="who-we-are-image-caption-main">
+         <div class="who-we-are-image-caption-icon">
+           <i class="ri-user-star-line" aria-hidden="true"></i>
          </div>
          <div>
-           <p style="margin:0;font-weight:700;font-size:0.88rem;color:#fff;">Hands-on Tech Mentorship</p>
-           <p style="margin:0;font-size:0.75rem;color:rgba(255,255,255,0.75);">AI • Robotics • Embedded Systems</p>
+           <p class="who-we-are-image-caption-title">Hands-on Tech Mentorship</p>
+           <p class="who-we-are-image-caption-subtitle">AI • Robotics • Embedded Systems</p>
          </div>
        </div>
-       <span style="font-size:0.75rem;font-weight:600;padding:0.25rem 0.65rem;background:rgba(255,255,255,0.15);border-radius:20px;white-space:nowrap;color:#fff;">Learn • Build • Lead</span>
+       <span class="who-we-are-image-caption-tag">Learn • Build • Lead</span>
      </div>
    </article>
    {% else %}
