@@ -1555,7 +1555,8 @@ def edit_internship(iid):
         flash("Internship listing updated.", "success")
     except SQLAlchemyError:
         db.session.rollback()
-        flash("Could not update internship.", "danger")
+        current_app.logger.exception("Could not update internship listing id=%s", iid)
+        flash("Could not update internship. Please check the server logs for the database error and try again.", "danger")
     return redirect(url_for("admin.internships"))
 
 
