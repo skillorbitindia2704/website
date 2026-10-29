@@ -2373,10 +2373,9 @@
   const cards = document.querySelectorAll("[data-course-level]");
 
   function setActive(btn) {
-    buttons.forEach(b => b.classList.remove("btn-primary"));
-    buttons.forEach(b => b.classList.add("btn-ghost"));
-    btn.classList.remove("btn-ghost");
-    btn.classList.add("btn-primary");
+    buttons.forEach(b => {
+      b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+    });
   }
 
   buttons.forEach((btn) => {
