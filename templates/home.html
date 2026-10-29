@@ -2324,26 +2324,73 @@
 
 <!-- INTERNSHIPS -->
 {% if visibilities.internships %}
-<div class="section-head reveal">
-  <h2>Internship highlights</h2>
-      <a href="{{ url_for('internships.listing') }}" class="section-link">See openings <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
-</div>
-<div class="grid-cards reveal">
-  {% for i in internships %}
-  <article class="card-premium job-card">
-    <h3>{{ i.title }}</h3>
-    <div class="internship-tags-row">
-      {% if i.is_featured %}<span class="internship-tag tag-featured">Featured</span>{% endif %}
-      {% if i.is_remote %}<span class="internship-tag tag-remote">Remote</span>{% endif %}
-    </div>
-    <p class="muted">{{ i.description[:120] }}{% if i.description|length > 120 %}…{% endif %}</p>
-    <p class="price-tag">{{ i.stipend or 'Stipend TBD' }}</p>
-    <a href="{{ url_for('internships.listing') }}" class="btn btn-ghost btn-sm">Apply now</a>
-  </article>
-  {% else %}
-  <p class="muted">New internships will appear here.</p>
-  {% endfor %}
-</div>
+<style>
+  .home-internship-highlights{position:relative;margin:clamp(28px,4vw,54px) auto;padding:clamp(28px,4vw,48px) clamp(16px,3vw,34px);width:min(1440px,calc(100% - 32px));border:1px solid #e0e5f5;border-radius:28px;background:radial-gradient(circle at 0 0,rgba(255,138,61,.10),transparent 34%),radial-gradient(circle at 100% 100%,rgba(16,185,129,.09),transparent 32%),linear-gradient(135deg,#f8f9ff,#f1f4ff 58%,#f9fbff);overflow:hidden}
+  .home-internship-highlights .ih-heading{text-align:center;max-width:760px;margin:0 auto 30px}
+  .home-internship-highlights .ih-eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:14px;padding:8px 14px;border:1px solid #dcdcff;border-radius:999px;background:#eeeeff;color:#4f46e5;font-size:.75rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
+  .home-internship-highlights .ih-heading h2{margin:0;color:#111a31;font-family:var(--font-display,inherit);font-size:clamp(1.9rem,3.5vw,2.8rem);font-weight:800;letter-spacing:-.04em;line-height:1.15}
+  .home-internship-highlights .ih-heading p{max-width:640px;margin:12px auto 0;color:#58657d;line-height:1.75}
+  .home-internship-highlights .ih-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+  .home-internship-highlights .ih-card{display:flex;min-width:0;flex-direction:column;padding:clamp(20px,2.2vw,27px);border:1px solid #dce3f0;border-radius:22px;background:rgba(255,255,255,.94);box-shadow:0 12px 34px #1622410e;transition:transform .2s,box-shadow .2s,border-color .2s}
+  .home-internship-highlights .ih-card:hover{transform:translateY(-4px);border-color:#a5b4fc;box-shadow:0 20px 42px #2d37641c}
+  .home-internship-highlights .ih-card-top{display:flex;align-items:center;gap:13px;margin-bottom:18px}
+  .home-internship-highlights .ih-icon{display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;border:1px solid #dcdcff;border-radius:15px;background:linear-gradient(135deg,#eeeeff,#e7f8ff);color:#4f46e5;font-size:1.45rem}
+  .home-internship-highlights .ih-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}
+  .home-internship-highlights .ih-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px solid #dbe2f2;border-radius:999px;background:#f8fafc;color:#475569;font-size:.73rem;font-weight:750}
+  .home-internship-highlights .ih-tag-featured{border-color:#fed7aa;background:#fff7ed;color:#c2410c}
+  .home-internship-highlights .ih-tag-remote{border-color:#a7f3d0;background:#ecfdf5;color:#047857}
+  .home-internship-highlights .ih-card h3{margin:0;color:#111a31;font-family:var(--font-display,inherit);font-size:clamp(1.08rem,1.4vw,1.25rem);font-weight:800;letter-spacing:-.025em;line-height:1.4}
+  .home-internship-highlights .ih-description{display:-webkit-box;min-height:4.8em;margin:0 0 20px;overflow:hidden;color:#58657d;font-size:.94rem;line-height:1.65;-webkit-box-orient:vertical;-webkit-line-clamp:3}
+  .home-internship-highlights .ih-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:auto;padding-top:16px;border-top:1px solid #edf0f7}
+  .home-internship-highlights .ih-stipend{display:flex;align-items:center;gap:7px;color:#34415a;font-size:.88rem;font-weight:800}
+  .home-internship-highlights .ih-cta{display:inline-flex;min-height:44px;align-items:center;justify-content:center;gap:8px;padding:11px 16px;border-radius:14px;background:linear-gradient(110deg,#4f46e5,#0891b2);color:#fff!important;font-size:.9rem;font-weight:800;text-decoration:none;box-shadow:0 10px 22px #4f46e533;transition:transform .18s,box-shadow .18s}
+  .home-internship-highlights .ih-cta:hover{transform:translateY(-2px);box-shadow:0 14px 26px #4f46e542}
+  .home-internship-highlights .ih-empty{grid-column:1/-1;padding:26px;border:1px dashed #cbd5e1;border-radius:18px;background:rgba(255,255,255,.65);color:#58657d;text-align:center}
+  .home-internship-highlights .ih-all-link{display:inline-flex;align-items:center;gap:8px;margin-top:22px;padding:11px 17px;border:1px solid #dcdffc;border-radius:999px;background:#fff;color:#4338ca;font-weight:750;text-decoration:none;transition:.2s}
+  .home-internship-highlights .ih-all-link:hover{transform:translateY(-2px);box-shadow:0 10px 24px #4f46e51c}
+  @media(max-width:960px){.home-internship-highlights .ih-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}}
+  @media(max-width:620px){.home-internship-highlights{width:calc(100% - 20px);margin:26px 10px;padding:26px 13px;border-radius:22px}.home-internship-highlights .ih-grid{grid-template-columns:1fr}.home-internship-highlights .ih-card{padding:21px}.home-internship-highlights .ih-description{min-height:0}.home-internship-highlights .ih-bottom{align-items:stretch;flex-direction:column}.home-internship-highlights .ih-cta{width:100%;box-sizing:border-box}}
+  @media(prefers-reduced-motion:reduce){.home-internship-highlights *{transition:none!important}}
+  [data-theme="dark"] .home-internship-highlights{border-color:rgba(148,163,184,.18);background:radial-gradient(circle at 0 0,rgba(255,138,61,.08),transparent 34%),radial-gradient(circle at 100% 100%,rgba(16,185,129,.08),transparent 32%),linear-gradient(135deg,#11182b,#171d34 58%,#101827)}
+  [data-theme="dark"] .home-internship-highlights .ih-heading h2,[data-theme="dark"] .home-internship-highlights .ih-card h3{color:#f8fafc}
+  [data-theme="dark"] .home-internship-highlights .ih-heading p,[data-theme="dark"] .home-internship-highlights .ih-description{color:#cbd5e1}
+  [data-theme="dark"] .home-internship-highlights .ih-card{border-color:rgba(148,163,184,.2);background:rgba(17,24,39,.88)}
+  [data-theme="dark"] .home-internship-highlights .ih-bottom{border-color:rgba(148,163,184,.18)}
+  [data-theme="dark"] .home-internship-highlights .ih-stipend{color:#e2e8f0}
+</style>
+<section class="home-internship-highlights reveal" aria-labelledby="ih-title">
+  <header class="ih-heading">
+    <span class="ih-eyebrow"><i class="ri-rocket-2-line" aria-hidden="true"></i> CAREER-READY EXPERIENCE</span>
+    <h2 id="ih-title">Internship Highlights</h2>
+    <p>Build practical skills, work on real-world projects and take the next step in your career with Skill Orbit India.</p>
+  </header>
+  <div class="ih-grid">
+    {% for i in internships %}
+    <article class="ih-card">
+      <div class="ih-card-top">
+        <div class="ih-icon" aria-hidden="true"><i class="ri-briefcase-4-line"></i></div>
+        <div style="min-width:0;">
+          <h3>{{ i.title }}</h3>
+          <div class="ih-tags">
+            {% if i.is_featured %}<span class="ih-tag ih-tag-featured"><i class="ri-star-fill" aria-hidden="true"></i> Featured</span>{% endif %}
+            {% if i.is_remote %}<span class="ih-tag ih-tag-remote"><i class="ri-global-line" aria-hidden="true"></i> Remote</span>{% endif %}
+          </div>
+        </div>
+      </div>
+      <p class="ih-description">{{ (i.description or 'Gain hands-on experience and build practical, industry-aligned skills.')[:150] }}{% if (i.description or '')|length > 150 %}…{% endif %}</p>
+      <div class="ih-bottom">
+        <span class="ih-stipend"><i class="ri-wallet-3-line" aria-hidden="true"></i>{{ i.stipend or 'Stipend TBD' }}</span>
+        <a href="{{ url_for('internships.listing') }}" class="ih-cta">Explore internship <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+      </div>
+    </article>
+    {% else %}
+    <p class="ih-empty">New internship opportunities are being prepared. Check back soon.</p>
+    {% endfor %}
+  </div>
+  <div style="text-align:center;">
+    <a href="{{ url_for('internships.listing') }}" class="ih-all-link">View all openings <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+  </div>
+</section>
 {% endif %}
 
 <!-- SERVICES -->
