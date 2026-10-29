@@ -266,7 +266,7 @@ def view_custom_certificate(uid):
     if cert.user_id != current_user.id and not getattr(current_user, "has_admin_access", False):
         abort(403)
     path = Path(cert.file_path).resolve()
-    private_root = (Path(current_app.instance_path) / "private_certificates").resolve()
+    private_root = _certificate_storage_root()
     if private_root not in path.parents or not path.is_file():
         abort(404)
     return send_file(path, as_attachment=False, download_name=secure_filename(cert.certificate_title) + ".pdf", mimetype="application/pdf")
