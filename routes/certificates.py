@@ -23,7 +23,7 @@ from utils.role_auth import admin_required
 cert_bp = Blueprint("certificates", __name__)
 
 # Certificate IDs are UUID strings (36 chars); cap input length for basic abuse resistance.
-_MAX_CERT_ID_LEN = 80
+_MAX_CERT_ID_LEN = 120
 _UUID_RE = re.compile(
     r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
     re.IGNORECASE,
@@ -252,6 +252,19 @@ def download_custom_certificate(uid):
                      download_name=secure_filename(cert.certificate_title) + ".pdf",
                      mimetype="application/pdf")
 
+
+@cert_bp.get("/view-custom/<string:uid>")
+def view_custom_certificate(uid):
+    cert = CustomCertificate.query.filter_by(certificate_uid=uid).first_or_404()
+    if not current_user.is_authenticated:
+        abort(403)
+    if cert.user_id != current_user.id and not getattr(current_user, "has_admin_access", False):
+        abort(403)
+    path = Path(cert.file_path).resolve()
+    private_root = (Path(current_app.instance_path) / "private_certificates").resolve()
+    if private_root not in path.parents or not path.is_file():
+        abort(404)
+    return send_file(path, as_attachment=False, download_name=secure_filename(cert.certificate_title) + ".pdf", mimetype="application/pdf")
 
 @cert_bp.post("/admin/custom/<int:certificate_id>/manage")
 @admin_required
