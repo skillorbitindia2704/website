@@ -5,6 +5,7 @@ from sqlalchemy.orm import selectinload
 
 from models import db
 from models.course import Certificate, Enrollment
+from models.custom_certificate import CustomCertificate
 from models.notification import Notification
 from models.store import Order, OrderItem
 from models.user import User
@@ -76,4 +77,5 @@ def my_courses():
 @login_required
 def certificates():
     certs = Certificate.query.filter_by(user_id=current_user.id).order_by(Certificate.issued_at.desc()).all()
-    return render_template("dashboard/certificates.html", certificates=certs)
+    custom_certs = CustomCertificate.query.filter_by(user_id=current_user.id).order_by(CustomCertificate.issued_at.desc()).all()
+    return render_template("dashboard/certificates.html", certificates=certs, custom_certificates=custom_certs)
