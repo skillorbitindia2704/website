@@ -470,6 +470,12 @@ def create_app():
     app.register_blueprint(store_api_bp, url_prefix="/store")
     app.register_blueprint(courses_bp, url_prefix="/courses")
     app.register_blueprint(cert_bp, url_prefix="/certificate")
+
+    @app.route("/verify-certificate", methods=["GET", "POST"])
+    def verify_certificate_alias():
+        # Friendly root-level alias; reuse the existing certificate lookup logic.
+        from routes.certificates import verify_lookup
+        return verify_lookup()
     app.register_blueprint(internships_bp, url_prefix="/internships")
     app.register_blueprint(it_services_bp, url_prefix="/it-services")
     app.register_blueprint(ai_lab_bp, url_prefix="/ai-lab")
