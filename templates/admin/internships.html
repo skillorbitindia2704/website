@@ -95,6 +95,7 @@
           data-description="{{ i.description|e }}"
           data-stipend="{{ i.stipend|e }}"
           data-program-fee="{{ i.program_fee_record.fee_inr if i.program_fee_record else 0 }}"
+          data-program-type="{{ 'paid' if i.program_fee_record and i.program_fee_record.fee_inr > 0 else 'unpaid' }}"
           data-internship-type="{{ i.internship_type|e }}"
           data-duration="{{ i.duration|e }}"
           data-location="{{ i.location|e }}"
@@ -291,8 +292,12 @@
 
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
         <div style="display:flex; flex-direction:column; gap:0.4rem;">
-          <label for="f-stipend" style="font-weight:600; color:#475569; font-size:0.88rem; margin:0;">Stipend</label>
-          <input type="text" name="stipend" id="f-stipend" placeholder="e.g. ₹10k - ₹15k / month" style="padding:0.6rem 0.75rem; border:1px solid #cbd5e1; border-radius:6px; font-size:0.9rem;">
+          <label for="f-program-type" style="font-weight:600; color:#475569; font-size:0.88rem; margin:0;">Program Type *</label>
+          <select name="program_type" id="f-program-type" required style="padding:0.65rem 0.75rem; border:1px solid #cbd5e1; border-radius:6px; font-size:0.9rem; background:#fff;">
+            <option value="unpaid">Unpaid / Free Program</option>
+            <option value="paid">Paid Program (Enrollment Fee)</option>
+          </select>
+          <small class="muted">Choose whether applicants join for free or pay an enrollment fee.</small>
         </div>
         <div style="display:flex; flex-direction:column; gap:0.4rem;">
           <label for="f-type" style="font-weight:600; color:#475569; font-size:0.88rem; margin:0;">Internship Type</label>
@@ -300,11 +305,18 @@
         </div>
       </div>
 
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+      <div id="f-stipend-panel" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
         <div style="display:flex; flex-direction:column; gap:0.4rem;">
-          <label for="f-program-fee" style="font-weight:600; color:#475569; font-size:0.88rem; margin:0;">Program Enrollment Fee (INR)</label>
-          <input type="number" name="program_fee_inr" id="f-program-fee" min="0" step="1" value="0" inputmode="numeric" placeholder="0 = unpaid / free" style="padding:0.6rem 0.75rem; border:1px solid #cbd5e1; border-radius:6px; font-size:0.9rem;">
-          <small class="muted">Set ₹0 for a free listing. A positive amount enables Razorpay checkout before application submission.</small>
+          <label for="f-stipend" style="font-weight:600; color:#475569; font-size:0.88rem; margin:0;">Stipend Paid by Organization (optional)</label>
+          <input type="text" name="stipend" id="f-stipend" placeholder="e.g. ₹5,000 / month or Unpaid" style="padding:0.6rem 0.75rem; border:1px solid #cbd5e1; border-radius:6px; font-size:0.9rem;">
+          <small class="muted">Shown for the free/unpaid enrollment program. Enter the stipend the organization will pay, if applicable.</small>
+        </div>
+      </div>
+      <div id="f-program-fee-panel" style="display:none; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+        <div style="display:flex; flex-direction:column; gap:0.4rem;">
+          <label for="f-program-fee" style="font-weight:600; color:#475569; font-size:0.88rem; margin:0;">Enrollment Fee (INR) *</label>
+          <input type="number" name="program_fee_inr" id="f-program-fee" min="1" step="1" value="" inputmode="numeric" placeholder="e.g. 500" style="padding:0.6rem 0.75rem; border:1px solid #cbd5e1; border-radius:6px; font-size:0.9rem;">
+          <small class="muted">Applicants must pay this fee through Razorpay before the application is submitted.</small>
         </div>
       </div>
 
@@ -546,10 +558,32 @@
     boxes.forEach(function (cb) { cb.checked = !!on; });
   }
 
+  function syncProgramTypeFields() {
+    var typeSelect = document.getElementById("f-program-type");
+    var stipendPanel = document.getElementById("f-stipend-panel");
+    var feePanel = document.getElementById("f-program-fee-panel");
+    var stipendInput = document.getElementById("f-stipend");
+    var feeInput = document.getElementById("f-program-fee");
+    var paid = typeSelect && typeSelect.value === "paid";
+    if (stipendPanel) stipendPanel.style.display = paid ? "none" : "grid";
+    if (feePanel) feePanel.style.display = paid ? "grid" : "none";
+    if (stipendInput) stipendInput.disabled = !!paid;
+    if (feeInput) {
+      feeInput.disabled = !paid;
+      feeInput.required = !!paid;
+      if (!paid) feeInput.value = "";
+    }
+  }
+
+  document.getElementById("f-program-type")?.addEventListener("change", syncProgramTypeFields);
+
   function openCreateModal() {
     modalTitle.textContent = "New Internship Listing";
     form.action = "{{ url_for('admin.internships') }}";
     form.reset();
+    document.getElementById("f-program-type").value = "unpaid";
+    document.getElementById("f-program-fee").value = "";
+    syncProgramTypeFields();
     document.getElementById("f-status").value = "active";
     setCheckbox("is_visible", true);
     setCheckbox("is_active", true);
@@ -567,7 +601,9 @@
     document.getElementById("f-title").value = btn.getAttribute("data-title") || "";
     document.getElementById("f-description").value = btn.getAttribute("data-description") || "";
     document.getElementById("f-stipend").value = btn.getAttribute("data-stipend") || "";
-    document.getElementById("f-program-fee").value = btn.getAttribute("data-program-fee") || "0";
+    document.getElementById("f-program-fee").value = btn.getAttribute("data-program-fee") || "";
+    document.getElementById("f-program-type").value = btn.getAttribute("data-program-type") || (Number(btn.getAttribute("data-program-fee") || "0") > 0 ? "paid" : "unpaid");
+    syncProgramTypeFields();
     document.getElementById("f-type").value = btn.getAttribute("data-internship-type") || "";
     document.getElementById("f-duration").value = btn.getAttribute("data-duration") || "";
     document.getElementById("f-location").value = btn.getAttribute("data-location") || "";
