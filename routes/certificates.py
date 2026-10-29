@@ -186,6 +186,8 @@ def upload_custom_certificate():
     stored_path = None
     try:
         learner = User.query.get_or_404(int(request.form.get("user_id", "")))
+        if learner.role != "student":
+            raise ValueError("Select a registered learner account.")
         program_type = request.form.get("program_type", "course")
         program_id = int(request.form.get("program_id", ""))
         if program_type == "internship":
