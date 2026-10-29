@@ -2442,57 +2442,366 @@
 
 <!-- AI LAB SETUP -->
 {% if visibilities.ai_lab %}
-<div class="section-head reveal">
-  <h2>{{ content.ai_lab_heading }}</h2>
-  <p class="muted">{{ content.ai_lab_description }}</p>
-</div>
-<section class="grid-cards grid-cards--lg reveal">
-  <article class="card-premium card-img-full">
-    <div class="card-img-wrap" style="aspect-ratio:16/9;">
-      {% if content.ai_lab_image %}
-      <img
-          src="{% if content.ai_lab_image.startswith('http://') or content.ai_lab_image.startswith('https://') %}{{ content.ai_lab_image }}{% else %}{{ url_for('static', filename=content.ai_lab_image) }}{% endif %}"
-          alt="{{ content.ai_lab_heading }}"
-          loading="lazy"
-          decoding="async">
-      {% endif %}
-           <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(255,138,61,.14),rgba(255,255,255,.7),rgba(16,185,129,.14));">
-        <div style="text-align:center;">
-          <div style="font-size:2.3rem;color:#0A1931;" aria-hidden="true"><i class="ri-building-2-line"></i></div>
-          <p style="margin:0.6rem 0 0;font-weight:800;color:#0A1931;font-family:var(--font-display);">Demo Lab Visual</p>
-          <p class="muted" style="margin:0.25rem 0 0;">Admin can upload real lab images.</p>
+<section class="ai-lab-home-section reveal" aria-labelledby="ai-lab-home-title">
+  <div class="ai-lab-home-inner">
+    <header class="ai-lab-home-heading">
+      <span class="ai-lab-home-eyebrow"><i class="ri-building-2-line" aria-hidden="true"></i> FUTURE-READY LEARNING SPACES</span>
+      <h2 id="ai-lab-home-title">{{ content.ai_lab_heading or 'AI Lab Setup for Schools & Colleges' }}</h2>
+      <p>{{ content.ai_lab_description or 'Bring practical AI, robotics and emerging technology into your campus with a lab designed for hands-on learning.' }}</p>
+    </header>
+
+    <div class="ai-lab-home-layout">
+      <article class="ai-lab-home-feature">
+        <div class="ai-lab-home-visual">
+          {% if content.ai_lab_image %}
+            <img
+              src="{% if content.ai_lab_image.startswith('http://') or content.ai_lab_image.startswith('https://') %}{{ content.ai_lab_image }}{% else %}{{ url_for('static', filename=content.ai_lab_image) }}{% endif %}"
+              alt="{{ content.ai_lab_heading or 'AI and Robotics Lab for schools and colleges' }}"
+              loading="lazy"
+              decoding="async">
+          {% else %}
+            <div class="ai-lab-home-visual-fallback">
+              <span class="ai-lab-home-visual-icon"><i class="ri-robot-2-line" aria-hidden="true"></i></span>
+              <strong>Build your campus innovation lab</strong>
+              <span>Artificial Intelligence · Robotics · IoT</span>
+            </div>
+          {% endif %}
+          <span class="ai-lab-home-visual-tag"><i class="ri-sparkling-2-line" aria-hidden="true"></i> Learn by building</span>
         </div>
-      </div>
+        <div class="ai-lab-home-feature-body">
+          <span class="ai-lab-home-kicker">END-TO-END LAB SOLUTIONS</span>
+          <h3>From lab planning to hands-on projects</h3>
+          <p>Equip learners and educators with practical tools, guided training and project-based experiences in emerging technologies.</p>
+          <div class="ai-lab-home-points">
+            <span><i class="ri-checkbox-circle-line" aria-hidden="true"></i> Practical kits & equipment</span>
+            <span><i class="ri-checkbox-circle-line" aria-hidden="true"></i> Educator training & curriculum support</span>
+            <span><i class="ri-checkbox-circle-line" aria-hidden="true"></i> Setup guidance & ongoing support</span>
+          </div>
+          <div class="ai-lab-home-actions">
+            <a href="{{ content.ai_lab_cta_link or url_for('ai_lab.index') ~ '#enquiry' }}" class="btn btn-primary ai-lab-home-btn">{{ content.ai_lab_cta_text or 'Request a proposal' }} <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+            <a href="{{ url_for('ai_lab.index') }}" class="ai-lab-home-text-link">Explore lab solutions <i class="ri-arrow-up-right-line" aria-hidden="true"></i></a>
+          </div>
+        </div>
+      </article>
+
+      <aside class="ai-lab-home-includes">
+        <div class="ai-lab-home-includes-head">
+          <span class="ai-lab-home-includes-icon"><i class="ri-flask-line" aria-hidden="true"></i></span>
+          <div>
+            <span class="ai-lab-home-kicker">WHAT'S INCLUDED</span>
+            <h3>Everything to get started</h3>
+          </div>
+        </div>
+        <ul class="ai-lab-home-equipment">
+          {% for eq in ai_lab_equipment %}
+          <li><span class="ai-lab-home-check"><i class="ri-check-line" aria-hidden="true"></i></span><span>{{ eq }}</span></li>
+          {% else %}
+          <li><span class="ai-lab-home-check"><i class="ri-check-line" aria-hidden="true"></i></span><span>AI and robotics lab setup</span></li>
+          <li><span class="ai-lab-home-check"><i class="ri-check-line" aria-hidden="true"></i></span><span>Robotics kits and IoT modules</span></li>
+          <li><span class="ai-lab-home-check"><i class="ri-check-line" aria-hidden="true"></i></span><span>Teacher training and curriculum support</span></li>
+          <li><span class="ai-lab-home-check"><i class="ri-check-line" aria-hidden="true"></i></span><span>Installation and maintenance guidance</span></li>
+          {% endfor %}
+        </ul>
+        <div class="ai-lab-home-note">
+          <i class="ri-lightbulb-flash-line" aria-hidden="true"></i>
+          <p>Designed to help students move from classroom concepts to real-world innovation.</p>
+        </div>
+        <a href="{{ content.ai_lab_cta_link or url_for('ai_lab.index') ~ '#enquiry' }}" class="btn btn-accent ai-lab-home-demo-btn">Book a free demo <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+        <p class="ai-lab-home-footnote"><i class="ri-school-line" aria-hidden="true"></i> For schools, colleges and learning institutions</p>
+      </aside>
     </div>
-    <div class="card-body">
-      <h3 class="card-title-sm">Complete AI + Robotics Lab</h3>
-      <p class="muted">Robotics kits, IoT modules, teacher training, curriculum support, and installation.</p>
-      <div class="form-actions-row">
-        <a href="{{ content.ai_lab_cta_link or url_for('ai_lab.index') ~ '#enquiry' }}" class="btn btn-primary btn-sm">{{ content.ai_lab_cta_text or 'Request proposal' }}</a>
-        <a href="{{ url_for('ai_lab.index') }}" class="btn btn-ghost btn-sm">Explore demo lab</a>
-      </div>
-    </div>
-  </article>
-  <article class="card-premium surface-card-lg">
-    <h3 class="card-title-sm">What’s included</h3>
-    <ul class="list-clean">
-      {% for eq in ai_lab_equipment %}
-      <li>{{ eq }}</li>
-      {% else %}
-      <li>Complete AI Lab Setup</li>
-      <li>Robotics Kits</li>
-      <li>IoT Modules</li>
-      <li>Teacher Training</li>
-      <li>Curriculum Support</li>
-      <li>Installation & Maintenance</li>
-      {% endfor %}
-    </ul>
-    <div class="form-actions-row">
-      <a href="{{ content.ai_lab_cta_link or url_for('ai_lab.index') ~ '#enquiry' }}" class="btn btn-accent btn-sm">Book Free Demo</a>
-      <a href="{{ url_for('ai_lab.index') }}" class="btn btn-ghost btn-sm">Learn more</a>
-    </div>
-  </article>
+  </div>
 </section>
+
+<style>
+.ai-lab-home-section {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(3.5rem, 7vw, 6rem) 0;
+}
+.ai-lab-home-section::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 8% 12%, rgba(99,102,241,.10), transparent 38%),
+    radial-gradient(ellipse at 92% 85%, rgba(6,182,212,.10), transparent 36%),
+    linear-gradient(135deg, rgba(248,250,252,.96), rgba(243,246,255,.96) 52%, rgba(240,253,250,.94));
+}
+.ai-lab-home-inner {
+  width: min(1320px, 100%);
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 3rem);
+}
+.ai-lab-home-heading {
+  max-width: 790px;
+  margin: 0 auto clamp(2rem, 4vw, 3rem);
+  text-align: center;
+}
+.ai-lab-home-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .55rem .9rem;
+  border: 1px solid rgba(79,70,229,.18);
+  border-radius: 999px;
+  background: rgba(255,255,255,.78);
+  color: #4338CA;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .11em;
+}
+.ai-lab-home-heading h2 {
+  margin: 1rem 0 .8rem;
+  color: #0A1931;
+  font-size: clamp(2rem, 4.2vw, 3.35rem);
+  line-height: 1.12;
+  font-weight: 800;
+  letter-spacing: -.045em;
+}
+.ai-lab-home-heading > p {
+  max-width: 680px;
+  margin: 0 auto;
+  color: #526176;
+  font-size: clamp(.98rem, 1.5vw, 1.08rem);
+  line-height: 1.8;
+}
+.ai-lab-home-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr);
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  align-items: stretch;
+}
+.ai-lab-home-feature,
+.ai-lab-home-includes {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(203,213,225,.7);
+  border-radius: clamp(1.25rem, 2.4vw, 2rem);
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 22px 60px rgba(15,23,42,.07);
+}
+.ai-lab-home-feature {
+  display: flex;
+  flex-direction: column;
+}
+.ai-lab-home-visual {
+  position: relative;
+  min-height: 250px;
+  aspect-ratio: 16 / 8.5;
+  overflow: hidden;
+  background: linear-gradient(135deg,#e0e7ff,#ecfeff 55%,#d1fae5);
+}
+.ai-lab-home-visual > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 250px;
+  object-fit: cover;
+}
+.ai-lab-home-visual-fallback {
+  display: flex;
+  min-height: 280px;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  padding: 2rem;
+  text-align: center;
+  color: #0A1931;
+}
+.ai-lab-home-visual-icon {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border: 1px solid rgba(79,70,229,.16);
+  border-radius: 24px;
+  background: rgba(255,255,255,.8);
+  color: #4F46E5;
+  font-size: 2.7rem;
+  box-shadow: 0 12px 32px rgba(79,70,229,.12);
+}
+.ai-lab-home-visual-fallback strong { font-size: clamp(1.15rem,2vw,1.5rem); }
+.ai-lab-home-visual-fallback > span:last-child { color: #526176; font-size: .85rem; }
+.ai-lab-home-visual-tag {
+  position: absolute;
+  left: 1.1rem;
+  bottom: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .55rem .8rem;
+  border: 1px solid rgba(255,255,255,.7);
+  border-radius: 999px;
+  background: rgba(255,255,255,.9);
+  color: #0F172A;
+  font-size: .78rem;
+  font-weight: 800;
+  box-shadow: 0 6px 20px rgba(15,23,42,.1);
+  backdrop-filter: blur(10px);
+}
+.ai-lab-home-feature-body { padding: clamp(1.4rem,3vw,2.2rem); }
+.ai-lab-home-kicker {
+  color: #4F46E5;
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+.ai-lab-home-feature-body h3,
+.ai-lab-home-includes-head h3 {
+  margin: .55rem 0 .65rem;
+  color: #0A1931;
+  font-size: clamp(1.35rem,2.3vw,1.8rem);
+  line-height: 1.3;
+  font-weight: 800;
+  letter-spacing: -.025em;
+}
+.ai-lab-home-feature-body > p {
+  max-width: 650px;
+  margin: 0;
+  color: #526176;
+  line-height: 1.8;
+}
+.ai-lab-home-points {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: .8rem 1rem;
+  margin-top: 1.35rem;
+}
+.ai-lab-home-points span {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+  color: #334155;
+  font-size: .9rem;
+  line-height: 1.5;
+}
+.ai-lab-home-points i { color: #059669; font-size: 1.15rem; flex: 0 0 auto; }
+.ai-lab-home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.25rem;
+  margin-top: 1.6rem;
+}
+.ai-lab-home-btn,
+.ai-lab-home-demo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+  min-height: 46px;
+  padding: .8rem 1.15rem;
+  border-radius: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.ai-lab-home-btn { background: linear-gradient(135deg,#4F46E5,#2563EB) !important; box-shadow: 0 10px 24px rgba(79,70,229,.22); color: #fff !important; }
+.ai-lab-home-btn:hover,
+.ai-lab-home-demo-btn:hover { transform: translateY(-2px); }
+.ai-lab-home-text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  color: #3730A3;
+  font-weight: 800;
+  text-decoration: none;
+}
+.ai-lab-home-text-link:hover { color: #0E7490; }
+.ai-lab-home-includes {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.4rem,3vw,2rem);
+  background: linear-gradient(155deg,rgba(255,255,255,.98),rgba(245,247,255,.96));
+}
+.ai-lab-home-includes-head { display: flex; align-items: center; gap: .9rem; }
+.ai-lab-home-includes-icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  flex: 0 0 auto;
+  border-radius: 17px;
+  background: linear-gradient(135deg,#4F46E5,#06B6D4);
+  color: #fff;
+  font-size: 1.65rem;
+  box-shadow: 0 10px 24px rgba(79,70,229,.2);
+}
+.ai-lab-home-includes-head h3 { margin-bottom: 0; font-size: clamp(1.2rem,2vw,1.5rem); }
+.ai-lab-home-equipment {
+  display: grid;
+  gap: .9rem;
+  margin: 1.6rem 0;
+  padding: 0;
+  list-style: none;
+}
+.ai-lab-home-equipment li { display: flex; align-items: flex-start; gap: .7rem; color: #334155; line-height: 1.55; }
+.ai-lab-home-check {
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  flex: 0 0 25px;
+  border-radius: 9px;
+  background: #D1FAE5;
+  color: #047857;
+  font-size: 1rem;
+}
+.ai-lab-home-note {
+  display: flex;
+  align-items: flex-start;
+  gap: .7rem;
+  margin-top: auto;
+  padding: 1rem;
+  border: 1px solid rgba(6,182,212,.16);
+  border-radius: 14px;
+  background: linear-gradient(120deg,rgba(224,231,255,.65),rgba(236,254,255,.75));
+  color: #334155;
+}
+.ai-lab-home-note > i { color: #4F46E5; font-size: 1.25rem; flex: 0 0 auto; }
+.ai-lab-home-note p { margin: 0; font-size: .88rem; line-height: 1.65; }
+.ai-lab-home-demo-btn { width: 100%; margin-top: 1.1rem; background: linear-gradient(135deg,#059669,#0D9488) !important; box-shadow: 0 10px 24px rgba(5,150,105,.2); color: #fff !important; }
+.ai-lab-home-footnote { display: flex; justify-content: center; align-items: center; gap: .4rem; margin: .85rem 0 0; color: #64748B; font-size: .78rem; text-align: center; }
+.ai-lab-home-footnote i { color: #4F46E5; }
+[data-theme="dark"] .ai-lab-home-section::before { background: radial-gradient(ellipse at 8% 12%,rgba(79,70,229,.18),transparent 38%),radial-gradient(ellipse at 92% 85%,rgba(6,182,212,.12),transparent 36%),linear-gradient(135deg,#0B1220,#111827 55%,#0F2927); }
+[data-theme="dark"] .ai-lab-home-eyebrow { background: rgba(30,41,59,.85); border-color: rgba(129,140,248,.25); color: #C7D2FE; }
+[data-theme="dark"] .ai-lab-home-heading h2,
+[data-theme="dark"] .ai-lab-home-feature-body h3,
+[data-theme="dark"] .ai-lab-home-includes-head h3 { color: #F8FAFC; }
+[data-theme="dark"] .ai-lab-home-heading > p,
+[data-theme="dark"] .ai-lab-home-feature-body > p,
+[data-theme="dark"] .ai-lab-home-points span,
+[data-theme="dark"] .ai-lab-home-equipment li,
+[data-theme="dark"] .ai-lab-home-footnote { color: #CBD5E1; }
+[data-theme="dark"] .ai-lab-home-feature,
+[data-theme="dark"] .ai-lab-home-includes { background: rgba(17,24,39,.94); border-color: rgba(148,163,184,.18); }
+[data-theme="dark"] .ai-lab-home-includes { background: linear-gradient(155deg,rgba(17,24,39,.98),rgba(15,23,42,.96)); }
+[data-theme="dark"] .ai-lab-home-visual-fallback { color: #F8FAFC; }
+[data-theme="dark"] .ai-lab-home-visual-fallback > span:last-child { color: #CBD5E1; }
+[data-theme="dark"] .ai-lab-home-text-link { color: #A5B4FC; }
+[data-theme="dark"] .ai-lab-home-note { background: rgba(30,41,59,.8); border-color: rgba(6,182,212,.22); color: #E2E8F0; }
+@media (max-width: 820px) {
+  .ai-lab-home-layout { grid-template-columns: 1fr; }
+  .ai-lab-home-visual { aspect-ratio: 16 / 9; }
+}
+@media (max-width: 540px) {
+  .ai-lab-home-points { grid-template-columns: 1fr; }
+  .ai-lab-home-actions { align-items: stretch; flex-direction: column; }
+  .ai-lab-home-btn { width: 100%; box-sizing: border-box; }
+  .ai-lab-home-text-link { justify-content: center; }
+  .ai-lab-home-visual { min-height: 220px; }
+  .ai-lab-home-visual > img { min-height: 220px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ai-lab-home-btn,
+  .ai-lab-home-demo-btn { transition: none; }
+}
+</style>
 {% endif %}
 
 <!-- PROJECT SHOWCASE -->
