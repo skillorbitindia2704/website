@@ -2806,56 +2806,140 @@
 
 <!-- PROJECT SHOWCASE -->
 {% if visibilities.projects %}
-<div class="section-head reveal">
-  <h2>Project showcase</h2>
-  <p class="muted">Build real projects across robotics and AI.</p>
-</div>
-<section class="grid-cards reveal projects-showcase-grid">
-  {% for p in projects_list %}
-  <article class="card-premium card-img-full">
+<section class="project-showcase-section reveal" aria-labelledby="project-showcase-title">
+  <div class="project-showcase-inner">
+    <header class="project-showcase-heading">
+      <span class="project-showcase-eyebrow"><i class="ri-code-s-slash-line" aria-hidden="true"></i> IDEAS INTO REALITY</span>
+      <h2 id="project-showcase-title">Project Showcase</h2>
+      <p>Explore practical builds, creative experiments and technology projects that turn learning into real-world skills.</p>
+    </header>
 
-<div class="card-img-wrap" style="aspect-ratio:16/10;">
-  {% set project_img = p.image|default('', true) %}
-
-  {% if project_img %}
-    {% if project_img[0:4] == 'http' or project_img[0:1] == '/' %}
-      {% set project_img_src = project_img %}
-    {% elif project_img[0:7] == 'static/' %}
-      {% set project_img_src = '/' ~ project_img %}
-    {% else %}
-      {% set project_img_src = url_for('static', filename=project_img) %}
-    {% endif %}
-
-    <img
-      src="{{ project_img_src }}"
-      alt="{{ p.title }}"
-      loading="lazy"
-      decoding="async"
-      style="display:block;width:100%;height:100%;object-fit:cover;"
-      onerror="this.style.display='none';"
-    >
-  {% else %}
-    <div style="display:flex;width:100%;height:100%;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(255,138,61,.12),rgba(255,255,255,.6),rgba(16,185,129,.12));">
-      <i class="ri-flashlight-line" aria-hidden="true" style="font-size:2rem;color:#0A1931;"></i>
-    </div>
-  {% endif %}
-    </div>
-    <div class="card-body">
-      <h3 class="card-title-sm">{{ p.title }}</h3>
-      <p class="muted">{{ p.description }}</p>
-      {% if p.tech_stack %}
-      <p class="text-xs text-brand-500 font-semibold mt-2" style="margin-bottom: 0.5rem;">{{ p.tech_stack }}</p>
-      {% endif %}
-      <div class="flex gap-2">
-        <a href="{{ url_for('courses.list_courses') }}" class="btn btn-ghost btn-sm">View details</a>
-        {% if p.demo_link %}
-        <a href="{{ p.demo_link }}" target="_blank" class="btn btn-ghost btn-sm">Live Demo</a>
-        {% endif %}
+    <div class="project-showcase-grid">
+      {% for p in projects_list %}
+      <article class="project-showcase-card">
+        <div class="project-showcase-media">
+          {% set project_img = p.image|default('', true) %}
+          {% if project_img %}
+            {% if project_img[0:4] == 'http' or project_img[0:1] == '/' %}
+              {% set project_img_src = project_img %}
+            {% elif project_img[0:7] == 'static/' %}
+              {% set project_img_src = '/' ~ project_img %}
+            {% else %}
+              {% set project_img_src = url_for('static', filename=project_img) %}
+            {% endif %}
+            <img
+              src="{{ project_img_src }}"
+              alt="{{ p.title }}"
+              loading="lazy"
+              decoding="async"
+              onerror="this.style.display='none';this.nextElementSibling.hidden=false;">
+            <div class="project-showcase-image-fallback" hidden aria-hidden="true"><i class="ri-cpu-line"></i></div>
+          {% else %}
+            <div class="project-showcase-image-fallback" aria-hidden="true"><i class="ri-cpu-line"></i></div>
+          {% endif %}
+          <span class="project-showcase-image-label"><i class="ri-flashlight-line" aria-hidden="true"></i> Student project</span>
+        </div>
+        <div class="project-showcase-card-body">
+          <span class="project-showcase-card-kicker">BUILD · TEST · INNOVATE</span>
+          <h3>{{ p.title }}</h3>
+          {% if p.description %}
+          <p class="project-showcase-description">{{ p.description }}</p>
+          {% else %}
+          <p class="project-showcase-description">A hands-on project built to explore technology through practical learning.</p>
+          {% endif %}
+          {% if p.tech_stack %}
+          <div class="project-showcase-tech"><i class="ri-tools-line" aria-hidden="true"></i><span>{{ p.tech_stack }}</span></div>
+          {% endif %}
+          <div class="project-showcase-actions">
+            <a href="{{ url_for('courses.list_courses') }}" class="project-showcase-details-link">View details <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+            {% if p.demo_link %}
+            <a href="{{ p.demo_link }}" target="_blank" rel="noopener noreferrer" class="project-showcase-demo-link">Live demo <i class="ri-arrow-up-right-line" aria-hidden="true"></i></a>
+            {% endif %}
+          </div>
+        </div>
+      </article>
+      {% else %}
+      <div class="project-showcase-empty">
+        <span><i class="ri-lightbulb-flash-line" aria-hidden="true"></i></span>
+        <h3>Projects are on the way</h3>
+        <p>New hands-on builds and student innovations will be featured here soon.</p>
       </div>
+      {% endfor %}
     </div>
-  </article>
-  {% endfor %}
+  </div>
 </section>
+
+<style>
+.project-showcase-section {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(3.5rem,7vw,6rem) 0;
+}
+.project-showcase-section::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 4% 15%,rgba(99,102,241,.10),transparent 36%),
+    radial-gradient(ellipse at 96% 80%,rgba(6,182,212,.10),transparent 34%),
+    linear-gradient(135deg,#F8FAFC 0%,#F3F4FF 52%,#F0FDFA 100%);
+}
+.project-showcase-inner { width:min(1320px,100%); margin-inline:auto; padding-inline:clamp(1rem,4vw,3rem); }
+.project-showcase-heading { max-width:760px; margin:0 auto clamp(2rem,4vw,3rem); text-align:center; }
+.project-showcase-eyebrow {
+  display:inline-flex; align-items:center; gap:.5rem; padding:.55rem .9rem;
+  border:1px solid rgba(79,70,229,.18); border-radius:999px; background:rgba(255,255,255,.8);
+  color:#4338CA; font-size:.72rem; font-weight:800; letter-spacing:.11em;
+}
+.project-showcase-heading h2 { margin:1rem 0 .8rem; color:#0A1931; font-size:clamp(2rem,4.2vw,3.25rem); line-height:1.12; font-weight:800; letter-spacing:-.045em; }
+.project-showcase-heading > p { max-width:680px; margin:0 auto; color:#526176; font-size:clamp(.98rem,1.5vw,1.08rem); line-height:1.8; }
+.project-showcase-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:clamp(1rem,2.3vw,1.6rem); }
+.project-showcase-card { min-width:0; overflow:hidden; display:flex; flex-direction:column; border:1px solid rgba(203,213,225,.72); border-radius:1.5rem; background:rgba(255,255,255,.94); box-shadow:0 18px 48px rgba(15,23,42,.065); transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease; }
+.project-showcase-card:hover { transform:translateY(-5px); border-color:rgba(99,102,241,.35); box-shadow:0 24px 55px rgba(79,70,229,.12); }
+.project-showcase-media { position:relative; aspect-ratio:16/10; overflow:hidden; background:linear-gradient(135deg,#E0E7FF,#ECFEFF 55%,#D1FAE5); }
+.project-showcase-media > img { display:block; width:100%; height:100%; object-fit:cover; transition:transform .45s ease; }
+.project-showcase-card:hover .project-showcase-media > img { transform:scale(1.045); }
+.project-showcase-image-fallback { width:100%; height:100%; min-height:190px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#E0E7FF,#ECFEFF 55%,#D1FAE5); color:#4F46E5; font-size:3rem; }
+.project-showcase-image-fallback[hidden] { display:none; }
+.project-showcase-image-label { position:absolute; left:1rem; bottom:1rem; display:inline-flex; align-items:center; gap:.4rem; padding:.5rem .75rem; border:1px solid rgba(255,255,255,.7); border-radius:999px; background:rgba(255,255,255,.9); color:#0F172A; font-size:.74rem; font-weight:800; box-shadow:0 5px 16px rgba(15,23,42,.1); backdrop-filter:blur(10px); }
+.project-showcase-card-body { display:flex; flex:1; flex-direction:column; align-items:flex-start; padding:clamp(1.2rem,2.5vw,1.65rem); }
+.project-showcase-card-kicker { color:#4F46E5; font-size:.67rem; font-weight:800; letter-spacing:.12em; }
+.project-showcase-card-body h3 { margin:.55rem 0 .65rem; color:#0A1931; font-size:1.25rem; line-height:1.35; font-weight:800; letter-spacing:-.02em; }
+.project-showcase-description { margin:0; color:#526176; font-size:.92rem; line-height:1.75; overflow-wrap:anywhere; }
+.project-showcase-tech { display:flex; align-items:flex-start; gap:.5rem; margin-top:1rem; padding:.65rem .75rem; width:100%; box-sizing:border-box; border:1px solid rgba(99,102,241,.13); border-radius:12px; background:#F5F7FF; color:#4338CA; font-size:.8rem; font-weight:700; line-height:1.5; }
+.project-showcase-tech i { flex:0 0 auto; font-size:1rem; }
+.project-showcase-actions { display:flex; flex-wrap:wrap; align-items:center; gap:.8rem 1rem; margin-top:auto; padding-top:1.35rem; }
+.project-showcase-details-link,.project-showcase-demo-link { display:inline-flex; align-items:center; justify-content:center; gap:.4rem; min-height:40px; border-radius:10px; font-size:.84rem; font-weight:800; text-decoration:none; transition:transform .2s ease,background .2s ease; }
+.project-showcase-details-link { padding:.65rem .9rem; background:linear-gradient(135deg,#4F46E5,#2563EB); color:#fff !important; box-shadow:0 7px 18px rgba(79,70,229,.18); }
+.project-showcase-demo-link { color:#3730A3; }
+.project-showcase-details-link:hover,.project-showcase-demo-link:hover { transform:translateY(-2px); }
+.project-showcase-empty { grid-column:1/-1; padding:3rem 1.5rem; border:1px dashed rgba(99,102,241,.35); border-radius:1.5rem; background:rgba(255,255,255,.7); text-align:center; }
+.project-showcase-empty > span { display:inline-grid; place-items:center; width:60px; height:60px; border-radius:18px; background:#E0E7FF; color:#4F46E5; font-size:1.8rem; }
+.project-showcase-empty h3 { margin:1rem 0 .4rem; color:#0A1931; font-size:1.25rem; }
+.project-showcase-empty p { margin:0; color:#526176; line-height:1.7; }
+[data-theme="dark"] .project-showcase-section::before { background:radial-gradient(ellipse at 4% 15%,rgba(79,70,229,.18),transparent 36%),radial-gradient(ellipse at 96% 80%,rgba(6,182,212,.12),transparent 34%),linear-gradient(135deg,#0B1220,#111827 52%,#0F2927); }
+[data-theme="dark"] .project-showcase-eyebrow { background:rgba(30,41,59,.85); border-color:rgba(129,140,248,.25); color:#C7D2FE; }
+[data-theme="dark"] .project-showcase-heading h2,[data-theme="dark"] .project-showcase-card-body h3,[data-theme="dark"] .project-showcase-empty h3 { color:#F8FAFC; }
+[data-theme="dark"] .project-showcase-heading > p,[data-theme="dark"] .project-showcase-description { color:#CBD5E1; }
+[data-theme="dark"] .project-showcase-card { background:rgba(17,24,39,.95); border-color:rgba(148,163,184,.18); }
+[data-theme="dark"] .project-showcase-tech { background:rgba(30,41,59,.8); border-color:rgba(129,140,248,.2); color:#C7D2FE; }
+[data-theme="dark"] .project-showcase-demo-link { color:#A5B4FC; }
+[data-theme="dark"] .project-showcase-empty { background:rgba(17,24,39,.8); }
+[data-theme="dark"] .project-showcase-empty h3 { color:#F8FAFC; }
+[data-theme="dark"] .project-showcase-empty p { color:#CBD5E1; }
+@media(max-width:900px) { .project-showcase-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) {
+  .project-showcase-grid { grid-template-columns:1fr; }
+  .project-showcase-card { border-radius:1.25rem; }
+  .project-showcase-card-body { padding:1.25rem; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .project-showcase-card,.project-showcase-media > img,.project-showcase-details-link,.project-showcase-demo-link { transition:none; }
+  .project-showcase-card:hover,.project-showcase-card:hover .project-showcase-media > img { transform:none; }
+}
+</style>
 {% endif %}
 
 <!-- TESTIMONIALS -->
