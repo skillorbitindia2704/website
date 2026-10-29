@@ -2246,7 +2246,14 @@
               </p>
 
               <div class="meta-row">
-                <strong class="price-tag">₹{{ p.price_inr }}</strong>
+                <div class="product-pricing" style="display:flex;align-items:baseline;gap:0.5rem;flex-wrap:wrap;">
+                  {% if p.discount_price_inr and p.discount_price_inr > 0 %}
+                    <span class="price-original" style="font-size:0.85rem;text-decoration:line-through;color:var(--text-muted);">₹{{ p.price_inr or 0 }}</span>
+                    <strong class="price-tag">₹{{ p.discount_price_inr }}</strong>
+                  {% else %}
+                    <strong class="price-tag">₹{{ p.price_inr or 0 }}</strong>
+                  {% endif %}
+                </div>
 
                 <a class="btn btn-primary btn-sm"
                    href="{{ url_for('store.listing') }}">
