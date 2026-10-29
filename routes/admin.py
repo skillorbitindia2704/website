@@ -2565,6 +2565,7 @@ def issue_certificate():
     return render_template(
         "admin/certificates.html",
         users_list=users_list,
+        learners_list=learners_list,
         courses_list=courses_list,
         recent_certificates=recent,
         custom_certificates=custom_recent,
