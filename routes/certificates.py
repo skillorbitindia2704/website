@@ -209,7 +209,7 @@ def upload_custom_certificate():
         if not uid:
             uid = str(__import__("uuid").uuid4())
         if len(uid) > 120 or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{2,119}", uid):
-            raise ValueError("Certificate ID must be 3–120 characters using letters, numbers, dot, underscore, slash or hyphen.")
+            raise ValueError("Certificate ID must be 3–120 characters using letters, numbers, dot, underscore or hyphen.")
         if Certificate.query.filter_by(certificate_uid=uid).first() or CustomCertificate.query.filter_by(certificate_uid=uid).first():
             raise ValueError("This Certificate ID already exists. Please use a unique ID.")
         status = request.form.get("verification_status", "verified").lower()
