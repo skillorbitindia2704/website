@@ -31,7 +31,7 @@ from models.course_cert_highlight import CourseCertHighlight
 from models.course_learning_path import CourseLearningPath
 from models.course_showcase_project import CourseShowcaseProject
 from models.courses_page_content import CoursesPageContent
-from models.internship import Internship, InternshipApplication, InternshipProgramFee
+from models.internship import Internship, InternshipApplication, InternshipProgramFee, InternshipProgramPayment
 from models.service_request import ServiceRequest
 from models.service_package import ServicePackage
 from models.event import Event
@@ -1544,14 +1544,15 @@ def delete_internship(iid):
     row = Internship.query.options(selectinload(Internship.applications)).get_or_404(iid)
     title = row.title
     cnt = len(row.applications)
+    has_payment_records = InternshipProgramPayment.query.filter_by(internship_id=iid).count() > 0
     try:
-        if cnt > 0:
+        if cnt > 0 or has_payment_records:
             row.listing_status = "closed"
             row.is_visible = False
             row.is_active = False
             db.session.commit()
             flash(
-                f"“{title}” archived (applications preserved). Permanent delete removes data — use only on listings with zero applicants.",
+                f"“{title}” archived (applications/payment records preserved). Permanent delete is only available when no records exist.",
                 "warning",
             )
         else:
