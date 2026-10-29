@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Certificate Verification | Skill Orbit India{% endblock %}
+{% block meta_description %}Public verification record for a Skill Orbit India certificate.{% endblock %}
+{% block content %}
+<div class="container section-gap" style="max-width:850px;">
+  {% set status = cert.verification_status %}
+  <section class="card-premium" style="padding:clamp(1.25rem,4vw,2.5rem);">
+    {% if status == 'verified' %}
+      <p style="font-weight:800;color:#059669;">✓ Certificate Verified</p>
+      <h1 style="font-size:1.8rem;font-weight:800;">Certificate Verified</h1>
+      <p class="muted">This certificate ID matches a Skill Orbit India record with Verified status.</p>
+    {% elif status == 'pending' %}
+      <p style="font-weight:800;color:#b45309;">Certificate Pending</p>
+      <h1 style="font-size:1.8rem;font-weight:800;">Verification Pending</h1>
+      <p class="muted">This record exists, but it has not been marked as verified. Do not treat it as a valid credential yet.</p>
+    {% else %}
+      <p style="font-weight:800;color:#dc2626;">Certificate Revoked</p>
+      <h1 style="font-size:1.8rem;font-weight:800;">Certificate Revoked</h1>
+      <p class="muted">This certificate has been revoked by Skill Orbit India and must not be represented as valid.</p>
+    {% endif %}
+    <dl style="display:grid;grid-template-columns:minmax(130px,190px) 1fr;gap:.8rem;margin-top:1.5rem;">
+      <dt>Verification result</dt><dd>{{ status|title }}</dd>
+      <dt>Learner</dt><dd>{{ cert.user.full_name }}</dd>
+      <dt>Certificate title</dt><dd>{{ cert.certificate_title }}</dd>
+      <dt>Course / Program</dt><dd>{{ cert.program_title }}</dd>
+      <dt>Certificate ID</dt><dd style="overflow-wrap:anywhere;"><code>{{ cert.certificate_uid }}</code></dd>
+      <dt>Issue date</dt><dd>{{ cert.issued_at.strftime('%d %b %Y') }}</dd>
+      <dt>Issuing organization</dt><dd>Skill Orbit India</dd>
+      <dt>Certificate type</dt><dd>Custom Uploaded</dd>
+    </dl>
+    <div style="margin-top:1.5rem;display:flex;gap:.75rem;flex-wrap:wrap;">
+      {% if vm.can_download %}<a class="btn btn-primary" href="{{ url_for('certificates.download_custom_certificate', uid=cert.certificate_uid) }}">Download Original PDF</a>{% endif %}
+      <button class="btn btn-secondary" type="button" id="copy-verify-url" data-url="{{ vm.verify_url }}">Copy verification link</button>
+      <a class="btn btn-secondary" href="{{ url_for('certificates.verify_lookup') }}">Verify another certificate</a>
+    </div>
+    <div style="margin-top:1.5rem;text-align:center;">
+      <img alt="QR code for this certificate verification URL" width="180" height="180" loading="lazy" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&amp;data={{ vm.verify_url|urlencode }}">
+      <p class="muted">Scan to open this public verification page.</p>
+    </div>
+  </section>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function(){const b=document.getElementById('copy-verify-url');b?.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(b.dataset.url);b.textContent='Link copied';}catch(e){b.textContent='Copy unavailable';}});})();
+</script>
+{% endblock %}
