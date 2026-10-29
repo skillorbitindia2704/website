@@ -27,6 +27,7 @@ from models.ai_lab_faq import AILabFAQ
 from models.ai_lab_brochure import AILabBrochure
 from models.ai_lab_gallery import AILabGalleryImage
 from models.course import Certificate, Course, Enrollment
+from models.custom_certificate import CustomCertificate
 from models.course_cert_highlight import CourseCertHighlight
 from models.course_learning_path import CourseLearningPath
 from models.course_showcase_project import CourseShowcaseProject
@@ -2558,12 +2559,17 @@ def issue_certificate():
         return redirect(url_for("admin.issue_certificate"))
     users_list = User.query.order_by(User.full_name).limit(300).all()
     courses_list = Course.query.order_by(Course.title).all()
-    recent = Certificate.query.order_by(Certificate.issued_at.desc()).limit(15).all()
+    recent = Certificate.query.order_by(Certificate.issued_at.desc()).limit(100).all()
+    custom_recent = CustomCertificate.query.order_by(CustomCertificate.created_at.desc()).limit(100).all()
+    internships_list = Internship.query.order_by(Internship.title).all()
     return render_template(
         "admin/certificates.html",
         users_list=users_list,
         courses_list=courses_list,
         recent_certificates=recent,
+        custom_certificates=custom_recent,
+        internships_list=internships_list,
+        today_date=date.today().isoformat(),
     )
 
 
