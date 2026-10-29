@@ -305,7 +305,7 @@
         </div>
         <div>
           {% if current_user.is_authenticated %}
-          <button type="button" class="btn btn-primary btn-sm" data-open-internship-modal data-internship-id="{{ i.id }}" data-program-fee="{{ i.program_fee_record.fee_inr if i.program_fee_record else 0 }}" data-internship-title="{{ 'Pay & Apply — ' if i.program_fee_record and i.program_fee_record.fee_inr > 0 else 'Apply — ' }}{{ i.title }}" style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.6rem 1.25rem;border-radius:12px;font-weight:700;">
+          <button type="button" class="btn btn-primary btn-sm" data-open-internship-modal data-internship-id="{{ i.id }}" data-program-fee="{{ i.program_fee_record.fee_inr if i.program_fee_record else 0 }}" data-internship-title="{{ 'Pay &amp; Apply — ' if i.program_fee_record and i.program_fee_record.fee_inr > 0 else 'Apply — ' }}{{ i.title }}" style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.6rem 1.25rem;border-radius:12px;font-weight:700;">
             <span>{% if i.program_fee_record and i.program_fee_record.fee_inr > 0 %}Pay &amp; Apply{% else %}Apply Now{% endif %}</span> <i class="ri-arrow-right-line" aria-hidden="true"></i>
           </button>
           {% else %}
