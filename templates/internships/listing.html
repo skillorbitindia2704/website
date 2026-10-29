@@ -295,13 +295,18 @@
       <!-- Footer Actions -->
       <div class="internship-footer">
         <div>
+          {% if i.program_fee_record and i.program_fee_record.fee_inr > 0 %}
+          <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);display:block;">Program Enrollment Fee</span>
+          <span class="internship-stipend" style="display:inline-block;margin-top:0.15rem;color:var(--primary-from);">₹{{ i.program_fee_record.fee_inr }} <small style="color:var(--text-muted);font-weight:500;">one-time</small></span>
+          {% else %}
           <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);display:block;">Stipend / Program</span>
           <span class="internship-stipend" style="display:inline-block;margin-top:0.15rem;">{{ i.stipend or 'Stipend discussed on selection' }}</span>
+          {% endif %}
         </div>
         <div>
           {% if current_user.is_authenticated %}
-          <button type="button" class="btn btn-primary btn-sm" data-open-internship-modal data-internship-id="{{ i.id }}" data-internship-title="Apply — {{ i.title }}" style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.6rem 1.25rem;border-radius:12px;font-weight:700;">
-            <span>Apply Now</span> <i class="ri-arrow-right-line" aria-hidden="true"></i>
+          <button type="button" class="btn btn-primary btn-sm" data-open-internship-modal data-internship-id="{{ i.id }}" data-internship-title="{{ 'Pay & Apply — ' if i.program_fee_record and i.program_fee_record.fee_inr > 0 else 'Apply — ' }}{{ i.title }}" style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.6rem 1.25rem;border-radius:12px;font-weight:700;">
+            <span>{% if i.program_fee_record and i.program_fee_record.fee_inr > 0 %}Pay &amp; Apply{% else %}Apply Now{% endif %}</span> <i class="ri-arrow-right-line" aria-hidden="true"></i>
           </button>
           {% else %}
           <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-sm" style="display:inline-flex;align-items:center;gap:0.45rem;padding:0.6rem 1.25rem;border-radius:12px;font-weight:700;">
@@ -335,7 +340,7 @@
       <span style="width:34px;height:34px;border-radius:10px;background:rgba(79,70,229,0.12);display:inline-flex;align-items:center;justify-content:center;color:var(--primary-from);font-size:1.15rem;"><i class="ri-briefcase-line"></i></span>
       <h3 id="internship-modal-title" style="margin:0;font-family:var(--font-display);font-size:1.35rem;font-weight:700;">Apply</h3>
     </div>
-    <p class="muted" style="margin:0 0 1.5rem;font-size:0.88rem;">Upload your resume and optionally include a brief note for the evaluation team.</p>
+    <p class="muted" style="margin:0 0 1.5rem;font-size:0.88rem;">Upload your resume and optionally include a brief note. Paid programs continue to secure Razorpay checkout before your application is submitted.</p>
     <form id="internship-modal-form" method="post" action="{{ url_for('internships.apply', internship_id=internships[0].id) }}" enctype="multipart/form-data" class="form-modern">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label for="modal_cover">Cover letter / Brief intro</label>
