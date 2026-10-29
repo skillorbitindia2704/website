@@ -160,6 +160,11 @@ def _custom_verify_view(cert):
     }
 
 
+def _certificate_storage_root():
+    configured = os.getenv("CERTIFICATE_STORAGE_DIR", "").strip()
+    root = Path(configured).expanduser() if configured else Path(current_app.instance_path) / "private_certificates"
+    return root.resolve()
+
 def _save_custom_pdf(upload):
     if not upload or not upload.filename:
         raise ValueError("Please choose a certificate PDF.")
@@ -172,7 +177,7 @@ def _save_custom_pdf(upload):
         raise ValueError("Certificate PDF must be 10 MB or smaller.")
     if not data.startswith(b"%PDF-"):
         raise ValueError("The uploaded file does not appear to be a valid PDF.")
-    root = Path(current_app.instance_path) / "private_certificates"
+    root = _certificate_storage_root()
     root.mkdir(parents=True, exist_ok=True)
     stored_path = root / (secrets.token_hex(24) + ".pdf")
     stored_path.write_bytes(data)
@@ -245,7 +250,7 @@ def download_custom_certificate(uid):
     if cert.user_id != current_user.id and not getattr(current_user, "has_admin_access", False):
         abort(403)
     path = Path(cert.file_path).resolve()
-    private_root = (Path(current_app.instance_path) / "private_certificates").resolve()
+    private_root = _certificate_storage_root()
     if private_root not in path.parents or not path.is_file():
         abort(404)
     return send_file(path, as_attachment=True,
