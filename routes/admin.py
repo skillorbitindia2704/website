@@ -1485,7 +1485,8 @@ def internships():
             flash("Internship listing created.", "success")
         except SQLAlchemyError:
             db.session.rollback()
-            flash("Could not create internship. Please try again.", "danger")
+            current_app.logger.exception("Could not create internship listing")
+            flash("Could not create internship. Please check the server logs for the database error and try again.", "danger")
         return redirect(url_for("admin.internships"))
 
     listings = (
