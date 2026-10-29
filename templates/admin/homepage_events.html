@@ -8,6 +8,10 @@
 {% endblock %}
 
 {% block content %}
+<style>
+.event-admin-current-image{max-width:360px;margin-top:.75rem;padding:.75rem;border:1px solid rgba(129,140,248,.25);border-radius:14px;background:rgba(99,102,241,.04)}
+.event-admin-current-image img{display:block;width:100%;max-height:220px;object-fit:contain;border-radius:9px;background:#f8fafc}
+</style>
 <h1 class="page-title">Homepage Events</h1>
 <p class="muted">Manage upcoming workshops/events shown on the homepage.</p>
 
@@ -87,7 +91,22 @@
     <label style="margin-top:1rem;">Event image (optional)</label>
     <input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif">
     {% if edit_item and edit_item.image_path %}
-    <p class="muted" style="font-size:0.85rem;margin-top:0.35rem;">Current: <a href="{{ url_for('static', filename=edit_item.image_path) }}" target="_blank" rel="noopener">preview</a></p>
+      {% set current_event_image = edit_item.image_path %}
+      {% if current_event_image.startswith('/static/') %}
+        {% set current_event_image = current_event_image[1:] %}
+      {% endif %}
+      {% if current_event_image.startswith('static/') %}
+        {% set current_event_image = current_event_image[7:] %}
+      {% endif %}
+      {% if current_event_image.startswith('http://') or current_event_image.startswith('https://') %}
+        {% set current_event_image_url = current_event_image %}
+      {% else %}
+        {% set current_event_image_url = url_for('static', filename=current_event_image) %}
+      {% endif %}
+      <div class="event-admin-current-image">
+        <img src="{{ current_event_image_url }}" alt="Current image for {{ edit_item.name }}" loading="lazy" onerror="this.closest('.event-admin-current-image').style.display='none';">
+        <p class="muted" style="font-size:0.85rem;margin:0.5rem 0 0;">Current image · <a href="{{ current_event_image_url }}" target="_blank" rel="noopener noreferrer">Open full image</a></p>
+      </div>
     {% endif %}
 
     <label style="margin-top:1rem;">Register URL</label>
