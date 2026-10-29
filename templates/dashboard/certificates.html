@@ -7,31 +7,35 @@
 </div>
 {% endblock %}
 {% block dash_content %}
-<h1 class="page-title">My certificates</h1>
-<p class="muted">Share your verify link or download PDFs for employers.</p>
-{% if certificates %}
+<h1 class="page-title">My Certificates</h1>
+<p class="muted">Only certificates linked to your account are shown here. Share the verification link with employers or institutions.</p>
+{% if certificates or custom_certificates %}
 <div class="card-premium reveal table-wrap section-gap">
   <table class="table-modern">
-    <thead>
-      <tr><th>Course</th><th>Certificate ID</th><th>Issued</th><th>Actions</th></tr>
-    </thead>
+    <thead><tr><th>Certificate Title / Program</th><th>Certificate ID</th><th>Issue Date</th><th>Status</th><th>Actions</th></tr></thead>
     <tbody>
       {% for c in certificates %}
       <tr>
-        <td>{{ c.course.title }}</td>
+        <td>Certificate of Completion<br><span class="muted">{{ c.course.title }}</span></td>
         <td><code>{{ c.certificate_uid }}</code></td>
         <td>{{ c.issued_at.strftime('%d %b %Y') }}</td>
-        <td>
-          <a href="{{ url_for('certificates.verify', uid=c.certificate_uid) }}">Verify</a>
-          ·
-          <a href="{{ url_for('certificates.download', uid=c.certificate_uid) }}">Download</a>
-        </td>
+        <td>Verified</td>
+        <td><a href="{{ url_for('certificates.verify', uid=c.certificate_uid) }}">Verify Certificate</a> · <a href="{{ url_for('certificates.download', uid=c.certificate_uid) }}">Download PDF</a></td>
+      </tr>
+      {% endfor %}
+      {% for c in custom_certificates %}
+      <tr>
+        <td>{{ c.certificate_title }}<br><span class="muted">{{ c.program_title }}</span></td>
+        <td><code>{{ c.certificate_uid }}</code></td>
+        <td>{{ c.issued_at.strftime('%d %b %Y') }}</td>
+        <td>{{ c.verification_status|title }}</td>
+        <td><a href="{{ url_for('certificates.verify', uid=c.certificate_uid) }}">Verify Certificate</a> · <a href="{{ url_for('certificates.download_custom_certificate', uid=c.certificate_uid) }}">View / Download Original PDF</a></td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
 {% else %}
-<p class="empty-state section-gap">Complete a course quiz to earn your first certificate.</p>
+<p class="empty-state section-gap">No certificates are linked to your account yet. Complete a course quiz or contact Skill Orbit India if you believe a certificate is missing.</p>
 {% endif %}
 {% endblock %}
