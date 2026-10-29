@@ -13,6 +13,10 @@
       <p style="font-weight:800;color:#b45309;">Certificate Pending</p>
       <h1 style="font-size:1.8rem;font-weight:800;">Verification Pending</h1>
       <p class="muted">This record exists, but it has not been marked as verified. Do not treat it as a valid credential yet.</p>
+    {% elif status == 'disabled' %}
+      <p style="font-weight:800;color:#64748b;">Certificate Disabled</p>
+      <h1 style="font-size:1.8rem;font-weight:800;">Certificate Temporarily Disabled</h1>
+      <p class="muted">This certificate record has been disabled by Skill Orbit India and is not currently valid for verification.</p>
     {% else %}
       <p style="font-weight:800;color:#dc2626;">Certificate Revoked</p>
       <h1 style="font-size:1.8rem;font-weight:800;">Certificate Revoked</h1>
