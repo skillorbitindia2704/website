@@ -2395,60 +2395,48 @@
 
 <!-- SERVICES -->
 {% if visibilities.services and services_list %}
-<div class="section-head reveal">
-  <h2>Our Services</h2>
-  <p class="muted">
-    Practical technology solutions and skill development programs
-    for students, institutions and businesses.
-  </p>
-</div>
-
-<section class="grid-cards reveal" aria-label="Skill Orbit India services">
-  {% for service in services_list %}
-  <a
-    href="{{ service.link or '#' }}"
-    class="card-premium surface-card"
-    style="text-decoration:none;"
-  >
-    <div
-      style="
-        width:48px;
-        height:48px;
-        border-radius:14px;
-        background:rgba(79,70,229,.10);
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        margin-bottom:16px;
-      "
-    >
-      <i
-        class="{{ service.icon or 'ri-tools-line' }}"
-        style="font-size:24px;color:var(--primary-from);"
-        aria-hidden="true"
-      ></i>
-    </div>
-
-    <h3 class="card-title-sm">
-      {{ service.title }}
-    </h3>
-
-    <p class="muted" style="margin:0;">
-      {{ service.description }}
-    </p>
-
-    <div
-      style="
-        margin-top:16px;
-        font-weight:700;
-        color:var(--primary-from);
-        font-size:.9rem;
-      "
-    >
-      Explore →
-    </div>
-  </a>
-  {% endfor %}
+<style>
+  .home-our-services{position:relative;margin:clamp(28px,4vw,54px) auto;padding:clamp(28px,4vw,48px) clamp(16px,3vw,34px);width:min(1440px,calc(100% - 32px));border:1px solid #e0e5f5;border-radius:28px;background:radial-gradient(circle at 0 0,rgba(255,138,61,.10),transparent 34%),radial-gradient(circle at 100% 100%,rgba(16,185,129,.09),transparent 32%),linear-gradient(135deg,#f8f9ff,#f1f4ff 58%,#f9fbff);overflow:hidden}
+  .home-our-services .os-heading{text-align:center;max-width:760px;margin:0 auto 30px}
+  .home-our-services .os-eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:14px;padding:8px 14px;border:1px solid #dcdcff;border-radius:999px;background:#eeeeff;color:#4f46e5;font-size:.75rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
+  .home-our-services .os-heading h2{margin:0;color:#111a31;font-family:var(--font-display,inherit);font-size:clamp(1.9rem,3.5vw,2.8rem);font-weight:800;letter-spacing:-.04em;line-height:1.15}
+  .home-our-services .os-heading p{max-width:640px;margin:12px auto 0;color:#58657d;line-height:1.75}
+  .home-our-services .os-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+  .home-our-services .os-card{display:flex;min-width:0;flex-direction:column;padding:clamp(20px,2.2vw,27px);border:1px solid #dce3f0;border-radius:22px;background:rgba(255,255,255,.94);box-shadow:0 12px 34px #1622410e;text-decoration:none!important;transition:transform .2s,box-shadow .2s,border-color .2s}
+  .home-our-services .os-card:hover{transform:translateY(-4px);border-color:#a5b4fc;box-shadow:0 20px 42px #2d37641c}
+  .home-our-services .os-card:focus-visible{outline:3px solid #818cf8;outline-offset:4px}
+  .home-our-services .os-icon{display:grid;place-items:center;width:52px;height:52px;flex:0 0 52px;margin-bottom:20px;border:1px solid #dcdcff;border-radius:16px;background:linear-gradient(135deg,#eeeeff,#e7f8ff);color:#4f46e5;font-size:1.55rem}
+  .home-our-services .os-card h3{margin:0 0 10px;color:#111a31;font-family:var(--font-display,inherit);font-size:clamp(1.08rem,1.4vw,1.25rem);font-weight:800;letter-spacing:-.025em;line-height:1.4}
+  .home-our-services .os-description{flex:1;margin:0 0 22px;color:#58657d;font-size:.94rem;line-height:1.7}
+  .home-our-services .os-link{display:inline-flex;align-items:center;gap:8px;margin-top:auto;padding-top:15px;border-top:1px solid #edf0f7;color:#4f46e5;font-size:.9rem;font-weight:800}
+  .home-our-services .os-card:hover .os-link{color:#0891b2}
+  @media(max-width:960px){.home-our-services .os-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}}
+  @media(max-width:620px){.home-our-services{width:calc(100% - 20px);margin:26px 10px;padding:26px 13px;border-radius:22px}.home-our-services .os-grid{grid-template-columns:1fr}.home-our-services .os-card{padding:21px}}
+  @media(prefers-reduced-motion:reduce){.home-our-services *{transition:none!important}}
+  [data-theme="dark"] .home-our-services{border-color:rgba(148,163,184,.18);background:radial-gradient(circle at 0 0,rgba(255,138,61,.08),transparent 34%),radial-gradient(circle at 100% 100%,rgba(16,185,129,.08),transparent 32%),linear-gradient(135deg,#11182b,#171d34 58%,#101827)}
+  [data-theme="dark"] .home-our-services .os-heading h2,[data-theme="dark"] .home-our-services .os-card h3{color:#f8fafc}
+  [data-theme="dark"] .home-our-services .os-heading p,[data-theme="dark"] .home-our-services .os-description{color:#cbd5e1}
+  [data-theme="dark"] .home-our-services .os-card{border-color:rgba(148,163,184,.2);background:rgba(17,24,39,.88)}
+  [data-theme="dark"] .home-our-services .os-link{border-color:rgba(148,163,184,.18);color:#a5b4fc}
+</style>
+<section class="home-our-services reveal" aria-labelledby="os-title">
+  <header class="os-heading">
+    <span class="os-eyebrow"><i class="ri-sparkling-2-line" aria-hidden="true"></i> WHAT WE DO</span>
+    <h2 id="os-title">Our Services</h2>
+    <p>Practical technology solutions and industry-aligned learning experiences for students, educational institutions and businesses.</p>
+  </header>
+  <div class="os-grid" aria-label="Skill Orbit India services">
+    {% for service in services_list %}
+    <a href="{{ service.link or '#' }}" class="os-card" aria-label="Explore {{ service.title }}">
+      <span class="os-icon" aria-hidden="true">
+        <i class="{{ service.icon or 'ri-tools-line' }}"></i>
+      </span>
+      <h3>{{ service.title }}</h3>
+      <p class="os-description">{{ service.description or 'Explore practical solutions and hands-on learning opportunities with Skill Orbit India.' }}</p>
+      <span class="os-link">Explore service <i class="ri-arrow-right-line" aria-hidden="true"></i></span>
+    </a>
+    {% endfor %}
+  </div>
 </section>
 {% endif %}
 
