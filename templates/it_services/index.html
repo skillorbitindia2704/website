@@ -8,123 +8,76 @@
 {% endblock %}
 {% block extra_head %}
 <style>
-  /* =========================================================================
-     SERVICES SECTION - TRICOLOR & ROYAL CHAKRA BLUE COMPOSITION VARIATION
-     ========================================================================= */
-  .services-hero .services-hero-banner {
-    border-radius: var(--radius-lg, 24px) !important;
-    overflow: hidden !important;
-    border: 2px solid rgba(255, 255, 255, 0.95) !important;
-    box-shadow: 
-      0 0 0 1px rgba(255, 255, 255, 0.85),
-      0 0 22px rgba(255, 255, 255, 0.65),
-      0 20px 60px rgba(15, 23, 42, 0.08) !important;
-    margin-bottom: 2.25rem;
+  .services-page { --svc-ink:#10203d; --svc-muted:#62718a; --svc-line:rgba(120,139,170,.22); --svc-panel:var(--bg-surface,#fff); --svc-blue:#4f46e5; --svc-cyan:#06b6d4; }
+  .services-hero { margin: .25rem 0 2.25rem; }
+  .services-hero-banner { position:relative; isolation:isolate; overflow:hidden; border:1px solid var(--svc-line); border-radius:28px; background:linear-gradient(120deg,#f7f9ff 0%,#edf4ff 52%,#f0fbff 100%); box-shadow:0 18px 55px rgba(35,55,100,.09); }
+  .services-hero-banner:before { content:""; position:absolute; z-index:-1; width:380px;height:380px;right:-100px;top:-190px;border-radius:50%;background:radial-gradient(circle,rgba(79,70,229,.19),rgba(6,182,212,.05) 55%,transparent 72%); }
+  .services-hero-banner:after { content:""; position:absolute;z-index:-1;width:280px;height:280px;left:42%;bottom:-210px;border-radius:50%;background:radial-gradient(circle,rgba(6,182,212,.14),transparent 70%); }
+  .services-hero-ambient-glow { pointer-events:none; }
+  .services-hero .hero-compact-inner { display:flex; align-items:center; justify-content:space-between; gap:2rem; padding:clamp(1.5rem,4vw,3.25rem); min-height:260px; }
+  .services-hero .hero-compact-main { max-width:760px; }
+  .services-hero-badge { display:inline-flex; align-items:center; gap:.5rem; margin-bottom:1rem; padding:.45rem .8rem; border:1px solid rgba(79,70,229,.18); border-radius:999px; background:rgba(79,70,229,.08); color:#4338ca; font-size:.78rem; font-weight:750; letter-spacing:.035em; }
+  .services-hero .services-hero-title { max-width:740px; margin:0; color:#10203d; font-family:var(--font-display,'Outfit',sans-serif); font-size:clamp(2rem,4.4vw,3.5rem); line-height:1.08; letter-spacing:-.045em; font-weight:800; }
+  .services-hero .services-hero-subtitle { max-width:650px; margin:1rem 0 0; color:#52627c; font-size:clamp(.98rem,1.5vw,1.1rem); line-height:1.8; font-weight:450; }
+  .services-hero-showcase { min-width:170px; padding:1.25rem; border:1px solid rgba(255,255,255,.85); border-radius:22px; background:rgba(255,255,255,.78); box-shadow:0 15px 35px rgba(40,60,110,.09); text-align:center; backdrop-filter:blur(12px); }
+  .services-hero-showcase .sc-title { color:#182747; font-weight:750; }
+  .services-hero-showcase .sc-sub { color:#64748b; line-height:1.5; }
+  .services-section-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; margin:0 0 1.25rem; }
+  .services-eyebrow { margin:0 0 .45rem; color:var(--svc-blue); font-size:.76rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+  .services-section-heading h2 { margin:0; font-family:var(--font-display,'Outfit',sans-serif); font-size:clamp(1.55rem,3vw,2.15rem); line-height:1.2; letter-spacing:-.035em; color:var(--text); }
+  .services-section-heading p { max-width:460px; margin:.55rem 0 0; color:var(--text-muted); line-height:1.7; font-size:.94rem; }
+  .services-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1.15rem; align-items:stretch; }
+  .service-card { position:relative; min-width:0; overflow:hidden; padding:1.45rem; display:flex; flex-direction:column; border:1px solid var(--svc-line); border-radius:22px; background:var(--svc-panel); box-shadow:0 5px 18px rgba(20,38,75,.035); transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease; }
+  .service-card:before { content:""; position:absolute; top:0;left:1.4rem;right:1.4rem;height:3px;border-radius:0 0 6px 6px;background:linear-gradient(90deg,var(--svc-blue),var(--svc-cyan)); opacity:.8; }
+  .service-card:hover { transform:translateY(-4px); border-color:rgba(79,70,229,.35); box-shadow:0 18px 38px rgba(35,55,100,.10); }
+  .service-card-top { display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin:.25rem 0 1.2rem; }
+  .service-badge { display:inline-flex; align-items:center; gap:.35rem; max-width:100%; padding:.35rem .65rem; border:1px solid rgba(79,70,229,.17); border-radius:999px; background:rgba(79,70,229,.07); color:var(--svc-blue); font-size:.74rem; font-weight:750; overflow-wrap:anywhere; }
+  .service-icon-box { width:58px;height:58px;display:inline-flex;align-items:center;justify-content:center;margin:0 0 1rem;border:1px solid rgba(79,70,229,.16);border-radius:18px;background:linear-gradient(145deg,rgba(79,70,229,.12),rgba(6,182,212,.13));color:var(--svc-blue);font-size:1.8rem; }
+  .service-card h2 { margin:0 0 .65rem; color:var(--text); font-family:var(--font-display,'Outfit',sans-serif); font-size:1.22rem; font-weight:750; line-height:1.35; letter-spacing:-.025em; }
+  .service-description { margin:0 0 1.1rem; color:var(--text-muted); font-size:.92rem; line-height:1.75; }
+  .service-features { display:flex;flex-direction:column;gap:.65rem;margin:0 0 1.35rem;padding:0;list-style:none; }
+  .service-features li { display:flex;align-items:flex-start;gap:.55rem;color:var(--text-muted);font-size:.86rem;line-height:1.55; }
+  .service-features li i { flex:0 0 auto;color:var(--svc-blue);font-size:1rem;margin-top:.12rem; }
+  .service-card-footer { display:flex;align-items:center;justify-content:space-between;gap:.85rem;flex-wrap:wrap;margin-top:auto;padding-top:1.1rem;border-top:1px solid var(--svc-line); }
+  .service-price-label { display:block;color:var(--text-muted);font-size:.69rem;font-weight:750;letter-spacing:.09em;text-transform:uppercase; }
+  .service-price-value { display:block;margin-top:.22rem;color:var(--svc-blue);font-size:.96rem;font-weight:800;line-height:1.4; }
+  .service-card .btn { display:inline-flex;align-items:center;justify-content:center;gap:.45rem;min-height:42px;padding:.65rem .9rem;border-radius:12px;font-weight:700;white-space:normal;text-align:center; }
+  .services-empty { padding:2rem;border:1px dashed var(--svc-line);border-radius:20px;text-align:center;color:var(--text-muted); }
+  #service-modal .modal-panel { width:min(100% - 2rem,520px); max-height:min(90vh,900px); overflow-y:auto; background:var(--bg-surface); }
+  #service-modal .form-modern label { display:block;margin:.8rem 0 .35rem;color:var(--text);font-size:.86rem;font-weight:650; }
+  #service-modal .form-modern input,#service-modal .form-modern textarea { width:100%;box-sizing:border-box; }
+  #service-modal .form-modern input:focus,#service-modal .form-modern textarea:focus { outline:2px solid rgba(79,70,229,.25);outline-offset:1px; }
+  [data-theme="dark"] .services-hero-banner { background:linear-gradient(120deg,#111a31 0%,#17233e 55%,#102b3b 100%);box-shadow:0 18px 55px rgba(0,0,0,.22); }
+  [data-theme="dark"] .services-hero .services-hero-title { color:#f8fafc; }
+  [data-theme="dark"] .services-hero .services-hero-subtitle { color:#c0cbe0; }
+  [data-theme="dark"] .services-hero-badge { background:rgba(129,140,248,.13);border-color:rgba(129,140,248,.28);color:#c7d2fe; }
+  [data-theme="dark"] .services-hero-showcase { background:rgba(15,23,42,.75);border-color:rgba(148,163,184,.2); }
+  [data-theme="dark"] .services-hero-showcase .sc-title { color:#f1f5f9; }
+  [data-theme="dark"] .services-hero-showcase .sc-sub { color:#a8b5cb; }
+  [data-theme="dark"] .service-card { box-shadow:0 5px 18px rgba(0,0,0,.12); }
+  [data-theme="dark"] .service-card:hover { box-shadow:0 18px 38px rgba(0,0,0,.25); }
+  [data-theme="dark"] .service-badge { background:rgba(129,140,248,.12);border-color:rgba(129,140,248,.25);color:#c7d2fe; }
+  [data-theme="dark"] .service-icon-box { color:#a5b4fc;border-color:rgba(129,140,248,.22); }
+  [data-theme="dark"] .service-price-value { color:#a5b4fc; }
+  @media (max-width:1000px) { .services-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .services-hero .hero-compact-inner { min-height:230px; } }
+  @media (max-width:680px) {
+    .services-hero { margin-bottom:1.6rem; }
+    .services-hero-banner { border-radius:22px; }
+    .services-hero .hero-compact-inner { min-height:0;padding:1.5rem; }
+    .services-hero .services-hero-title { font-size:clamp(1.85rem,8vw,2.65rem); }
+    .services-hero .services-hero-subtitle { font-size:.96rem;line-height:1.7; }
+    .services-section-heading { display:block;margin-bottom:1rem; }
+    .services-grid { grid-template-columns:minmax(0,1fr);gap:.9rem; }
+    .service-card { padding:1.25rem;border-radius:19px; }
+    .service-card-footer { align-items:stretch; }
+    .service-card-footer .btn { flex:1 1 145px; }
+    #service-modal .modal-panel { padding:1.35rem !important; }
   }
-
-  html:not([data-theme="dark"]) .services-hero .services-hero-grad-bg {
-    position: relative !important;
-    border-radius: var(--radius-lg, 24px) !important;
-    overflow: hidden !important;
-    background: 
-      radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.36) 0%, transparent 45%),
-      radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.24) 0%, transparent 48%),
-      radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.32) 0%, transparent 46%),
-      linear-gradient(
-        135deg,
-        #FF964E 0%,
-        #FFAC72 10%,
-        #FFDDBF 22%,
-        #FFF6EE 34%,
-        #FFFFFF 47%,
-        #FFFFFF 55%,
-        #EDF5FF 66%,
-        #CCE2FD 78%,
-        #72EEBA 89%,
-        #10B981 100%
-      ) !important;
-  }
-
-  html:not([data-theme="dark"]) .services-hero .services-hero-ambient-glow {
-    background: 
-      radial-gradient(60% 60% at 8% 10%, rgba(255, 138, 61, 0.28), transparent 65%),
-      radial-gradient(45% 45% at 50% 50%, rgba(255, 255, 255, 0.92), transparent 65%),
-      radial-gradient(55% 55% at 92% 90%, rgba(16, 185, 129, 0.26), transparent 65%),
-      radial-gradient(40% 40% at 82% 22%, rgba(29, 78, 216, 0.18), transparent 60%) !important;
-  }
-
-  html:not([data-theme="dark"]) .services-hero .services-hero-title,
-  html:not([data-theme="dark"]) #services-hero-title {
-    color: #0A1931 !important;
-    font-family: var(--font-display, 'Outfit', 'Poppins', sans-serif) !important;
-    font-weight: 800 !important;
-    letter-spacing: -0.02em !important;
-  }
-
-  html:not([data-theme="dark"]) .services-hero .services-hero-subtitle {
-    color: #1E293B !important;
-    font-weight: 600 !important;
-    line-height: 1.65 !important;
-  }
-
-  html:not([data-theme="dark"]) .services-hero .services-hero-badge {
-    background: rgba(255, 107, 0, 0.14) !important;
-    border: 1.5px solid rgba(255, 107, 0, 0.38) !important;
-    color: #C2410C !important;
-    font-weight: 700 !important;
-  }
-
-  html:not([data-theme="dark"]) .services-hero .services-hero-showcase {
-    background: rgba(255, 255, 255, 0.94) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.98) !important;
-    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08) !important;
-  }
-  html:not([data-theme="dark"]) .services-hero .services-hero-showcase .sc-title {
-    color: #0A1931 !important;
-    font-weight: 700 !important;
-  }
-  html:not([data-theme="dark"]) .services-hero .services-hero-showcase .sc-sub {
-    color: #475569 !important;
-    font-weight: 500 !important;
-  }
-
-  /* Dark Mode */
-  [data-theme="dark"] .services-hero .services-hero-banner {
-    border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
-    box-shadow: 0 0 25px rgba(255, 138, 61, 0.15), 0 20px 60px rgba(0, 0, 0, 0.45) !important;
-  }
-  [data-theme="dark"] .services-hero .services-hero-grad-bg {
-    background: 
-      radial-gradient(circle at 6% 8%, rgba(255, 120, 20, 0.28) 0%, transparent 45%),
-      radial-gradient(circle at 86% 18%, rgba(29, 78, 216, 0.32) 0%, transparent 48%),
-      radial-gradient(circle at 94% 92%, rgba(19, 136, 8, 0.26) 0%, transparent 46%),
-      linear-gradient(135deg, #2B1306 0%, #131735 32%, #0F1E36 55%, #0B2524 78%, #042017 100%) !important;
-  }
-  [data-theme="dark"] .services-hero .services-hero-title,
-  [data-theme="dark"] #services-hero-title {
-    color: #F8FAFC !important;
-  }
-  [data-theme="dark"] .services-hero .services-hero-subtitle {
-    color: #CBD5E1 !important;
-  }
-  [data-theme="dark"] .services-hero .services-hero-badge {
-    background: rgba(255, 107, 0, 0.22) !important;
-    border: 1px solid rgba(255, 138, 61, 0.35) !important;
-    color: #FFA559 !important;
-  }
-  [data-theme="dark"] .services-hero .services-hero-showcase {
-    background: rgba(17, 23, 43, 0.88) !important;
-    border: 1.5px solid rgba(148, 163, 184, 0.22) !important;
-  }
-  [data-theme="dark"] .services-hero .services-hero-showcase .sc-title {
-    color: #F8FAFC !important;
-  }
-  [data-theme="dark"] .services-hero .services-hero-showcase .sc-sub {
-    color: #94A3B8 !important;
-  }
+  @media (prefers-reduced-motion:reduce) { .service-card,.service-card:hover { transition:none;transform:none; } }
 </style>
 {% endblock %}
 {% block content %}
+<div class="services-page">
 <!-- PREMIUM SERVICES HERO (TRICOLOR & ROYAL CHAKRA BLUE COMPOSITION) -->
 <div class="services-hero">
   <section class="services-hero-banner services-hero-grad-bg reveal" aria-labelledby="services-hero-title">
@@ -161,56 +114,58 @@
 
 
 <!-- SERVICES GRID -->
-<div class="grid-cards" style="grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 1.5rem; align-items: stretch;">
-  {% for s in services %}
-  <article class="card-premium reveal service-card" style="border-radius:24px;display:flex;flex-direction:column;justify-content:space-between;padding:1.65rem;border:1px solid var(--border-soft);background:var(--bg-surface);transition:all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+<section class="services-list-section" aria-labelledby="services-list-title">
+  <div class="services-section-heading">
     <div>
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:1.25rem;">
-        {% if s.badge_text or s.category %}
-        <span style="display:inline-flex;align-items:center;gap:0.35rem;padding:0.35rem 0.8rem;background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.22);border-radius:99px;font-size:0.78rem;font-weight:700;color:var(--primary-from);letter-spacing:0.02em;">
-          <i class="ri-sparkling-2-line"></i> {{ s.badge_text or s.category }}
-        </span>
-        {% else %}
-        <span></span>
+      <p class="services-eyebrow">What we do</p>
+      <h2 id="services-list-title">Solutions built around your goals</h2>
+      <p>Explore practical learning and technology services for students, educators, schools, colleges and teams.</p>
+    </div>
+  </div>
+  {% if services %}
+  <div class="services-grid">
+    {% for s in services %}
+    <article class="service-card reveal">
+      <div>
+        <div class="service-card-top">
+          {% if s.badge_text or s.category %}
+          <span class="service-badge"><i class="ri-sparkling-2-line" aria-hidden="true"></i> {{ s.badge_text or s.category }}</span>
+          {% else %}
+          <span></span>
+          {% endif %}
+        </div>
+        <div class="service-icon-box" aria-hidden="true">{{ s.icon|remix_icon }}</div>
+        <h2>{{ s.title }}</h2>
+        <p class="service-description">{{ s.description }}</p>
+        {% if s.features %}
+        <ul class="service-features">
+          {% for f in s.features %}
+          <li><i class="ri-checkbox-circle-fill" aria-hidden="true"></i><span>{{ f }}</span></li>
+          {% endfor %}
+        </ul>
         {% endif %}
       </div>
-
-      <div class="service-icon-box" style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg, rgba(79,70,229,0.12), rgba(6,182,212,0.12));border:1px solid rgba(79,70,229,0.22);display:inline-flex;align-items:center;justify-content:center;font-size:1.75rem;color:var(--primary-from);margin-bottom:1.15rem;transition:transform 0.3s ease;" aria-hidden="true">
-        {{ s.icon|remix_icon }}
+      <div class="service-card-footer">
+        <div>
+          <span class="service-price-label">Pricing</span>
+          <span class="service-price-value">{{ s.price_note }}</span>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm js-open-service-modal"
+          data-slug="{{ s.slug }}" data-title="{{ s.title }}">
+          <span>{{ s.button_text or 'Request service' }}</span><i class="ri-arrow-right-line" aria-hidden="true"></i>
+        </button>
       </div>
-
-      <h2 style="font-family:var(--font-display);font-size:1.25rem;font-weight:700;margin:0 0 0.6rem;color:var(--text);letter-spacing:-0.01em;">
-        {{ s.title }}
-      </h2>
-      <p class="muted" style="font-size:0.92rem;line-height:1.65;margin:0 0 1.25rem;">
-        {{ s.description }}
-      </p>
-
-      {% if s.features %}
-      <ul style="margin:0 0 1.25rem;padding:0;list-style:none;display:flex;flex-direction:column;gap:0.55rem;">
-        {% for f in s.features %}
-        <li style="display:flex;align-items:flex-start;gap:0.55rem;font-size:0.88rem;color:var(--text-muted);line-height:1.45;">
-          <span style="color:var(--primary-from);font-size:1.05rem;line-height:1.2;flex-shrink:0;"><i class="ri-checkbox-circle-fill"></i></span>
-          <span>{{ f }}</span>
-        </li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-    </div>
-
-    <div style="margin-top:auto;padding-top:1.15rem;border-top:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
-      <div>
-        <span style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);display:block;font-weight:600;">Pricing</span>
-        <span class="price-tag" style="font-size:0.98rem;font-weight:700;color:var(--primary-from);display:inline-block;margin-top:0.15rem;">{{ s.price_note }}</span>
-      </div>
-      <button type="button" class="btn btn-primary btn-sm js-open-service-modal" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.55rem 1rem;border-radius:12px;font-weight:600;"
-        data-slug="{{ s.slug }}" data-title="{{ s.title }}">
-        <span>{{ s.button_text or 'Request service' }}</span> <i class="ri-arrow-right-line" aria-hidden="true"></i>
-      </button>
-    </div>
-  </article>
-  {% endfor %}
-</div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="services-empty">
+    <i class="ri-inbox-line" aria-hidden="true" style="font-size:1.8rem;display:block;margin-bottom:.5rem;"></i>
+    <strong>Services are being updated.</strong>
+    <p style="margin:.4rem 0 0;">Please contact our team to discuss your requirements.</p>
+  </div>
+  {% endif %}
+</section>
 
 <!-- SERVICE MODAL -->
 <div id="service-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="service-modal-title">
@@ -238,6 +193,7 @@
     </form>
   </div>
 </div>
+</div>
 {% endblock %}
 {% block extra_js %}
 <script>
@@ -257,6 +213,9 @@
   });
   modal.addEventListener("click", function (e) {
     if (e.target === modal) modal.classList.remove("open");
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.classList.contains("open")) modal.classList.remove("open");
   });
 })();
 </script>
