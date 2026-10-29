@@ -1,4 +1,5 @@
 from flask import Blueprint, Response, render_template, request, url_for
+from sqlalchemy import or_
 
 from models.course import Course
 from models.event import Event
@@ -71,7 +72,10 @@ def home():
     cta_banners = get_json_content("cta_banners", "[]")
     
     # Query database records as fallbacks / data sources
-    products = Product.query.order_by(Product.created_at.desc()).limit(8).all()
+    products = Product.query.filter(
+        or_(Product.is_deleted.is_(False), Product.is_deleted.is_(None)),
+        Product.status == "published",
+    ).order_by(Product.created_at.desc(), Product.id.desc()).limit(8).all()
     courses = Course.query.order_by(Course.created_at.desc()).limit(6).all()
     internships = Internship.query.filter_by(is_active=True).order_by(Internship.created_at.desc()).limit(3).all()
     events = (
