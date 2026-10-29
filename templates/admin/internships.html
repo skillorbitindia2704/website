@@ -82,6 +82,7 @@
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:0.25rem;"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0-3.741-.479 3 3 0 0 0-4.518 0 9.094 9.094 0 0 0-3.741.479m12.002-14.28a3.003 3.003 0 0 0-3.745-.247M12 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6-1.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
           <strong>{{ app_count }}</strong> applicant{% if app_count != 1 %}s{% endif %}
         </span>
+        {% if i.program_fee_record and i.program_fee_record.fee_inr > 0 %}<span class="int-stat-pill" style="color:#7c3aed;background:rgba(124,58,237,.08);">₹{{ i.program_fee_record.fee_inr }} program fee</span>{% else %}<span class="int-stat-pill" style="color:#059669;background:rgba(5,150,105,.08);">Free to apply</span>{% endif %}
         {% if i.internship_type %}<span class="int-stat-pill">💼 {{ i.internship_type }}</span>{% endif %}
         {% if i.duration %}<span class="int-stat-pill">⏱️ {{ i.duration }}</span>{% endif %}
       </div>
@@ -93,6 +94,7 @@
           data-title="{{ i.title|e }}"
           data-description="{{ i.description|e }}"
           data-stipend="{{ i.stipend|e }}"
+          data-program-fee="{{ i.program_fee_record.fee_inr if i.program_fee_record else 0 }}"
           data-internship-type="{{ i.internship_type|e }}"
           data-duration="{{ i.duration|e }}"
           data-location="{{ i.location|e }}"
@@ -290,6 +292,14 @@
         <div style="display:flex; flex-direction:column; gap:0.4rem;">
           <label for="f-type" style="font-weight:600; color:#475569; font-size:0.88rem; margin:0;">Internship Type</label>
           <input type="text" name="internship_type" id="f-type" placeholder="Paid, Credit, Free..." style="padding:0.6rem 0.75rem; border:1px solid #cbd5e1; border-radius:6px; font-size:0.9rem;">
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+        <div style="display:flex; flex-direction:column; gap:0.4rem;">
+          <label for="f-program-fee" style="font-weight:600; color:#475569; font-size:0.88rem; margin:0;">Program Enrollment Fee (INR)</label>
+          <input type="number" name="program_fee_inr" id="f-program-fee" min="0" step="1" value="0" inputmode="numeric" placeholder="0 = unpaid / free" style="padding:0.6rem 0.75rem; border:1px solid #cbd5e1; border-radius:6px; font-size:0.9rem;">
+          <small class="muted">Set ₹0 for a free listing. A positive amount enables Razorpay checkout before application submission.</small>
         </div>
       </div>
 
@@ -552,6 +562,7 @@
     document.getElementById("f-title").value = btn.getAttribute("data-title") || "";
     document.getElementById("f-description").value = btn.getAttribute("data-description") || "";
     document.getElementById("f-stipend").value = btn.getAttribute("data-stipend") || "";
+    document.getElementById("f-program-fee").value = btn.getAttribute("data-program-fee") || "0";
     document.getElementById("f-type").value = btn.getAttribute("data-internship-type") || "";
     document.getElementById("f-duration").value = btn.getAttribute("data-duration") || "";
     document.getElementById("f-location").value = btn.getAttribute("data-location") || "";
