@@ -116,6 +116,7 @@
           data-description="{{ i.description|e }}"
           data-stipend="{{ i.stipend|e }}"
           data-program-fee="{{ i.program_fee_record.fee_inr if i.program_fee_record else 0 }}"
+          data-program-type="{{ 'paid' if i.program_fee_record and i.program_fee_record.fee_inr > 0 else 'unpaid' }}"
           data-internship-type="{{ i.internship_type|e }}"
           data-duration="{{ i.duration|e }}"
           data-location="{{ i.location|e }}"
