@@ -3050,111 +3050,113 @@
 
 <!-- EVENTS -->
 {% if visibilities.events %}
-<div class="section-head reveal">
-  <h2>Upcoming workshops & events</h2>
-  <p class="muted">Register early — limited seats.</p>
-</div>
+<section class="home-events-section reveal" aria-labelledby="home-events-heading">
+  <div class="home-events-inner">
+    <div class="home-events-heading">
+      <span class="home-events-eyebrow"><i class="ri-calendar-event-line" aria-hidden="true"></i> LEARN BY DOING</span>
+      <h2 id="home-events-heading">Upcoming workshops &amp; events</h2>
+      <p>Join hands-on workshops, bootcamps and events designed to turn curiosity into practical skills.</p>
+    </div>
 
-<section class="grid-cards reveal">
-  {% for e in events %}
-  <article class="card-premium surface-card event-card">
-
-    {% if e.image_path %}
-    <div class="event-card-image-wrap">
-      <img
-        class="event-card-image"
-        src="{{ e.image_path if e.image_path.startswith('http://') or e.image_path.startswith('https://') else url_for('static', filename=e.image_path) }}"
-        alt="{{ e.name }} event image"
-        loading="lazy"
-        decoding="async"
-        onerror="this.closest('.event-card-image-wrap').style.display='none';"
-      >
+    {% if events %}
+    <div class="home-events-grid">
+      {% for e in events %}
+      <article class="home-event-card">
+        {% if e.image_path %}
+          {% set event_image = e.image_path %}
+          {% if event_image.startswith('/static/') %}
+            {% set event_image = event_image[1:] %}
+          {% endif %}
+          {% if event_image.startswith('static/') %}
+            {% set event_image = event_image[7:] %}
+          {% endif %}
+          {% if event_image.startswith('http://') or event_image.startswith('https://') %}
+            {% set event_image_url = event_image %}
+          {% else %}
+            {% set event_image_url = url_for('static', filename=event_image) %}
+          {% endif %}
+          <div class="home-event-image-wrap">
+            <img class="home-event-image" src="{{ event_image_url }}" alt="{{ e.name }} workshop or event" loading="lazy" decoding="async" onerror="this.closest('.home-event-image-wrap').classList.add('image-unavailable'); this.remove();">
+            <span class="home-event-image-tag"><i class="ri-image-line" aria-hidden="true"></i> EVENT HIGHLIGHT</span>
+          </div>
+        {% else %}
+          <div class="home-event-image-wrap home-event-image-placeholder" aria-hidden="true">
+            <span class="home-event-placeholder-icon"><i class="ri-calendar-event-line"></i></span>
+            <span class="home-event-placeholder-label">Skill Orbit India</span>
+          </div>
+        {% endif %}
+        <div class="home-event-content">
+          <div class="home-event-meta">
+            <span class="home-event-type"><i class="ri-flashlight-line" aria-hidden="true"></i> Workshop / Event</span>
+            <span class="home-event-date"><i class="ri-calendar-2-line" aria-hidden="true"></i> {{ e.date_text or 'Date to be announced' }}</span>
+          </div>
+          <h3>{{ e.name }}</h3>
+          {% if e.location or e.mode %}
+          <p class="home-event-location"><i class="ri-map-pin-line" aria-hidden="true"></i> {% if e.location %}{{ e.location }}{% endif %}{% if e.location and e.mode %}<span aria-hidden="true"> · </span>{% endif %}{% if e.mode %}{{ e.mode }}{% endif %}</p>
+          {% endif %}
+          <div class="home-event-footer">
+            <span class="home-event-brand"><span class="home-event-brand-dot"></span> Skill Orbit India</span>
+            {% if e.register_url %}
+            <a class="home-event-register" href="{{ e.register_url }}" target="_blank" rel="noopener noreferrer">Register <i class="ri-arrow-up-right-line" aria-hidden="true"></i></a>
+            {% else %}
+            <a class="home-event-register" href="{{ url_for('main.home') }}">Details soon <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+            {% endif %}
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="home-events-empty">
+      <span><i class="ri-calendar-check-line" aria-hidden="true"></i></span>
+      <h3>New experiences are on the way</h3>
+      <p>We're preparing our next workshops and events. Check back soon.</p>
     </div>
     {% endif %}
-
-    <div class="event-card-body">
-      <div class="card-meta">
-        <span class="level-pill">Event</span>
-        <span class="muted">
-          {{ e.date_text or 'Date to be announced' }}
-        </span>
-      </div>
-
-      <h3 class="card-title-sm">{{ e.name }}</h3>
-
-      {% if e.location %}
-      <p class="muted mb-3">{{ e.location }}</p>
-      {% endif %}
-
-      {% if e.register_url %}
-      <a
-        class="btn btn-primary btn-sm"
-        href="{{ e.register_url }}"
-        target="_blank"
-        rel="noopener noreferrer"
-      >Register</a>
-      {% else %}
-      <a class="btn btn-primary btn-sm" href="{{ url_for('main.home') }}">
-        Details coming soon
-      </a>
-      {% endif %}
-    </div>
-
-  </article>
-  {% else %}
-  {% set defaults = [
-    ('AI Workshop', 'Date to be announced', 'Online'),
-    ('Robotics Bootcamp', 'Date to be announced', 'Hybrid'),
-    ('IoT Hackathon', 'Date to be announced', 'Campus'),
-    ('Drone Workshop', 'Date to be announced', 'On-site')
-  ] %}
-
-  {% for name, date, loc in defaults %}
-  <article class="card-premium surface-card event-card">
-    <div class="event-card-body">
-      <div class="card-meta">
-        <span class="level-pill">Event</span>
-        <span class="muted">{{ date }}</span>
-      </div>
-      <h3 class="card-title-sm">{{ name }}</h3>
-      <p class="muted mb-3">{{ loc }}</p>
-      <a class="btn btn-primary btn-sm" href="{{ url_for('main.home') }}">
-        Details coming soon
-      </a>
-    </div>
-  </article>
-  {% endfor %}
-  {% endfor %}
+  </div>
 </section>
 
-
 <style>
-  .event-card {
-    padding: 0;
-    overflow: hidden;
-  }
-
-  .event-card-image-wrap {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: auto;
-    overflow: hidden;
-    background: #ffffff;
-  }
-
-  .event-card-image {
-    display: block;
-    width: 100%;
-    height: auto;
-    max-height: none;
-    object-fit: contain;
-    object-position: center;
-  }
-
-  .event-card-body {
-    padding: 1.25rem;
-  }
+.home-events-section{position:relative;isolation:isolate;overflow:hidden;padding:clamp(3.5rem,7vw,6rem) 0}
+.home-events-inner{width:min(1440px,100%);margin-inline:auto;padding-inline:clamp(1rem,4vw,3rem)}
+.home-events-heading{max-width:800px;margin:0 auto 2.5rem;text-align:center}
+.home-events-eyebrow{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1rem;border:1px solid rgba(99,102,241,.22);border-radius:999px;background:rgba(99,102,241,.08);color:var(--primary,#4f46e5);font-size:.73rem;font-weight:800;letter-spacing:.11em}
+.home-events-heading h2{margin:1rem 0 .75rem;font-size:clamp(2rem,4vw,3.2rem);line-height:1.12;letter-spacing:-.04em}
+.home-events-heading>p{max-width:680px;margin:0 auto;color:var(--text-muted,#64748b);line-height:1.8}
+.home-events-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(1rem,2.2vw,1.5rem);align-items:stretch}
+.home-event-card{display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid rgba(129,140,248,.2);border-radius:24px;background:var(--surface,#fff);box-shadow:0 16px 45px rgba(45,55,120,.07);transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+.home-event-card:hover{transform:translateY(-5px);border-color:rgba(99,102,241,.4);box-shadow:0 25px 55px rgba(45,55,120,.13)}
+.home-event-image-wrap{position:relative;display:grid;place-items:center;width:100%;aspect-ratio:16/9;overflow:hidden;background:linear-gradient(135deg,#eef2ff,#ecfeff)}
+.home-event-image{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.home-event-image-tag{position:absolute;left:1rem;bottom:1rem;display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .7rem;border:1px solid rgba(255,255,255,.4);border-radius:999px;background:rgba(15,23,42,.68);color:#fff;font-size:.67rem;font-weight:800;letter-spacing:.07em;backdrop-filter:blur(10px)}
+.home-event-image-placeholder{background:radial-gradient(circle at 80% 20%,rgba(6,182,212,.24),transparent 36%),linear-gradient(135deg,#eef2ff,#f8fafc)}
+.home-event-placeholder-icon{display:grid;place-items:center;width:74px;height:74px;border:1px solid rgba(99,102,241,.2);border-radius:24px;background:rgba(255,255,255,.7);color:#4f46e5;font-size:2rem;box-shadow:0 12px 30px rgba(79,70,229,.12)}
+.home-event-placeholder-label{position:absolute;bottom:1rem;left:1rem;color:#4f46e5;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.home-event-content{display:flex;flex:1;flex-direction:column;padding:clamp(1.2rem,2.5vw,1.65rem)}
+.home-event-meta{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.65rem;margin-bottom:1rem}
+.home-event-type,.home-event-date{display:inline-flex;align-items:center;gap:.35rem;font-size:.76rem;line-height:1.5}
+.home-event-type{color:var(--primary,#4f46e5);font-weight:800}
+.home-event-date,.home-event-location{color:var(--text-muted,#64748b)}
+.home-event-content h3{margin:0;color:var(--text,#1e293b);font-size:clamp(1.15rem,2vw,1.45rem);line-height:1.35;overflow-wrap:anywhere}
+.home-event-location{display:flex;align-items:center;gap:.4rem;margin:.7rem 0 0;font-size:.88rem;line-height:1.6}
+.home-event-footer{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-top:auto;padding-top:1.35rem}
+.home-event-brand{display:inline-flex;align-items:center;gap:.45rem;color:var(--text-muted,#64748b);font-size:.73rem;font-weight:700}
+.home-event-brand-dot{width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#06b6d4)}
+.home-event-register{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-height:42px;padding:.65rem .9rem;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;font-size:.85rem;font-weight:800;text-decoration:none;white-space:nowrap;transition:transform .2s ease,box-shadow .2s ease;box-shadow:0 8px 18px rgba(79,70,229,.18)}
+.home-event-register:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(79,70,229,.26)}
+.home-event-register:focus-visible{outline:3px solid rgba(6,182,212,.65);outline-offset:3px}
+.home-events-empty{padding:3rem 1.5rem;text-align:center;border:1px dashed rgba(129,140,248,.35);border-radius:24px;background:rgba(99,102,241,.035)}
+.home-events-empty>span{display:inline-grid;place-items:center;width:58px;height:58px;border-radius:18px;background:rgba(99,102,241,.1);color:var(--primary,#4f46e5);font-size:1.6rem}
+.home-events-empty h3{margin:1rem 0 .4rem;font-size:1.25rem}
+.home-events-empty p{margin:0;color:var(--text-muted,#64748b);line-height:1.7}
+[data-theme="dark"] .home-event-card{border-color:rgba(129,140,248,.24);background:var(--surface,#111827);box-shadow:0 16px 45px rgba(0,0,0,.18)}
+[data-theme="dark"] .home-event-content h3{color:var(--text,#f8fafc)}
+[data-theme="dark"] .home-event-image-placeholder{background:radial-gradient(circle at 80% 20%,rgba(6,182,212,.16),transparent 36%),linear-gradient(135deg,#1e1b4b,#111827)}
+[data-theme="dark"] .home-event-placeholder-icon{background:rgba(15,23,42,.72);color:#a5b4fc}
+[data-theme="dark"] .home-event-placeholder-label{color:#c7d2fe}
+@media(max-width:960px){.home-events-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.home-events-section{padding:3rem 0}.home-events-heading{margin-bottom:1.75rem}.home-events-grid{grid-template-columns:minmax(0,1fr)}.home-event-card{border-radius:20px}.home-event-footer{align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){.home-event-card,.home-event-register{transition:none}.home-event-card:hover,.home-event-register:hover{transform:none}}
 </style>
 {% endif %}
 
