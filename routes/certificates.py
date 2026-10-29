@@ -284,7 +284,7 @@ def manage_custom_certificate(certificate_id):
     from flask import flash, redirect
     cert = CustomCertificate.query.get_or_404(certificate_id)
     status = request.form.get("verification_status", cert.verification_status).lower()
-    if status not in {"verified", "pending", "revoked"}:
+    if status not in {"verified", "pending", "revoked", "disabled"}:
         flash("Invalid verification status.", "danger")
         return redirect(url_for("admin.issue_certificate"))
     new_uid = (request.form.get("certificate_uid") or cert.certificate_uid).strip()
