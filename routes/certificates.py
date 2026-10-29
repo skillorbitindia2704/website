@@ -329,3 +329,25 @@ def manage_custom_certificate(certificate_id):
         current_app.logger.exception("Could not update custom certificate")
         flash("Could not save certificate changes.", "danger")
     return redirect(url_for("admin.issue_certificate"))
+
+
+@cert_bp.post("/admin/custom/<int:certificate_id>/delete")
+@admin_required
+def delete_custom_certificate(certificate_id):
+    from flask import flash, redirect
+    cert = CustomCertificate.query.get_or_404(certificate_id)
+    stored_path = cert.file_path
+    try:
+        db.session.delete(cert)
+        db.session.commit()
+        if stored_path:
+            path = Path(stored_path).resolve()
+            private_root = _certificate_storage_root()
+            if private_root in path.parents and path.is_file():
+                path.unlink()
+        flash("Certificate record and its private PDF were deleted.", "success")
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception("Could not delete custom certificate")
+        flash("Could not delete this certificate.", "danger")
+    return redirect(url_for("admin.issue_certificate"))
