@@ -51,8 +51,15 @@
     });
   }
 
-  const storedTheme = localStorage.getItem("soi-theme");
-  if (storedTheme) {
+  // Storage can be unavailable in restricted/private browser contexts.
+  // Never let a storage exception stop the rest of the site's interactions.
+  let storedTheme = null;
+  try {
+    storedTheme = localStorage.getItem("soi-theme");
+  } catch {
+    /* Continue with the default theme when storage is unavailable. */
+  }
+  if (storedTheme === "dark" || storedTheme === "light") {
     document.documentElement.setAttribute("data-theme", storedTheme);
     updateLogoTheme(storedTheme);
   }
@@ -60,7 +67,11 @@
     const cur = document.documentElement.getAttribute("data-theme") || "light";
     const next = cur === "dark" ? "light" : "dark";
     document.documentElement.setAttribute("data-theme", next);
-    localStorage.setItem("soi-theme", next);
+    try {
+      localStorage.setItem("soi-theme", next);
+    } catch {
+      /* Theme still changes for the current page if storage is unavailable. */
+    }
     updateLogoTheme(next);
   });
 
