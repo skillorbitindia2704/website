@@ -3165,11 +3165,39 @@ def homepage_events():
             row.mode = mode
             img = request.files.get("image")
             if img and img.filename:
-                row.image_path = _upload_ai_lab_asset(
-                    img,
-                    subdir="events",
-                    allowed_exts=ALLOWED_AI_IMAGE_EXTENSIONS,
+                # Prefer durable Cloudinary storage when configured; Render's local
+                # filesystem can be ephemeral between deploys/restarts.
+                cloudinary_ready = all(
+                    os.getenv(key)
+                    for key in ("CLOUDINARY_CLOUD_NAME", "CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET")
                 )
+                if cloudinary_ready:
+                    import cloudinary.uploader
+                    safe_name = secure_filename(img.filename)
+                    ext = safe_name.rsplit(".", 1)[-1].lower() if "." in safe_name else ""
+                    if ext not in ALLOWED_AI_IMAGE_EXTENSIONS:
+                        raise ValueError(
+                            f"Allowed image types: {', '.join(sorted(ALLOWED_AI_IMAGE_EXTENSIONS))}."
+                        )
+                    result = cloudinary.uploader.upload(
+                        img,
+                        folder="skill-orbit-india/homepage/events",
+                        public_id=f"event_{uuid4().hex}",
+                        resource_type="image",
+                        overwrite=False,
+                        invalidate=True,
+                    )
+                    image_url = result.get("secure_url")
+                    if not image_url:
+                        raise ValueError("Image storage did not return a usable URL.")
+                    row.image_path = image_url
+                else:
+                    # Keep current local upload behavior for environments without Cloudinary credentials.
+                    row.image_path = _upload_ai_lab_asset(
+                        img,
+                        subdir="events",
+                        allowed_exts=ALLOWED_AI_IMAGE_EXTENSIONS,
+                    )
             row.display_order = display_order
             row.is_active = is_active
             db.session.add(row)
