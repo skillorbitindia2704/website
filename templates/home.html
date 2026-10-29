@@ -1633,17 +1633,22 @@
     };
     
     const escapeHtml = (text) => {
+      const value = String(text ?? "");
       const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
-      return text.replace(/[&<>"']/g, m => map[m]);
+      return value.replace(/[&<>"']/g, m => map[m]);
     };
     
     const escapeAttr = (text) => {
-      return text.replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+      return String(text ?? "").replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     };
     
     const getImageUrl = (path) => {
-      if (path.startsWith('http') || path.startsWith('/')) return path;
-      return `/static/${path}`;
+      const value = String(path ?? "").trim();
+      if (!value) return "";
+      if (/^(https?:)?\/\//i.test(value) || value.startsWith("data:")) return value;
+      if (value.startsWith("/")) return value;
+      if (value.startsWith("static/")) return `/${value}`;
+      return `/static/${value}`;
     };
     
     // Load data when DOM is ready
