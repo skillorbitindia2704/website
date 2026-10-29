@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Pay Internship Fee — Skill Orbit India{% endblock %}
+{% block breadcrumbs %}
+<div class="container breadcrumbs-wrap">
+  {% set crumbs = [('Home', url_for('main.home')), ('Internships', url_for('internships.listing')), ('Secure Payment', None)] %}
+  {% include "partials/breadcrumbs.html" %}
+</div>
+{% endblock %}
+{% block content %}
+<div class="container section-gap" style="max-width:760px;">
+  <section class="card-premium surface-card content-narrow" style="padding:clamp(1.25rem,4vw,2.5rem);border-radius:24px;">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+      <span style="display:inline-flex;align-items:center;justify-content:center;width:58px;height:58px;border-radius:18px;background:rgba(79,70,229,.1);color:var(--primary-from);font-size:1.7rem;"><i class="ri-shield-check-line"></i></span>
+      <h1 class="page-title" style="margin:1rem 0 .4rem;">Complete Internship Enrollment</h1>
+      <p class="muted" style="margin:0;">Secure payment for {{ payment.internship.title }} via Razorpay.</p>
+    </div>
+    <div style="border:1px solid var(--border-soft);border-radius:16px;padding:1.25rem;margin-bottom:1.25rem;">
+      <div style="display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;flex-wrap:wrap;">
+        <div>
+          <p class="muted" style="font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;margin:0 0 .25rem;">Internship Program</p>
+          <h2 style="margin:0;font-size:1.15rem;">{{ payment.internship.title }}</h2>
+        </div>
+        <div style="text-align:right;">
+          <p class="muted" style="font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;margin:0 0 .25rem;">One-time fee</p>
+          <strong style="font-size:1.7rem;color:var(--primary-from);">₹{{ payment.amount_inr }}</strong>
+        </div>
+      </div>
+      <p class="muted" style="font-size:.88rem;margin:.85rem 0 0;">Your application will be submitted only after the payment signature is verified by the server.</p>
+    </div>
+    {% if razorpay_key_id and payment.razorpay_order_id and payment.status != 'paid' %}
+    <button id="pay-internship-btn" class="btn btn-primary" type="button" style="width:100%;padding:.9rem 1.25rem;border-radius:12px;font-weight:700;">
+      <i class="ri-lock-line" aria-hidden="true"></i> Pay ₹{{ payment.amount_inr }} securely
+    </button>
+    <form id="verify-internship-payment-form" method="post" action="{{ url_for('internships.verify_program_payment', payment_id=payment.id) }}" hidden>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="razorpay_order_id" id="internship-rz-order-id">
+      <input type="hidden" name="razorpay_payment_id" id="internship-rz-payment-id">
+      <input type="hidden" name="razorpay_signature" id="internship-rz-signature">
+    </form>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+      (function () {
+        const button = document.getElementById("pay-internship-btn");
+        if (!button || typeof Razorpay === "undefined") return;
+        const options = {
+          key: {{ razorpay_key_id|tojson }},
+          amount: {{ payment.amount_inr * 100 }},
+          currency: "INR",
+          name: "Skill Orbit India",
+          description: {{ ("Internship enrollment — " ~ payment.internship.title)|tojson }},
+          order_id: {{ payment.razorpay_order_id|tojson }},
+          prefill: {
+            name: {{ current_user.full_name|default('', true)|tojson }},
+            email: {{ current_user.email|default('', true)|tojson }}
+          },
+          theme: { color: "#4f46e5" },
+          handler: function (response) {
+            document.getElementById("internship-rz-order-id").value = response.razorpay_order_id || "";
+            document.getElementById("internship-rz-payment-id").value = response.razorpay_payment_id || "";
+            document.getElementById("internship-rz-signature").value = response.razorpay_signature || "";
+            document.getElementById("verify-internship-payment-form").submit();
+          },
+          modal: { ondismiss: function () { button.disabled = false; button.textContent = "Payment not completed — try again"; } }
+        };
+        button.addEventListener("click", function () {
+          button.disabled = true;
+          const checkout = new Razorpay(options);
+          checkout.on("payment.failed", function () {
+            button.disabled = false;
+            button.textContent = "Payment failed — try again";
+          });
+          checkout.open();
+        });
+      })();
+    </script>
+    {% elif payment.status == 'paid' %}
+    <p style="color:#059669;font-weight:700;text-align:center;">Payment already verified.</p>
+    {% else %}
+    <p class="muted" style="text-align:center;">Payment gateway is currently unavailable. Please contact Skill Orbit India support before retrying.</p>
+    {% endif %}
+    <div style="display:flex;justify-content:center;margin-top:1rem;">
+      <a href="{{ url_for('internships.listing') }}" class="muted" style="text-decoration:underline;font-size:.9rem;">Back to internships</a>
+    </div>
+  </section>
+</div>
+{% endblock %}
