@@ -3588,117 +3588,166 @@
 
 <!-- BADGES & ACHIEVEMENTS -->
 {% if achievements_list %}
-<div class="section-head reveal">
-  <h2>Badges &amp; Certifications</h2>
-  <p class="muted">Recognitions, achievements and credentials from Skill Orbit India.</p>
-</div>
-
-<section class="grid-cards reveal" aria-label="Badges and achievements">
-  {% for badge in achievements_list %}
-    {% if badge.title or badge.issuer %}
-    <article class="card-premium surface-card">
-      <div style="width:48px;height:48px;border-radius:14px;background:rgba(79,70,229,.10);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
-        <i class="ri-award-line" style="font-size:26px;color:var(--primary-from);" aria-hidden="true"></i>
-      </div>
-
-      {% if badge.title %}
-      <h3 class="card-title-sm">{{ badge.title }}</h3>
-      {% endif %}
-
-      {% if badge.issuer %}
-      <p class="muted" style="margin:8px 0 0;">Issued by {{ badge.issuer }}</p>
-      {% endif %}
-    </article>
-    {% endif %}
-  {% endfor %}
+<section class="soi-credentials-section reveal" aria-labelledby="soi-credentials-heading">
+  <div class="soi-section-inner">
+    <header class="soi-modern-heading">
+      <span class="soi-section-eyebrow"><i class="ri-award-line" aria-hidden="true"></i> RECOGNITION &amp; TRUST</span>
+      <h2 id="soi-credentials-heading">Badges &amp; Certifications</h2>
+      <p>Recognitions, achievements and credentials that reflect our commitment to practical learning.</p>
+    </header>
+    <div class="soi-credentials-grid">
+      {% for badge in achievements_list %}
+        {% if badge.title or badge.issuer %}
+        <article class="soi-credential-card">
+          <div class="soi-credential-icon"><i class="ri-medal-2-line" aria-hidden="true"></i></div>
+          <div class="soi-credential-copy">
+            {% if badge.title %}<h3>{{ badge.title }}</h3>{% endif %}
+            {% if badge.issuer %}<p><span class="soi-credential-dot"></span> Issued by {{ badge.issuer }}</p>{% endif %}
+          </div>
+          <i class="ri-shield-check-line soi-credential-watermark" aria-hidden="true"></i>
+        </article>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
 </section>
 {% endif %}
-
 
 <!-- FACULTY & MENTORS -->
 {% if faculty_list %}
-<div class="section-head reveal">
-  <h2>Faculty &amp; Mentors</h2>
-  <p class="muted">Meet the mentors guiding learners through practical technology and projects.</p>
-</div>
-
-<section class="grid-cards reveal" aria-label="Faculty and mentors">
-  {% for faculty in faculty_list %}
-    {% if faculty.name or faculty.role %}
-    <article class="card-premium surface-card">
-      <div style="width:52px;height:52px;border-radius:50%;background:rgba(79,70,229,.10);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
-        <i class="ri-user-star-line" style="font-size:27px;color:var(--primary-from);" aria-hidden="true"></i>
-      </div>
-
-      {% if faculty.name %}
-      <h3 class="card-title-sm">{{ faculty.name }}</h3>
-      {% endif %}
-
-      {% if faculty.role %}
-      <p class="muted" style="margin:8px 0 0;">{{ faculty.role }}</p>
-      {% endif %}
-    </article>
-    {% endif %}
-  {% endfor %}
+<section class="soi-mentors-section reveal" aria-labelledby="soi-mentors-heading">
+  <div class="soi-section-inner">
+    <header class="soi-modern-heading">
+      <span class="soi-section-eyebrow"><i class="ri-user-star-line" aria-hidden="true"></i> GUIDANCE THAT MOVES YOU FORWARD</span>
+      <h2 id="soi-mentors-heading">Faculty &amp; Mentors</h2>
+      <p>Meet the people helping learners turn concepts into practical skills and real-world projects.</p>
+    </header>
+    <div class="soi-mentors-grid">
+      {% for faculty in faculty_list %}
+        {% if faculty.name or faculty.role %}
+        <article class="soi-mentor-card">
+          <div class="soi-mentor-avatar" aria-hidden="true"><i class="ri-user-3-line"></i></div>
+          <div class="soi-mentor-info">
+            {% if faculty.name %}<h3>{{ faculty.name }}</h3>{% endif %}
+            {% if faculty.role %}<p>{{ faculty.role }}</p>{% endif %}
+          </div>
+          <span class="soi-mentor-mark"><i class="ri-sparkling-2-line" aria-hidden="true"></i> MENTOR</span>
+        </article>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
 </section>
 {% endif %}
 
-
 <!-- CMS Promotional Banners -->
 {% if visibilities.cta_banner and cta_banners %}
-<section class="max-w-6xl mx-auto px-4 py-8" aria-label="Promotional banners">
-
-  <div class="section-head reveal">
-    <h2>Explore More with Skill Orbit India</h2>
-    <p class="muted">
-      Discover practical workshops, industry-aligned courses, internships and AI &amp; Robotics lab solutions.
-    </p>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    {% for banner in cta_banners %}
-      {% if banner.title %}
-      <div class="card-premium surface-card p-6" style="border-top: 3px solid #1D4ED8;">
-        <h2 class="text-lg md:text-xl font-bold">
-          {{ banner.title }}
-        </h2>
-        {% if banner.link %}
-          <a href="{{ banner.link }}"
-             class="btn btn-primary btn-sm mt-4">
-            Explore Now →
-          </a>
+<section class="soi-explore-section reveal" aria-labelledby="soi-explore-heading">
+  <div class="soi-section-inner">
+    <header class="soi-modern-heading">
+      <span class="soi-section-eyebrow"><i class="ri-compass-3-line" aria-hidden="true"></i> FIND YOUR NEXT STEP</span>
+      <h2 id="soi-explore-heading">Explore More with Skill Orbit India</h2>
+      <p>Discover practical workshops, industry-aligned courses, internships and AI &amp; Robotics lab solutions.</p>
+    </header>
+    <div class="soi-explore-grid">
+      {% for banner in cta_banners %}
+        {% if banner.title %}
+        <article class="soi-explore-card">
+          <div class="soi-explore-icon" aria-hidden="true"><i class="ri-rocket-2-line"></i></div>
+          <div class="soi-explore-copy"><h3>{{ banner.title }}</h3><span>Discover opportunities. Build practical skills.</span></div>
+          {% if banner.link %}
+          <a href="{{ banner.link }}" class="soi-explore-link" aria-label="Explore {{ banner.title }}">Explore now <i class="ri-arrow-up-right-line" aria-hidden="true"></i></a>
+          {% endif %}
+          <span class="soi-explore-accent" aria-hidden="true"></span>
+        </article>
         {% endif %}
-      </div>
-      {% endif %}
-    {% endfor %}
+      {% endfor %}
+    </div>
   </div>
 </section>
 {% endif %}
 
 <!-- FAQ Accordion Section -->
 {% if visibilities.faq and faqs_list %}
-<div class="section-head reveal">
-  <h2>Frequently Asked Questions</h2>
-  <p class="muted">Everything you need to know about Skill Orbit India platform.</p>
-</div>
-<section class="reveal max-w-4xl mx-auto" aria-label="FAQ Accordion" style="margin-bottom: 3.5rem;">
-  <div class="space-y-4">
-    {% for faq in faqs_list %}
-    <div class="card-premium faq-card">
-      <details class="group">
-        <summary class="faq-summary">
-          <span>{{ faq.question }}</span>
-          <i class="ri-arrow-down-s-line transition group-open:rotate-180 text-brand-500 font-extrabold" style="font-size: 1.2rem;" aria-hidden="true"></i>
-        </summary>
-        <p class="mt-3 muted faq-answer">
-          {{ faq.answer }}
-        </p>
+<section class="soi-faq-section reveal" aria-labelledby="soi-faq-heading">
+  <div class="soi-section-inner soi-faq-layout">
+    <header class="soi-faq-intro">
+      <span class="soi-section-eyebrow"><i class="ri-question-answer-line" aria-hidden="true"></i> HERE TO HELP</span>
+      <h2 id="soi-faq-heading">Frequently Asked Questions</h2>
+      <p>Quick answers to help you make the right next move with Skill Orbit India.</p>
+      <div class="soi-faq-support"><span><i class="ri-lightbulb-line" aria-hidden="true"></i></span><div><strong>Still curious?</strong><p>Explore our learning programs and find the right fit for your goals.</p></div></div>
+    </header>
+    <div class="soi-faq-list" aria-label="Frequently asked questions">
+      {% for faq in faqs_list %}
+      <details class="soi-faq-item">
+        <summary><span class="soi-faq-question">{{ faq.question }}</span><span class="soi-faq-toggle" aria-hidden="true"><i class="ri-add-line"></i></span></summary>
+        <div class="soi-faq-answer"><p>{{ faq.answer }}</p></div>
       </details>
+      {% endfor %}
     </div>
-    {% endfor %}
   </div>
 </section>
 {% endif %}
+
+<style>
+.soi-section-inner{width:min(1240px,100%);margin-inline:auto;padding-inline:clamp(1rem,4vw,2.5rem)}
+.soi-credentials-section,.soi-mentors-section,.soi-explore-section,.soi-faq-section{position:relative;isolation:isolate;padding:clamp(3.5rem,6vw,5.5rem) 0;overflow:hidden}
+.soi-credentials-section,.soi-explore-section{background:linear-gradient(180deg,rgba(99,102,241,.045),transparent 88%)}
+.soi-modern-heading{max-width:760px;margin:0 auto 2.5rem;text-align:center}
+.soi-section-eyebrow{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem .9rem;border:1px solid rgba(99,102,241,.22);border-radius:999px;background:rgba(99,102,241,.075);color:var(--primary,#4f46e5);font-size:.7rem;font-weight:850;letter-spacing:.1em}
+.soi-modern-heading h2,.soi-faq-intro h2{margin:1rem 0 .8rem;font-size:clamp(2rem,4vw,3.1rem);line-height:1.12;letter-spacing:-.04em}
+.soi-modern-heading>p,.soi-faq-intro>p{margin:0;color:var(--text-muted,#64748b);line-height:1.8}
+.soi-credentials-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+.soi-credential-card{position:relative;display:flex;align-items:center;gap:1rem;min-width:0;overflow:hidden;padding:1.35rem;border:1px solid rgba(129,140,248,.22);border-radius:20px;background:var(--surface,#fff);box-shadow:0 12px 35px rgba(45,55,120,.055);transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+.soi-credential-card:hover{transform:translateY(-4px);border-color:rgba(99,102,241,.4);box-shadow:0 18px 40px rgba(45,55,120,.1)}
+.soi-credential-icon{display:grid;place-items:center;flex:0 0 52px;width:52px;height:52px;border:1px solid rgba(99,102,241,.15);border-radius:16px;background:linear-gradient(135deg,rgba(99,102,241,.13),rgba(6,182,212,.12));color:var(--primary,#4f46e5);font-size:1.65rem}
+.soi-credential-copy{position:relative;z-index:1;min-width:0}
+.soi-credential-copy h3,.soi-mentor-info h3{margin:0;color:var(--text,#1e293b);font-size:1.03rem;font-weight:800;line-height:1.45;overflow-wrap:anywhere}
+.soi-credential-copy p{display:flex;align-items:center;gap:.45rem;margin:.4rem 0 0;color:var(--text-muted,#64748b);font-size:.83rem;overflow-wrap:anywhere}
+.soi-credential-dot{width:6px;height:6px;flex:0 0 6px;border-radius:50%;background:#06b6d4}
+.soi-credential-watermark{position:absolute;right:-.15rem;bottom:-.4rem;color:rgba(99,102,241,.075);font-size:4.5rem;transform:rotate(-12deg)}
+.soi-mentors-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+.soi-mentor-card{display:flex;align-items:center;gap:1rem;min-width:0;padding:1.4rem;border:1px solid rgba(129,140,248,.2);border-radius:22px;background:var(--surface,#fff);box-shadow:0 12px 35px rgba(45,55,120,.055);transition:transform .22s ease,border-color .22s ease}
+.soi-mentor-card:hover{transform:translateY(-3px);border-color:rgba(99,102,241,.4)}
+.soi-mentor-avatar{display:grid;place-items:center;flex:0 0 54px;width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,#4f46e5,#06b6d4);color:#fff;font-size:1.5rem;box-shadow:0 9px 20px rgba(79,70,229,.2)}
+.soi-mentor-info{min-width:0}
+.soi-mentor-info p{margin:.35rem 0 0;color:var(--text-muted,#64748b);font-size:.88rem;line-height:1.5;overflow-wrap:anywhere}
+.soi-mentor-mark{display:none;margin-left:auto;align-self:flex-start;align-items:center;gap:.25rem;color:var(--primary,#4f46e5);font-size:.6rem;font-weight:850;letter-spacing:.08em}
+.soi-explore-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.soi-explore-card{position:relative;display:flex;align-items:center;gap:1.1rem;min-width:0;overflow:hidden;padding:clamp(1.2rem,3vw,1.7rem);border:1px solid rgba(129,140,248,.22);border-radius:22px;background:var(--surface,#fff);box-shadow:0 14px 36px rgba(45,55,120,.06);transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+.soi-explore-card:hover{transform:translateY(-3px);border-color:rgba(99,102,241,.4);box-shadow:0 20px 42px rgba(45,55,120,.1)}
+.soi-explore-icon{display:grid;place-items:center;flex:0 0 54px;width:54px;height:54px;border-radius:17px;background:linear-gradient(135deg,#4f46e5,#6366f1 55%,#06b6d4);color:#fff;font-size:1.55rem;box-shadow:0 10px 22px rgba(79,70,229,.2)}
+.soi-explore-copy{flex:1;min-width:0}
+.soi-explore-copy h3{margin:0;color:var(--text,#1e293b);font-size:1.12rem;font-weight:850;line-height:1.4;overflow-wrap:anywhere}
+.soi-explore-copy span{display:block;margin-top:.4rem;color:var(--text-muted,#64748b);font-size:.82rem;line-height:1.5}
+.soi-explore-link{display:inline-flex;align-items:center;gap:.35rem;justify-content:center;padding:.7rem .85rem;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;font-size:.8rem;font-weight:800;text-decoration:none;white-space:nowrap}
+.soi-explore-link:focus-visible{outline:3px solid rgba(6,182,212,.65);outline-offset:3px}
+.soi-explore-accent{position:absolute;bottom:0;left:1.4rem;right:1.4rem;height:3px;border-radius:999px 999px 0 0;background:linear-gradient(90deg,#4f46e5,#06b6d4);opacity:.7}
+.soi-faq-layout{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(2rem,6vw,5rem);align-items:start}
+.soi-faq-intro{position:sticky;top:2rem}
+.soi-faq-intro h2{font-size:clamp(2rem,3.5vw,2.8rem)}
+.soi-faq-support{display:flex;align-items:flex-start;gap:.85rem;margin-top:1.6rem;padding:1rem;border:1px solid rgba(129,140,248,.18);border-radius:18px;background:rgba(99,102,241,.045)}
+.soi-faq-support>span{display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;border-radius:13px;background:rgba(99,102,241,.12);color:var(--primary,#4f46e5);font-size:1.2rem}
+.soi-faq-support strong{color:var(--text,#1e293b);font-size:.9rem}
+.soi-faq-support p{margin:.25rem 0 0;color:var(--text-muted,#64748b);font-size:.82rem;line-height:1.6}
+.soi-faq-list{display:grid;gap:.8rem}
+.soi-faq-item{overflow:hidden;border:1px solid rgba(129,140,248,.2);border-radius:17px;background:var(--surface,#fff);box-shadow:0 8px 25px rgba(45,55,120,.04);transition:border-color .2s ease,box-shadow .2s ease}
+.soi-faq-item[open]{border-color:rgba(99,102,241,.42);box-shadow:0 12px 30px rgba(45,55,120,.07)}
+.soi-faq-item summary{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.15rem 1.25rem;cursor:pointer;list-style:none}
+.soi-faq-item summary::-webkit-details-marker{display:none}
+.soi-faq-question{color:var(--text,#1e293b);font-size:.97rem;font-weight:800;line-height:1.6}
+.soi-faq-toggle{display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;border-radius:10px;background:rgba(99,102,241,.09);color:var(--primary,#4f46e5);font-size:1.1rem;transition:transform .2s ease,background .2s ease}
+.soi-faq-item[open] .soi-faq-toggle{transform:rotate(45deg);background:rgba(6,182,212,.12)}
+.soi-faq-answer{padding:0 1.25rem 1.2rem;color:var(--text-muted,#64748b);font-size:.92rem;line-height:1.8}
+.soi-faq-answer p{margin:0}
+[data-theme="dark"] .soi-credential-card,[data-theme="dark"] .soi-mentor-card,[data-theme="dark"] .soi-explore-card,[data-theme="dark"] .soi-faq-item{border-color:rgba(129,140,248,.24);background:var(--surface,#111827);box-shadow:0 12px 35px rgba(0,0,0,.16)}
+[data-theme="dark"] .soi-credential-copy h3,[data-theme="dark"] .soi-mentor-info h3,[data-theme="dark"] .soi-explore-copy h3,[data-theme="dark"] .soi-faq-question,[data-theme="dark"] .soi-faq-support strong{color:var(--text,#f8fafc)}
+[data-theme="dark"] .soi-faq-support{border-color:rgba(129,140,248,.2);background:rgba(99,102,241,.08)}
+@media(min-width:900px){.soi-mentor-mark{display:inline-flex}}
+@media(max-width:900px){.soi-credentials-grid,.soi-mentors-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.soi-faq-layout{grid-template-columns:1fr;gap:1.5rem}.soi-faq-intro{position:static}.soi-faq-support{max-width:520px}}
+@media(max-width:600px){.soi-credentials-section,.soi-mentors-section,.soi-explore-section,.soi-faq-section{padding:3rem 0}.soi-modern-heading{margin-bottom:1.75rem}.soi-credentials-grid,.soi-mentors-grid,.soi-explore-grid{grid-template-columns:minmax(0,1fr)}.soi-credential-card,.soi-mentor-card{padding:1.1rem;border-radius:18px}.soi-explore-card{flex-wrap:wrap;border-radius:18px}.soi-explore-link{margin-left:auto}.soi-faq-item summary{padding:1rem}.soi-faq-answer{padding:0 1rem 1rem}}
+@media(prefers-reduced-motion:reduce){.soi-credential-card,.soi-mentor-card,.soi-explore-card,.soi-faq-toggle{transition:none}.soi-credential-card:hover,.soi-mentor-card:hover,.soi-explore-card:hover{transform:none}}
+</style>
 
 <!-- CTA BANNER -->
 {% if visibilities.cta_banner %}
