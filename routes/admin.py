@@ -2525,39 +2525,9 @@ def ai_lab_inquiries_export():
     return resp
 
 
-@admin_bp.route("/certificates", methods=["GET", "POST"])
+@admin_bp.route("/certificates", methods=["GET"])
 @admin_required
 def issue_certificate():
-    if request.method == "POST":
-        try:
-            user_id = int(request.form.get("user_id", 0))
-            course_id = int(request.form.get("course_id", 0))
-        except (TypeError, ValueError):
-            flash("Invalid learner or course selection.", "danger")
-            return redirect(url_for("admin.issue_certificate"))
-        learner = User.query.get_or_404(user_id)
-        course = Course.query.get_or_404(course_id)
-        existing = Certificate.query.filter_by(user_id=learner.id, course_id=course.id).first()
-        if existing:
-            flash("This learner already has a certificate for that course.", "warning")
-        else:
-            uid, pdf_path = generate_certificate_pdf(learner.full_name, course.title)
-            db.session.add(
-                Certificate(
-                    certificate_uid=uid,
-                    user_id=learner.id,
-                    course_id=course.id,
-                    pdf_path=pdf_path,
-                )
-            )
-            notify_user(
-                learner.id,
-                f"A certificate was issued for “{course.title}”. Verify ID: {uid[:8]}…",
-            )
-            flash("Certificate generated and learner notified.", "success")
-        db.session.commit()
-        return redirect(url_for("admin.issue_certificate"))
-    users_list = User.query.order_by(User.full_name).all()
     learners_list = User.query.filter_by(role="student").order_by(User.full_name).all()
     courses_list = Course.query.order_by(Course.title).all()
     recent = Certificate.query.order_by(Certificate.issued_at.desc()).limit(100).all()
