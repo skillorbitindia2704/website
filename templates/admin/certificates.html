@@ -9,26 +9,7 @@
 {% block content %}
 <div class="container">
   <h1 style="font-size:1.6rem;font-weight:750;">Certificate Management</h1>
-  <p class="muted">Generate certificates using the existing workflow or upload a manually designed PDF. Existing certificates remain unchanged.</p>
-
-  <section class="card-premium form-modern reveal" style="padding:1.25rem;margin:1.25rem 0;">
-    <h2 style="font-size:1.25rem;font-weight:700;">1. Generate Certificate</h2>
-    <p class="muted">Existing system-generated PDF workflow.</p>
-    {% if users_list and courses_list %}
-    <form method="post" style="max-width:620px;">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <label for="user_id">Learner</label>
-      <select name="user_id" id="user_id" required>
-        {% for u in users_list %}<option value="{{ u.id }}">{{ u.full_name }} ({{ u.email }})</option>{% endfor %}
-      </select>
-      <label for="course_id">Course</label>
-      <select name="course_id" id="course_id" required>
-        {% for c in courses_list %}<option value="{{ c.id }}">{{ c.title }}</option>{% endfor %}
-      </select>
-      <button type="submit" class="btn btn-primary">Generate Certificate</button>
-    </form>
-    {% else %}<p class="muted">Add at least one learner and one course before issuing certificates.</p>{% endif %}
-  </section>
+  <p class="muted">Upload and manage manually designed PDF certificates. Existing issued certificates remain unchanged.</p>
 
   <section class="card-premium form-modern reveal" style="padding:1.25rem;margin:1.25rem 0;">
     <h2 style="font-size:1.25rem;font-weight:700;">2. Upload Custom Certificate</h2>
@@ -38,8 +19,9 @@
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div><label for="custom_user_id">Learner</label><select id="custom_user_id" name="user_id" required>{% for u in learners_list %}<option value="{{ u.id }}">{{ u.full_name }} ({{ u.email }})</option>{% endfor %}</select></div>
-        <div><label for="program_type">Course / Program type</label><select id="program_type" name="program_type" required><option value="course">Course</option><option value="internship">Internship</option></select></div>
-        <div><label for="program_id">Course / Internship</label><select id="program_id" name="program_id" required>{% for c in courses_list %}<option value="{{ c.id }}" data-kind="course">Course: {{ c.title }}</option>{% endfor %}{% for p in internships_list %}<option value="{{ p.id }}" data-kind="internship">Internship: {{ p.title }}</option>{% endfor %}</select></div>
+        <div><label for="program_type">Course / Program type</label><select id="program_type" name="program_type" required><option value="course">Course</option><option value="internship">Internship</option><option value="teacher_training">Teacher Training Program</option><option value="workshop">Workshop</option><option value="summer_camp">Summer Camp</option><option value="bootcamp">Bootcamp</option><option value="seminar">Seminar</option></select></div>
+        <div id="program-select-wrap"><label for="program_id">Course / Internship</label><select id="program_id" name="program_id" required>{% for c in courses_list %}<option value="{{ c.id }}" data-kind="course">Course: {{ c.title }}</option>{% endfor %}{% for p in internships_list %}<option value="{{ p.id }}" data-kind="internship">Internship: {{ p.title }}</option>{% endfor %}</select></div>
+        <div id="program-title-wrap" hidden><label for="program_title">Program name</label><input id="program_title" name="program_title" maxlength="180" placeholder="Enter workshop / camp / seminar name"></div>
         <div><label for="certificate_title">Certificate title</label><input id="certificate_title" name="certificate_title" maxlength="180" value="Certificate of Completion" required></div>
         <div><label for="certificate_uid">Certificate ID (optional)</label><input id="certificate_uid" name="certificate_uid" maxlength="120" placeholder="Leave blank to auto-generate"></div>
         <div><label for="issued_at">Issue date</label><input id="issued_at" type="date" name="issued_at" value="{{ today_date }}" required></div>
@@ -62,7 +44,7 @@
         <tbody>
           {% for c in recent_certificates %}
           <tr>
-            <td>{{ c.issued_at.strftime('%d %b %Y') }}</td><td>{{ c.user.full_name }}<br><small>{{ c.user.email }}</small></td><td>{{ c.course.title }}</td><td>Certificate of Completion</td><td style="word-break:break-all;">{{ c.certificate_uid }}</td><td>System Generated</td><td>Verified</td><td><a href="{{ url_for('certificates.verify', uid=c.certificate_uid) }}" target="_blank" rel="noopener">View / Verify</a> · <a href="{{ url_for('certificates.download', uid=c.certificate_uid) }}">Download</a></td>
+            <td>{{ c.issued_at.strftime('%d %b %Y') }}</td><td>{{ c.user.full_name }}<br><small>{{ c.user.email }}</small></td><td>{{ c.course.title if c.course else 'Course' }}</td><td>Certificate of Completion</td><td style="word-break:break-all;">{{ c.certificate_uid }}</td><td>System Generated</td><td>Verified</td><td><a href="{{ url_for('certificates.verify', uid=c.certificate_uid) }}" target="_blank" rel="noopener">View / Verify</a> · <a href="{{ url_for('certificates.download', uid=c.certificate_uid) }}">Download</a></td>
           </tr>
           {% endfor %}
           {% for c in custom_certificates %}
@@ -76,10 +58,14 @@
                   <label>Certificate ID<input name="certificate_uid" value="{{ c.certificate_uid }}" maxlength="120" required></label>
                   <label>Title<input name="certificate_title" value="{{ c.certificate_title }}" maxlength="180" required></label>
                   <label>Issue date<input type="date" name="issued_at" value="{{ c.issued_at.isoformat() }}" required></label>
-                  <label>Status<select name="verification_status"><option value="verified" {% if c.verification_status=='verified' %}selected{% endif %}>Verified</option><option value="pending" {% if c.verification_status=='pending' %}selected{% endif %}>Pending</option><option value="revoked" {% if c.verification_status=='revoked' %}selected{% endif %}>Revoked</option></select></label>
+                  <label>Status<select name="verification_status"><option value="verified" {% if c.verification_status=='verified' %}selected{% endif %}>Verified</option><option value="pending" {% if c.verification_status=='pending' %}selected{% endif %}>Pending</option><option value="revoked" {% if c.verification_status=='revoked' %}selected{% endif %}>Revoked</option><option value="disabled" {% if c.verification_status=='disabled' %}selected{% endif %}>Disabled</option></select></label>
                   <label>Remarks<input name="remarks" value="{{ c.remarks or '' }}" maxlength="4000"></label>
                   <label>Replace PDF (optional)<input type="file" name="certificate_file" accept=".pdf,application/pdf"></label>
                   <button class="btn btn-secondary" type="submit">Save Changes</button>
+                </form>
+                <form method="post" action="{{ url_for('certificates.delete_custom_certificate', certificate_id=c.id) }}" style="margin-top:.5rem;" onsubmit="return window.confirm('Permanently delete this certificate record and its private PDF? This cannot be undone.')">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn-secondary" type="submit">Delete Certificate</button>
                 </form>
               </details>
             </td>
@@ -94,7 +80,7 @@
 <script>
 (function(){
   const type=document.getElementById('program_type'), select=document.getElementById('program_id');
-  function filterPrograms(){if(!type||!select)return;const kind=type.value;let first=null;Array.from(select.options).forEach(o=>{o.hidden=o.dataset.kind!==kind;if(!o.hidden&&!first)first=o;});if(first)select.value=first.value;}
+  function filterPrograms(){if(!type||!select)return;const kind=type.value;const isCatalog=kind==='course'||kind==='internship';const wrap=document.getElementById('program-select-wrap');const titleWrap=document.getElementById('program-title-wrap');const title=document.getElementById('program_title');if(wrap)wrap.hidden=!isCatalog;if(titleWrap)titleWrap.hidden=isCatalog;select.disabled=!isCatalog;select.required=isCatalog;if(title)title.required=!isCatalog;let first=null;Array.from(select.options).forEach(o=>{o.hidden=o.dataset.kind!==kind;if(!o.hidden&&!first)first=o;});if(first)select.value=first.value;}
   type?.addEventListener('change',filterPrograms);filterPrograms();
   document.querySelectorAll('form[action*="/admin/custom/"]').forEach(form=>form.addEventListener('submit',event=>{const status=form.querySelector('select[name="verification_status"]');if(status&&status.value==='revoked'&&!window.confirm('Revoke this certificate? Public verification will show it as revoked.')){event.preventDefault();return;}const btn=form.querySelector('button[type="submit"]');if(btn){btn.disabled=true;btn.textContent='Saving…';}}));
   const uploadForm=document.querySelector('form[action*="upload-custom"]');uploadForm?.addEventListener('submit',()=>{const btn=uploadForm.querySelector('button[type="submit"]');if(btn){btn.disabled=true;btn.textContent='Uploading certificate…';}});
