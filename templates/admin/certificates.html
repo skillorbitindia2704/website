@@ -73,6 +73,7 @@
               <details style="margin-top:.6rem;"><summary>Edit / Manage</summary>
                 <form method="post" action="{{ url_for('certificates.manage_custom_certificate', certificate_id=c.id) }}" enctype="multipart/form-data" style="display:grid;gap:.4rem;margin-top:.5rem;">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <label>Certificate ID<input name="certificate_uid" value="{{ c.certificate_uid }}" maxlength="120" required></label>
                   <label>Title<input name="certificate_title" value="{{ c.certificate_title }}" maxlength="180" required></label>
                   <label>Issue date<input type="date" name="issued_at" value="{{ c.issued_at.isoformat() }}" required></label>
                   <label>Status<select name="verification_status"><option value="verified" {% if c.verification_status=='verified' %}selected{% endif %}>Verified</option><option value="pending" {% if c.verification_status=='pending' %}selected{% endif %}>Pending</option><option value="revoked" {% if c.verification_status=='revoked' %}selected{% endif %}>Revoked</option></select></label>
@@ -95,6 +96,8 @@
   const type=document.getElementById('program_type'), select=document.getElementById('program_id');
   function filterPrograms(){if(!type||!select)return;const kind=type.value;let first=null;Array.from(select.options).forEach(o=>{o.hidden=o.dataset.kind!==kind;if(!o.hidden&&!first)first=o;});if(first)select.value=first.value;}
   type?.addEventListener('change',filterPrograms);filterPrograms();
+  document.querySelectorAll('form[action*="/admin/custom/"]').forEach(form=>form.addEventListener('submit',event=>{const status=form.querySelector('select[name="verification_status"]');if(status&&status.value==='revoked'&&!window.confirm('Revoke this certificate? Public verification will show it as revoked.')){event.preventDefault();return;}const btn=form.querySelector('button[type="submit"]');if(btn){btn.disabled=true;btn.textContent='Saving…';}}));
+  const uploadForm=document.querySelector('form[action*="upload-custom"]');uploadForm?.addEventListener('submit',()=>{const btn=uploadForm.querySelector('button[type="submit"]');if(btn){btn.disabled=true;btn.textContent='Uploading certificate…';}});
   const input=document.getElementById('certificate-table-search'),table=document.getElementById('certificate-management-table');
   input?.addEventListener('input',()=>{const q=input.value.toLowerCase();table.querySelectorAll('tbody tr').forEach(r=>r.hidden=!r.innerText.toLowerCase().includes(q));});
 })();
