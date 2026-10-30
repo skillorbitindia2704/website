@@ -13,7 +13,19 @@ student_bp = Blueprint("student", __name__, url_prefix="/student")
 @student_required
 def dashboard():
     user = current_user
-    top_users = User.query.order_by(User.points.desc()).limit(10).all()
+
+    # Only genuine student accounts should appear on the student leaderboard.
+    # Exclude admin accounts even if their role flags are inconsistent.
+    top_users = (
+        User.query.filter(
+            User.role == "student",
+            User.is_admin.is_(False),
+        )
+        .order_by(User.points.desc(), User.id.asc())
+        .limit(10)
+        .all()
+    )
+
     enrollments = (
         Enrollment.query.filter_by(user_id=user.id, is_paid=True)
         .join(Course)
@@ -39,4 +51,3 @@ def _register_student_lms():
 
 
 _register_student_lms()
-
