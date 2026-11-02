@@ -185,7 +185,10 @@ def google_login():
         return redirect(url_for("auth.login"))
 
     session["google_login_next"] = _safe_redirect_target(request.args.get("next"))
-    callback_url = url_for("auth.google_callback", _external=True)
+    callback_url = current_app.config.get("GOOGLE_REDIRECT_URI") or url_for(
+        "auth.google_callback", _external=True,
+        _scheme="http" if current_app.debug else "https",
+    )
     return google.authorize_redirect(callback_url)
 
 
