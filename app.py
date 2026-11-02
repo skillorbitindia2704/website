@@ -621,7 +621,7 @@ def create_app():
             if flask_env == "development":
                 response.headers["Cache-Control"] = "no-cache, must-revalidate"
             else:
-                response.headers["Cache-Control"] = "public, max-age=31536000"
+                response.headers["Cache-Control"] = "public, max-age=3600, must-revalidate"
         
         # HSTS (Strict-Transport-Security) - only if not in development/debug mode
         if flask_env != "development" and not app.debug:

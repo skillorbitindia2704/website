@@ -31,11 +31,13 @@
     mainEl.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
-  /* Page loader */
-  window.addEventListener("load", () => {
+  /* Page loader: reveal on load, with a fail-safe for slow or stalled assets. */
+  const hidePageLoader = () => {
     const pl = $("#page-loader");
     if (pl) pl.classList.add("done");
-  });
+  };
+  window.addEventListener("load", hidePageLoader, { once: true });
+  window.setTimeout(hidePageLoader, 3500);
 
   /* Theme */
   function updateLogoTheme(theme) {

@@ -8427,29 +8427,29 @@ html:not([data-theme="dark"]) .btn-ghost:hover {
 }
 
 /* 5. UNIVERSAL CARDS & PANELS (Admin, Teacher, Student, Store, Courses, Internships) */
-html:not([data-theme="dark"]) .card-premium,
-html:not([data-theme="dark"]) .surface-card,
-html:not([data-theme="dark"]) .surface-card-lg,
-html:not([data-theme="dark"]) .stat-card,
-html:not([data-theme="dark"]) .admin-module-card,
-html:not([data-theme="dark"]) .admin-feature-card,
-html:not([data-theme="dark"]) .dash-card,
-html:not([data-theme="dark"]) .role-shell,
-html:not([data-theme="dark"]) .lms-sidebar,
-html:not([data-theme="dark"]) .lms-content-card,
-html:not([data-theme="dark"]) .lms-lesson-card,
-html:not([data-theme="dark"]) .t-card,
-html:not([data-theme="dark"]) .t-stat-card,
-html:not([data-theme="dark"]) .t-table-card,
-html:not([data-theme="dark"]) .table-card,
-html:not([data-theme="dark"]) .admin-internship-card,
-html:not([data-theme="dark"]) .cart-card,
-html:not([data-theme="dark"]) .filters-panel,
-html:not([data-theme="dark"]) .courses-card {
-  background: #FFFFFF !important;
-  border: 1px solid rgba(226, 232, 240, 0.90) !important;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04) !important;
-  border-radius: var(--radius-lg, 22px) !important;
+:where(html:not([data-theme="dark"])) .card-premium,
+:where(html:not([data-theme="dark"])) .surface-card,
+:where(html:not([data-theme="dark"])) .surface-card-lg,
+:where(html:not([data-theme="dark"])) .stat-card,
+:where(html:not([data-theme="dark"])) .admin-module-card,
+:where(html:not([data-theme="dark"])) .admin-feature-card,
+:where(html:not([data-theme="dark"])) .dash-card,
+:where(html:not([data-theme="dark"])) .role-shell,
+:where(html:not([data-theme="dark"])) .lms-sidebar,
+:where(html:not([data-theme="dark"])) .lms-content-card,
+:where(html:not([data-theme="dark"])) .lms-lesson-card,
+:where(html:not([data-theme="dark"])) .t-card,
+:where(html:not([data-theme="dark"])) .t-stat-card,
+:where(html:not([data-theme="dark"])) .t-table-card,
+:where(html:not([data-theme="dark"])) .table-card,
+:where(html:not([data-theme="dark"])) .admin-internship-card,
+:where(html:not([data-theme="dark"])) .cart-card,
+:where(html:not([data-theme="dark"])) .filters-panel,
+:where(html:not([data-theme="dark"])) .courses-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(226, 232, 240, 0.90);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04);
+  border-radius: var(--radius-lg, 22px);
 }
 
 [data-theme="dark"] .card-premium,
@@ -8471,36 +8471,36 @@ html:not([data-theme="dark"]) .courses-card {
 [data-theme="dark"] .cart-card,
 [data-theme="dark"] .filters-panel,
 [data-theme="dark"] .courses-card {
-  background: #11172B !important;
-  border: 1px solid rgba(148, 163, 184, 0.18) !important;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35) !important;
-  border-radius: var(--radius-lg, 22px) !important;
+  background: #11172B;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  border-radius: var(--radius-lg, 22px);
 }
 
 /* 6. UNIVERSAL TYPOGRAPHY & HEADINGS */
-html:not([data-theme="dark"]) h1,
-html:not([data-theme="dark"]) h2,
-html:not([data-theme="dark"]) h3,
-html:not([data-theme="dark"]) h4,
-html:not([data-theme="dark"]) h5,
-html:not([data-theme="dark"]) .page-title,
-html:not([data-theme="dark"]) .card-title-sm,
-html:not([data-theme="dark"]) .card-title,
-html:not([data-theme="dark"]) .t-subpage-title,
-html:not([data-theme="dark"]) .dash-title,
-html:not([data-theme="dark"]) .section-head h2 {
-  color: #0A1931 !important;
+:where(html:not([data-theme="dark"])) h1,
+:where(html:not([data-theme="dark"])) h2,
+:where(html:not([data-theme="dark"])) h3,
+:where(html:not([data-theme="dark"])) h4,
+:where(html:not([data-theme="dark"])) h5,
+:where(html:not([data-theme="dark"])) .page-title,
+:where(html:not([data-theme="dark"])) .card-title-sm,
+:where(html:not([data-theme="dark"])) .card-title,
+:where(html:not([data-theme="dark"])) .t-subpage-title,
+:where(html:not([data-theme="dark"])) .dash-title,
+:where(html:not([data-theme="dark"])) .section-head h2 {
+  color: #0A1931;
   font-family: var(--font-display, 'Outfit', 'Poppins', sans-serif);
 }
 
-html:not([data-theme="dark"]) p.muted,
-html:not([data-theme="dark"]) .text-muted,
-html:not([data-theme="dark"]) .text-secondary,
-html:not([data-theme="dark"]) .lbl,
-html:not([data-theme="dark"]) .stat-lbl,
-html:not([data-theme="dark"]) .t-subpage-sub,
-html:not([data-theme="dark"]) .section-head p.muted {
-  color: #475569 !important;
+:where(html:not([data-theme="dark"])) p.muted,
+:where(html:not([data-theme="dark"])) .text-muted,
+:where(html:not([data-theme="dark"])) .text-secondary,
+:where(html:not([data-theme="dark"])) .lbl,
+:where(html:not([data-theme="dark"])) .stat-lbl,
+:where(html:not([data-theme="dark"])) .t-subpage-sub,
+:where(html:not([data-theme="dark"])) .section-head p.muted {
+  color: #475569;
 }
 
 [data-theme="dark"] h1,
@@ -8514,7 +8514,7 @@ html:not([data-theme="dark"]) .section-head p.muted {
 [data-theme="dark"] .t-subpage-title,
 [data-theme="dark"] .dash-title,
 [data-theme="dark"] .section-head h2 {
-  color: #F8FAFC !important;
+  color: #F8FAFC;
   font-family: var(--font-display, 'Outfit', 'Poppins', sans-serif);
 }
 
@@ -8525,7 +8525,7 @@ html:not([data-theme="dark"]) .section-head p.muted {
 [data-theme="dark"] .stat-lbl,
 [data-theme="dark"] .t-subpage-sub,
 [data-theme="dark"] .section-head p.muted {
-  color: #94A3B8 !important;
+  color: #94A3B8;
 }
 
 /* 7. DASHBOARD SIDEBARS (Admin & Teacher Workspaces) */
@@ -8584,68 +8584,68 @@ html:not([data-theme="dark"]) .teacher-sidebar-link.is-active {
 }
 
 /* 8. UNIVERSAL TABLES (Admin, Teacher, LMS, Users, Orders) */
-html:not([data-theme="dark"]) table,
-html:not([data-theme="dark"]) .table,
-html:not([data-theme="dark"]) .dash-table,
-html:not([data-theme="dark"]) .t-table {
-  border-collapse: separate !important;
-  border-spacing: 0 !important;
+:where(html:not([data-theme="dark"])) table,
+:where(html:not([data-theme="dark"])) .table,
+:where(html:not([data-theme="dark"])) .dash-table,
+:where(html:not([data-theme="dark"])) .t-table {
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
-html:not([data-theme="dark"]) table th,
-html:not([data-theme="dark"]) .table th,
-html:not([data-theme="dark"]) .dash-table th,
-html:not([data-theme="dark"]) .t-table th {
-  background: #F1F5F9 !important;
-  color: #0A1931 !important;
-  font-weight: 700 !important;
-  border-bottom: 2px solid #E2E8F0 !important;
-  padding: 0.85rem 1rem !important;
+:where(html:not([data-theme="dark"])) table th,
+:where(html:not([data-theme="dark"])) .table th,
+:where(html:not([data-theme="dark"])) .dash-table th,
+:where(html:not([data-theme="dark"])) .t-table th {
+  background: #F1F5F9;
+  color: #0A1931;
+  font-weight: 700;
+  border-bottom: 2px solid #E2E8F0;
+  padding: 0.85rem 1rem;
 }
 
-html:not([data-theme="dark"]) table td,
-html:not([data-theme="dark"]) .table td,
-html:not([data-theme="dark"]) .dash-table td,
-html:not([data-theme="dark"]) .t-table td {
-  background: transparent !important;
-  color: #334155 !important;
-  border-bottom: 1px solid #E2E8F0 !important;
-  padding: 0.85rem 1rem !important;
+:where(html:not([data-theme="dark"])) table td,
+:where(html:not([data-theme="dark"])) .table td,
+:where(html:not([data-theme="dark"])) .dash-table td,
+:where(html:not([data-theme="dark"])) .t-table td {
+  background: transparent;
+  color: #334155;
+  border-bottom: 1px solid #E2E8F0;
+  padding: 0.85rem 1rem;
 }
 
-html:not([data-theme="dark"]) table tr:hover td,
-html:not([data-theme="dark"]) .table tr:hover td,
-html:not([data-theme="dark"]) .dash-table tr:hover td,
-html:not([data-theme="dark"]) .t-table tr:hover td {
-  background: rgba(255, 107, 0, 0.04) !important;
+:where(html:not([data-theme="dark"])) table tr:hover td,
+:where(html:not([data-theme="dark"])) .table tr:hover td,
+:where(html:not([data-theme="dark"])) .dash-table tr:hover td,
+:where(html:not([data-theme="dark"])) .t-table tr:hover td {
+  background: rgba(255, 107, 0, 0.04);
 }
 
 [data-theme="dark"] table th,
 [data-theme="dark"] .table th,
 [data-theme="dark"] .dash-table th,
 [data-theme="dark"] .t-table th {
-  background: #161F3D !important;
-  color: #F8FAFC !important;
-  font-weight: 700 !important;
-  border-bottom: 2px solid rgba(148, 163, 184, 0.25) !important;
-  padding: 0.85rem 1rem !important;
+  background: #161F3D;
+  color: #F8FAFC;
+  font-weight: 700;
+  border-bottom: 2px solid rgba(148, 163, 184, 0.25);
+  padding: 0.85rem 1rem;
 }
 
 [data-theme="dark"] table td,
 [data-theme="dark"] .table td,
 [data-theme="dark"] .dash-table td,
 [data-theme="dark"] .t-table td {
-  background: transparent !important;
-  color: #CBD5E1 !important;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.15) !important;
-  padding: 0.85rem 1rem !important;
+  background: transparent;
+  color: #CBD5E1;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  padding: 0.85rem 1rem;
 }
 
 [data-theme="dark"] table tr:hover td,
 [data-theme="dark"] .table tr:hover td,
 [data-theme="dark"] .dash-table tr:hover td,
 [data-theme="dark"] .t-table tr:hover td {
-  background: rgba(255, 107, 0, 0.08) !important;
+  background: rgba(255, 107, 0, 0.08);
 }
 
 /* 9. UNIVERSAL FORM CONTROLS & INPUTS */
