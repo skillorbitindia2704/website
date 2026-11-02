@@ -143,7 +143,7 @@ def validate_file_safety(file_storage, allowed_extensions):
         return len(h) >= 12 and h[4:8] == b"ftyp"
 
     def check_webm_mkv(h):
-        return h.startswith(b"\\x1a\\x45\\xdf\\xa3")
+        return h.startswith(b"\x1a\x45\xdf\xa3")
 
     def check_avi(h):
         return len(h) >= 12 and h.startswith(b"RIFF") and h[8:12] == b"AVI "
@@ -154,7 +154,7 @@ def validate_file_safety(file_storage, allowed_extensions):
     def check_text(h):
         try:
             h.decode("utf-8")
-            return bool(h) and b"\\x00" not in h
+            return bool(h) and b"\x00" not in h
         except UnicodeDecodeError:
             return False
 
