@@ -25,6 +25,7 @@ from extensions import bcrypt, csrf, login_manager
 # pyright: ignore[reportUnusedImport, reportUnknownVariableType, reportUnknownMemberType, reportCallIssue, reportAttributeAccessIssue, reportDeprecated, reportMissingParameterType, reportUnknownArgumentType]
 
 from models import db
+from models.google_identity import GoogleIdentity  # noqa: F401 — register Google account links before db.create_all()
 from models.custom_certificate import CustomCertificate  # noqa: F401 — register custom certificate table before db.create_all()
 from models.ai_lab_package import AILabPackage
 from models.internship import Internship, InternshipApplication, InternshipProgramFee, InternshipProgramPayment  # noqa: F401 — register internship payment tables before db.create_all()
@@ -88,7 +89,7 @@ from routes.admin import admin_bp
 
 from routes.ai_lab import ai_lab_bp
 from routes.api import api_bp
-from routes.auth import auth_bp
+from routes.auth import auth_bp, oauth
 from routes.certificates import cert_bp
 from routes.courses import courses_bp
 from routes.dashboard import dashboard_bp
@@ -331,6 +332,20 @@ def create_app():
     bcrypt.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
+
+    # Google OpenID Connect is enabled only when both Render/local env vars exist.
+    app.config["GOOGLE_CLIENT_ID"] = os.getenv("GOOGLE_CLIENT_ID", "").strip()
+    app.config["GOOGLE_CLIENT_SECRET"] = os.getenv("GOOGLE_CLIENT_SECRET", "").strip()
+    app.config["GOOGLE_REDIRECT_URI"] = os.getenv("GOOGLE_REDIRECT_URI", "").strip()
+    oauth.init_app(app)
+    if app.config["GOOGLE_CLIENT_ID"] and app.config["GOOGLE_CLIENT_SECRET"]:
+        oauth.register(
+            name="google",
+            client_id=app.config["GOOGLE_CLIENT_ID"],
+            client_secret=app.config["GOOGLE_CLIENT_SECRET"],
+            server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+            client_kwargs={"scope": "openid email profile"},
+        )
     cast(Any, login_manager).login_view = "auth.login"
     cast(Any, login_manager).login_message = None
 
