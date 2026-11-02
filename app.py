@@ -117,9 +117,21 @@ def _ensure_admin_account():
     """Create or sync default admin account from environment settings."""
     try:
         admin_email = os.getenv("ADMIN_EMAIL", "skillorbitindia2704@gmail.com").strip().lower()
-        admin_password = os.getenv("ADMIN_PASSWORD", "Admin@12345")
+        flask_env = os.getenv("FLASK_ENV", "production").strip().lower()
+        admin_password = os.getenv("ADMIN_PASSWORD", "").strip()
+
+        # Never create or reset a production administrator with a known default
+        # credential. Configure ADMIN_PASSWORD explicitly in the deployment
+        # environment and rotate it outside source control.
         if not admin_password:
-            return
+            if flask_env != "development":
+                import logging
+                logging.getLogger(__name__).critical(
+                    "ADMIN_PASSWORD is missing; admin bootstrap was skipped. "
+                    "Set a strong ADMIN_PASSWORD in the production environment."
+                )
+                return
+            admin_password = "Admin@12345"  # Local development only.
 
         existing = User.query.filter_by(email=admin_email).first()
         if existing:
