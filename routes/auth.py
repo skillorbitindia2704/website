@@ -325,19 +325,14 @@ def forgot_password():
             
         user = User.query.filter_by(email=email).first()
         if user:
-            # Generate highly secure timed reset token
+            # Never write reset tokens or reset URLs to application logs.
+            # A transactional email provider must be configured before reset links can be delivered.
             from flask import current_app
-            serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
-            token = serializer.dumps(email, salt="password-reset-salt")
-            reset_url = url_for("auth.reset_password", token=token, _external=True)
-            
-            # Secure warning and console logging for developer local sandbox testing
-            current_app.logger.info(f"--- PASSWORD RESET LINK REQUESTED FOR {email} ---")
-            current_app.logger.info(f"Reset Link: {reset_url}")
-            current_app.logger.info(f"--------------------------------------------------")
+            current_app.logger.info("Password reset requested for an existing account.")
+
             
         # Timing safe: always display the same success message to prevent user enumeration
-        flash("If the email address is registered, a password reset link has been sent to it.", "success")
+        flash("If the email address is registered, reset instructions will be sent when email delivery is configured.", "success")
         return redirect(url_for("auth.forgot_password"))
         
     return render_template("auth/forgot_password.html")

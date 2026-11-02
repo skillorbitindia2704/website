@@ -9,5 +9,9 @@ services:
         value: production
       - key: SECRET_KEY
         generateValue: true
+      # Set this in the Render dashboard; never store database credentials in Git.
       - key: DATABASE_URL
-        value: postgresql://skillorbitindiadb_aqyk_user:R2vb7eFCXYkOC7EKEDkTX5N136gtwOao@dpg-daa51htg1s2s73c5pb7g-a/skill_orbit_india
+        sync: false
+      # Enable only for one-time initial admin creation, then set it back to false.
+      - key: ADMIN_BOOTSTRAP_ENABLED
+        value: "false"
