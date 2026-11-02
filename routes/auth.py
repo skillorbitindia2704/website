@@ -1,14 +1,19 @@
+import secrets
+
+from authlib.integrations.flask_client import OAuth
 from email_validator import EmailNotValidError, validate_email
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, current_app, flash, redirect, render_template, request, session, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from extensions import bcrypt
 from models import db
 from models.user import User
+from models.google_identity import GoogleIdentity
 from utils.security_helpers import rate_limit
 
 auth_bp = Blueprint("auth", __name__)
+oauth = OAuth()
 
 
 def _safe_redirect_target(url):
@@ -168,7 +173,113 @@ def login():
         if session["role"] == "teacher":
             return redirect(url_for("teacher.dashboard"))
         return redirect(url_for("student.dashboard"))
-    return render_template("auth/login.html")
+    return render_template("auth/login.html", google_login_enabled=oauth.create_client("google") is not None)
+
+
+@auth_bp.get("/login/google")
+def google_login():
+    """Start Google OpenID Connect sign-in."""
+    google = oauth.create_client("google")
+    if google is None:
+        flash("Google login is not configured yet. Please use email and password.", "warning")
+        return redirect(url_for("auth.login"))
+
+    session["google_login_next"] = _safe_redirect_target(request.args.get("next"))
+    callback_url = url_for("auth.google_callback", _external=True)
+    return google.authorize_redirect(callback_url)
+
+
+@auth_bp.get("/login/google/callback")
+def google_callback():
+    """Validate Google's verified identity, link/create the local account, and sign in."""
+    google = oauth.create_client("google")
+    if google is None:
+        flash("Google login is not configured. Please use email and password.", "warning")
+        return redirect(url_for("auth.login"))
+
+    if request.args.get("error"):
+        current_app.logger.warning("Google sign-in was cancelled or denied: %s", request.args.get("error"))
+        session.pop("google_login_next", None)
+        flash("Google sign-in was cancelled. You can try again.", "warning")
+        return redirect(url_for("auth.login"))
+
+    try:
+        token = google.authorize_access_token()
+        profile = token.get("userinfo") or google.userinfo()
+        google_sub = str(profile.get("sub") or "").strip()
+        email = str(profile.get("email") or "").strip().lower()
+        email_verified = profile.get("email_verified") is True
+        if not google_sub or not email or not email_verified:
+            flash("Google could not verify your email address. Please try another account.", "danger")
+            return redirect(url_for("auth.login"))
+
+        identity = GoogleIdentity.query.filter_by(google_sub=google_sub).first()
+        user = db.session.get(User, identity.user_id) if identity else None
+
+        if identity and user is None:
+            current_app.logger.error("Google identity %s references a missing local user", google_sub)
+            flash("We could not locate the account linked to this Google profile. Contact support.", "danger")
+            return redirect(url_for("auth.login"))
+
+        if user is None:
+            user = User.query.filter_by(email=email).first()
+            if user is not None:
+                existing_identity = GoogleIdentity.query.filter_by(user_id=user.id).first()
+                if existing_identity and existing_identity.google_sub != google_sub:
+                    flash("This account is already linked to another Google account. Contact support to change it.", "danger")
+                    return redirect(url_for("auth.login"))
+            else:
+                display_name = str(profile.get("name") or email.split("@", 1)[0]).strip()[:120]
+                user = User(
+                    full_name=display_name or "Google User",
+                    email=email,
+                    # Keep the existing non-null password schema; this random hash is not known to the user.
+                    password_hash=bcrypt.generate_password_hash(secrets.token_urlsafe(48)).decode("utf-8"),
+                    role="student",
+                    is_approved=True,
+                    is_active=True,
+                )
+                user.sync_admin_flags()
+                db.session.add(user)
+                db.session.flush()
+
+            db.session.add(GoogleIdentity(user_id=user.id, google_sub=google_sub, email=email))
+            db.session.commit()
+
+        if user.is_active is False:
+            flash("This account has been disabled. Contact an administrator.", "danger")
+            return redirect(url_for("auth.login"))
+        if user.role == "teacher" and not user.is_approved:
+            flash("Your teacher account is waiting for admin approval.", "warning")
+            return redirect(url_for("auth.login"))
+
+        next_url = _safe_redirect_target(session.pop("google_login_next", None))
+        session.clear()
+        login_user(user, remember=True)
+        session["user_id"] = user.id
+        session["role"] = user.role or "student"
+        session.permanent = True
+        flash("Signed in successfully with Google.", "success")
+
+        if next_url:
+            return redirect(next_url)
+        if user.role == "admin":
+            return redirect(url_for("admin.index"))
+        if user.role == "teacher":
+            return redirect(url_for("teacher.dashboard"))
+        return redirect(url_for("student.dashboard"))
+
+    except IntegrityError:
+        db.session.rollback()
+        current_app.logger.exception("Google sign-in account link conflicted with an existing identity")
+        flash("This Google account could not be linked safely. Please try signing in again or contact support.", "danger")
+        return redirect(url_for("auth.login"))
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception("Google OAuth sign-in failed")
+        session.pop("google_login_next", None)
+        flash("Google sign-in could not be completed. Please try again or use email and password.", "danger")
+        return redirect(url_for("auth.login"))
 
 
 @auth_bp.get("/logout")
