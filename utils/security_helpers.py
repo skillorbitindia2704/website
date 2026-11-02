@@ -50,14 +50,16 @@ def rate_limit(limit=5, period=60):
                     # Set expiry time
                     pipe.expire(key, period + 10)
                     results = pipe.execute()
-                    
                     cardinality = results[1]
+                except Exception:
+                    # Redis failed (e.g. offline), fall back to in-memory cache.
+                    cardinality = None
+                else:
+                    # Keep abort outside the Redis exception handler: HTTPException
+                    # must not be swallowed and downgraded to the local fallback.
                     if cardinality >= limit:
                         abort(429, description="Rate limit exceeded. Please try again later.")
                     return f(*args, **kwargs)
-                except Exception:
-                    # Redis failed (e.g. offline), fall back to in-memory cache
-                    pass
 
             with _cache_lock:
                 # Clean up expired timestamps
@@ -93,7 +95,8 @@ def validate_file_safety(file_storage, allowed_extensions):
         return False
         
     ext = filename.rsplit(".", 1)[1]
-    if ext not in allowed_extensions:
+    allowed = {str(item).lower().lstrip(".") for item in allowed_extensions}
+    if ext not in allowed:
         return False
         
     # Read the first 32 bytes to inspect magic numbers
@@ -134,19 +137,26 @@ def validate_file_safety(file_storage, allowed_extensions):
         # Legacy MS Word signature (\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1)
         return h.startswith(b"\xd0\xcf\x11\xe0")
         
-    def check_video(h):
-        # EBML / WebM / MKV header
-        if h.startswith(b"\x1a\x45\xdf\xa3"):
-            return True
-        # MP4 ftyp container
-        if b"ftyp" in h[4:12]:
-            return True
-        # MOV container / QuickTime
-        if b"moov" in h or b"free" in h or b"mdat" in h:
-            return True
-        # Fallback permissive for developer sandbox testing if it contains readable frames,
-        # but let's allow common video containers.
-        return True
+    def check_mp4_mov(h):
+        # ISO base media files (MP4/M4V and most MOV files) identify the
+        # container with an ftyp box immediately after the 4-byte size.
+        return len(h) >= 12 and h[4:8] == b"ftyp"
+
+    def check_webm_mkv(h):
+        return h.startswith(b"\x1a\x45\xdf\xa3")
+
+    def check_avi(h):
+        return len(h) >= 12 and h.startswith(b"RIFF") and h[8:12] == b"AVI "
+
+    def check_flv(h):
+        return h.startswith(b"FLV")
+
+    def check_text(h):
+        try:
+            h.decode("utf-8")
+            return bool(h) and b"\x00" not in h
+        except UnicodeDecodeError:
+            return False
 
     validators = {
         "pdf": check_pdf,
@@ -155,21 +165,25 @@ def validate_file_safety(file_storage, allowed_extensions):
         "png": check_png,
         "gif": check_gif,
         "webp": check_webp,
-        "docx": check_zip_or_docx,
-        "zip": check_zip_or_docx,
         "doc": check_doc,
-        "mp4": check_video,
-        "webm": check_video,
-        "mov": check_video,
-        "avi": check_video,
-        "mkv": check_video,
+        "ppt": check_doc,
+        "docx": check_zip_or_docx,
+        "pptx": check_zip_or_docx,
+        "zip": check_zip_or_docx,
+        "txt": check_text,
+        "mp4": check_mp4_mov,
+        "m4v": check_mp4_mov,
+        "mov": check_mp4_mov,
+        "webm": check_webm_mkv,
+        "mkv": check_webm_mkv,
+        "avi": check_avi,
+        "flv": check_flv,
     }
     
-    # Run extension-specific validator
-    if ext in validators:
-        is_valid = validators[ext](header)
-        if not is_valid:
-            return False
+    # Reject extensions without an explicit signature validator.
+    validator = validators.get(ext)
+    if validator is None or not validator(header):
+        return False
             
     # Check mime type (basic sanitize check against client-supplied header)
     content_type = file_storage.content_type.lower() if file_storage.content_type else ""

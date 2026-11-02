@@ -34,12 +34,14 @@ class User(UserMixin, db.Model):
     @property
     def is_super_admin(self) -> bool:
         """Return True if user is the primary master super admin."""
-        primary_admin_email = os.getenv("ADMIN_EMAIL", "skillorbitindia2704@gmail.com").strip().lower()
-        if self.email and self.email.strip().lower() == primary_admin_email:
-            return True
-        if self.id == 1:
-            return True
-        return False
+        primary_admin_email = (
+            os.getenv("SUPER_ADMIN_EMAIL") or os.getenv("ADMIN_EMAIL", "")
+        ).strip().lower()
+        return bool(
+            primary_admin_email
+            and self.email
+            and self.email.strip().lower() == primary_admin_email
+        )
 
     @property
     def has_admin_access(self) -> bool:

@@ -114,46 +114,36 @@ if load_dotenv is not None:
 
 
 def _ensure_admin_account():
-    """Create or sync default admin account from environment settings."""
-    try:
-        admin_email = os.getenv("ADMIN_EMAIL", "skillorbitindia2704@gmail.com").strip().lower()
-        admin_password = os.getenv("ADMIN_PASSWORD", "Admin@12345")
-        if not admin_password:
-            return
+    """Create an administrator only during an explicit, one-time bootstrap."""
+    from flask import current_app
 
+    enabled = os.getenv("ADMIN_BOOTSTRAP_ENABLED", "false").strip().lower()
+    if enabled not in {"1", "true", "yes"}:
+        return
+
+    admin_email = os.getenv("ADMIN_EMAIL", "").strip().lower()
+    admin_password = os.getenv("ADMIN_PASSWORD", "")
+    if not admin_email or not admin_password:
+        current_app.logger.error(
+            "Admin bootstrap requested but ADMIN_EMAIL or ADMIN_PASSWORD is missing."
+        )
+        return
+
+    try:
         existing = User.query.filter_by(email=admin_email).first()
         if existing:
-            # Sync password from .env if it has changed
-            pw_matches = False
-            try:
-                if existing.password_hash:
-                    pw_matches = bcrypt.check_password_hash(existing.password_hash, admin_password)
-            except Exception:
-                pw_matches = False
-
-            needs_commit = False
-            if not pw_matches:
-                existing.password_hash = bcrypt.generate_password_hash(admin_password).decode("utf-8")
-                existing.failed_login_attempts = 0
-                existing.locked_until = None
-                needs_commit = True
-
-            if not existing.is_admin or existing.role != "admin" or not existing.is_approved:
-                existing.role = "admin"
-                existing.is_admin = True
-                existing.is_approved = True
-                existing.sync_admin_flags()
-                needs_commit = True
-
-            if needs_commit:
-                db.session.commit()
+            if not existing.has_admin_access:
+                current_app.logger.error(
+                    "Admin bootstrap target already exists without admin role; "
+                    "refusing to escalate or overwrite that account."
+                )
+            # Never reset an existing account's password or permissions at startup.
             return
 
-        password_hash = bcrypt.generate_password_hash(admin_password).decode("utf-8")
         user = User(
             full_name="Platform Admin",
             email=admin_email,
-            password_hash=password_hash,
+            password_hash=bcrypt.generate_password_hash(admin_password).decode("utf-8"),
             role="admin",
             is_admin=True,
             is_approved=True,
@@ -161,9 +151,12 @@ def _ensure_admin_account():
         user.sync_admin_flags()
         db.session.add(user)
         db.session.commit()
+        current_app.logger.warning(
+            "Initial administrator account created. Disable ADMIN_BOOTSTRAP_ENABLED now."
+        )
     except Exception:
         db.session.rollback()
-
+        current_app.logger.exception("Explicit admin bootstrap failed.")
 
 def _ensure_ai_lab_packages():
     """Seed default AI Lab packages on first run if none exist."""
@@ -252,7 +245,20 @@ def create_app():
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.INFO)
 
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key-change")
+    flask_env = os.getenv("FLASK_ENV", "production").strip().lower()
+    secret_key = os.getenv("SECRET_KEY", "").strip()
+    if not secret_key:
+        if flask_env == "development":
+            secret_key = "dev-only-secret-do-not-use-in-production"
+        elif flask_env == "testing":
+            secret_key = "test-only-secret"
+        else:
+            raise RuntimeError("SECRET_KEY must be configured before starting in production.")
+
+    if secret_key in {"dev-secret-key-change", "dev-only-secret-do-not-use-in-production", "test-only-secret"} and flask_env not in {"development", "testing"}:
+        raise RuntimeError("A development/test SECRET_KEY cannot be used in production.")
+
+    app.config["SECRET_KEY"] = secret_key
     app.config["TEMPLATES_AUTO_RELOAD"] = True
     app.jinja_env.auto_reload = True
 
@@ -311,7 +317,7 @@ def create_app():
     app.config["RAZORPAY_KEY_ID"] = os.getenv("RAZORPAY_KEY_ID", "")
     app.config["RAZORPAY_KEY_SECRET"] = os.getenv("RAZORPAY_KEY_SECRET", "")
     app.config["RAZORPAY_WEBHOOK_SECRET"] = os.getenv("RAZORPAY_WEBHOOK_SECRET", "")
-    app.config["ADMIN_EMAIL"] = "skillorbitindia2704@gmail.com"
+    app.config["ADMIN_EMAIL"] = os.getenv("ADMIN_EMAIL", "").strip().lower()
     
     # Session Cookie Security Hardening
     app.config["SESSION_COOKIE_HTTPONLY"] = True
@@ -322,9 +328,6 @@ def create_app():
     app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
 
     # Production Environment Safety Warning
-    flask_env = os.getenv("FLASK_ENV", "production")
-    if app.config["SECRET_KEY"] == "dev-secret-key-change" and flask_env != "development":
-        app.logger.error("CRITICAL SECURITY WARNING: SECRET_KEY is set to the default 'dev-secret-key-change' in a production environment! Set a custom SECRET_KEY environment variable immediately.")
 
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
