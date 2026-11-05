@@ -376,7 +376,10 @@ def verify_payment(order_id):
         return redirect(url_for("store.payment_success", order_id=order.id))
 
     is_valid = verify_razorpay_signature(rz_order_id, rz_payment_id, rz_signature)
-    existing_payment = StorePayment.query.filter_by(payment_id=rz_payment_id).first()
+    existing_payment = StorePayment.query.filter_by(
+        payment_id=rz_payment_id,
+        payment_status="captured",
+    ).first()
     if is_valid and existing_payment and existing_payment.order_id != order.id:
         db.session.add(PaymentAuditLog(
             event_type="signature_verification",
@@ -474,11 +477,19 @@ def verify_payment(order_id):
         pay_record.amount = order.total_inr
         pay_record.gateway_response = f"Order {order.id} paid. Signature validated successfully."
 
-        tx_record = StoreTransaction.query.filter_by(payment_id=rz_payment_id).first()
+        tx_record = StoreTransaction.query.filter_by(
+            payment_id=rz_payment_id,
+            status="success",
+        ).first()
         if tx_record and tx_record.order_id != order.id:
             db.session.rollback()
             flash("This payment reference has already been used.", "danger")
             return redirect(url_for("store.pay_order", order_id=order.id))
+        if not tx_record:
+            tx_record = StoreTransaction.query.filter_by(
+                payment_id=rz_payment_id,
+                order_id=order.id,
+            ).first()
         if not tx_record:
             tx_record = StoreTransaction(
                 order_id=order.id,
