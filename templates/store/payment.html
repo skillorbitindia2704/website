@@ -45,6 +45,7 @@
     <button id="pay-now-btn" class="btn btn-accent btn-lg" style="padding: 12px 36px; font-size: 1.1rem; width: 100%; max-width: 300px;">
       <i class="ri-flashlight-line" aria-hidden="true"></i> Pay ₹{{ order.total_inr }} Now
     </button>
+    <p id="payment-status" class="muted text-center" role="status" aria-live="polite"></p>
     
     <form id="verify-payment-form" method="post" action="{{ url_for('store.verify_payment', order_id=order.id) }}" hidden>
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -55,34 +56,66 @@
     
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
-      function openRazorpayCheckout() {
-        const options = {
-          key: "{{ razorpay_key_id }}",
-          amount: {{ order.total_inr * 100 }},
-          currency: "INR",
-          name: "Skill Orbit India",
-          description: "Order #{{ order.id }} Checkout",
-          order_id: "{{ order.razorpay_order_id }}",
-          handler: function (response) {
-            document.getElementById('rz-order-id').value = response.razorpay_order_id || '';
-            document.getElementById('rz-payment-id').value = response.razorpay_payment_id || '';
-            document.getElementById('rz-signature').value = response.razorpay_signature || '';
-            document.getElementById('verify-payment-form').submit();
-          },
-          prefill: {
-            name: {{ current_user.full_name|default('', true)|tojson }},
-            email: {{ current_user.email|default('', true)|tojson }}
-          },
-          theme: { color: "#4f46e5" }
-        };
-        const rzp = new Razorpay(options);
-        rzp.open();
-      }
+      (function () {
+        const button = document.getElementById("pay-now-btn");
+        const status = document.getElementById("payment-status");
+        const form = document.getElementById("verify-payment-form");
+        if (!button || !form) return;
 
-      document.getElementById('pay-now-btn').addEventListener('click', openRazorpayCheckout);
-      openRazorpayCheckout();
-    </script>
-    {% else %}
+        function showStatus(message) {
+          if (status) status.textContent = message;
+        }
+
+        function openRazorpayCheckout() {
+          if (typeof Razorpay === "undefined") {
+            showStatus("Secure payment could not load. Please refresh and try again.");
+            button.disabled = false;
+            return;
+          }
+
+          const options = {
+            key: {{ razorpay_key_id|tojson }},
+            amount: {{ order.total_inr * 100 }},
+            currency: "INR",
+            name: "Skill Orbit India",
+            description: {{ ("Order #" ~ order.id ~ " checkout")|tojson }},
+            order_id: {{ order.razorpay_order_id|tojson }},
+            handler: function (response) {
+              document.getElementById("rz-order-id").value = response.razorpay_order_id || "";
+              document.getElementById("rz-payment-id").value = response.razorpay_payment_id || "";
+              document.getElementById("rz-signature").value = response.razorpay_signature || "";
+              showStatus("Verifying your payment securely…");
+              form.submit();
+            },
+            prefill: {
+              name: {{ current_user.full_name|default('', true)|tojson }},
+              email: {{ current_user.email|default('', true)|tojson }}
+            },
+            theme: { color: "#4f46e5" },
+            modal: {
+              ondismiss: function () {
+                button.disabled = false;
+                showStatus("Payment cancelled. Your order is still pending; you can try again.");
+              }
+            }
+          };
+
+          const checkout = new Razorpay(options);
+          checkout.on("payment.failed", function (response) {
+            button.disabled = false;
+            const description = response && response.error && response.error.description;
+            showStatus(description || "Payment failed. No successful payment was confirmed. Please try again.");
+          });
+          checkout.open();
+        }
+
+        button.addEventListener("click", function () {
+          button.disabled = true;
+          showStatus("Opening secure checkout…");
+          openRazorpayCheckout();
+        });
+      })();
+    </script>    {% else %}
     <p class="muted text-center">Payment gateway is unavailable. Please try again later.</p>
     {% endif %}
     
