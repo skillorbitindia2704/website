@@ -65,12 +65,13 @@ def verify_razorpay_webhook_signature(body_bytes, signature, secret):
     if not secret or not signature:
         return False
     try:
-        client = razorpay.Client(auth=("", ""))
-        client.utility.verify_webhook_signature(
-            body_bytes.decode("utf-8"),
-            signature,
-            secret,
-        )
-        return True
-    except Exception:
+        if isinstance(body_bytes, str):
+            body_bytes = body_bytes.encode("utf-8")
+        expected_signature = hmac.new(
+            secret.encode("utf-8"),
+            body_bytes,
+            hashlib.sha256,
+        ).hexdigest()
+        return hmac.compare_digest(expected_signature, str(signature).strip())
+    except (TypeError, ValueError):
         return False
