@@ -1,4 +1,8 @@
+import hashlib
+import hmac
 import os
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+
 import razorpay
 from flask import current_app
 
@@ -20,51 +24,53 @@ def create_razorpay_order(amount_inr, receipt):
         current_app.logger.warning("Razorpay order creation aborted: key_id or key_secret is missing.")
         return None
     try:
+        amount = Decimal(str(amount_inr))
+        amount_paise = int((amount * 100).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+        if amount_paise < 100:
+            current_app.logger.warning("Razorpay order creation rejected: amount must be at least 100 paise.")
+            return None
+
         client = razorpay.Client(auth=(key_id, key_secret))
-        amount_paise = int(round(float(amount_inr) * 100))
-        order = client.order.create({
+        return client.order.create({
             "amount": amount_paise,
             "currency": "INR",
-            "receipt": str(receipt)
+            "receipt": str(receipt),
         })
-        return order
+    except (InvalidOperation, TypeError, ValueError):
+        current_app.logger.warning("Razorpay order creation rejected: invalid amount.")
+        return None
     except Exception as exc:
-        current_app.logger.error(f"Razorpay API order creation error: {exc}", exc_info=True)
+        if getattr(exc, "status_code", None) == 401:
+            current_app.logger.error("Razorpay authentication failed. Check server-side API credentials.")
+        else:
+            current_app.logger.error("Razorpay API order creation error: %s", exc, exc_info=True)
         return None
 
 
 def verify_razorpay_signature(razorpay_order_id, razorpay_payment_id, razorpay_signature):
-    key_id, key_secret = _get_razorpay_credentials()
-    if not key_id or not key_secret:
+    _, key_secret = _get_razorpay_credentials()
+    if not key_secret or not razorpay_order_id or not razorpay_payment_id or not razorpay_signature:
         return False
-    client = razorpay.Client(auth=(key_id, key_secret))
-    try:
-        client.utility.verify_payment_signature(
-            {
-                "razorpay_order_id": razorpay_order_id,
-                "razorpay_payment_id": razorpay_payment_id,
-                "razorpay_signature": razorpay_signature,
-            }
-        )
-        return True
-    except Exception:
-        return False
+
+    message = f"{razorpay_order_id}|{razorpay_payment_id}".encode("utf-8")
+    expected_signature = hmac.new(
+        key_secret.encode("utf-8"),
+        message,
+        hashlib.sha256,
+    ).hexdigest()
+    return hmac.compare_digest(expected_signature, str(razorpay_signature).strip())
 
 
 def verify_razorpay_webhook_signature(body_bytes, signature, secret):
-    if not secret:
+    if not secret or not signature:
         return False
-    key_id, key_secret = _get_razorpay_credentials()
-    if not key_id or not key_secret:
-        return False
-    client = razorpay.Client(auth=(key_id, key_secret))
     try:
+        client = razorpay.Client(auth=("", ""))
         client.utility.verify_webhook_signature(
-            body_bytes.decode('utf-8'),
+            body_bytes.decode("utf-8"),
             signature,
-            secret
+            secret,
         )
         return True
     except Exception:
         return False
-
