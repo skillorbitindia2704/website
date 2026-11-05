@@ -16,7 +16,8 @@
   </div>
 
   {% if razorpay_key_id and enrollment.razorpay_order_id %}
-  <button id="pay-now-btn" class="btn btn-primary">Pay with Razorpay</button>
+  <button id="pay-now-btn" class="btn btn-primary" type="button">Pay with Razorpay</button>
+  <p id="course-payment-status" class="muted" role="status" aria-live="polite"></p>
   <form id="verify-payment-form" method="post" action="{{ url_for('courses.verify_course_payment', course_id=course.id) }}" hidden>
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="hidden" name="razorpay_order_id" id="rz-order-id">
@@ -25,27 +26,51 @@
   </form>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script>
-    document.getElementById('pay-now-btn').addEventListener('click', function () {
-      const options = {
-        key: "{{ razorpay_key_id }}",
-        amount: {{ course.price_inr * 100 }},
-        currency: "INR",
-        name: "Skill Orbit India",
-        description: "{{ course.title }}",
-        order_id: "{{ enrollment.razorpay_order_id }}",
-        handler: function (response) {
-          document.getElementById('rz-order-id').value = response.razorpay_order_id || '';
-          document.getElementById('rz-payment-id').value = response.razorpay_payment_id || '';
-          document.getElementById('rz-signature').value = response.razorpay_signature || '';
-          document.getElementById('verify-payment-form').submit();
-        },
-        theme: { color: "#4f46e5" }
-      };
-      const rzp = new Razorpay(options);
-      rzp.open();
-    });
-  </script>
-  {% else %}
+    (function () {
+      const button = document.getElementById("pay-now-btn");
+      const form = document.getElementById("verify-payment-form");
+      const status = document.getElementById("course-payment-status");
+      if (!button || !form) return;
+      const showStatus = (message) => { if (status) status.textContent = message; };
+
+      button.addEventListener("click", function () {
+        if (typeof Razorpay === "undefined") {
+          showStatus("Secure payment could not load. Please refresh and try again.");
+          return;
+        }
+        button.disabled = true;
+        showStatus("Opening secure checkout…");
+        const checkout = new Razorpay({
+          key: {{ razorpay_key_id|tojson }},
+          amount: {{ course.price_inr * 100 }},
+          currency: "INR",
+          name: "Skill Orbit India",
+          description: {{ course.title|tojson }},
+          order_id: {{ enrollment.razorpay_order_id|tojson }},
+          handler: function (response) {
+            document.getElementById("rz-order-id").value = response.razorpay_order_id || "";
+            document.getElementById("rz-payment-id").value = response.razorpay_payment_id || "";
+            document.getElementById("rz-signature").value = response.razorpay_signature || "";
+            showStatus("Verifying your payment securely…");
+            form.submit();
+          },
+          theme: { color: "#4f46e5" },
+          modal: {
+            ondismiss: function () {
+              button.disabled = false;
+              showStatus("Payment cancelled. You can try again whenever you are ready.");
+            }
+          }
+        });
+        checkout.on("payment.failed", function (response) {
+          button.disabled = false;
+          const description = response && response.error && response.error.description;
+          showStatus(description || "Payment failed. Please try again.");
+        });
+        checkout.open();
+      });
+    })();
+  </script> {% else %}
   <p class="muted">Payment gateway is not configured. Add Razorpay keys in environment variables.</p>
   {% endif %}
 </div>
