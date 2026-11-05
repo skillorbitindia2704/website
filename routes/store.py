@@ -375,29 +375,20 @@ def verify_payment(order_id):
         flash("This payment has already been verified.", "success")
         return redirect(url_for("store.payment_success", order_id=order.id))
 
-    # Prevent duplicate capture if the payment_id has already been recorded
+    is_valid = verify_razorpay_signature(rz_order_id, rz_payment_id, rz_signature)
     existing_payment = StorePayment.query.filter_by(payment_id=rz_payment_id).first()
-    if existing_payment:
+    if is_valid and existing_payment and existing_payment.order_id != order.id:
         db.session.add(PaymentAuditLog(
             event_type="signature_verification",
             order_id=order.id,
             payment_id=rz_payment_id,
-            status="info",
-            message=f"StorePayment record for {rz_payment_id} already exists. Marking order as paid.",
-            payload=f"payment_id={rz_payment_id}"
+            status="error",
+            message="A verified payment reference is already associated with another order.",
+            payload=f"order_id={rz_order_id}&payment_id={rz_payment_id}"
         ))
-        order.payment_status = "paid"
-        order.status = "Paid"
-        order.razorpay_payment_id = rz_payment_id
         db.session.commit()
-        session["cart"] = {}
-        session.pop("coupon_code", None)
-        session.pop("coupon_discount", None)
-        session.modified = True
-        flash("This payment has already been verified.", "success")
-        return redirect(url_for("store.payment_success", order_id=order.id))
-
-    is_valid = verify_razorpay_signature(rz_order_id, rz_payment_id, rz_signature)
+        flash("This payment reference has already been used.", "danger")
+        return redirect(url_for("store.pay_order", order_id=order.id))
     
     try:
         if not is_valid:
@@ -426,7 +417,7 @@ def verify_payment(order_id):
                 payment_id=rz_payment_id,
                 status="error",
                 message=f"Signature verification failed for order {order.id}.",
-                payload=f"order_id={rz_order_id}&payment_id={rz_payment_id}&signature={rz_signature}"
+                payload=f"order_id={rz_order_id}&payment_id={rz_payment_id}"
             )
             db.session.add(pay_record)
             db.session.add(tx_record)
@@ -471,23 +462,33 @@ def verify_payment(order_id):
                     message=f"Reduced stock for product '{product.name}' (id: {product.id}) by {item.quantity}. Remaining: {product.stock}"
                 ))
                 
-        # Record successful payment ledger logs
-        pay_record = StorePayment(
-            order_id=order.id,
-            user_id=current_user.id,
-            payment_id=rz_payment_id,
-            payment_status="captured",
-            amount=order.total_inr,
-            gateway_response=f"Order {order.id} paid. Signature validated successfully."
-        )
-        tx_record = StoreTransaction(
+        # Reuse a prior failed-verification ledger row for this same order/payment.
+        # A payment reference belonging to another order was rejected above.
+        pay_record = existing_payment or StorePayment(
             order_id=order.id,
             user_id=current_user.id,
             payment_id=rz_payment_id,
             amount=order.total_inr,
-            transaction_type="purchase",
-            status="success"
         )
+        pay_record.payment_status = "captured"
+        pay_record.amount = order.total_inr
+        pay_record.gateway_response = f"Order {order.id} paid. Signature validated successfully."
+
+        tx_record = StoreTransaction.query.filter_by(payment_id=rz_payment_id).first()
+        if tx_record and tx_record.order_id != order.id:
+            db.session.rollback()
+            flash("This payment reference has already been used.", "danger")
+            return redirect(url_for("store.pay_order", order_id=order.id))
+        if not tx_record:
+            tx_record = StoreTransaction(
+                order_id=order.id,
+                user_id=current_user.id,
+                payment_id=rz_payment_id,
+                amount=order.total_inr,
+                transaction_type="purchase",
+            )
+        tx_record.amount = order.total_inr
+        tx_record.status = "success"
         audit_log = PaymentAuditLog(
             event_type="signature_verification",
             order_id=order.id,
@@ -868,5 +869,4 @@ def apply_coupon():
     
     flash(f"Coupon '{coupon.code}' applied! You saved ₹{discount}.", "success")
     return redirect(url_for("store.view_cart"))
-
 
