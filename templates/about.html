@@ -1117,7 +1117,7 @@
       </a>
       {% endif %}
       <div style="display:flex;align-items:center;gap:0.75rem;">
-        <div style="font-size:1.8rem;flex-shrink:0;" aria-hidden="true"><i class="ri-award-line"></i></div>
+        <div style="font-size:1.8rem;flex-shrink:0;" aria-hidden="true">{{ r.icon or "🏅" }}</div>
         <div style="flex:1;">
           <h3 class="card-title-sm" style="margin:0;">{{ r.title }}</h3>
           {% if r.organization or r.year %}
