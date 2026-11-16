@@ -487,7 +487,7 @@
             <div class="ai-package-features">
               <p class="ai-package-label">What's included</p>
               <ul class="list-clean">
-                {% for f in p.get_features_list()[:6] %}
+                {% for f in p.get_features_list() %}
                 <li>
                   <i class="ri-checkbox-circle-fill" aria-hidden="true"></i>
                   <span>{{ f }}</span>
