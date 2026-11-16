@@ -2801,7 +2801,7 @@ def edit_ai_lab_package(pkg_id):
     pkg.cta_link = pkg.button_link or "#inquiry"
     pkg.icon = icon
     pkg.display_order = display_order
-    if features_raw:
+    if "features" in request.form:
         pkg.set_features_list([f.strip() for f in features_raw.split('\n') if f.strip()])
 
     try:
