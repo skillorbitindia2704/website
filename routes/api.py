@@ -316,7 +316,7 @@ def verify_payment():
 @api_bp.post("/chatbot")
 def chatbot_reply():
     """Answer public website visitor questions using the Gemini API."""
-    api_key = (os.getenv("GEMINI_API_KEY") or "").strip()
+    api_key = (current_app.config.get("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY") or "").strip()
     if not api_key:
         return jsonify({"error": "The AI assistant is temporarily unavailable. Please contact Skill Orbit India directly."}), 503
 
@@ -365,13 +365,26 @@ def chatbot_reply():
                 "contents": contents,
                 "generationConfig": {"temperature": 0.45, "maxOutputTokens": 450},
             },
-            timeout=(5, 24),
+            timeout=(8, 40),
         )
         if response.status_code == 429:
-            return jsonify({"error": "The assistant is receiving many requests. Please try again in a minute."}), 429
+            current_app.logger.warning("Gemini chatbot rate limit: %s", response.text[:1200])
+            return jsonify({"error": "The AI service has reached its request limit. Please try again later."}), 429
         if response.status_code >= 400:
-            current_app.logger.warning("Gemini chatbot request failed with HTTP %s", response.status_code)
-            return jsonify({"error": "I could not process that right now. Please try again shortly."}), 502
+            # Keep provider diagnostics in Render logs, but never expose API keys or raw provider payloads to visitors.
+            current_app.logger.error(
+                "Gemini chatbot API error: model=%s status=%s response=%s",
+                model, response.status_code, response.text[:1200]
+            )
+            if response.status_code in (401, 403):
+                message = "The AI service rejected its API key. The website administrator needs to check GEMINI_API_KEY in Render."
+            elif response.status_code == 404:
+                message = "The configured AI model is unavailable. The website administrator needs to check GEMINI_MODEL in Render."
+            elif response.status_code == 400:
+                message = "The AI service rejected the request. Please try a shorter question."
+            else:
+                message = "The AI service is temporarily unavailable. Please try again shortly."
+            return jsonify({"error": message}), 502
         data = response.json()
         parts = (data.get("candidates") or [{}])[0].get("content", {}).get("parts", [])
         answer = " ".join(part.get("text", "") for part in parts if isinstance(part, dict)).strip()
