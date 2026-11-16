@@ -649,18 +649,19 @@
       <article class="card-premium ai-project-card">
         <div class="ai-project-media">
           {% set mp = (prj.media_path or '')|lower %}
+          {% set mp_path = mp.split('?')[0].split('#')[0] %}
           {% set media_src = prj.media_path if (mp.startswith('http://') or mp.startswith('https://')) else url_for('static', filename=prj.media_path) %}
-          {% if prj.media_path and (mp.endswith('.png') or mp.endswith('.jpg') or mp.endswith('.jpeg') or mp.endswith('.webp') or mp.endswith('.gif')) %}
+          {% set is_video = ('/video/upload/' in mp_path) or mp_path.endswith(('.mp4', '.webm', '.ogv', '.mov', '.m4v')) %}
+          {% if prj.media_path and (mp_path.endswith('.png') or mp_path.endswith('.jpg') or mp_path.endswith('.jpeg') or mp_path.endswith('.webp') or mp_path.endswith('.gif')) %}
           <img src="{{ media_src }}" alt="{{ prj.title }}" loading="lazy" decoding="async">
-          {% elif prj.media_path and (mp.endswith('.mp4') or mp.endswith('.webm') or mp.endswith('.ogv')) %}
-          <video class="ai-project-video" controls playsinline preload="metadata" aria-label="Project video: {{ prj.title }}">
-            <source src="{{ media_src }}" type="{{ 'video/mp4' if mp.endswith('.mp4') else ('video/webm' if mp.endswith('.webm') else 'video/ogg') }}">
-            Your browser does not support HTML5 video. <a href="{{ media_src }}">Download the project video</a>.
+          {% elif prj.media_path and is_video %}
+          <video class="ai-project-video" controls playsinline preload="metadata" aria-label="Project video: {{ prj.title }}" src="{{ media_src }}">
+            Your browser does not support HTML5 video. <a href="{{ media_src }}" target="_blank" rel="noopener">Open or download the project video</a>.
           </video>
           {% elif prj.media_path %}
           <div class="ai-project-video-placeholder">
             <span class="ai-project-play"><i class="ri-download-2-line" aria-hidden="true"></i></span>
-            <a href="{{ url_for('static', filename=prj.media_path) }}" target="_blank" rel="noopener">Open / download video</a>
+            <a href="{{ media_src }}" target="_blank" rel="noopener">Open / download project media</a>
           </div>
           {% else %}
           <div class="ai-project-video-placeholder" aria-hidden="true">
