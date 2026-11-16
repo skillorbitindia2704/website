@@ -115,7 +115,8 @@
     </div>
 
     <label style="margin-top:1rem;">Media upload (image/video)</label>
-    <input type="file" name="media" accept="image/*,video/*" />
+    <input type="file" name="media" accept="image/*,video/mp4,video/webm,.mp4,.webm" />
+    <small class="muted">For reliable browser playback, upload MP4 (H.264) or WebM video. Other formats may only open as downloads.</small>
     {% if edit_item and edit_item.media_path %}
       <p class="muted" style="margin:0.5rem 0 0.25rem;">Current media:</p>
       <p class="muted" style="margin:0;font-size:0.88rem;overflow-wrap:anywhere;">{{ edit_item.media_path }}</p>
