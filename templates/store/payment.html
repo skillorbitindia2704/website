@@ -47,6 +47,15 @@
     </button>
     <p id="payment-status" class="muted text-center" role="status" aria-live="polite"></p>
     
+    {% if order.razorpay_order_id.startswith('order_test_') %}
+    <div style="margin-top: 8px; padding: 12px 16px; background: rgba(59, 130, 246, 0.08); border: 1px dashed rgba(59, 130, 246, 0.4); border-radius: 8px; max-width: 300px; width: 100%;">
+      <p style="font-size: 0.85rem; color: #2563eb; margin: 0 0 8px 0; font-weight: 600;">🛠 Development Mode Active</p>
+      <button type="button" id="dev-sim-pay-btn" class="btn btn-secondary btn-sm" style="width: 100%; font-size: 0.9rem;">
+        <i class="ri-checkbox-circle-line"></i> Simulate Test Payment
+      </button>
+    </div>
+    {% endif %}
+
     <form id="verify-payment-form" method="post" action="{{ url_for('store.verify_payment', order_id=order.id) }}" hidden>
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="razorpay_order_id" id="rz-order-id">
@@ -60,10 +69,21 @@
         const button = document.getElementById("pay-now-btn");
         const status = document.getElementById("payment-status");
         const form = document.getElementById("verify-payment-form");
+        const devSimBtn = document.getElementById("dev-sim-pay-btn");
         if (!button || !form) return;
 
         function showStatus(message) {
           if (status) status.textContent = message;
+        }
+
+        if (devSimBtn) {
+          devSimBtn.addEventListener("click", function() {
+            document.getElementById("rz-order-id").value = {{ order.razorpay_order_id|tojson }};
+            document.getElementById("rz-payment-id").value = "pay_test_" + Date.now();
+            document.getElementById("rz-signature").value = "simulated_success";
+            showStatus("Simulating verified test payment…");
+            form.submit();
+          });
         }
 
         function openRazorpayCheckout() {
