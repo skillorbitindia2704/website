@@ -29,7 +29,12 @@
       <td>{{ 'Yes' if row.is_active else 'No' }}</td>
       <td>
         {% if row.logo_path %}
-          <img src="{{ url_for('static', filename=row.logo_path) }}" alt="" style="width:40px;height:40px;object-fit:contain;border-radius:10px;border:1px solid var(--border);background:#fff;" loading="lazy" />
+          {% if row.logo_path.startswith('http://') or row.logo_path.startswith('https://') %}
+            {% set row_logo_url = row.logo_path %}
+          {% else %}
+            {% set row_logo_url = url_for('static', filename=row.logo_path) %}
+          {% endif %}
+          <img src="{{ row_logo_url }}" alt="{{ row.name }}" style="width:40px;height:40px;object-fit:contain;border-radius:10px;border:1px solid var(--border);background:#fff;" loading="lazy" />
         {% endif %}
       </td>
       <td style="white-space:nowrap;">
