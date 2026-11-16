@@ -3041,6 +3041,39 @@ def _upload_about_team_image(file_storage) -> str:
             "Could not upload Team profile image. Please try again."
         )
 
+def _upload_about_partner_logo(file_storage) -> str:
+    """Upload About partner logos to Cloudinary and return a permanent HTTPS URL."""
+    if not file_storage or not getattr(file_storage, "filename", None):
+        raise ValueError("No partner logo uploaded.")
+
+    safe_name = secure_filename(file_storage.filename)
+    if not safe_name or "." not in safe_name:
+        raise ValueError("Invalid partner logo file name.")
+
+    ext = safe_name.rsplit(".", 1)[1].lower()
+    if ext not in ALLOWED_PRODUCT_IMAGE_EXTENSIONS:
+        raise ValueError("Allowed image formats: png, jpg, jpeg, webp, gif.")
+
+    try:
+        import cloudinary.uploader
+
+        result = cloudinary.uploader.upload(
+            file_storage,
+            folder="skill-orbit-india/about/partners",
+            public_id=f"partner_{uuid4().hex}",
+            resource_type="image",
+            overwrite=False,
+            invalidate=True,
+        )
+        secure_url = result.get("secure_url")
+        if not secure_url:
+            raise RuntimeError("Cloudinary did not return a secure image URL.")
+        return secure_url
+    except Exception as exc:
+        current_app.logger.exception("Cloudinary About partner logo upload failed: %s", exc)
+        raise ValueError("Could not upload partner logo. Please try again.")
+
+
 # =========================
 # Homepage CMS (Testimonials, Events)
 # =========================
@@ -5376,11 +5409,7 @@ def about_partners():
             row.is_active = is_active
             
             if img and img.filename:
-                row.logo_path = _upload_ai_lab_asset(
-                    img,
-                    subdir=os.path.join("about", "partners").replace("\\", "/"),
-                    allowed_exts=ALLOWED_AI_IMAGE_EXTENSIONS,
-                )
+                row.logo_path = _upload_about_partner_logo(img)
             db.session.add(row)
             db.session.commit()
             
