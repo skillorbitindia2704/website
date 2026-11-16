@@ -1039,7 +1039,12 @@
         {% for p in partners %}
         <a href="{{ p.url or '#' }}" target="_blank" rel="noopener" class="partner-chip">
           {% if p.logo_path %}
-          <img src="{{ url_for('static', filename=p.logo_path) }}" alt="{{ p.name }}" loading="lazy" decoding="async" style="width:22px;height:22px;object-fit:contain;">
+            {% if p.logo_path.startswith('http://') or p.logo_path.startswith('https://') %}
+              {% set partner_logo_url = p.logo_path %}
+            {% else %}
+              {% set partner_logo_url = url_for('static', filename=p.logo_path) %}
+            {% endif %}
+            <img src="{{ partner_logo_url }}" alt="{{ p.name }}" loading="lazy" decoding="async" style="width:36px;height:36px;max-width:36px;object-fit:contain;flex-shrink:0;">
           {% endif %}
           <span>{{ p.name }}</span>
         </a>
