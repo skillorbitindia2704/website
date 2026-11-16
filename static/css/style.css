@@ -9526,3 +9526,23 @@ html:not([data-theme="dark"]) .services-hero .services-hero-showcase .sc-sub {
     padding: 1.1rem;
   }
 }
+
+
+/* Show the complete admin-entered AI Lab package description and feature list. */
+.page-ai-lab .ai-package-summary {
+  display: block !important;
+  -webkit-line-clamp: unset !important;
+  line-clamp: unset !important;
+  overflow: visible !important;
+  max-height: none !important;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.page-ai-lab .ai-package-features,
+.page-ai-lab .ai-package-features ul,
+.page-ai-lab .ai-package-features li,
+.page-ai-lab .ai-package-content {
+  max-height: none !important;
+  overflow: visible !important;
+}
