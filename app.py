@@ -650,6 +650,7 @@ def create_app():
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
             "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
             "img-src 'self' data: https:; "
+            "media-src 'self' https://res.cloudinary.com; "
             "connect-src 'self' https://api.razorpay.com https://*.razorpay.com ws: wss:; "
             "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://www.google.com https://maps.google.com https://*.google.com;"
         )
