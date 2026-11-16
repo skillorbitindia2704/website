@@ -59,6 +59,32 @@
     </div>
   </main>
   {% include "partials/footer.html" %}
+  <div id="orbit-chatbot" class="orbit-chatbot" data-endpoint="{{ url_for('api.chatbot_reply') }}" aria-live="polite">
+    <section class="orbit-chat-panel" id="orbit-chat-panel" aria-label="Orbit AI Assistant" hidden>
+      <header class="orbit-chat-header">
+        <div class="orbit-chat-avatar" aria-hidden="true"><i class="ri-robot-2-line"></i></div>
+        <div class="orbit-chat-heading"><strong>Orbit AI Assistant</strong><span><span class="orbit-online-dot"></span> Online · Skill Orbit India</span></div>
+        <button class="orbit-chat-close" id="orbit-chat-close" type="button" aria-label="Close chat"><i class="ri-close-line"></i></button>
+      </header>
+      <div class="orbit-chat-messages" id="orbit-chat-messages" role="log" aria-live="polite" aria-relevant="additions">
+        <div class="orbit-chat-message assistant"><div class="orbit-chat-bubble">Hi! 👋 I’m Orbit, your Skill Orbit India assistant. Ask me about AI, Robotics, courses, workshops, internships, or AI Lab setup.</div></div>
+        <div class="orbit-chat-suggestions" id="orbit-chat-suggestions">
+          <button type="button" data-question="What courses and training do you offer?">Courses & training</button>
+          <button type="button" data-question="Tell me about AI Lab setup for schools.">AI Lab setup</button>
+          <button type="button" data-question="How can I enquire about workshops?">Workshops</button>
+        </div>
+      </div>
+      <form class="orbit-chat-form" id="orbit-chat-form">
+        <label class="sr-only" for="orbit-chat-input">Your message</label>
+        <input id="orbit-chat-input" name="message" type="text" maxlength="2000" placeholder="Type your question..." autocomplete="off" required>
+        <button type="submit" aria-label="Send message"><i class="ri-send-plane-fill"></i></button>
+      </form>
+      <p class="orbit-chat-note">AI-generated answers may be inaccurate. Please confirm important details with our team.</p>
+    </section>
+    <button class="orbit-chat-launcher" id="orbit-chat-launcher" type="button" aria-label="Open Orbit AI Assistant" aria-expanded="false"><i class="ri-message-3-fill"></i><span>Chat with us</span></button>
+  </div>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}?v=1">
+  <script src="{{ url_for('static', filename='js/chatbot.js') }}?v=1" defer></script>
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
   {% block extra_js %}{% endblock %}
 </body>
