@@ -81,7 +81,10 @@
       </form>
       <p class="orbit-chat-note">AI-generated answers may be inaccurate. Please confirm important details with our team.</p>
     </section>
-    <button class="orbit-chat-launcher" id="orbit-chat-launcher" type="button" aria-label="Open Orbit AI Assistant" aria-expanded="false"><i class="ri-message-3-fill"></i><span>Chat with us</span></button>
+    <div class="orbit-chat-actions" aria-label="Contact options">
+      <button class="orbit-chat-launcher" id="orbit-chat-launcher" type="button" aria-label="Open Orbit AI Assistant" aria-expanded="false"><i class="ri-message-3-fill"></i><span>Chat with us</span></button>
+      <a class="orbit-whatsapp-launcher" href="https://wa.me/{{ ss.get('whatsapp_number', '919999999999')|replace('+', '')|replace(' ', '') }}" target="_blank" rel="noopener noreferrer" aria-label="Chat with Skill Orbit India on WhatsApp"><i class="ri-whatsapp-line" aria-hidden="true"></i><span>WhatsApp</span></a>
+    </div>
   </div>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}?v=20261116_4">
   <script src="{{ url_for('static', filename='js/chatbot.js') }}?v=20261116_4" defer></script>
