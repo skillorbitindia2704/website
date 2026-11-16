@@ -474,29 +474,31 @@
 
           <p class="price-tag" style="font-size:1.3rem;margin:0.25rem 0 1rem;">{{ p.pricing_text }}</p>
 
-          <div class="ai-package-cols">
-            <div class="ai-package-col">
-              <p class="muted" style="margin:0 0 0.5rem;font-weight:700;color:var(--text);">Features included</p>
-              <ul class="list-clean" style="display:flex;flex-direction:column;gap:0.4rem;">
+          <div class="ai-package-content">
+            <div class="ai-package-overview">
+              <p class="ai-package-label">Hardware &amp; training overview</p>
+              {% if p.description %}
+              <p class="muted ai-package-summary">{{ p.description }}</p>
+              {% else %}
+              <p class="muted ai-package-summary">Hardware, training and installation are planned around your institution's room and batch size.</p>
+              {% endif %}
+            </div>
+
+            <div class="ai-package-features">
+              <p class="ai-package-label">What's included</p>
+              <ul class="list-clean">
                 {% for f in p.get_features_list()[:6] %}
-                <li style="display:flex;align-items:flex-start;gap:0.45rem;">
-                  <i class="ri-checkbox-circle-fill" style="color:#10b981;margin-top:0.15rem;flex-shrink:0;" aria-hidden="true"></i>
+                <li>
+                  <i class="ri-checkbox-circle-fill" aria-hidden="true"></i>
                   <span>{{ f }}</span>
                 </li>
                 {% endfor %}
               </ul>
             </div>
-            <div class="ai-package-col">
-              <p class="muted" style="margin:0 0 0.5rem;font-weight:700;color:var(--text);">Hardware &amp; training (overview)</p>
-              {% if p.description %}
-              <p class="muted" style="margin:0 0 0.75rem;">{{ p.description }}</p>
-              {% else %}
-              <p class="muted" style="margin:0 0 0.75rem;">We tailor hardware mix, training, and installation based on your room and batch size.</p>
-              {% endif %}
-              <div class="ai-package-meta">
-                <span class="chip-soft">Student capacity: Batch-based (customized)</span>
-                <span class="chip-soft">Installation: Campus-ready setup</span>
-              </div>
+
+            <div class="ai-package-meta">
+              <span class="chip-soft">Student capacity: Customized batches</span>
+              <span class="chip-soft">Installation: Campus-ready setup</span>
             </div>
           </div>
 
