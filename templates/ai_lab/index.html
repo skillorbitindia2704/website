@@ -648,9 +648,19 @@
       {% for prj in projects %}
       <article class="card-premium ai-project-card">
         <div class="ai-project-media">
-          {% set mp = prj.media_path|lower %}
-          {% if prj.media_path and (mp.endswith('.png') or mp.endswith('.jpg') or mp.endswith('.jpeg') or mp.endswith('.webp')) %}
+          {% set mp = (prj.media_path or '')|lower %}
+          {% if prj.media_path and (mp.endswith('.png') or mp.endswith('.jpg') or mp.endswith('.jpeg') or mp.endswith('.webp') or mp.endswith('.gif')) %}
           <img src="{{ url_for('static', filename=prj.media_path) }}" alt="{{ prj.title }}" loading="lazy" decoding="async">
+          {% elif prj.media_path and (mp.endswith('.mp4') or mp.endswith('.webm') or mp.endswith('.ogv')) %}
+          <video class="ai-project-video" controls playsinline preload="metadata" aria-label="Project video: {{ prj.title }}">
+            <source src="{{ url_for('static', filename=prj.media_path) }}" type="{{ 'video/mp4' if mp.endswith('.mp4') else ('video/webm' if mp.endswith('.webm') else 'video/ogg') }}">
+            Your browser does not support HTML5 video. <a href="{{ url_for('static', filename=prj.media_path) }}">Download the project video</a>.
+          </video>
+          {% elif prj.media_path %}
+          <div class="ai-project-video-placeholder">
+            <span class="ai-project-play"><i class="ri-download-2-line" aria-hidden="true"></i></span>
+            <a href="{{ url_for('static', filename=prj.media_path) }}" target="_blank" rel="noopener">Open / download video</a>
+          </div>
           {% else %}
           <div class="ai-project-video-placeholder" aria-hidden="true">
             <span class="ai-project-play"><i class="ri-play-circle-line" aria-hidden="true"></i></span>
