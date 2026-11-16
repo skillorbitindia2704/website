@@ -2927,7 +2927,7 @@ ALLOWED_AI_PDF_EXTENSIONS = {"pdf"}
 
 
 def _upload_ai_lab_asset(file_storage, *, subdir: str, allowed_exts: set[str]) -> str:
-    """Upload an AI Lab asset into static/uploads and return relative path."""
+    """Store AI Lab assets durably; video uploads use Cloudinary, not Render's ephemeral disk."""
     if not file_storage or not getattr(file_storage, "filename", None):
         raise ValueError("No file uploaded.")
     if not file_storage.filename:
@@ -2940,6 +2940,30 @@ def _upload_ai_lab_asset(file_storage, *, subdir: str, allowed_exts: set[str]) -
     if ext not in allowed_exts:
         raise ValueError(f"Allowed file types: {', '.join(sorted(allowed_exts))}.")
 
+    # Render's local filesystem is ephemeral. Persist videos in Cloudinary so
+    # their URLs remain available after deploys/restarts and across instances.
+    if ext in {"mp4", "webm", "mov", "avi", "mkv"}:
+        if ext not in {"mp4", "webm"}:
+            raise ValueError("For browser playback, upload MP4 (H.264) or WebM video.")
+        try:
+            import cloudinary.uploader
+
+            result = cloudinary.uploader.upload(
+                file_storage,
+                folder="skill-orbit-india/ai-lab/projects",
+                public_id=f"project_{uuid4().hex}",
+                resource_type="video",
+                overwrite=False,
+            )
+            video_url = result.get("secure_url")
+            if not video_url:
+                raise RuntimeError("Cloudinary did not return a secure video URL.")
+            return video_url
+        except Exception as exc:
+            current_app.logger.exception("AI Lab project video upload to Cloudinary failed: %s", exc)
+            raise ValueError("Video upload failed. Check Cloudinary configuration and try again.")
+
+    # Keep image uploads on the existing static path for backward compatibility.
     upload_rel_dir = os.path.join("uploads", "ai_lab", subdir).replace(os.sep, "/")
     upload_abs_dir = os.path.join(current_app.static_folder, upload_rel_dir.replace("/", os.sep))
     os.makedirs(upload_abs_dir, exist_ok=True)
