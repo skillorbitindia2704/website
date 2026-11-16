@@ -9366,3 +9366,163 @@ html:not([data-theme="dark"]) .services-hero .services-hero-showcase .sc-sub {
   color: #94A3B8 !important;
 }
 
+
+
+/* AI LAB PACKAGE CARDS — responsive, readable single-column content */
+.page-ai-lab .ai-pack-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 1.25rem;
+}
+
+.page-ai-lab .ai-package-card {
+  min-width: 0;
+  height: 100%;
+  border-radius: 20px;
+}
+
+.page-ai-lab .ai-package-card .card-body {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  padding: 1.25rem;
+  gap: 0.85rem;
+}
+
+.page-ai-lab .ai-package-card .meta-row {
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.page-ai-lab .ai-package-card .meta-row > div:first-child {
+  min-width: 0;
+}
+
+.page-ai-lab .ai-package-card .ai-package-icon {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+}
+
+.page-ai-lab .ai-package-card .card-title-sm {
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.page-ai-lab .ai-package-card .price-tag {
+  font-size: clamp(1.05rem, 1.35vw, 1.3rem) !important;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  margin: 0.1rem 0 0.15rem !important;
+}
+
+.page-ai-lab .ai-package-content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.page-ai-lab .ai-package-label {
+  margin: 0 0 0.4rem;
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.page-ai-lab .ai-package-summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.page-ai-lab .ai-package-features ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.48rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.page-ai-lab .ai-package-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.page-ai-lab .ai-package-features li::before {
+  content: none !important;
+  display: none !important;
+}
+
+.page-ai-lab .ai-package-features li i {
+  flex: 0 0 auto;
+  margin-top: 0.15rem;
+  color: #10b981;
+}
+
+.page-ai-lab .ai-package-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: auto;
+}
+
+.page-ai-lab .ai-package-meta .chip-soft {
+  max-width: 100%;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.74rem;
+  line-height: 1.4;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.page-ai-lab .ai-package-card .form-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.25rem !important;
+}
+
+.page-ai-lab .ai-package-card .form-actions-row .btn {
+  max-width: 100%;
+  white-space: normal;
+  line-height: 1.3;
+}
+
+@media (max-width: 1050px) {
+  .page-ai-lab .ai-pack-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .page-ai-lab .ai-pack-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .page-ai-lab .ai-package-card .card-body {
+    padding: 1.1rem;
+  }
+}
