@@ -544,7 +544,12 @@
                 <span class="text-slate-400 cursor-grab text-lg"><i class="ri-drag-move-line" aria-hidden="true"></i></span>
                 <div class="w-8 h-8 rounded border bg-slate-100 flex items-center justify-center p-1 overflow-hidden">
                   {% if p.logo_path %}
-                  <img src="{{ url_for('static', filename=p.logo_path) }}" alt="" class="w-full h-full object-contain">
+                    {% if p.logo_path.startswith('http://') or p.logo_path.startswith('https://') %}
+                      {% set manager_partner_logo_url = p.logo_path %}
+                    {% else %}
+                      {% set manager_partner_logo_url = url_for('static', filename=p.logo_path) %}
+                    {% endif %}
+                  <img src="{{ manager_partner_logo_url }}" alt="{{ p.name }}" class="w-full h-full object-contain">
                   {% else %}
                   <span class="text-xs">🤝</span>
                   {% endif %}
