@@ -132,7 +132,7 @@ def login():
                     flash("Account locked due to repeated failed attempts. Locked for 15 minutes.", "danger")
                 else:
                     db.session.commit()
-                    flash(f"Invalid credentials. Attempts remaining: {5 - user.failed_login_attempts}", "danger")
+                    flash("Invalid email or password.", "danger")
                 return redirect(url_for("auth.login"))
                 
             if user.is_active is False:
@@ -150,7 +150,7 @@ def login():
         else:
             # timing delay to prevent timing analysis of non-existent user
             bcrypt.generate_password_hash("dummy-pass")
-            flash("Invalid credentials.", "danger")
+            flash("Invalid email or password.", "danger")
             return redirect(url_for("auth.login"))
             
         # Store session for all roles; redirects by role
@@ -328,13 +328,13 @@ def forgot_password():
             # Generate highly secure timed reset token
             from flask import current_app
             serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
-            token = serializer.dumps(email, salt="password-reset-salt")
+            # Bind token state to current password hash so previous tokens expire instantly upon password change
+            token = serializer.dumps({"email": email, "pwhash": (user.password_hash or "")[:16]}, salt="password-reset-salt")
             reset_url = url_for("auth.reset_password", token=token, _external=True)
             
-            # Secure warning and console logging for developer local sandbox testing
-            current_app.logger.info(f"--- PASSWORD RESET LINK REQUESTED FOR {email} ---")
-            current_app.logger.info(f"Reset Link: {reset_url}")
-            current_app.logger.info(f"--------------------------------------------------")
+            # Never leak reset tokens to production logs
+            if current_app.debug:
+                current_app.logger.debug(f"[DEV DEBUG] Reset token generated for {email}")
             
         # Timing safe: always display the same success message to prevent user enumeration
         flash("If the email address is registered, a password reset link has been sent to it.", "success")
@@ -349,14 +349,22 @@ def reset_password(token):
     from flask import current_app
     serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
     try:
-        email = serializer.loads(token, salt="password-reset-salt", max_age=900)  # 15 minutes limit
+        data = serializer.loads(token, salt="password-reset-salt", max_age=900)  # 15 minutes limit
     except (SignatureExpired, BadTimeSignature):
         flash("The password reset link is invalid or has expired.", "danger")
         return redirect(url_for("auth.login"))
         
+    email = data.get("email") if isinstance(data, dict) else data
+    expected_hash = data.get("pwhash") if isinstance(data, dict) else None
+
     user = User.query.filter_by(email=email).first()
     if not user:
-        flash("User not found.", "danger")
+        flash("The password reset link is invalid or has expired.", "danger")
+        return redirect(url_for("auth.login"))
+
+    # Invalidate token if user's password has already been changed
+    if expected_hash and (user.password_hash or "")[:16] != expected_hash:
+        flash("This password reset link has already been used.", "danger")
         return redirect(url_for("auth.login"))
         
     if request.method == "POST":

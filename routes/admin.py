@@ -3763,7 +3763,7 @@ def about_manager():
             set_content("seo_meta_description", request.form.get("seo_meta_description", "").strip())
             set_content("seo_keywords", request.form.get("seo_keywords", "").strip())
             set_content("seo_canonical_url", request.form.get("seo_canonical_url", "").strip())
-            set_content("seo_schema_markup", request.form.get("seo_schema_markup", "").strip())
+            set_content("seo_schema_markup", re.sub(r"</?\s*script[^>]*>", "", request.form.get("seo_schema_markup", ""), flags=re.IGNORECASE).strip())
 
             # 6. Global Section Visibility Configuration
             set_content("section_visibilities", request.form.get("section_visibilities", "{}").strip())
@@ -4311,7 +4311,7 @@ def homepage_manager():
             set_content("seo_meta_description", request.form.get("seo_meta_description", "").strip())
             set_content("seo_keywords", request.form.get("seo_keywords", "").strip())
             set_content("seo_canonical_url", request.form.get("seo_canonical_url", "").strip())
-            set_content("seo_schema_markup", request.form.get("seo_schema_markup", "").strip())
+            set_content("seo_schema_markup", re.sub(r"</?\s*script[^>]*>", "", request.form.get("seo_schema_markup", ""), flags=re.IGNORECASE).strip())
 
             # Theme Settings
             set_content("theme_primary_color", request.form.get("theme_primary_color", "#4F46E5").strip())

@@ -33,8 +33,18 @@ def rate_limit(limit=5, period=60):
                 return f(*args, **kwargs)
                 
             # Key rate limiter by client IP address and route endpoint
-            ip = request.remote_addr or "127.0.0.1"
+            # Key rate limiter by real client IP address (supporting reverse proxies/Cloudflare)
+
+            if request.access_route:
+
+                ip = request.access_route[0]
+
+            else:
+
+                ip = request.remote_addr or "127.0.0.1"
+
             endpoint = request.endpoint or "global"
+
             key = f"rate:{ip}:{endpoint}"
             
             now = time.time()

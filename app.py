@@ -1,3 +1,4 @@
+from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 import uuid
 import warnings
@@ -502,8 +503,28 @@ def create_app():
 
     @app.route("/uploads/<path:filename>")
     def uploaded_files(filename):
-        from flask import send_from_directory
+        from flask import send_from_directory, abort
+        from flask_login import current_user
+        # Protect candidate resumes and sensitive PII from unauthorized public access
+        norm = filename.replace("\\", "/").strip().lstrip("/")
+        if norm.startswith("resumes/"):
+            if not getattr(current_user, "is_authenticated", False):
+                abort(403)
+            is_admin = getattr(current_user, "has_admin_access", False) or getattr(current_user, "role", "") == "admin"
+            if not is_admin:
+                from models.internship import InternshipApplication
+                owns_resume = InternshipApplication.query.filter(
+                    InternshipApplication.user_id == current_user.id,
+                    InternshipApplication.resume_path.ilike(f"%{os.path.basename(norm)}")
+                ).first()
+                if not owns_resume:
+                    abort(403)
         return send_from_directory(os.path.join(app.static_folder, "uploads"), filename)
+
+    @app.route("/static/uploads/resumes/<path:filename>")
+    def protected_static_resume(filename):
+        """Prevent direct unauthenticated bypass to resume files via static path."""
+        return uploaded_files(f"resumes/{filename}")
 
     @app.errorhandler(CSRFError)
     def handle_csrf_error(error):
@@ -676,11 +697,14 @@ def create_app():
         except Exception as exc:
             app.logger.error(f"Database bootstrap raised an unexpected startup exception: {exc}", exc_info=True)
 
+    if flask_env != "development":
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+
     return app
 
 
 if __name__ == "__main__":
-    debug_mode = os.getenv("FLASK_ENV", "development") == "development"
+    debug_mode = os.getenv("FLASK_ENV", "production").lower() == "development"
     host = os.getenv("FLASK_HOST", "127.0.0.1")
     port = int(os.getenv("PORT", "5000"))
     try:

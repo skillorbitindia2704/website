@@ -15,6 +15,7 @@ from models.notification import Notification
 from models.store import Order, OrderItem, Product
 from models.wishlist import WishlistItem
 from utils.role_auth import get_session_user
+from utils.security_helpers import rate_limit
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
 ORDER_STATUSES = {"Pending", "Accepted", "Rejected", "Shipped", "Delivered"}
@@ -176,29 +177,46 @@ def get_homepage_hero():
 # =========================================================================
 
 @api_bp.post("/create-order")
+@rate_limit(limit=15, period=60)
 def create_order():
     """Create Razorpay order for Standard Checkout.
 
     Endpoint: POST /api/create-order
-    Request JSON: { "amount": <int paise>, "currency": "INR", "receipt": "..." }
+    Request JSON: { "order_id": <int>, "amount": <int paise optional>, "currency": "INR", "receipt": "..." }
     Return JSON: { "order_id": str, "amount": int, "currency": str, "key_id": str }
-    Minimum amount: 100 paise
     """
     data = request.get_json(silent=True) or request.form or {}
-    raw_amount = data.get("amount")
-    if raw_amount is None:
-        return jsonify({"error": "amount is required"}), 400
+    store_order_id = data.get("order_id") or data.get("store_order_id")
 
-    try:
-        amount_paise = int(float(raw_amount))
-    except (ValueError, TypeError):
-        return jsonify({"error": "Invalid amount"}), 400
+    # If an existing database order_id is provided, enforce server-calculated order total (prevents price tampering)
+    if store_order_id:
+        try:
+            db_order = Order.query.filter_by(id=int(store_order_id)).first()
+        except (ValueError, TypeError):
+            db_order = None
+        if not db_order:
+            return jsonify({"error": "Store order not found"}), 404
+        if current_user.is_authenticated and db_order.user_id != current_user.id and not getattr(current_user, "has_admin_access", False):
+            return jsonify({"error": "Unauthorized access to order"}), 403
+        amount_paise = int(round(float(db_order.total_amount) * 100))
+        receipt = f"store_order_{db_order.id}"
+    else:
+        # Require authentication to create arbitrary Razorpay orders
+        if not current_user.is_authenticated:
+            return jsonify({"error": "Authentication required to initiate checkout"}), 401
+        raw_amount = data.get("amount")
+        if raw_amount is None:
+            return jsonify({"error": "amount is required"}), 400
+        try:
+            amount_paise = int(float(raw_amount))
+        except (ValueError, TypeError):
+            return jsonify({"error": "Invalid amount"}), 400
+        receipt = str(data.get("receipt", f"rcpt_{int(datetime.now().timestamp())}"))
 
     if amount_paise < 100:
         return jsonify({"error": "Minimum amount is 100 paise"}), 400
 
     currency = data.get("currency", "INR")
-    receipt = str(data.get("receipt", f"rcpt_{int(datetime.now().timestamp())}"))
 
     key_id = (current_app.config.get("RAZORPAY_KEY_ID") or os.getenv("RAZORPAY_KEY_ID") or "").strip()
     key_secret = (current_app.config.get("RAZORPAY_KEY_SECRET") or os.getenv("RAZORPAY_KEY_SECRET") or "").strip()
@@ -256,6 +274,7 @@ def create_order():
 
 
 @api_bp.post("/verify-payment")
+@rate_limit(limit=15, period=60)
 def verify_payment():
     """Verify Razorpay payment signature.
 
@@ -294,9 +313,11 @@ def verify_payment():
     if not hmac.compare_digest(generated_signature, signature):
         return jsonify({"success": False, "error": "Signature verification failed"}), 400
 
-    # If order exists in Store Order table, update its status
+    # If order exists in Store Order table, update its status securely
     store_order = Order.query.filter_by(razorpay_order_id=order_id).first()
     if store_order and store_order.payment_status != "paid":
+        if current_user.is_authenticated and store_order.user_id != current_user.id and not getattr(current_user, "has_admin_access", False):
+            return jsonify({"error": "Unauthorized access to order"}), 403
         store_order.payment_status = "paid"
         store_order.status = "Paid"
         store_order.razorpay_payment_id = payment_id
