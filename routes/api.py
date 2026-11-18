@@ -196,9 +196,13 @@ def create_order():
             db_order = None
         if not db_order:
             return jsonify({"error": "Store order not found"}), 404
-        if current_user.is_authenticated and db_order.user_id != current_user.id and not getattr(current_user, "has_admin_access", False):
+        if not getattr(current_user, "is_authenticated", False):
+            return jsonify({"error": "Authentication required to checkout order"}), 401
+        is_admin = getattr(current_user, "has_admin_access", False) or getattr(current_user, "role", "") == "admin"
+        if db_order.user_id != current_user.id and not is_admin:
             return jsonify({"error": "Unauthorized access to order"}), 403
-        amount_paise = int(round(float(db_order.total_amount) * 100))
+        order_total = getattr(db_order, "total_inr", getattr(db_order, "total_amount", 0))
+        amount_paise = int(round(float(order_total) * 100))
         receipt = f"store_order_{db_order.id}"
     else:
         # Require authentication to create arbitrary Razorpay orders
@@ -316,7 +320,10 @@ def verify_payment():
     # If order exists in Store Order table, update its status securely
     store_order = Order.query.filter_by(razorpay_order_id=order_id).first()
     if store_order and store_order.payment_status != "paid":
-        if current_user.is_authenticated and store_order.user_id != current_user.id and not getattr(current_user, "has_admin_access", False):
+        if not getattr(current_user, "is_authenticated", False):
+            return jsonify({"error": "Authentication required to verify order payment"}), 401
+        is_admin = getattr(current_user, "has_admin_access", False) or getattr(current_user, "role", "") == "admin"
+        if store_order.user_id != current_user.id and not is_admin:
             return jsonify({"error": "Unauthorized access to order"}), 403
         store_order.payment_status = "paid"
         store_order.status = "Paid"
