@@ -5969,11 +5969,32 @@ def ai_lab_hardware():
 
             icon_file = request.files.get("icon")
             if icon_file and icon_file.filename:
-                row.icon_path = _upload_ai_lab_asset(
-                    icon_file,
-                    subdir=os.path.join("hardware", "icons").replace("\\", "/"),
-                    allowed_exts=ALLOWED_AI_IMAGE_EXTENSIONS,
-                )
+                # Use permanent Cloudinary storage on Render when configured.
+                # Local static uploads remain as a development fallback.
+                if all(os.getenv(key) for key in ("CLOUDINARY_CLOUD_NAME", "CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET")):
+                    try:
+                        import cloudinary.uploader
+
+                        result = cloudinary.uploader.upload(
+                            icon_file,
+                            folder="skill-orbit-india/ai-lab/hardware",
+                            public_id=f"hardware_{uuid4().hex}",
+                            resource_type="image",
+                            overwrite=False,
+                            invalidate=True,
+                        )
+                        row.icon_path = result.get("secure_url") or ""
+                        if not row.icon_path:
+                            raise RuntimeError("Cloudinary did not return a secure image URL.")
+                    except Exception as exc:
+                        current_app.logger.exception("AI Lab hardware image upload failed: %s", exc)
+                        raise ValueError("Hardware image upload failed. Check Cloudinary configuration and try again.")
+                else:
+                    row.icon_path = _upload_ai_lab_asset(
+                        icon_file,
+                        subdir=os.path.join("hardware", "icons").replace("\\", "/"),
+                        allowed_exts=ALLOWED_AI_IMAGE_EXTENSIONS,
+                    )
 
             db.session.add(row)
             db.session.commit()
