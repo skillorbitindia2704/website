@@ -321,7 +321,7 @@
               <input type="file" name="hero_ai_lab_image" class="form-control mb-2">
               {% if content.hero_ai_lab_image %}
               <div class="flex items-center gap-3 mt-2 bg-white p-2 border rounded">
-                <img src="{{ url_for('static', filename=content.hero_ai_lab_image) }}" class="w-16 h-12 object-cover border rounded">
+                <img src="{{ asset_url(content.hero_ai_lab_image) }}" class="w-16 h-12 object-cover border rounded">
                 <span class="text-xs truncate flex-1">{{ content.hero_ai_lab_image }}</span>
                 <button type="submit" form="homepage-delete-image-form" onclick="setActionField('hero_ai_lab_image')" class="text-xs text-red-600 font-semibold cursor-pointer">Remove</button>
               </div>
@@ -334,7 +334,7 @@
               <input type="file" name="hero_robotics_image" class="form-control mb-2">
               {% if content.hero_robotics_image %}
               <div class="flex items-center gap-3 mt-2 bg-white p-2 border rounded">
-                <img src="{{ url_for('static', filename=content.hero_robotics_image) }}" class="w-16 h-12 object-cover border rounded">
+                <img src="{{ asset_url(content.hero_robotics_image) }}" class="w-16 h-12 object-cover border rounded">
                 <span class="text-xs truncate flex-1">{{ content.hero_robotics_image }}</span>
                 <button type="submit" form="homepage-delete-image-form" onclick="setActionField('hero_robotics_image')" class="text-xs text-red-600 font-semibold cursor-pointer">Remove</button>
               </div>
@@ -347,7 +347,7 @@
               <input type="file" name="hero_workshop_image" class="form-control mb-2">
               {% if content.hero_workshop_image %}
               <div class="flex items-center gap-3 mt-2 bg-white p-2 border rounded">
-                <img src="{{ url_for('static', filename=content.hero_workshop_image) }}" class="w-16 h-12 object-cover border rounded">
+                <img src="{{ asset_url(content.hero_workshop_image) }}" class="w-16 h-12 object-cover border rounded">
                 <span class="text-xs truncate flex-1">{{ content.hero_workshop_image }}</span>
                 <button type="submit" form="homepage-delete-image-form" onclick="setActionField('hero_workshop_image')" class="text-xs text-red-600 font-semibold cursor-pointer">Remove</button>
               </div>
@@ -420,7 +420,7 @@
             <input type="file" name="ai_lab_image" class="form-control mb-2">
             {% if content.ai_lab_image %}
             <div class="flex items-center gap-3 bg-slate-50 p-2 border rounded">
-              <img src="{{ url_for('static', filename=content.ai_lab_image) }}" class="w-16 h-12 object-cover border rounded">
+              <img src="{{ asset_url(content.ai_lab_image) }}" class="w-16 h-12 object-cover border rounded">
               <span class="text-xs truncate flex-1">{{ content.ai_lab_image }}</span>
               <button type="submit" form="homepage-delete-image-form" onclick="setActionField('ai_lab_image')" class="text-xs text-red-600 font-semibold cursor-pointer">Remove</button>
             </div>
