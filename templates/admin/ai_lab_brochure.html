@@ -31,7 +31,7 @@
 <div class="card-premium reveal" style="margin-top:1.5rem;">
   <h2 style="font-size:1.15rem;margin:0 0 0.5rem;">Current active brochure</h2>
   <p class="muted" style="margin:0 0 1rem;">{{ brochure.title }}</p>
-  <a class="btn btn-ghost" href="{{ url_for('static', filename=brochure.file_path) }}" download>
+  <a class="btn btn-ghost" href="{{ asset_url(brochure.file_path) }}" download>
     Download PDF
   </a>
 </div>
