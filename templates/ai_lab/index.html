@@ -537,7 +537,8 @@
         <div class="card-body">
           <div class="ai-hardware-icon">
             {% if h.icon_path %}
-            <img src="{{ url_for('static', filename=h.icon_path) }}" alt="{{ h.name }}" loading="lazy" decoding="async" width="72" height="72">
+            <img src="{{ h.icon_path if h.icon_path.startswith('http://') or h.icon_path.startswith('https://') else url_for('static', filename=h.icon_path) }}" alt="{{ h.name }}" loading="lazy" decoding="async" width="72" height="72" onerror="this.hidden=true; this.nextElementSibling.hidden=false;">
+            <span class="ai-hardware-icon-fallback" aria-hidden="true" hidden><i class="ri-tools-line"></i></span>
             {% else %}
             <span aria-hidden="true" style="font-size:1.6rem;"><i class="ri-tools-line"></i></span>
             {% endif %}
