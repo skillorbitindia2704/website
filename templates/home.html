@@ -2495,7 +2495,7 @@
         <div class="ai-lab-home-visual">
           {% if content.ai_lab_image %}
             <img
-              src="{% if content.ai_lab_image.startswith('http://') or content.ai_lab_image.startswith('https://') %}{{ content.ai_lab_image }}{% else %}{{ url_for('static', filename=content.ai_lab_image) }}{% endif %}"
+              src="{% if content.ai_lab_image.startswith('http://') or content.ai_lab_image.startswith('https://') %}{{ content.ai_lab_image }}{% else %}{{ asset_url(content.ai_lab_image) }}{% endif %}"
               alt="{{ content.ai_lab_heading or 'AI and Robotics Lab for schools and colleges' }}"
               loading="lazy"
               decoding="async">
@@ -3002,7 +3002,7 @@
           <div class="learner-voice-person">
             <div class="learner-voice-avatar">
               {% if t.image_path %}
-              <img src="{{ t.image_path if t.image_path.startswith('http://') or t.image_path.startswith('https://') else url_for('static', filename=t.image_path) }}" alt="{{ t.name }}" loading="lazy" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+              <img src="{{ t.image_path if t.image_path.startswith('http://') or t.image_path.startswith('https://') else asset_url(t.image_path) }}" alt="{{ t.name }}" loading="lazy" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
               <span aria-hidden="true" style="display:none;"><i class="ri-user-3-line"></i></span>
               {% else %}
               <span aria-hidden="true"><i class="ri-user-3-line"></i></span>
