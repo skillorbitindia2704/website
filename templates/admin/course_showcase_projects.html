@@ -26,7 +26,7 @@
       <td>{{ row.title }}</td>
       <td>
         {% if row.image_path %}
-          <img src="{{ url_for('static', filename=row.image_path) }}" alt="" style="width:72px;height:48px;object-fit:cover;border-radius:8px;border:1px solid var(--border);" loading="lazy" />
+          <img src="{{ asset_url(row.image_path) }}" alt="" style="width:72px;height:48px;object-fit:cover;border-radius:8px;border:1px solid var(--border);" loading="lazy" />
         {% else %}
           <span class="muted">—</span>
         {% endif %}
