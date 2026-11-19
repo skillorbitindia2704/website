@@ -9578,3 +9578,68 @@ html:not([data-theme="dark"]) .services-hero .services-hero-showcase .sc-sub {
   font-size: 0.85rem;
   text-decoration: underline;
 }
+
+
+/* AI Lab hardware cards: responsive layout, stable image sizing and safe text wrapping. */
+#hardware .ai-hardware-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)) !important;
+  gap: 1.25rem !important;
+  align-items: stretch;
+}
+
+#hardware .ai-hardware-card {
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+#hardware .ai-hardware-card .card-body {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+#hardware .ai-hardware-card .card-title-sm {
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+#hardware .ai-hardware-card p {
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+#hardware .ai-hardware-icon {
+  width: 76px;
+  height: 76px;
+  flex: 0 0 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#hardware .ai-hardware-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+#hardware .ai-hardware-icon-fallback {
+  font-size: 1.8rem;
+}
+
+@media (max-width: 600px) {
+  #hardware .ai-hardware-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 1rem !important;
+  }
+  #hardware .ai-hardware-card {
+    padding: 1.1rem;
+  }
+}
