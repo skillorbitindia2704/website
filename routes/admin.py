@@ -2927,51 +2927,40 @@ ALLOWED_AI_PDF_EXTENSIONS = {"pdf"}
 
 
 def _upload_ai_lab_asset(file_storage, *, subdir: str, allowed_exts: set[str]) -> str:
-    """Store AI Lab assets durably; video uploads use Cloudinary, not Render's ephemeral disk."""
+    """Store AI Lab/CMS assets in Cloudinary; never report ephemeral local storage as permanent."""
     if not file_storage or not getattr(file_storage, "filename", None):
         raise ValueError("No file uploaded.")
-    if not file_storage.filename:
-        raise ValueError("No file uploaded.")
-
     safe_name = secure_filename(file_storage.filename)
-    if "." not in safe_name:
+    if not safe_name or "." not in safe_name:
         raise ValueError("Invalid file name.")
     ext = safe_name.rsplit(".", 1)[1].lower()
     if ext not in allowed_exts:
         raise ValueError(f"Allowed file types: {', '.join(sorted(allowed_exts))}.")
-
-    # Render's local filesystem is ephemeral. Persist videos in Cloudinary so
-    # their URLs remain available after deploys/restarts and across instances.
+    if not all(os.getenv(k) for k in ("CLOUDINARY_CLOUD_NAME", "CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET")):
+        raise ValueError("Permanent media storage is not configured. Add all three Cloudinary credentials in Render Environment.")
     if ext in {"mp4", "webm", "mov", "avi", "mkv"}:
         if ext not in {"mp4", "webm"}:
             raise ValueError("For browser playback, upload MP4 (H.264) or WebM video.")
-        try:
-            import cloudinary.uploader
-
-            result = cloudinary.uploader.upload(
-                file_storage,
-                folder="skill-orbit-india/ai-lab/projects",
-                public_id=f"project_{uuid4().hex}",
-                resource_type="video",
-                overwrite=False,
-            )
-            video_url = result.get("secure_url")
-            if not video_url:
-                raise RuntimeError("Cloudinary did not return a secure video URL.")
-            return video_url
-        except Exception as exc:
-            current_app.logger.exception("AI Lab project video upload to Cloudinary failed: %s", exc)
-            raise ValueError("Video upload failed. Check Cloudinary configuration and try again.")
-
-    # Keep image uploads on the existing static path for backward compatibility.
-    upload_rel_dir = os.path.join("uploads", "ai_lab", subdir).replace(os.sep, "/")
-    upload_abs_dir = os.path.join(current_app.static_folder, upload_rel_dir.replace("/", os.sep))
-    os.makedirs(upload_abs_dir, exist_ok=True)
-
-    unique_name = f"{uuid4().hex}_{safe_name}"
-    abs_path = os.path.join(upload_abs_dir, unique_name)
-    file_storage.save(abs_path)
-    return f"{upload_rel_dir}/{unique_name}"
+        resource_type = "video"
+    elif ext == "pdf":
+        resource_type = "raw"
+    else:
+        resource_type = "image"
+    try:
+        import cloudinary.uploader
+        folder = f"skill-orbit-india/{subdir.strip('/').replace(os.sep, '/')}"
+        public_id = f"{uuid4().hex}_{safe_name}" if resource_type == "raw" else uuid4().hex
+        result = cloudinary.uploader.upload(
+            file_storage, folder=folder, public_id=public_id,
+            resource_type=resource_type, overwrite=False, invalidate=True,
+        )
+        secure_url = result.get("secure_url")
+        if not secure_url:
+            raise RuntimeError("Cloudinary did not return a secure asset URL.")
+        return secure_url
+    except Exception as exc:
+        current_app.logger.exception("Permanent AI Lab asset upload failed (%s): %s", subdir, exc)
+        raise ValueError("Permanent media upload failed. Check Cloudinary configuration and try again.")
 
 def _upload_about_gallery_image(file_storage) -> str:
     """Upload About Gallery image to Cloudinary and return its permanent URL."""
@@ -3610,25 +3599,8 @@ def course_cert_highlights_delete(item_id: int):
 # ==========================================
 
 def _upload_about_image(file_storage):
-    """Upload and optimize images for the About page sections."""
-    if not file_storage or not file_storage.filename:
-        return None
-    safe_name = secure_filename(file_storage.filename)
-    if "." not in safe_name:
-        raise ValueError("Invalid image file name.")
-    ext = safe_name.rsplit(".", 1)[1].lower()
-    if ext not in ALLOWED_PRODUCT_IMAGE_EXTENSIONS:
-        raise ValueError("Allowed image formats: png, jpg, jpeg, webp, gif.")
-    
-    upload_rel_dir = os.path.join("uploads", "about")
-    upload_abs_dir = os.path.join(current_app.static_folder, upload_rel_dir)
-    os.makedirs(upload_abs_dir, exist_ok=True)
-    
-    # Save with a secure prefix to prevent collisions
-    unique_name = f"{uuid4().hex}_{safe_name}"
-    abs_path = os.path.join(upload_abs_dir, unique_name)
-    file_storage.save(abs_path)
-    return f"{upload_rel_dir.replace(os.sep, '/')}/{unique_name}"
+    """Upload About CMS images to permanent Cloudinary storage."""
+    return _upload_about_hero_image(file_storage)
 
 def _upload_about_hero_image(file_storage):
     """Upload About Hero image to Cloudinary and return its permanent URL."""
