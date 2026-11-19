@@ -14,7 +14,7 @@
 
 {% block og_image %}
   {%- if content and content.seo_og_image -%}
-    {{ url_for('static', filename=content.seo_og_image, _external=True) }}
+    {{ asset_url(content.seo_og_image) }}
   {%- else -%}
     {{ super() }}
   {%- endif -%}
@@ -699,8 +699,8 @@
        {% set imgs = (gallery[:3] if gallery else []) %}
        {% if imgs %}
          {% for g in imgs %}
-         <a href="{{ url_for('static', filename=g.image_path) }}" class="about-gal-thumb" data-lightbox="1" data-title="{{ g.title|e }}">
-           <img src="{{ url_for('static', filename=g.image_path) }}" alt="{{ g.title }}" loading="lazy" decoding="async">
+         <a href="{{ asset_url(g.image_path) }}" class="about-gal-thumb" data-lightbox="1" data-title="{{ g.title|e }}">
+           <img src="{{ asset_url(g.image_path) }}" alt="{{ g.title }}" loading="lazy" decoding="async">
          </a>
          {% endfor %}
        {% else %}
@@ -982,7 +982,7 @@
         {% if g.image_path and (g.image_path.startswith('http://') or g.image_path.startswith('https://')) %}
             {% set gallery_image_url = g.image_path %}
         {% else %}
-            {% set gallery_image_url = url_for('static', filename=g.image_path) %}
+            {% set gallery_image_url = asset_url(g.image_path) %}
         {% endif %}
   
     <article class="card-premium card-img-full">
@@ -1042,7 +1042,7 @@
             {% if p.logo_path.startswith('http://') or p.logo_path.startswith('https://') %}
               {% set partner_logo_url = p.logo_path %}
             {% else %}
-              {% set partner_logo_url = url_for('static', filename=p.logo_path) %}
+              {% set partner_logo_url = asset_url(p.logo_path) %}
             {% endif %}
             <img src="{{ partner_logo_url }}" alt="{{ p.name }}" loading="lazy" decoding="async" style="width:36px;height:36px;max-width:36px;object-fit:contain;flex-shrink:0;">
           {% endif %}
@@ -1117,8 +1117,8 @@
     {% for r in recognition %}
     <article class="card-premium surface-card recognition-card">
       {% if r.image_path %}
-      <a href="{{ url_for('static', filename=r.image_path) }}" data-lightbox="1" data-title="{{ r.title|e }}" class="recognition-img-link">
-        <img src="{{ url_for('static', filename=r.image_path) }}" alt="{{ r.title }}" loading="lazy" decoding="async">
+      <a href="{{ asset_url(r.image_path) }}" data-lightbox="1" data-title="{{ r.title|e }}" class="recognition-img-link">
+        <img src="{{ asset_url(r.image_path) }}" alt="{{ r.title }}" loading="lazy" decoding="async">
       </a>
       {% endif %}
       <div style="display:flex;align-items:center;gap:0.75rem;">
