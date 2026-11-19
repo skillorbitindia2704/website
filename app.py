@@ -567,6 +567,20 @@ def create_app():
         app.logger.error(f"500 Internal Server Error: {error}", exc_info=True)
         return render_template("errors/500.html"), 500
 
+    def asset_url(path: str) -> str:
+        """Resolve Cloudinary URLs and legacy static upload paths consistently."""
+        value = (path or "").strip()
+        if not value:
+            return ""
+        if value.startswith(("https://", "http://", "data:")):
+            return value
+        value = value.lstrip("/")
+        if value.startswith("static/"):
+            value = value[len("static/"):]
+        return url_for("static", filename=value)
+
+    app.jinja_env.globals["asset_url"] = asset_url
+
     @app.context_processor
     def inject_globals() -> Dict[str, Any]:
         # Make admin permission helper available in all templates.
