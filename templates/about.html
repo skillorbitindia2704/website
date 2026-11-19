@@ -1079,7 +1079,7 @@
             <div style="display:flex;align-items:center;gap:0.75rem;">
               <div class="testimonial-avatar">
                 {% if t.image_path %}
-                <img src="{{ url_for('static', filename=t.image_path) }}" alt="{{ t.name }}" loading="lazy" decoding="async">
+                <img src="{{ asset_url(t.image_path) }}" alt="{{ t.name }}" loading="lazy" decoding="async">
                 {% else %}
                 <i class="ri-user-3-line" aria-hidden="true"></i>
                 {% endif %}
