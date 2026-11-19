@@ -42,7 +42,7 @@
         <td>{{ it.category or '' }}</td>
         <td>
           {% if it.image_path %}
-          <img src="{{ url_for('static', filename=it.image_path) }}" alt="{{ it.title }}" style="width:48px;height:36px;object-fit:cover;border-radius:10px;border:1px solid var(--border);" loading="lazy">
+          <img src="{{ asset_url(it.image_path) }}" alt="{{ it.title }}" style="width:48px;height:36px;object-fit:cover;border-radius:10px;border:1px solid var(--border);" loading="lazy">
           {% endif %}
         </td>
         <td>
@@ -115,7 +115,7 @@
     {% if edit_item and edit_item.image_path %}
       <div style="margin-top:0.75rem;">
         <p class="muted" style="margin:0 0 0.5rem;">Current image</p>
-        <img src="{{ url_for('static', filename=edit_item.image_path) }}" alt="{{ edit_item.title }}" style="width:160px;max-width:100%;height:auto;border-radius:18px;border:1px solid var(--border);" loading="lazy">
+        <img src="{{ asset_url(edit_item.image_path) }}" alt="{{ edit_item.title }}" style="width:160px;max-width:100%;height:auto;border-radius:18px;border:1px solid var(--border);" loading="lazy">
       </div>
     {% endif %}
 
