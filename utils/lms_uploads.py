@@ -2,6 +2,8 @@
 
 import os
 import time
+import os
+from uuid import uuid4
 from werkzeug.utils import secure_filename
 
 ROOT = os.path.join(os.path.dirname(__file__), "..", "static", "uploads")
@@ -48,6 +50,31 @@ def save_upload(file_storage, subdir, allowed, max_bytes, prefix=""):
         return None
     file_storage.seek(0)
     name = f"{prefix}{int(time.time())}_{filename}"
+
+    # Course thumbnails are public website images and must survive Render deploys.
+    if subdir == "thumb":
+        if not all(os.getenv(k) for k in ("CLOUDINARY_CLOUD_NAME", "CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET")):
+            raise ValueError("Permanent image storage is not configured. Add Cloudinary credentials in Render Environment.")
+        try:
+            import cloudinary.uploader
+            file_storage.seek(0)
+            result = cloudinary.uploader.upload(
+                file_storage,
+                folder="skill-orbit-india/lms/thumbnails",
+                public_id=f"{prefix}{uuid4().hex}",
+                resource_type="image",
+                overwrite=False,
+                invalidate=True,
+            )
+            secure_url = result.get("secure_url")
+            if not secure_url:
+                raise RuntimeError("Cloudinary did not return a secure image URL.")
+            return secure_url
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).exception("LMS thumbnail Cloudinary upload failed: %s", exc)
+            raise ValueError("Thumbnail upload to permanent storage failed. Please try again.")
+
     path = os.path.join(folder, name)
     file_storage.save(path)
     return _rel_static(path)
