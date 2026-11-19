@@ -311,7 +311,7 @@
           {% set ai_lab_hero_image = site_settings.get('ai_lab_hero_image', '') %}
           {% if ai_lab_hero_image %}
             <img
-              src="{{ url_for('static', filename=ai_lab_hero_image) }}"
+              src="{{ asset_url(ai_lab_hero_image) }}"
               alt="AI & Robotics Lab Setup"
               loading="eager"
             >
@@ -651,7 +651,7 @@
         <div class="ai-project-media">
           {% set mp = (prj.media_path or '')|lower %}
           {% set mp_path = mp.split('?')[0].split('#')[0] %}
-          {% set media_src = prj.media_path if (mp.startswith('http://') or mp.startswith('https://')) else url_for('static', filename=prj.media_path) %}
+          {% set media_src = prj.media_path if (mp.startswith('http://') or mp.startswith('https://')) else asset_url(prj.media_path) %}
           {% set is_video = ('/video/upload/' in mp_path) or mp_path.endswith(('.mp4', '.webm', '.ogv', '.mov', '.m4v')) %}
           {% if prj.media_path and (mp_path.endswith('.png') or mp_path.endswith('.jpg') or mp_path.endswith('.jpeg') or mp_path.endswith('.webp') or mp_path.endswith('.gif')) %}
           <img src="{{ media_src }}" alt="{{ prj.title }}" loading="lazy" decoding="async">
