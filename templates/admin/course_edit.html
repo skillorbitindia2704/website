@@ -99,7 +99,7 @@
       <label>Thumbnail image</label>
       <input type="file" name="thumbnail" accept="image/png,image/jpeg,image/webp,image/gif">
       {% if course.thumbnail_path %}
-      <p class="muted" style="font-size:0.85rem;margin-top:0.35rem;">Current: <a href="{{ url_for('static', filename=course.thumbnail_path) }}" target="_blank" rel="noopener">view</a></p>
+      <p class="muted" style="font-size:0.85rem;margin-top:0.35rem;">Current: <a href="{{ asset_url(course.thumbnail_path) }}" target="_blank" rel="noopener">view</a></p>
       {% endif %}
     </div>
   </div>
