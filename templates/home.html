@@ -1533,7 +1533,7 @@
                 data-slide="{{ slide_index.value }}"
             >
                 <img
-                    src="{% if slide_image.startswith('http://') or slide_image.startswith('https://') %}{{ slide_image }}{% else %}{{ url_for('static', filename=slide_image) }}{% endif %}"
+                    src="{% if slide_image.startswith('http://') or slide_image.startswith('https://') %}{{ slide_image }}{% else %}{{ asset_url(slide_image) }}{% endif %}"
                     alt="{{ slide_alt or content.hero_heading }}"
                     loading="{% if slide_index.value == 0 %}eager{% else %}lazy{% endif %}"
                     decoding="async"
@@ -2865,7 +2865,7 @@
             {% elif project_img[0:7] == 'static/' %}
               {% set project_img_src = '/' ~ project_img %}
             {% else %}
-              {% set project_img_src = url_for('static', filename=project_img) %}
+              {% set project_img_src = asset_url(project_img) %}
             {% endif %}
             <img
               src="{{ project_img_src }}"
@@ -3109,7 +3109,7 @@
           {% if event_image.startswith('http://') or event_image.startswith('https://') %}
             {% set event_image_url = event_image %}
           {% else %}
-            {% set event_image_url = url_for('static', filename=event_image) %}
+            {% set event_image_url = asset_url(event_image) %}
           {% endif %}
           <div class="home-event-image-wrap">
             <img class="home-event-image" src="{{ event_image_url }}" alt="{{ e.name }} workshop or event" loading="lazy" decoding="async" onerror="this.closest('.home-event-image-wrap').classList.add('image-unavailable'); this.remove();">
@@ -3806,7 +3806,7 @@
 {% if visibilities.cta_banner %}
 <section class="cta-banner reveal">
   {% if content.footer_promo_image %}
-  <div class="absolute inset-0 opacity-20" style="background-image: url('{{ content.footer_promo_image if content.footer_promo_image.startswith("http") else url_for("static", filename=content.footer_promo_image) }}'); background-size: cover; background-position: center; pointer-events: none;"></div>
+  <div class="absolute inset-0 opacity-20" style="background-image: url('{{ content.footer_promo_image if content.footer_promo_image.startswith("http") else asset_url(content.footer_promo_image) }}'); background-size: cover; background-position: center; pointer-events: none;"></div>
   {% endif %}
   <div class="relative z-10">
     <h3>{{ content.footer_promo_text }}</h3>
