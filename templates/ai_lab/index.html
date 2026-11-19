@@ -269,7 +269,7 @@
       <div class="hero-cta ai-hero-cta" role="group" aria-label="Primary calls to action">
         <button type="button" class="btn btn-primary js-scroll-to-enquiry"><i class="ri-calendar-check-line" aria-hidden="true"></i> Book Demo</button>
         {% if brochure %}
-        <a href="{{ url_for('static', filename=brochure.file_path) }}" class="btn btn-ghost" download><i class="ri-download-2-line" aria-hidden="true"></i> Download Brochure</a>
+        <a href="{{ asset_url(brochure.file_path) }}" class="btn btn-ghost" download><i class="ri-download-2-line" aria-hidden="true"></i> Download Brochure</a>
         {% else %}
         <button type="button" class="btn btn-ghost js-scroll-to-enquiry"><i class="ri-download-2-line" aria-hidden="true"></i> Download Brochure</button>
         {% endif %}
@@ -401,9 +401,9 @@
   <div class="grid-cards ai-gallery-grid">
     {% if gallery_images %}
       {% for img in gallery_images %}
-      <article class="card-premium ai-gallery-card" data-gallery-image="{{ url_for('static', filename=img.image_path) }}" data-gallery-title="{{ img.title|e }}">
+      <article class="card-premium ai-gallery-card" data-gallery-image="{{ asset_url(img.image_path) }}" data-gallery-title="{{ img.title|e }}">
         <div class="ai-gallery-media">
-          <img src="{{ url_for('static', filename=img.image_path) }}" alt="{{ img.caption or img.title }}" loading="lazy" decoding="async">
+          <img src="{{ asset_url(img.image_path) }}" alt="{{ img.caption or img.title }}" loading="lazy" decoding="async">
         </div>
         <div class="card-body">
           <h3 class="card-title-sm">{{ img.title }}</h3>
@@ -837,7 +837,7 @@
           <article class="testimonial-card ai-testimonial">
             <div class="ai-testimonial-head">
               {% if t.logo_path %}
-              <img src="{{ url_for('static', filename=t.logo_path) }}" alt="{{ t.organization or t.name }}" class="ai-testimonial-logo" loading="lazy" decoding="async">
+              <img src="{{ asset_url(t.logo_path) }}" alt="{{ t.organization or t.name }}" class="ai-testimonial-logo" loading="lazy" decoding="async">
               {% else %}
               <div class="ai-testimonial-logo ai-testimonial-logo-fallback" aria-hidden="true"><i class="ri-building-2-line" aria-hidden="true"></i></div>
               {% endif %}
@@ -1028,7 +1028,7 @@
   <div class="cta-banner" style="animation:none;background:linear-gradient(135deg, #0B1225 0%, #111827 30%, #1D4ED8 60%, #7C3AED 100%);border-radius:24px;border:1px solid rgba(255,255,255,0.18);box-shadow:0 20px 50px rgba(11,18,37,0.35);padding:2.5rem 2rem;">
     <h3 id="brochure-heading" style="color:#ffffff;">Download the AI &amp; Robotics Lab Brochure</h3>
     <p style="color:rgba(255,255,255,0.85);">Premium PDF overview for management and STEM committees.</p>
-    <a href="{{ url_for('static', filename=brochure.file_path) }}" class="btn btn-primary" download style="background:#ffffff;color:#1e1b4b;font-weight:700;border-radius:999px;">
+    <a href="{{ asset_url(brochure.file_path) }}" class="btn btn-primary" download style="background:#ffffff;color:#1e1b4b;font-weight:700;border-radius:999px;">
       <i class="ri-download-2-line" aria-hidden="true"></i> Download PDF
     </a>
   </div>
