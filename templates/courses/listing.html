@@ -614,7 +614,7 @@
     data-price="{{ c.price_inr }}">
     <div class="course-card-media" style="position:relative;aspect-ratio:16/10;overflow:hidden;background:linear-gradient(135deg,rgba(79,70,229,.2),rgba(6,182,212,.15));">
       {% if c.thumbnail_path %}
-      <img src="{{ url_for('static', filename=c.thumbnail_path) }}" alt="{{ c.title }}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;" data-fallback="{{ url_for('static', filename='images/course_placeholder.svg') }}" onerror="this.onerror=null;this.src=this.dataset.fallback;">
+      <img src="{{ asset_url(c.thumbnail_path) }}" alt="{{ c.title }}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;" data-fallback="{{ url_for('static', filename='images/course_placeholder.svg') }}" onerror="this.onerror=null;this.src=this.dataset.fallback;">
       {% else %}
       <img src="{{ url_for('static', filename='images/course_placeholder.svg') }}" alt="{{ c.title }}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;">
       {% endif %}
@@ -805,7 +805,7 @@
   <article class="card-premium surface-card-lg course-showcase-card" style="padding:0;">
     <div class="showcase-card-media">
       {% if p.image_path %}
-      <img src="{{ url_for('static', filename=p.image_path) }}" alt="{{ p.title }}" loading="lazy" data-fallback="{{ url_for('static', filename='images/course_placeholder.svg') }}" onerror="this.onerror=null;this.src=this.dataset.fallback;">
+      <img src="{{ asset_url(p.image_path) }}" alt="{{ p.title }}" loading="lazy" data-fallback="{{ url_for('static', filename='images/course_placeholder.svg') }}" onerror="this.onerror=null;this.src=this.dataset.fallback;">
       {% else %}
       <div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:2rem;color:rgba(255,255,255,0.4);" aria-hidden="true"><i class="ri-tools-line"></i></div>
       {% endif %}
@@ -843,7 +843,7 @@
   <article class="card-premium surface-card-lg course-event-card" style="padding:0;">
     <div class="event-card-media">
       {% if ev.image_path %}
-      <img src="{{ url_for('static', filename=ev.image_path) }}" alt="{{ ev.name }}" loading="lazy" data-fallback="{{ url_for('static', filename='images/course_placeholder.svg') }}" onerror="this.onerror=null;this.src=this.dataset.fallback;">
+      <img src="{{ asset_url(ev.image_path) }}" alt="{{ ev.name }}" loading="lazy" data-fallback="{{ url_for('static', filename='images/course_placeholder.svg') }}" onerror="this.onerror=null;this.src=this.dataset.fallback;">
       {% else %}
       <div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:2.2rem;color:rgba(255,255,255,0.4);"><i class="ri-calendar-line"></i></div>
       {% endif %}
