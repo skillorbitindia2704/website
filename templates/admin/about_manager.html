@@ -323,7 +323,7 @@
             </div>
             {% if content.who_we_are_side_image %}
             <div class="mt-3 flex items-center gap-3 p-2 bg-slate-50 border rounded-lg">
-              <img src="{{ url_for('static', filename=content.who_we_are_side_image) }}" alt="Side" class="w-16 h-12 object-cover rounded border">
+              <img src="{{ asset_url(content.who_we_are_side_image) }}" alt="Side" class="w-16 h-12 object-cover rounded border">
               <div class="flex-1 text-xs truncate">{{ content.who_we_are_side_image }}</div>
               <button type="submit" form="about-delete-side-img-form" class="bg-red-50 text-red-600 border border-red-200 px-2.5 py-1 text-xs font-semibold rounded hover:bg-red-100 cursor-pointer">Delete</button>
             </div>
@@ -763,7 +763,7 @@
               </div>
               {% if content.seo_og_image %}
               <div class="mt-3 flex items-center gap-3 p-2 bg-slate-50 border rounded-lg">
-                <img src="{{ url_for('static', filename=content.seo_og_image) }}" alt="OG" class="w-16 h-12 object-cover rounded border">
+                <img src="{{ asset_url(content.seo_og_image) }}" alt="OG" class="w-16 h-12 object-cover rounded border">
                 <div class="flex-1 text-xs truncate">{{ content.seo_og_image }}</div>
                 <button type="submit" form="about-delete-og-img-form" class="bg-red-50 text-red-600 border border-red-200 px-2.5 py-1 text-xs font-semibold rounded hover:bg-red-100 cursor-pointer">Delete</button>
               </div>
