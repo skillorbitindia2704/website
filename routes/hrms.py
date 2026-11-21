@@ -89,7 +89,7 @@ def compensation():
                 TeacherPaymentAgreement.employee_id == employee.id,
                 TeacherPaymentAgreement.is_active.is_(True),
                 TeacherPaymentAgreement.effective_from <= (end or date.max),
-                db.or_(TeacherPaymentAgreement.effective_to.is_(None), TeacherPaymentAgreement.effective_to >= start),
+                or_(TeacherPaymentAgreement.effective_to.is_(None), TeacherPaymentAgreement.effective_to >= start),
             ).first()
             if overlap:
                 raise ValueError("This teacher already has an active agreement overlapping the selected dates. Close the earlier agreement first.")
