@@ -122,3 +122,21 @@ class PayrollDispute(db.Model):
 
     employee = db.relationship("Employee", lazy=True)
     payroll_run = db.relationship("PayrollRun", lazy=True)
+
+
+
+class PayrollEarningLine(db.Model):
+    """Immutable per-component snapshot used to explain each generated payroll amount."""
+    __tablename__ = "payroll_earning_line"
+
+    id = db.Column(db.Integer, primary_key=True)
+    payroll_run_id = db.Column(db.Integer, db.ForeignKey("payroll_run.id"), nullable=False, index=True)
+    component = db.Column(db.String(50), nullable=False)
+    quantity = db.Column(db.Numeric(12, 3), nullable=False, default=0)
+    rate = db.Column(db.Numeric(12, 4), nullable=False, default=0)
+    amount = db.Column(db.Numeric(12, 2), nullable=False, default=0)
+    source_reference = db.Column(db.String(120), default="")
+    description = db.Column(db.Text, default="")
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    payroll_run = db.relationship("PayrollRun", lazy=True)
