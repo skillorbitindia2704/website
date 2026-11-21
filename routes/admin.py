@@ -715,6 +715,31 @@ def hr_management():
             "icon": "💰",
             "count": payroll_count,
         },
+        {
+            "title": "Payment Agreements",
+            "url": url_for("hrms.compensation"),
+            "description": "Configure teacher compensation models, rates, and effective dates.",
+            "icon": "📄",
+        },
+        {
+            "title": "Teaching Activity",
+            "url": url_for("hrms.teaching_activity"),
+            "description": "Record and verify payable teaching hours, classes, and course activity.",
+            "icon": "📚",
+        },
+        {
+            "title": "Payroll Approval Workflow",
+            "url": url_for("hrms.payroll_workflow"),
+            "description": "Generate monthly payroll and complete HR, Accounts, and Founder approvals.",
+            "icon": "✅",
+            "count": payroll_count,
+        },
+        {
+            "title": "Payroll Disputes",
+            "url": url_for("hrms.payroll_disputes"),
+            "description": "Review and resolve teacher payroll discrepancy requests.",
+            "icon": "⚖️",
+        },
     ]
     return _render_admin_module_page(
         "HR & Payroll Management",
