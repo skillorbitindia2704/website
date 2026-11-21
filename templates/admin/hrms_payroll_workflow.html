@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Payroll Workflow | Skill Orbit India{% endblock %}
+{% block content %}
+<div class="container" style="padding:1.5rem 0 3rem;">
+  <div class="form-actions" style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem;">
+    <a class="btn btn-secondary btn-sm" href="{{ url_for('admin.hr_management') }}">Back to HR</a>
+    <a class="btn btn-secondary btn-sm" href="{{ url_for('hrms.compensation') }}">Payment Agreements</a>
+    <a class="btn btn-secondary btn-sm" href="{{ url_for('hrms.teaching_activity') }}">Teaching Activity</a>
+  </div>
+  <h1>Monthly Payroll Workflow</h1>
+  <p class="muted">Calendar-month payroll with HR verification, Accounts verification and Founder final approval. No minimum payout threshold.</p>
+  <section class="card-premium form-modern" style="padding:1.25rem;margin:1rem 0;">
+    <h2 style="font-size:1.15rem;">Generate Monthly Payroll</h2>
+    <form method="post" style="display:flex;gap:1rem;align-items:end;flex-wrap:wrap;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="form-field"><span>Month</span><select name="month">{% for m in range(1,13) %}<option value="{{ m }}" {% if m == today.month %}selected{% endif %}>{{ m }}</option>{% endfor %}</select></label>
+      <label class="form-field"><span>Year</span><input type="number" name="year" min="2020" max="2100" value="{{ today.year }}" required></label>
+      <button class="btn btn-primary" type="submit">Generate Payroll Batch</button>
+    </form>
+    <p class="muted" style="font-size:.85rem;margin-top:.7rem;">Generates one payroll per active employee with one effective agreement. Existing periods are skipped. Only verified teaching activity is included.</p>
+  </section>
+  <section class="card-premium" style="padding:1rem;overflow-x:auto;">
+    <h2 style="font-size:1.15rem;">Payroll Register</h2>
+    <table class="table-modern" style="min-width:1250px;width:100%;">
+      <thead><tr><th>Teacher</th><th>Period</th><th>Gross</th><th>Allowances</th><th>Deductions</th><th>Net Pay</th><th>Paid</th><th>Status</th><th>Approval / Payment Actions</th></tr></thead>
+      <tbody>{% for run in payroll_runs %}{% set a = approvals.get(run.id, {}) %}{% set paid = paid_totals.get(run.id, 0) %}
+        <tr>
+          <td>{{ run.employee.display_name }}<small style="display:block;">{{ run.employee.employee_code }}</small></td>
+          <td>{{ run.period_start.strftime('%b %Y') }}<small style="display:block;">{{ run.period_start }} – {{ run.period_end }}</small></td>
+          <td>₹{{ run.gross_pay }}</td><td>₹{{ run.allowances }}</td><td>₹{{ run.deductions }}</td><td><strong>₹{{ run.net_pay }}</strong></td><td>₹{{ paid }}</td><td><strong>{{ run.status }}</strong></td>
+          <td style="min-width:310px;">
+            {% if run.status in ['Draft','Rejected'] %}
+            <form method="post" action="{{ url_for('hrms.payroll_approval', run_id=run.id) }}" style="display:grid;gap:.35rem;margin-bottom:.5rem;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="stage" value="HR">
+              <input name="remarks" placeholder="HR verification remarks">
+              <div style="display:flex;gap:.35rem;"><button class="btn btn-primary btn-sm" name="action" value="approve">HR Verify</button><button class="btn btn-secondary btn-sm" name="action" value="reject">Return / Reject</button></div>
+            </form>
+            {% elif run.status == 'Pending Accounts Review' %}
+            <form method="post" action="{{ url_for('hrms.payroll_approval', run_id=run.id) }}" style="display:grid;gap:.35rem;margin-bottom:.5rem;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="stage" value="Accounts">
+              <input name="remarks" placeholder="Accounts audit remarks">
+              <div style="display:flex;gap:.35rem;"><button class="btn btn-primary btn-sm" name="action" value="approve">Accounts Verify</button><button class="btn btn-secondary btn-sm" name="action" value="reject">Return / Reject</button></div>
+            </form>
+            {% elif run.status == 'Pending Founder Approval' and current_user.is_super_admin %}
+            <form method="post" action="{{ url_for('hrms.payroll_approval', run_id=run.id) }}" style="display:grid;gap:.35rem;margin-bottom:.5rem;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="stage" value="Founder">
+              <input name="remarks" placeholder="Final approval remarks">
+              <div style="display:flex;gap:.35rem;"><button class="btn btn-primary btn-sm" name="action" value="approve">Founder Approve</button><button class="btn btn-secondary btn-sm" name="action" value="reject">Reject</button></div>
+            </form>
+            {% endif %}
+            {% if run.status in ['Approved','Partially Paid'] %}
+            <form method="post" action="{{ url_for('hrms.payroll_payment', run_id=run.id) }}" style="display:grid;gap:.35rem;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <select name="method"><option>Manual Bank Transfer</option><option>UPI</option><option>NEFT</option><option>IMPS</option><option>RTGS</option></select>
+              <input type="number" name="amount" min="0.01" step="0.01" value="{{ '%.2f'|format(run.net_pay|float-paid|float) }}" placeholder="Payment amount">
+              <input name="transaction_reference" placeholder="UTR / transaction reference" required>
+              <input name="proof_url" placeholder="Payment proof URL (optional)">
+              <input name="remarks" placeholder="Payment remarks">
+              <button class="btn btn-primary btn-sm" type="submit">Record Confirmed Payment</button>
+            </form>
+            {% endif %}
+            {% if run.status in ['Draft','Rejected'] %}
+            <form method="post" action="{{ url_for('hrms.payroll_adjustment', run_id=run.id) }}" style="display:grid;gap:.35rem;margin-top:.5rem;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <div style="display:flex;gap:.35rem;"><select name="adjustment_type"><option>Allowance</option><option>Deduction</option></select><input type="number" min="0.01" step="0.01" name="amount" placeholder="₹ amount" required></div>
+              <input name="reason" placeholder="Adjustment reason" required>
+              <button class="btn btn-secondary btn-sm" type="submit">Add Adjustment</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}<tr><td colspan="9" class="muted">No payroll runs created yet.</td></tr>{% endfor %}</tbody>
+    </table>
+  </section>
+  <section class="card-premium" style="padding:1rem;margin-top:1rem;">
+    <h2 style="font-size:1.05rem;">Automated Payout Integration</h2>
+    <p class="muted">Automated payouts are intentionally not activated because no payout provider credentials or merchant activation have been supplied. Do not use the site's customer checkout key as a payout credential. Manual bank/UPI recording is available now; automated payouts require a verified business payout provider and webhook configuration.</p>
+  </section>
+</div>
+{% endblock %}
