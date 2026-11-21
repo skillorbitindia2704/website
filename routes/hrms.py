@@ -165,7 +165,7 @@ def teaching_activity():
         return redirect(url_for("hrms.teaching_activity"))
 
     activities = TeachingActivity.query.order_by(TeachingActivity.activity_date.desc(), TeachingActivity.created_at.desc()).limit(300).all()
-    return render_template("admin/hrms_activity.html", employees=employees, activities=activities)
+    return render_template("admin/hrms_activity.html", employees=employees, activities=activities, today=date.today())
 
 
 @hrms_bp.post("/admin/dashboard/hr-management/teaching-activity/<int:activity_id>/verify")
