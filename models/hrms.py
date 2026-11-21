@@ -96,7 +96,7 @@ class PayrollPayment(db.Model):
     method = db.Column(db.String(30), nullable=False, default="Manual Bank Transfer")
     amount = db.Column(db.Numeric(12, 2), nullable=False)
     status = db.Column(db.String(20), nullable=False, default="Paid")
-    transaction_reference = db.Column(db.String(140), nullable=False)
+    transaction_reference = db.Column(db.String(140), nullable=False, unique=True)
     proof_url = db.Column(db.String(255), default="")
     remarks = db.Column(db.Text, default="")
     processed_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
