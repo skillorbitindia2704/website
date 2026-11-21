@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Teacher Payment Agreements | Skill Orbit India{% endblock %}
+{% block content %}
+<div class="container" style="padding:1.5rem 0 3rem;">
+  <div class="form-actions" style="margin-bottom:1rem;display:flex;gap:.6rem;flex-wrap:wrap;">
+    <a class="btn btn-secondary btn-sm" href="{{ url_for('admin.hr_management') }}">Back to HR</a>
+    <a class="btn btn-secondary btn-sm" href="{{ url_for('hrms.payroll_workflow') }}">Payroll Workflow</a>
+    <a class="btn btn-secondary btn-sm" href="{{ url_for('hrms.teaching_activity') }}">Teaching Activity</a>
+  </div>
+  <h1>Teacher Payment Agreements</h1>
+  <p class="muted">Configure versioned payment rates. Existing agreements are retained for historical payroll calculations.</p>
+  <section class="card-premium form-modern" style="padding:1.25rem;margin:1rem 0;">
+    <h2 style="font-size:1.15rem;">Create Payment Agreement</h2>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="grid-2 gap-4">
+        <label class="form-field"><span>Teacher / Employee</span><select name="employee_id" required><option value="">Select teacher</option>{% for e in employees %}<option value="{{ e.id }}">{{ e.display_name }} — {{ e.employee_code }}</option>{% endfor %}</select></label>
+        <label class="form-field"><span>Engagement Type</span><select name="engagement_type"><option>Full-time</option><option>Part-time</option><option selected>Contractual</option><option>Freelance</option><option>Visiting Faculty</option><option>Project-based</option></select></label>
+        <label class="form-field"><span>Payment Model</span><select name="payment_model"><option>Hybrid</option><option>Fixed Monthly</option><option>Hourly</option><option>Per Class</option><option>Per Course</option><option>Revenue Share</option></select></label>
+        <label class="form-field"><span>Agreement Reference</span><input name="agreement_reference" maxlength="120" placeholder="Agreement / contract ID"></label>
+        <label class="form-field"><span>Monthly Retainer (₹)</span><input type="number" min="0" step="0.01" name="monthly_retainer" value="0"></label>
+        <label class="form-field"><span>Hourly Rate (₹)</span><input type="number" min="0" step="0.01" name="hourly_rate" value="0"></label>
+        <label class="form-field"><span>Per Completed Class (₹)</span><input type="number" min="0" step="0.01" name="per_class_rate" value="0"></label>
+        <label class="form-field"><span>Course Incentive (₹ per milestone)</span><input type="number" min="0" step="0.01" name="course_incentive_rate" value="0"></label>
+        <label class="form-field"><span>Revenue Share (%)</span><input type="number" min="0" max="100" step="0.01" name="revenue_share_percent" value="0"></label>
+        <label class="form-field"><span>Effective From</span><input type="date" name="effective_from" value="{{ today.isoformat() }}" required></label>
+        <label class="form-field"><span>Effective To (optional)</span><input type="date" name="effective_to"></label>
+        <label class="form-field" style="grid-column:1/-1;"><span>Notes / Payment Terms</span><textarea name="notes" rows="3" placeholder="Record agreed payment terms and scope"></textarea></label>
+      </div>
+      <p class="muted" style="font-size:.85rem;">Only enter components covered by the teacher's approved agreement. Overlapping active agreements are blocked.</p>
+      <button class="btn btn-primary" type="submit">Save Payment Agreement</button>
+    </form>
+  </section>
+  <section class="card-premium" style="padding:1rem;overflow-x:auto;">
+    <h2 style="font-size:1.15rem;">Agreement History</h2>
+    <table class="table-modern" style="min-width:1050px;width:100%;">
+      <thead><tr><th>Teacher</th><th>Engagement</th><th>Model</th><th>Monthly</th><th>Hourly</th><th>Per Class</th><th>Course</th><th>Revenue %</th><th>Effective Period</th><th>Status</th></tr></thead>
+      <tbody>{% for a in agreements %}<tr>
+        <td>{{ a.employee.display_name }}<small style="display:block;">{{ a.employee.employee_code }}</small></td><td>{{ a.engagement_type }}</td><td>{{ a.payment_model }}</td>
+        <td>₹{{ a.monthly_retainer }}</td><td>₹{{ a.hourly_rate }}</td><td>₹{{ a.per_class_rate }}</td><td>₹{{ a.course_incentive_rate }}</td><td>{{ a.revenue_share_percent }}%</td>
+        <td>{{ a.effective_from }} – {{ a.effective_to or 'Open' }}</td><td>{{ 'Active' if a.is_active else 'Inactive' }}</td>
+      </tr>{% else %}<tr><td colspan="10" class="muted">No payment agreements configured yet.</td></tr>{% endfor %}</tbody>
+    </table>
+  </section>
+</div>
+{% endblock %}
