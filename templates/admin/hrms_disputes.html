@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Payroll Discrepancies | Skill Orbit India{% endblock %}
+{% block content %}
+<div class="container" style="padding:1.5rem 0 3rem;">
+  <div class="form-actions" style="margin-bottom:1rem;"><a class="btn btn-secondary btn-sm" href="{{ url_for('hrms.payroll_workflow') }}">Back to Payroll Workflow</a></div>
+  <h1>Teacher Payroll Discrepancies</h1>
+  <p class="muted">Review teacher-submitted payroll concerns and record a documented resolution.</p>
+  <section class="card-premium" style="padding:1rem;overflow-x:auto;">
+    <table class="table-modern" style="min-width:950px;width:100%;">
+      <thead><tr><th>Teacher</th><th>Period</th><th>Category</th><th>Description</th><th>Status</th><th>Resolution</th></tr></thead>
+      <tbody>{% for d in disputes %}<tr>
+        <td>{{ d.employee.display_name }}</td><td>{{ d.payroll_run.period_start }} – {{ d.payroll_run.period_end }}</td><td>{{ d.category }}</td><td>{{ d.description }}</td><td>{{ d.status }}</td>
+        <td>{% if d.status not in ['Resolved','Rejected'] %}<form method="post" action="{{ url_for('hrms.resolve_payroll_dispute', dispute_id=d.id) }}" style="display:grid;gap:.35rem;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><textarea name="resolution" rows="2" required placeholder="Investigation and resolution notes"></textarea><div style="display:flex;gap:.35rem;"><button class="btn btn-primary btn-sm" name="action" value="resolve">Resolve</button><button class="btn btn-secondary btn-sm" name="action" value="reject">Reject</button></div></form>{% else %}{{ d.resolution }}{% endif %}</td>
+      </tr>{% else %}<tr><td colspan="6" class="muted">No payroll discrepancies submitted.</td></tr>{% endfor %}</tbody>
+    </table>
+  </section>
+</div>
+{% endblock %}

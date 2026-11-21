@@ -12,6 +12,11 @@
   <a href="{{ url_for('admin.hr_management') }}" class="btn btn-secondary btn-sm">Back to HR dashboard</a>
 </div>
 <p class="muted">Prepare salary runs, track pay status, and keep employee pay details aligned with attendance and leave.</p>
+<div class="form-actions" style="display:flex;gap:.5rem;flex-wrap:wrap;margin:1rem 0;">
+  <a class="btn btn-secondary btn-sm" href="{{ url_for('hrms.compensation') }}">Payment Agreements</a>
+  <a class="btn btn-secondary btn-sm" href="{{ url_for('hrms.teaching_activity') }}">Teaching Activity</a>
+  <a class="btn btn-primary btn-sm" href="{{ url_for('hrms.payroll_workflow') }}">Open Approval Workflow</a>
+</div>
 <div class="card-premium form-modern reveal" style="padding:1.25rem;margin:1.25rem 0;">
   <form method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

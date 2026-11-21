@@ -30,7 +30,10 @@
     </div>
 
     <!-- HR Pill Navigation Bar -->
-    <div class="t-pill-tabs">
+    <div class="form-actions" style="display:flex;gap:.5rem;flex-wrap:wrap;margin:0 0 1rem;">
+  <a class="btn btn-secondary btn-sm" href="{{ url_for('hrms.teacher_earnings') }}">My Earnings & Payment Agreement</a>
+</div>
+<div class="t-pill-tabs">
       <a class="t-pill-tab" href="{{ url_for('teacher.teacher_hr_dashboard') }}"><i class="ri-dashboard-line"></i> HR Overview</a>
       <a class="t-pill-tab" href="{{ url_for('teacher.teacher_hr_attendance') }}"><i class="ri-calendar-check-line"></i> Attendance Log</a>
       <a class="t-pill-tab" href="{{ url_for('teacher.teacher_leave_requests') }}"><i class="ri-flight-takeoff-line"></i> Apply Leave</a>
