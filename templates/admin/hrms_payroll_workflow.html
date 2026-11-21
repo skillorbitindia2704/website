@@ -6,6 +6,7 @@
     <a class="btn btn-secondary btn-sm" href="{{ url_for('admin.hr_management') }}">Back to HR</a>
     <a class="btn btn-secondary btn-sm" href="{{ url_for('hrms.compensation') }}">Payment Agreements</a>
     <a class="btn btn-secondary btn-sm" href="{{ url_for('hrms.teaching_activity') }}">Teaching Activity</a>
+    <a class="btn btn-secondary btn-sm" href="{{ url_for('hrms.payroll_disputes') }}">Payroll Disputes</a>
   </div>
   <h1>Monthly Payroll Workflow</h1>
   <p class="muted">Calendar-month payroll with HR verification, Accounts verification and Founder final approval. No minimum payout threshold.</p>
@@ -27,7 +28,7 @@
         <tr>
           <td>{{ run.employee.display_name }}<small style="display:block;">{{ run.employee.employee_code }}</small></td>
           <td>{{ run.period_start.strftime('%b %Y') }}<small style="display:block;">{{ run.period_start }} – {{ run.period_end }}</small></td>
-          <td>₹{{ run.gross_pay }}</td><td>₹{{ run.allowances }}</td><td>₹{{ run.deductions }}</td><td><strong>₹{{ run.net_pay }}</strong></td><td>₹{{ paid }}</td><td><strong>{{ run.status }}</strong></td>
+          <td>₹{{ run.gross_pay }}{% if earning_lines.get(run.id) %}<details><summary>Breakdown</summary>{% for line in earning_lines.get(run.id) %}<small style="display:block;">{{ line.component }}: {{ line.quantity }} × {{ line.rate }} = ₹{{ line.amount }}</small>{% endfor %}</details>{% endif %}</td><td>₹{{ run.allowances }}</td><td>₹{{ run.deductions }}</td><td><strong>₹{{ run.net_pay }}</strong></td><td>₹{{ paid }}</td><td><strong>{{ run.status }}</strong></td>
           <td style="min-width:310px;">
             {% if run.status in ['Draft','Rejected'] %}
             <form method="post" action="{{ url_for('hrms.payroll_approval', run_id=run.id) }}" style="display:grid;gap:.35rem;margin-bottom:.5rem;">
