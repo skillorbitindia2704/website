@@ -36,6 +36,60 @@
       </div>
     </section>
 
+    <!-- HR & Payroll quick access -->
+    <section class="teacher-hr-home reveal" aria-labelledby="teacher-hr-home-title">
+      <div class="teacher-hr-home-heading">
+        <div>
+          <span class="teacher-hr-eyebrow">Employee self-service</span>
+          <h2 id="teacher-hr-home-title">My HR &amp; Payroll</h2>
+          <p>Manage attendance, leave, teaching activity and salary information.</p>
+        </div>
+      </div>
+      <div class="teacher-hr-home-grid">
+        <a class="teacher-hr-home-card" href="{{ url_for('teacher.teacher_hr_attendance') }}">
+          <span class="teacher-hr-home-icon t-icon-blue"><i class="ri-calendar-check-line"></i></span>
+          <span class="teacher-hr-home-title">Attendance</span>
+          <span class="teacher-hr-home-desc">View daily attendance and check-in records</span>
+          <span class="teacher-hr-home-action">Open attendance <i class="ri-arrow-right-line"></i></span>
+        </a>
+        <a class="teacher-hr-home-card" href="{{ url_for('teacher.teacher_leave_requests') }}">
+          <span class="teacher-hr-home-icon t-icon-violet"><i class="ri-calendar-event-line"></i></span>
+          <span class="teacher-hr-home-title">My Leaves</span>
+          <span class="teacher-hr-home-desc">Apply for leave and track request status</span>
+          <span class="teacher-hr-home-action">Manage leaves <i class="ri-arrow-right-line"></i></span>
+        </a>
+        <a class="teacher-hr-home-card" href="{{ url_for('hrms.teacher_teaching_activity') }}">
+          <span class="teacher-hr-home-icon t-icon-emerald"><i class="ri-book-open-line"></i></span>
+          <span class="teacher-hr-home-title">My Teaching Activity</span>
+          <span class="teacher-hr-home-desc">Review submitted hours, classes and verification status</span>
+          <span class="teacher-hr-home-action">View activity <i class="ri-arrow-right-line"></i></span>
+        </a>
+        <a class="teacher-hr-home-card" href="{{ url_for('hrms.teacher_earnings') }}">
+          <span class="teacher-hr-home-icon t-icon-amber"><i class="ri-wallet-3-line"></i></span>
+          <span class="teacher-hr-home-title">My Earnings</span>
+          <span class="teacher-hr-home-desc">Review your compensation agreement and monthly earnings</span>
+          <span class="teacher-hr-home-action">View earnings <i class="ri-arrow-right-line"></i></span>
+        </a>
+        <a class="teacher-hr-home-card" href="{{ url_for('teacher.teacher_hr_payroll') }}">
+          <span class="teacher-hr-home-icon t-icon-indigo"><i class="ri-file-text-line"></i></span>
+          <span class="teacher-hr-home-title">Salary Slips</span>
+          <span class="teacher-hr-home-desc">View monthly payroll records and payment details</span>
+          <span class="teacher-hr-home-action">View payroll <i class="ri-arrow-right-line"></i></span>
+        </a>
+        <a class="teacher-hr-home-card" href="{{ url_for('hrms.teacher_earnings') }}#payroll-dispute-form">
+          <span class="teacher-hr-home-icon t-icon-rose"><i class="ri-message-3-line"></i></span>
+          <span class="teacher-hr-home-title">Payroll Disputes</span>
+          <span class="teacher-hr-home-desc">Raise and track salary-related discrepancies</span>
+          <span class="teacher-hr-home-action">Raise a dispute <i class="ri-arrow-right-line"></i></span>
+        </a>
+      </div>
+    </section>
+
+    <div class="teacher-workspace-section-title">
+      <span class="teacher-hr-eyebrow">Teaching tools</span>
+      <h2>Teaching Workspace</h2>
+    </div>
+
     <!-- Key Metrics Strip -->
     <div class="teacher-stats-strip reveal">
       <div class="teacher-stat-card">
@@ -197,25 +251,7 @@
         </div>
       </a>
 
-      <!-- 7. My HR -->
-      <a class="t-feature-card t-card-hr reveal" href="{{ url_for('teacher.teacher_hr_dashboard') }}" id="teacher-card-hr">
-        <div class="t-card-top-row">
-          <div class="t-card-icon-big t-icon-cyan">
-            <i class="ri-user-star-line"></i>
-          </div>
-          <span class="t-card-badge" style="background:rgba(6,182,212,0.12);color:#06b6d4;">HR &amp; Payroll</span>
-        </div>
-        <h3 class="t-card-title">
-          <span>My HR</span>
-          <i class="ri-arrow-right-line t-card-arrow"></i>
-        </h3>
-        <p class="t-card-desc">Daily punch attendance clock-in/out, submit leave applications, request attendance corrections, and review monthly payslips.</p>
-        <div class="t-card-footer">
-          <span class="muted"><i class="ri-time-line"></i> Daily clock in/out ready</span>
-          <span class="t-card-action-text">Open portal <i class="ri-arrow-right-s-line"></i></span>
-        </div>
-      </a>
-    </div>
+   </div>
 
     <!-- Recent Courses Section -->
     <div class="t-section-header">
