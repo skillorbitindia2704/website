@@ -363,12 +363,43 @@ def teacher_hr_payroll():
         flash("No employee profile is linked to your account yet. Contact admin.", "warning")
         return redirect(url_for("teacher.dashboard"))
 
+    from models.hrms import (
+        TeacherPaymentAgreement, PayrollEarningLine, PayrollPayment, PayrollDispute
+    )
+
     payroll_runs = (
         PayrollRun.query.filter_by(employee_id=employee.id)
-        .order_by(PayrollRun.created_at.desc())
+        .order_by(PayrollRun.period_start.desc(), PayrollRun.created_at.desc())
         .all()
     )
-    return render_template("teacher/hr_payroll.html", employee=employee, payroll_runs=payroll_runs)
+    agreements = (
+        TeacherPaymentAgreement.query.filter_by(employee_id=employee.id, is_active=True)
+        .order_by(TeacherPaymentAgreement.effective_from.desc())
+        .all()
+    )
+    disputes = (
+        PayrollDispute.query.filter_by(employee_id=employee.id)
+        .order_by(PayrollDispute.created_at.desc())
+        .all()
+    )
+    earning_lines = {
+        run.id: PayrollEarningLine.query.filter_by(payroll_run_id=run.id).all()
+        for run in payroll_runs
+    }
+    payment_rows = {
+        run.id: PayrollPayment.query.filter_by(payroll_run_id=run.id)
+        .order_by(PayrollPayment.paid_at.desc()).all()
+        for run in payroll_runs
+    }
+    paid_totals = {
+        run.id: sum((payment.amount or 0 for payment in payment_rows[run.id]), 0)
+        for run in payroll_runs
+    }
+    return render_template(
+        "teacher/hr_payroll.html", employee=employee, payroll_runs=payroll_runs,
+        agreements=agreements, disputes=disputes, earning_lines=earning_lines,
+        payment_rows=payment_rows, paid_totals=paid_totals,
+    )
 
 
 @teacher_bp.route("/courses/new", methods=["GET", "POST"])
