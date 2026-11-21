@@ -298,6 +298,10 @@ def payroll_adjustment(run_id):
         reason = request.form.get("reason", "").strip()
         if amount <= 0 or not reason:
             raise ValueError("Enter a positive amount and a reason.")
+        if adjustment_type == "Deduction":
+            available = Decimal(run.gross_pay or 0) + Decimal(run.allowances or 0) - Decimal(run.deductions or 0)
+            if amount > available:
+                raise ValueError("Deduction cannot exceed the current net payable amount.")
         db.session.add(PayrollAdjustment(
             employee_id=run.employee_id, payroll_run_id=run.id,
             adjustment_type=adjustment_type, amount=amount, reason=reason,
@@ -406,7 +410,7 @@ def payroll_payment(run_id):
             processed_by=current_user.id,
         ))
         db.session.flush()
-        new_paid = _paid_total(run) + amount
+        new_paid = _paid_total(run)
         run.status = "Paid" if new_paid >= Decimal(run.net_pay or 0) else "Partially Paid"
         db.session.commit()
         flash("Payment transaction recorded. Reconcile the reference against the bank/UPI statement.", "success")
