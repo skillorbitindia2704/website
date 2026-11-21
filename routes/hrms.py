@@ -452,6 +452,27 @@ def resolve_payroll_dispute(dispute_id):
     return redirect(url_for("hrms.payroll_disputes"))
 
 
+@hrms_bp.get("/teacher/hr/teaching-activity")
+@teacher_required
+def teacher_teaching_activity():
+    employee = current_user.employee_profile
+    if not employee:
+        flash("No employee profile is linked to your account yet. Contact admin.", "warning")
+        return redirect(url_for("teacher.dashboard"))
+
+    activities = (
+        TeachingActivity.query.filter_by(employee_id=employee.id)
+        .order_by(TeachingActivity.activity_date.desc(), TeachingActivity.created_at.desc())
+        .limit(300)
+        .all()
+    )
+    return render_template(
+        "teacher/hrms_teaching_activity.html",
+        employee=employee,
+        activities=activities,
+    )
+
+
 @hrms_bp.get("/teacher/hr/earnings")
 @teacher_required
 def teacher_earnings():
