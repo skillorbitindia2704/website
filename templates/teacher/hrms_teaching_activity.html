@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}My Teaching Activity | Skill Orbit India{% endblock %}
+{% block content %}
+<div class="container teacher-activity-page">
+  <div class="teacher-activity-heading">
+    <div>
+      <p class="teacher-hr-eyebrow">Employee self-service</p>
+      <h1>My Teaching Activity</h1>
+      <p class="muted">Review the teaching hours, classes and course activities recorded against your employee profile.</p>
+    </div>
+    <a class="btn btn-ghost btn-sm" href="{{ url_for('teacher.dashboard') }}"><i class="ri-arrow-left-line"></i> Teacher Dashboard</a>
+  </div>
+
+  <section class="card-premium teacher-activity-table-card">
+    <div class="teacher-activity-table-wrap">
+      <table class="table-modern">
+        <thead>
+          <tr><th>Date</th><th>Activity</th><th>Quantity</th><th>Course / Reference</th><th>Status</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          {% for activity in activities %}
+          <tr>
+            <td>{{ activity.activity_date.strftime('%d %b %Y') if activity.activity_date else '—' }}</td>
+            <td>{{ activity.activity_type|title }}</td>
+            <td>{{ activity.quantity }}</td>
+            <td>{{ activity.course_name or activity.reference or '—' }}</td>
+            <td><span class="teacher-activity-status status-{{ activity.status|lower|replace(' ', '-') }}">{{ activity.status }}</span></td>
+            <td>{{ activity.description or '—' }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="muted teacher-activity-empty">No teaching activity has been recorded for your profile yet. Contact your administrator if an activity is missing.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}
