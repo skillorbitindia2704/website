@@ -19,7 +19,7 @@
     <h2 style="font-size:1.1rem;">My Monthly Payroll</h2>
     <table class="table-modern" style="min-width:950px;width:100%;">
       <thead><tr><th>Period</th><th>Gross</th><th>Allowances</th><th>Deductions</th><th>Net Payable</th><th>Status</th><th>Created</th></tr></thead>
-      <tbody>{% for run in payroll_runs %}<tr><td>{{ run.period_start }} – {{ run.period_end }}</td><td>₹{{ run.gross_pay }}</td><td>₹{{ run.allowances }}</td><td>₹{{ run.deductions }}</td><td><strong>₹{{ run.net_pay }}</strong></td><td>{{ run.status }}</td><td>{{ run.created_at.strftime('%d %b %Y') if run.created_at else '—' }}</td></tr>{% else %}<tr><td colspan="7" class="muted">No payroll records yet.</td></tr>{% endfor %}</tbody>
+      <tbody>{% for run in payroll_runs %}<tr><td>{{ run.period_start }} – {{ run.period_end }}</td><td>₹{{ run.gross_pay }}</td><td>₹{{ run.allowances }}</td><td>₹{{ run.deductions }}</td><td><strong>₹{{ run.net_pay }}</strong></td><td>{{ run.status }}{% if earning_lines.get(run.id) %}<details><summary>Breakdown</summary>{% for line in earning_lines.get(run.id) %}<small style="display:block;">{{ line.component }}: {{ line.quantity }} × {{ line.rate }} = ₹{{ line.amount }}</small>{% endfor %}</details>{% endif %}{% if payment_rows.get(run.id) %}{% for p in payment_rows.get(run.id) %}<small style="display:block;">{{ p.method }} · {{ p.transaction_reference }} · ₹{{ p.amount }}</small>{% endfor %}{% endif %}</td><td>{{ run.created_at.strftime('%d %b %Y') if run.created_at else '—' }}</td></tr>{% else %}<tr><td colspan="7" class="muted">No payroll records yet.</td></tr>{% endfor %}</tbody>
     </table>
   </section>
   <section class="card-premium form-modern" style="padding:1rem;margin:1rem 0;">
