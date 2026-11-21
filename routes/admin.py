@@ -709,9 +709,9 @@ def hr_management():
             "count": AttendanceCorrectionRequest.query.count(),
         },
         {
-            "title": "Payroll",
-            "url": url_for("admin.hr_payroll"),
-            "description": "Run payroll cycles, calculate net pay, and manage salary records.",
+            "title": "Monthly Payroll",
+            "url": url_for("hrms.payroll_workflow"),
+            "description": "Generate agreement-based monthly payroll, review earnings, and manage approvals and payments.",
             "icon": "💰",
             "count": payroll_count,
         },
@@ -726,13 +726,6 @@ def hr_management():
             "url": url_for("hrms.teaching_activity"),
             "description": "Record and verify payable teaching hours, classes, and course activity.",
             "icon": "📚",
-        },
-        {
-            "title": "Payroll Approval Workflow",
-            "url": url_for("hrms.payroll_workflow"),
-            "description": "Generate monthly payroll and complete HR, Accounts, and Founder approvals.",
-            "icon": "✅",
-            "count": payroll_count,
         },
         {
             "title": "Payroll Disputes",
@@ -966,52 +959,8 @@ def hr_correction_request_action(request_id: int):
 @admin_bp.route("/dashboard/hr-management/payroll", methods=["GET", "POST"])
 @admin_required
 def hr_payroll():
-    employees = Employee.query.order_by(Employee.name.asc()).all()
-    if request.method == "POST":
-        employee_id = request.form.get("employee_id")
-        period_start = request.form.get("period_start")
-        period_end = request.form.get("period_end")
-        gross_pay = request.form.get("gross_pay", "0").strip()
-        allowances = request.form.get("allowances", "0").strip()
-        deductions = request.form.get("deductions", "0").strip()
-        remarks = request.form.get("remarks", "").strip()
-
-        if not employee_id or not period_start or not period_end:
-            flash("Employee and payroll period are required.", "danger")
-            return redirect(url_for("admin.hr_payroll"))
-
-        try:
-            employee = Employee.query.get(int(employee_id))
-        except (TypeError, ValueError):
-            employee = None
-
-        if not employee:
-            flash("Selected employee was not found.", "danger")
-            return redirect(url_for("admin.hr_payroll"))
-
-        payroll_run = PayrollRun(
-            employee_id=employee.id,
-            period_start=datetime.strptime(period_start, "%Y-%m-%d").date(),
-            period_end=datetime.strptime(period_end, "%Y-%m-%d").date(),
-            gross_pay=Decimal(gross_pay or 0),
-            allowances=Decimal(allowances or 0),
-            deductions=Decimal(deductions or 0),
-            remarks=remarks,
-            status="Draft",
-        )
-        payroll_run.net_pay = payroll_run.calculate_net_pay()
-        db.session.add(payroll_run)
-        db.session.commit()
-        flash("Payroll run created.", "success")
-        return redirect(url_for("admin.hr_payroll"))
-
-    payroll_runs = (
-        PayrollRun.query.options(selectinload(PayrollRun.employee))
-        .order_by(PayrollRun.created_at.desc())
-        .all()
-    )
-    return render_template("admin/hr_payroll.html", employees=employees, payroll_runs=payroll_runs, today=date.today().isoformat())
-
+    """Keep the legacy URL working, but send all payroll work through HRMS."""
+    return redirect(url_for("hrms.payroll_workflow"))
 
 @admin_bp.get("/dashboard/user-management")
 @admin_required
