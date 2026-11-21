@@ -276,9 +276,10 @@ def payroll_workflow():
     runs = PayrollRun.query.order_by(PayrollRun.period_start.desc(), PayrollRun.created_at.desc()).limit(300).all()
     approvals = {run.id: _approval_map(run) for run in runs}
     payments = {run.id: _paid_total(run) for run in runs}
+    earning_lines = {run.id: PayrollEarningLine.query.filter_by(payroll_run_id=run.id).all() for run in runs}
     return render_template(
         "admin/hrms_payroll_workflow.html", payroll_runs=runs, approvals=approvals,
-        paid_totals=payments, today=date.today(), automated_payout_ready=False,
+        paid_totals=payments, earning_lines=earning_lines, today=date.today(), automated_payout_ready=False,
     )
 
 
@@ -418,6 +419,35 @@ def payroll_payment(run_id):
     return redirect(url_for("hrms.payroll_workflow"))
 
 
+@hrms_bp.get("/admin/dashboard/hr-management/payroll-disputes")
+@admin_required
+def payroll_disputes():
+    disputes = PayrollDispute.query.order_by(PayrollDispute.created_at.desc()).all()
+    return render_template("admin/hrms_disputes.html", disputes=disputes)
+
+
+@hrms_bp.post("/admin/dashboard/hr-management/payroll-disputes/<int:dispute_id>/resolve")
+@admin_required
+def resolve_payroll_dispute(dispute_id):
+    dispute = db.session.get(PayrollDispute, dispute_id)
+    if not dispute:
+        flash("Payroll discrepancy not found.", "danger")
+        return redirect(url_for("hrms.payroll_disputes"))
+    resolution = request.form.get("resolution", "").strip()
+    action = request.form.get("action", "resolve")
+    if not resolution:
+        flash("Resolution remarks are required.", "danger")
+    elif action not in {"resolve", "reject"}:
+        flash("Invalid dispute action.", "danger")
+    else:
+        dispute.resolution = resolution
+        dispute.status = "Resolved" if action == "resolve" else "Rejected"
+        dispute.resolved_at = datetime.utcnow()
+        db.session.commit()
+        flash("Payroll discrepancy updated.", "success")
+    return redirect(url_for("hrms.payroll_disputes"))
+
+
 @hrms_bp.get("/teacher/hr/earnings")
 @teacher_required
 def teacher_earnings():
@@ -428,7 +458,9 @@ def teacher_earnings():
     agreements = TeacherPaymentAgreement.query.filter_by(employee_id=employee.id, is_active=True).order_by(TeacherPaymentAgreement.effective_from.desc()).all()
     runs = PayrollRun.query.filter_by(employee_id=employee.id).order_by(PayrollRun.period_start.desc()).all()
     disputes = PayrollDispute.query.filter_by(employee_id=employee.id).order_by(PayrollDispute.created_at.desc()).all()
-    return render_template("teacher/hrms_earnings.html", employee=employee, agreements=agreements, payroll_runs=runs, disputes=disputes)
+    earning_lines = {run.id: PayrollEarningLine.query.filter_by(payroll_run_id=run.id).all() for run in runs}
+    payment_rows = {run.id: PayrollPayment.query.filter_by(payroll_run_id=run.id).order_by(PayrollPayment.paid_at.desc()).all() for run in runs}
+    return render_template("teacher/hrms_earnings.html", employee=employee, agreements=agreements, payroll_runs=runs, disputes=disputes, earning_lines=earning_lines, payment_rows=payment_rows)
 
 
 @hrms_bp.post("/teacher/hr/payroll/<int:run_id>/dispute")
