@@ -5,7 +5,7 @@ from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from models import db
@@ -13,7 +13,7 @@ from models.hr import Employee
 from models.payroll import PayrollRun, PayrollAdjustment
 from models.hrms import (
     TeacherPaymentAgreement, TeachingActivity, PayrollPeriodLock,
-    PayrollApproval, PayrollPayment, PayrollDispute,
+    PayrollApproval, PayrollPayment, PayrollDispute, PayrollEarningLine,
 )
 from utils.role_auth import admin_required, teacher_required
 
@@ -43,7 +43,7 @@ def _agreement_for_period(employee_id, start, end):
         TeacherPaymentAgreement.employee_id == employee_id,
         TeacherPaymentAgreement.is_active.is_(True),
         TeacherPaymentAgreement.effective_from <= end,
-        db.or_(
+        or_(
             TeacherPaymentAgreement.effective_to.is_(None),
             TeacherPaymentAgreement.effective_to >= start,
         ),
@@ -252,6 +252,12 @@ def payroll_workflow():
                 db.session.add(run)
                 db.session.flush()
                 db.session.add(PayrollPeriodLock(employee_id=employee.id, payroll_run_id=run.id, period_start=start, period_end=end))
+                for component, quantity, rate, amount in lines:
+                    db.session.add(PayrollEarningLine(
+                        payroll_run_id=run.id, component=component,
+                        quantity=quantity, rate=rate, amount=amount,
+                        description="Generated from approved agreement and verified activity.",
+                    ))
                 created += 1
 
             db.session.commit()
@@ -333,12 +339,17 @@ def payroll_approval(run_id):
     if stage == "Founder" and not getattr(current_user, "is_super_admin", False):
         flash("Only the Founder/Super Admin can provide final payroll approval.", "danger")
         return redirect(url_for("hrms.payroll_workflow"))
+    if stage == "Founder":
+        prior_approvers = {row.approver_id for row in latest.values() if row.status == "Approved"}
+        if current_user.id in prior_approvers:
+            flash("Founder final approval must be performed by a separate authorized approver.", "danger")
+            return redirect(url_for("hrms.payroll_workflow"))
     if stage == "Accounts":
         hr_approval = latest.get("HR")
         if hr_approval and hr_approval.approver_id == current_user.id:
             flash("Accounts verification must be completed by a different authorized user than HR verification.", "danger")
             return redirect(url_for("hrms.payroll_workflow"))
-    if stage == "HR" and run.status != "Draft":
+    if stage == "HR" and run.status not in {"Draft", "Rejected"}:
         flash("HR verification is available only for draft payroll.", "warning")
         return redirect(url_for("hrms.payroll_workflow"))
     if stage == "Accounts" and run.status != "Pending Accounts Review":
