@@ -102,6 +102,7 @@ from routes.store import store_bp
 from routes.store_api import store_api_bp
 from routes.student_routes import student_bp
 from routes.teacher_routes import teacher_bp
+from routes.hrms import hrms_bp
 from utils.db_migrate import migrate_sqlite_schema
 
 # Help static analyzers: these functions are registered by Flask at runtime.
@@ -497,6 +498,7 @@ def create_app():
     app.register_blueprint(ai_lab_bp, url_prefix="/ai-lab")
     app.register_blueprint(dashboard_bp, url_prefix="/dashboard")
     app.register_blueprint(teacher_bp)
+    app.register_blueprint(hrms_bp)
     app.register_blueprint(student_bp)
     app.register_blueprint(admin_bp, url_prefix="/admin")
     app.register_blueprint(api_bp)
