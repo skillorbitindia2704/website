@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}My Earnings | Skill Orbit India{% endblock %}
+{% block content %}
+<div class="container" style="padding:1.5rem 0 3rem;">
+  <div class="form-actions" style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem;">
+    <a class="btn btn-secondary btn-sm" href="{{ url_for('teacher.teacher_hr_dashboard') }}">Back to My HR</a>
+    <a class="btn btn-secondary btn-sm" href="{{ url_for('teacher.teacher_hr_payroll') }}">Payroll History</a>
+  </div>
+  <h1>My Earnings & Payment Agreements</h1>
+  <p class="muted">Your approved payment rates, monthly payroll records and discrepancy requests.</p>
+  <section class="card-premium" style="padding:1rem;margin:1rem 0;">
+    <h2 style="font-size:1.1rem;">My Active Payment Agreements</h2>
+    <div style="overflow-x:auto;"><table class="table-modern" style="min-width:850px;width:100%;">
+      <thead><tr><th>Engagement</th><th>Model</th><th>Monthly</th><th>Hourly</th><th>Per Class</th><th>Course Incentive</th><th>Revenue Share</th><th>Effective</th></tr></thead>
+      <tbody>{% for a in agreements %}<tr><td>{{ a.engagement_type }}</td><td>{{ a.payment_model }}</td><td>₹{{ a.monthly_retainer }}</td><td>₹{{ a.hourly_rate }}</td><td>₹{{ a.per_class_rate }}</td><td>₹{{ a.course_incentive_rate }}</td><td>{{ a.revenue_share_percent }}%</td><td>{{ a.effective_from }} – {{ a.effective_to or 'Open' }}</td></tr>{% else %}<tr><td colspan="8" class="muted">No active payment agreement has been published to your profile.</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </section>
+  <section class="card-premium" style="padding:1rem;margin:1rem 0;overflow-x:auto;">
+    <h2 style="font-size:1.1rem;">My Monthly Payroll</h2>
+    <table class="table-modern" style="min-width:950px;width:100%;">
+      <thead><tr><th>Period</th><th>Gross</th><th>Allowances</th><th>Deductions</th><th>Net Payable</th><th>Status</th><th>Created</th></tr></thead>
+      <tbody>{% for run in payroll_runs %}<tr><td>{{ run.period_start }} – {{ run.period_end }}</td><td>₹{{ run.gross_pay }}</td><td>₹{{ run.allowances }}</td><td>₹{{ run.deductions }}</td><td><strong>₹{{ run.net_pay }}</strong></td><td>{{ run.status }}</td><td>{{ run.created_at.strftime('%d %b %Y') if run.created_at else '—' }}</td></tr>{% else %}<tr><td colspan="7" class="muted">No payroll records yet.</td></tr>{% endfor %}</tbody>
+    </table>
+  </section>
+  <section class="card-premium form-modern" style="padding:1rem;margin:1rem 0;">
+    <h2 style="font-size:1.1rem;">Raise Payroll Discrepancy</h2>
+    <form method="post" id="payroll-dispute-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="form-field"><span>Payroll Record</span><select name="payroll_run_id" required><option value="">Select payroll month</option>{% for run in payroll_runs %}<option value="{{ run.id }}">{{ run.period_start.strftime('%b %Y') }} — ₹{{ run.net_pay }}</option>{% endfor %}</select></label>
+      <label class="form-field"><span>Issue Category</span><select name="category" required><option value="">Select issue</option><option>Attendance Mismatch</option><option>Missing Teaching Hours</option><option>Missing Class Payment</option><option>Incorrect Rate</option><option>Incorrect Deduction</option><option>Payment Not Received</option><option>Other</option></select></label>
+      <label class="form-field"><span>Description</span><textarea name="description" rows="3" required placeholder="Explain the discrepancy and relevant dates or session references"></textarea></label>
+      <button class="btn btn-primary" type="submit">Submit Discrepancy</button>
+    </form>
+  </section>
+  <section class="card-premium" style="padding:1rem;">
+    <h2 style="font-size:1.1rem;">My Discrepancy Requests</h2>
+    <table class="table-modern" style="width:100%;"><thead><tr><th>Submitted</th><th>Category</th><th>Description</th><th>Status</th><th>Resolution</th></tr></thead><tbody>{% for d in disputes %}<tr><td>{{ d.created_at.strftime('%d %b %Y') }}</td><td>{{ d.category }}</td><td>{{ d.description }}</td><td>{{ d.status }}</td><td>{{ d.resolution or '—' }}</td></tr>{% else %}<tr><td colspan="5" class="muted">No discrepancy requests.</td></tr>{% endfor %}</tbody></table>
+  </section>
+</div>
+{% endblock %}
