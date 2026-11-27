@@ -117,6 +117,8 @@ if load_dotenv is not None:
 
 def _ensure_admin_account():
     """Create the initial admin only when explicitly configured; never reset an existing password."""
+    import logging
+    logger = logging.getLogger(__name__)
     try:
         admin_email = os.getenv("ADMIN_EMAIL", "skillorbitindia2704@gmail.com").strip().lower()
         admin_password = os.getenv("ADMIN_PASSWORD", "").strip()
@@ -134,14 +136,14 @@ def _ensure_admin_account():
             return
 
         if not admin_password:
-            app.logger.error(
+            logger.error(
                 "ADMIN_PASSWORD is not configured; initial admin account was not created. "
                 "Set ADMIN_PASSWORD securely in the deployment environment."
             )
             return
 
         if len(admin_password) < 12:
-            app.logger.error(
+            logger.error(
                 "ADMIN_PASSWORD must be at least 12 characters; initial admin account was not created."
             )
             return
@@ -160,7 +162,7 @@ def _ensure_admin_account():
         db.session.commit()
     except Exception:
         db.session.rollback()
-        app.logger.exception("Admin account bootstrap failed.")
+        logger.exception("Admin account bootstrap failed.")
 
 def _ensure_ai_lab_packages():
     """Seed default AI Lab packages on first run if none exist."""
