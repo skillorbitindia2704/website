@@ -116,39 +116,36 @@ if load_dotenv is not None:
 
 
 def _ensure_admin_account():
-    """Create or sync default admin account from environment settings."""
+    """Create the initial admin only when explicitly configured; never reset an existing password."""
+    import logging
+    logger = logging.getLogger(__name__)
     try:
         admin_email = os.getenv("ADMIN_EMAIL", "skillorbitindia2704@gmail.com").strip().lower()
-        admin_password = os.getenv("ADMIN_PASSWORD", "Admin@12345")
-        if not admin_password:
-            return
+        admin_password = os.getenv("ADMIN_PASSWORD", "").strip()
 
         existing = User.query.filter_by(email=admin_email).first()
         if existing:
-            # Sync password from .env if it has changed
-            pw_matches = False
-            try:
-                if existing.password_hash:
-                    pw_matches = bcrypt.check_password_hash(existing.password_hash, admin_password)
-            except Exception:
-                pw_matches = False
-
-            needs_commit = False
-            if not pw_matches:
-                existing.password_hash = bcrypt.generate_password_hash(admin_password).decode("utf-8")
-                existing.failed_login_attempts = 0
-                existing.locked_until = None
-                needs_commit = True
-
+            # Preserve the existing credential. ADMIN_PASSWORD is a bootstrap
+            # value for first-time creation only, not a recurring password sync.
             if not existing.is_admin or existing.role != "admin" or not existing.is_approved:
                 existing.role = "admin"
                 existing.is_admin = True
                 existing.is_approved = True
                 existing.sync_admin_flags()
-                needs_commit = True
-
-            if needs_commit:
                 db.session.commit()
+            return
+
+        if not admin_password:
+            logger.error(
+                "ADMIN_PASSWORD is not configured; initial admin account was not created. "
+                "Set ADMIN_PASSWORD securely in the deployment environment."
+            )
+            return
+
+        if len(admin_password) < 12:
+            logger.error(
+                "ADMIN_PASSWORD must be at least 12 characters; initial admin account was not created."
+            )
             return
 
         password_hash = bcrypt.generate_password_hash(admin_password).decode("utf-8")
@@ -165,7 +162,7 @@ def _ensure_admin_account():
         db.session.commit()
     except Exception:
         db.session.rollback()
-
+        logger.exception("Admin account bootstrap failed.")
 
 def _ensure_ai_lab_packages():
     """Seed default AI Lab packages on first run if none exist."""
@@ -254,7 +251,15 @@ def create_app():
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.INFO)
 
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key-change")
+    flask_env = os.getenv("FLASK_ENV", "production").strip().lower()
+    configured_secret_key = os.getenv("SECRET_KEY", "").strip()
+    if flask_env != "development" and (
+        not configured_secret_key or configured_secret_key == "dev-secret-key-change"
+    ):
+        raise RuntimeError(
+            "A strong SECRET_KEY must be configured in the production environment."
+        )
+    app.config["SECRET_KEY"] = configured_secret_key or "dev-secret-key-change"
     app.config["TEMPLATES_AUTO_RELOAD"] = True
     app.jinja_env.auto_reload = True
 
@@ -323,10 +328,6 @@ def create_app():
     from datetime import timedelta
     app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
 
-    # Production Environment Safety Warning
-    flask_env = os.getenv("FLASK_ENV", "production")
-    if app.config["SECRET_KEY"] == "dev-secret-key-change" and flask_env != "development":
-        app.logger.error("CRITICAL SECURITY WARNING: SECRET_KEY is set to the default 'dev-secret-key-change' in a production environment! Set a custom SECRET_KEY environment variable immediately.")
 
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
