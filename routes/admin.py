@@ -795,6 +795,7 @@ def hr_employees():
 @admin_bp.get("/dashboard/hr-management/attendance")
 @admin_required
 def hr_attendance():
+    from utils.timezone_helpers import today_ist
     employees = Employee.query.order_by(Employee.name.asc()).all()
     attendance = (
         AttendanceRecord.query.options(selectinload(AttendanceRecord.employee))
@@ -805,7 +806,7 @@ def hr_attendance():
         "admin/hr_attendance.html",
         employees=employees,
         attendance=attendance,
-        today=date.today().isoformat(),
+        today=today_ist().isoformat(),
     )
 
 

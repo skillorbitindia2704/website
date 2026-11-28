@@ -113,8 +113,8 @@
                 <span class="t-badge-draft"><i class="ri-time-line"></i> Pending</span>
                 {% endif %}
               </td>
-              <td>{{ req.requested_check_in.strftime('%I:%M %p') if req.requested_check_in else '—' }}</td>
-              <td>{{ req.requested_check_out.strftime('%I:%M %p') if req.requested_check_out else '—' }}</td>
+              <td>{{ req.requested_check_in|format_ist('%I:%M %p') }}</td>
+              <td>{{ req.requested_check_out|format_ist('%I:%M %p') }}</td>
               <td>{{ req.reason or '—' }}</td>
               <td class="muted">{{ req.submitted_at.strftime('%d %b %Y') if req.submitted_at else '—' }}</td>
             </tr>

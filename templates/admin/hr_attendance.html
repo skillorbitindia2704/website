@@ -49,10 +49,10 @@
         <td>{{ record.attendance_date.strftime('%Y-%m-%d') }}</td>
         <td>{{ record.employee.display_name }}</td>
         <td>{{ record.status }}</td>
-        <td>{{ record.check_in.strftime('%Y-%m-%d %H:%M') if record.check_in else '—' }}</td>
-        <td>{{ record.check_out.strftime('%Y-%m-%d %H:%M') if record.check_out else '—' }}</td>
+        <td>{{ record.check_in|format_ist_datetime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ record.effective_check_out|format_ist_datetime('%Y-%m-%d %H:%M') }}</td>
         <td>{{ record.notes or '—' }}</td>
-        <td>{{ record.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>{{ record.created_at|format_ist_datetime('%Y-%m-%d %H:%M') }}</td>
       </tr>
       {% else %}
       <tr><td colspan="7" class="muted">No attendance records yet.</td></tr>

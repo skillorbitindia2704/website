@@ -80,6 +80,15 @@ class AttendanceRecord(db.Model):
 
     employee = db.relationship("Employee", back_populates="attendance_records", lazy=True)
 
+    @property
+    def effective_check_out(self):
+        """Return check_out only if it represents a genuine checkout (different from check_in)."""
+        if not self.check_out:
+            return None
+        if self.check_in and abs((self.check_out - self.check_in).total_seconds()) < 60:
+            return None
+        return self.check_out
+
 
 class LeaveRequest(db.Model):
     __tablename__ = "leave_request"

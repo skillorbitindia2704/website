@@ -95,9 +95,11 @@ def dashboard():
 
 
 def _working_hours_text(record):
-    if not record or record.check_in is None or record.check_out is None:
+    if not record or record.check_in is None or record.effective_check_out is None:
         return "—"
-    diff = record.check_out - record.check_in
+    diff = record.effective_check_out - record.check_in
+    if diff.total_seconds() <= 0:
+        return "—"
     total_minutes = int(diff.total_seconds() // 60)
     hours, minutes = divmod(total_minutes, 60)
     return f"{hours}h {minutes}m"
@@ -114,8 +116,12 @@ def teacher_hr_dashboard():
     attendance_count = AttendanceRecord.query.filter_by(employee_id=employee.id).count()
     payroll_count = PayrollRun.query.filter_by(employee_id=employee.id).count()
     leave_count = LeaveRequest.query.filter_by(employee_id=employee.id).count()
-    today = date.today()
+    from utils.timezone_helpers import today_ist
+    today = today_ist()
     today_record = AttendanceRecord.query.filter_by(employee_id=employee.id, attendance_date=today).first()
+    if today_record and today_record.check_in and today_record.check_out and abs((today_record.check_out - today_record.check_in).total_seconds()) < 60:
+        today_record.check_out = None
+        db.session.commit()
     today_working_hours = _working_hours_text(today_record)
     recent_attendance = (
         AttendanceRecord.query.filter_by(employee_id=employee.id)
@@ -156,8 +162,12 @@ def teacher_hr_attendance():
         .order_by(AttendanceRecord.attendance_date.desc(), AttendanceRecord.created_at.desc())
         .all()
     )
-    today = date.today()
+    from utils.timezone_helpers import today_ist
+    today = today_ist()
     today_record = AttendanceRecord.query.filter_by(employee_id=employee.id, attendance_date=today).first()
+    if today_record and today_record.check_in and today_record.check_out and abs((today_record.check_out - today_record.check_in).total_seconds()) < 60:
+        today_record.check_out = None
+        db.session.commit()
     return render_template(
         "teacher/hr_attendance.html",
         employee=employee,
@@ -175,7 +185,8 @@ def teacher_attendance_check_in():
         flash("No employee profile is linked to your account yet. Contact admin.", "warning")
         return redirect(url_for("teacher.dashboard"))
 
-    today = date.today()
+    from utils.timezone_helpers import today_ist
+    today = today_ist()
     record = AttendanceRecord.query.filter_by(employee_id=employee.id, attendance_date=today).first()
     if record and record.check_in is not None:
         flash("You have already checked in for today.", "warning")
@@ -187,6 +198,7 @@ def teacher_attendance_check_in():
         db.session.add(record)
 
     record.check_in = now
+    record.check_out = None
     record.status = "Present"
     record.notes = "Checked in by employee"
     db.session.commit()
@@ -202,19 +214,22 @@ def teacher_attendance_check_out():
         flash("No employee profile is linked to your account yet. Contact admin.", "warning")
         return redirect(url_for("teacher.dashboard"))
 
-    today = date.today()
+    from utils.timezone_helpers import today_ist
+    today = today_ist()
     record = AttendanceRecord.query.filter_by(employee_id=employee.id, attendance_date=today).first()
     if not record or record.check_in is None:
         flash("You must check in before checking out.", "warning")
         return redirect(url_for("teacher.teacher_hr_attendance"))
-    if record.check_out is not None:
+    if record.effective_check_out is not None:
         flash("You have already checked out for today.", "warning")
         return redirect(url_for("teacher.teacher_hr_attendance"))
 
     now = datetime.utcnow()
+    if record.check_in and (now - record.check_in).total_seconds() < 120:
+        flash("Check-in was just recorded. Please wait at least 2 minutes before checking out.", "warning")
+        return redirect(url_for("teacher.teacher_hr_attendance"))
+
     record.check_out = now
-    if record.check_in and record.check_out < record.check_in:
-        record.check_out = record.check_in
     record.status = "Present"
     db.session.commit()
     flash("Check-out recorded successfully.", "success")

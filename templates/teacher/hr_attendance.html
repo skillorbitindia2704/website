@@ -58,14 +58,14 @@
             <i class="ri-login-box-line"></i> PUNCH CHECK IN
           </button>
         </form>
-        {% elif today_record and today_record.check_in and not today_record.check_out %}
-        <form method="post" action="{{ url_for('teacher.teacher_attendance_check_out') }}">
+        {% elif today_record and today_record.check_in and not today_record.effective_check_out %}
+        <form method="post" action="{{ url_for('teacher.teacher_attendance_check_out') }}" onsubmit="return confirm('Confirm Check Out: Are you sure you want to punch check out for today?');">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button type="submit" class="btn btn-primary btn-lg" style="box-shadow:0 4px 14px rgba(79,70,229,0.35);">
             <i class="ri-logout-box-line"></i> PUNCH CHECK OUT
           </button>
         </form>
-        {% elif today_record and today_record.check_in and today_record.check_out %}
+        {% elif today_record and today_record.check_in and today_record.effective_check_out %}
         <div style="padding:0.6rem 1.1rem;background:rgba(34,197,94,0.12);color:#15803d;border-radius:999px;font-weight:700;font-size:0.88rem;">
           <i class="ri-checkbox-circle-fill"></i> Checked out for today
         </div>
@@ -97,8 +97,8 @@
                 <span class="t-badge-draft">{{ record.status }}</span>
                 {% endif %}
               </td>
-              <td>{{ record.check_in.strftime('%I:%M %p') if record.check_in else '—' }}</td>
-              <td>{{ record.check_out.strftime('%I:%M %p') if record.check_out else '—' }}</td>
+              <td>{{ record.check_in|format_ist('%I:%M %p') }}</td>
+              <td>{{ record.effective_check_out|format_ist('%I:%M %p') }}</td>
               <td class="muted">{{ record.notes or '—' }}</td>
             </tr>
             {% else %}

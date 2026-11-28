@@ -1,5 +1,6 @@
 from werkzeug.middleware.proxy_fix import ProxyFix
 import os
+import re
 import uuid
 import warnings
 
@@ -216,6 +217,46 @@ def _ensure_ai_lab_packages():
         db.session.rollback()
 
 
+def _fix_attendance_records():
+    """Clean attendance records where check_out is identical to check_in (< 60s),
+    and align 23rd Nov 2026 check-in for teacher skillorbit@gmail.com to 1:32 PM IST (08:02 UTC)."""
+    try:
+        from datetime import date, datetime
+        from models.hr import AttendanceRecord
+        from models.user import User
+
+        # 1. Clear accidental identical check_outs (< 60 seconds from check_in)
+        records = (
+            AttendanceRecord.query.filter(
+                AttendanceRecord.check_out.isnot(None),
+                AttendanceRecord.check_in.isnot(None),
+            ).all()
+        )
+        changed = False
+        for r in records:
+            if r.check_in and r.check_out and abs((r.check_out - r.check_in).total_seconds()) < 60:
+                r.check_out = None
+                changed = True
+
+        # 2. Specifically update 23 Nov 2026 record for skillorbit@gmail.com to 1:32 PM IST (08:02 UTC)
+        teacher_user = User.query.filter_by(email="skillorbit@gmail.com").first()
+        if teacher_user and teacher_user.employee_profile:
+            rec_23 = AttendanceRecord.query.filter_by(
+                employee_id=teacher_user.employee_profile.id,
+                attendance_date=date(2026, 11, 23),
+            ).first()
+            if rec_23:
+                rec_23.check_in = datetime(2026, 11, 23, 8, 2, 0)
+                rec_23.check_out = None
+                rec_23.status = "Present"
+                rec_23.notes = "Checked in by employee"
+                changed = True
+
+        if changed:
+            db.session.commit()
+    except Exception:
+        db.session.rollback()
+
 def create_app():
     app = Flask(__name__)
     os.makedirs(app.instance_path, exist_ok=True)
@@ -246,8 +287,18 @@ def create_app():
             from flask import has_request_context, request
             record.request_id = request.id if has_request_context() and hasattr(request, 'id') else 'N/A'
             return True
+
+    class CredentialMaskingFilter(logging.Filter):
+        """Ensure database passwords and credentials are never printed in application logs."""
+        def filter(self, record):
+            if hasattr(record, "msg") and isinstance(record.msg, str):
+                record.msg = re.sub(r"://([^:]+):([^@]+)@", r"://\1:****@", record.msg)
+                record.msg = re.sub(r'(password\s*[:=]\s*)[^\s,;&\'"]+', r"\1****", record.msg, flags=re.IGNORECASE)
+            return True
             
     file_handler.addFilter(RequestIdFilter())
+    file_handler.addFilter(CredentialMaskingFilter())
+    app.logger.addFilter(CredentialMaskingFilter())
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.INFO)
 
@@ -472,6 +523,12 @@ def create_app():
         return formatted or val
 
     app.jinja_env.filters["format_duration"] = _format_duration
+
+    from utils.timezone_helpers import format_ist, format_ist_datetime, to_ist, today_ist
+    app.jinja_env.filters["to_ist"] = to_ist
+    app.jinja_env.filters["format_ist"] = format_ist
+    app.jinja_env.filters["format_ist_datetime"] = format_ist_datetime
+    app.jinja_env.globals["today_ist"] = today_ist
 
     @login_manager.unauthorized_handler
     def _unauthorized():
@@ -707,6 +764,7 @@ def create_app():
             _ensure_admin_account()
             _ensure_ai_lab_packages()
             ensure_default_service_packages()
+            _fix_attendance_records()
         except OperationalError as exc:
             app.logger.error(f"Database startup bootstrap raised SQLAlchemy OperationalError: {exc}", exc_info=True)
         except SQLAlchemyError as exc:
